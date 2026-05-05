@@ -1,5 +1,6 @@
 let cachedVoice: SpeechSynthesisVoice | null = null;
 let voicesReady: Promise<void> | null = null;
+let unlocked = false;
 
 function pickVoice(): SpeechSynthesisVoice | null {
   const voices = window.speechSynthesis.getVoices();
@@ -59,4 +60,27 @@ export async function speak(text: string, opts?: { rate?: number }): Promise<voi
 
 export function ttsAvailable(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
+}
+
+/** Call inside a user gesture (e.g., a click handler) to unlock iOS Safari TTS. */
+export function unlockTts(): void {
+  if (unlocked) return;
+  if (!ttsAvailable()) return;
+  try {
+    // Force voice list to populate.
+    window.speechSynthesis.getVoices();
+    // Speak a near-silent utterance to satisfy iOS gesture requirement.
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    u.rate = 1;
+    window.speechSynthesis.speak(u);
+    unlocked = true;
+    void ensureVoices();
+  } catch {
+    /* ignore */
+  }
+}
+
+export function isTtsUnlocked(): boolean {
+  return unlocked;
 }

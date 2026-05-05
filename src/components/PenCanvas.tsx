@@ -18,7 +18,7 @@ type Props = {
 };
 
 export const PenCanvas = forwardRef<PenCanvasHandle, Props>(function PenCanvas(
-  { width, height, className, strokeColor = '#1d4ed8', strokeWidth = 6, onChange, penOnly = false },
+  { width, height, className, strokeColor = '#1d4ed8', strokeWidth = 14, onChange, penOnly = false },
   ref
 ) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);

@@ -3,7 +3,7 @@ export type ScoreResult = {
   pass: boolean;
 };
 
-export const PASS_RATIO = 0.6;
+export const PASS_RATIO = 0.45;
 
 export function renderTemplate(
   text: string,
@@ -37,9 +37,11 @@ export function renderTemplate(
   }
   ctx.font = `700 ${fontSize}px ${family}`;
 
-  // Draw thick stroke, simulate template fill area
-  ctx.lineWidth = Math.max(8, fontSize * 0.18);
+  // Draw template: fill + slight stroke to widen letter so kid pen strokes
+  // can comfortably cover it.
+  ctx.lineWidth = Math.max(4, fontSize * 0.1);
   ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
   ctx.strokeStyle = '#000000';
   ctx.strokeText(text, width / 2, height / 2);
   ctx.fillText(text, width / 2, height / 2);
@@ -78,9 +80,7 @@ export function strokeMask(canvas: HTMLCanvasElement): Uint8Array {
 }
 
 export function coverageRatio(template: Uint8Array, stroke: Uint8Array): number {
-  if (template.length !== stroke.length) {
-    throw new Error('mask size mismatch');
-  }
+  if (template.length !== stroke.length) throw new Error('mask size mismatch');
   let templateCount = 0;
   let covered = 0;
   for (let i = 0; i < template.length; i++) {
@@ -93,6 +93,23 @@ export function coverageRatio(template: Uint8Array, stroke: Uint8Array): number 
   return covered / templateCount;
 }
 
+/** how much of the user's stroke lies inside the template region */
+export function containmentRatio(template: Uint8Array, stroke: Uint8Array): number {
+  if (template.length !== stroke.length) throw new Error('mask size mismatch');
+  let strokeCount = 0;
+  let inside = 0;
+  for (let i = 0; i < stroke.length; i++) {
+    if (stroke[i]) {
+      strokeCount++;
+      if (template[i]) inside++;
+    }
+  }
+  if (strokeCount === 0) return 0;
+  return inside / strokeCount;
+}
+
+const MIN_STROKE_PIXELS = 80; // require some actual ink
+
 export function scoreLetterSlot(
   slotCanvas: HTMLCanvasElement,
   letter: string
@@ -100,6 +117,17 @@ export function scoreLetterSlot(
   const tmplImg = renderTemplate(letter, slotCanvas.width, slotCanvas.height);
   const tmpl = templateMask(tmplImg);
   const stroke = strokeMask(slotCanvas);
-  const ratio = coverageRatio(tmpl, stroke);
+
+  let strokeCount = 0;
+  for (let i = 0; i < stroke.length; i++) if (stroke[i]) strokeCount++;
+  if (strokeCount < MIN_STROKE_PIXELS) {
+    return { ratio: 0, pass: false };
+  }
+
+  const cov = coverageRatio(tmpl, stroke);
+  const con = containmentRatio(tmpl, stroke);
+  // Pass if user covered enough of the letter OR most of their writing
+  // landed inside the letter shape (forgiving for thin strokes).
+  const ratio = Math.max(cov, con * 0.9);
   return { ratio, pass: ratio >= PASS_RATIO };
 }

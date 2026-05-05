@@ -134,13 +134,51 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
     Object.values(slotGroups).forEach((g) => char.add(g));
     slotGroupsRef.current = slotGroups;
 
+    // Drag-to-rotate
+    let userRotation: number | null = null;
+    let dragStart: { x: number; y: number; rotY: number; rotX: number; pointerId: number } | null = null;
+    let userRotX = 0;
+
+    const onPointerDown = (e: PointerEvent) => {
+      e.preventDefault();
+      renderer.domElement.setPointerCapture(e.pointerId);
+      dragStart = {
+        x: e.clientX,
+        y: e.clientY,
+        rotY: userRotation ?? char.rotation.y,
+        rotX: userRotX,
+        pointerId: e.pointerId,
+      };
+    };
+    const onPointerMove = (e: PointerEvent) => {
+      if (!dragStart || dragStart.pointerId !== e.pointerId) return;
+      const dx = e.clientX - dragStart.x;
+      const dy = e.clientY - dragStart.y;
+      userRotation = dragStart.rotY + dx * 0.012;
+      userRotX = Math.max(-0.6, Math.min(0.6, dragStart.rotX + dy * 0.008));
+      char.rotation.y = userRotation;
+      char.rotation.x = userRotX;
+    };
+    const onPointerUp = (e: PointerEvent) => {
+      if (dragStart && dragStart.pointerId === e.pointerId) dragStart = null;
+    };
+    renderer.domElement.style.touchAction = 'none';
+    renderer.domElement.style.cursor = 'grab';
+    renderer.domElement.addEventListener('pointerdown', onPointerDown);
+    renderer.domElement.addEventListener('pointermove', onPointerMove);
+    renderer.domElement.addEventListener('pointerup', onPointerUp);
+    renderer.domElement.addEventListener('pointercancel', onPointerUp);
+
     // Animation
     let raf = 0;
     const start = performance.now();
     let jumpStart = 0;
     const animate = () => {
       const t = (performance.now() - start) / 1000;
-      char.rotation.y = Math.sin(t * 0.6) * 0.25;
+      // Auto-sway only until user takes control
+      if (userRotation === null) {
+        char.rotation.y = Math.sin(t * 0.6) * 0.25;
+      }
 
       if (jumpRef.current && jumpStart === 0) {
         jumpStart = performance.now();
@@ -152,7 +190,6 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
           jumpRef.current = false;
           char.position.y = 0;
         } else {
-          // parabola
           char.position.y = Math.sin((dt / 0.6) * Math.PI) * 0.5;
         }
       }
@@ -175,6 +212,10 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      renderer.domElement.removeEventListener('pointerdown', onPointerDown);
+      renderer.domElement.removeEventListener('pointermove', onPointerMove);
+      renderer.domElement.removeEventListener('pointerup', onPointerUp);
+      renderer.domElement.removeEventListener('pointercancel', onPointerUp);
       renderer.dispose();
       el.removeChild(renderer.domElement);
     };
