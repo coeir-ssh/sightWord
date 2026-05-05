@@ -1,10 +1,10 @@
 export type ScoreResult = {
-  ratio: number; // 0..1
+  ratio: number;
   pass: boolean;
 };
 
 export const PASS_RATIO = 0.6;
-const MIN_INK_RATIO = 0.02;
+const MIN_INK_RATIO = 0.015;
 
 const TEMPLATE_FONT_FAMILY =
   '"Comic Sans MS", "Patrick Hand", "Marker Felt", "Chalkduster", system-ui, sans-serif';
@@ -12,14 +12,15 @@ const TEMPLATE_FONT_FAMILY =
 export type DrawTemplateOptions = {
   fillStyle?: string;
   padding?: number;
-  /** outline thickness as a fraction of font size; 0 disables outline */
+  /** Outline thickness as fraction of font size. 0 = plain fillText. */
   strokeScale?: number;
 };
 
 /**
- * Single source of truth for placing the letter on a canvas.
- * Used both by the visible guide (LetterSlot) and the scorer
- * (templateMaskFor) so they line up exactly.
+ * Renders the letter glyph at a given size + position. Used by both:
+ *  - the visible guide layer in LetterSlot
+ *  - the offscreen scoring mask
+ * so that pixel-level coverage matches the visual perfectly.
  */
 export function drawTemplate(
   ctx: CanvasRenderingContext2D,
@@ -30,7 +31,7 @@ export function drawTemplate(
 ): void {
   ctx.clearRect(0, 0, width, height);
 
-  const padding = opts.padding ?? 10;
+  const padding = opts.padding ?? 8;
   const maxW = width - padding * 2;
   const maxH = height - padding * 2;
 
@@ -47,7 +48,7 @@ export function drawTemplate(
   ctx.font = `700 ${fontSize}px ${TEMPLATE_FONT_FAMILY}`;
 
   const fill = opts.fillStyle ?? '#000000';
-  const strokeScale = opts.strokeScale ?? 0.12;
+  const strokeScale = opts.strokeScale ?? 0;
 
   ctx.fillStyle = fill;
   if (strokeScale > 0) {
@@ -67,13 +68,13 @@ function templateMaskFor(text: string, width: number, height: number): Uint8Arra
   const ctx = cv.getContext('2d', { willReadFrequently: true })!;
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);
-  // Scoring uses the same fattened guide so a clean trace covers most of it.
-  drawTemplate(ctx, text, width, height, { fillStyle: '#000000', strokeScale: 0.12 });
+  drawTemplate(ctx, text, width, height, { fillStyle: '#000000', strokeScale: 0 });
   const data = ctx.getImageData(0, 0, width, height).data;
   const mask = new Uint8Array(width * height);
   for (let i = 0, p = 0; i < data.length; i += 4, p++) {
+    // Pixel is part of letter when noticeably darker than white background
     const lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
-    mask[p] = lum < 128 ? 1 : 0;
+    mask[p] = lum < 200 ? 1 : 0;
   }
   return mask;
 }
@@ -83,7 +84,7 @@ function userStrokeMask(canvas: HTMLCanvasElement): Uint8Array {
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
   const mask = new Uint8Array(canvas.width * canvas.height);
   for (let i = 0, p = 0; i < data.length; i += 4, p++) {
-    if (data[i + 3] >= 64) mask[p] = 1;
+    if (data[i + 3] >= 32) mask[p] = 1; // include glow halo
   }
   return mask;
 }
@@ -110,9 +111,7 @@ export function scoreLetterSlot(
 
   const slotArea = w * h;
   const inkRatio = strokeCount / slotArea;
-  if (inkRatio < MIN_INK_RATIO) {
-    return { ratio: 0, pass: false };
-  }
+  if (inkRatio < MIN_INK_RATIO) return { ratio: 0, pass: false };
 
   const coverage = templateCount > 0 ? overlap / templateCount : 0;
   return { ratio: coverage, pass: coverage >= PASS_RATIO };

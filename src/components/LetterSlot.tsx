@@ -1,13 +1,12 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { PenCanvas, type PenCanvasHandle } from './PenCanvas';
-import { drawTemplate, scoreLetterSlot, type ScoreResult } from '../lib/scoring';
+import { drawTemplate, scoreLetterSlot, PASS_RATIO } from '../lib/scoring';
 
 export type LetterSlotHandle = {
-  /** Returns null for non-interactive (shown) slots. */
-  check: () => ScoreResult | null;
-  clear: () => void;
   reset: () => void;
   isInteractive: () => boolean;
+  /** Latest coverage 0..1 (1 for non-interactive shown slots). */
+  getCoverage: () => number;
 };
 
 export type SlotVariant = 'guide' | 'shown' | 'hidden';
@@ -17,79 +16,85 @@ type Props = {
   variant: SlotVariant;
   width?: number;
   height?: number;
+  onCoverageChange?: (coverage: number) => void;
 };
 
 export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlot(
-  { letter, variant, width = 110, height = 150 },
+  { letter, variant, width = 110, height = 150, onCoverageChange },
   ref
 ) {
   const penRef = useRef<PenCanvasHandle | null>(null);
   const guideRef = useRef<HTMLCanvasElement | null>(null);
-  const [passed, setPassed] = useState(false);
-  const [feedback, setFeedback] = useState<'idle' | 'fail'>('idle');
+  const [coverage, setCoverage] = useState(variant === 'shown' ? 1 : 0);
+
+  const passed = coverage >= PASS_RATIO || variant === 'shown';
 
   useImperativeHandle(ref, () => ({
-    check: () => {
-      if (variant === 'shown') return null;
-      const cv = penRef.current?.canvas();
-      if (!cv) return { ratio: 0, pass: false };
-      if (!penRef.current?.hasInk()) {
-        setFeedback('fail');
-        return { ratio: 0, pass: false };
-      }
-      const result = scoreLetterSlot(cv, letter);
-      if (result.pass) {
-        setPassed(true);
-        setFeedback('idle');
-      } else {
-        setFeedback('fail');
-      }
-      return result;
-    },
-    clear: () => {
-      penRef.current?.clear();
-      setFeedback('idle');
-    },
     reset: () => {
       penRef.current?.clear();
-      setPassed(false);
-      setFeedback('idle');
+      if (variant !== 'shown') {
+        setCoverage(0);
+        onCoverageChange?.(0);
+      }
     },
     isInteractive: () => variant !== 'shown',
+    getCoverage: () => coverage,
   }));
 
+  // Reset coverage when letter/variant changes
+  useEffect(() => {
+    if (variant === 'shown') {
+      setCoverage(1);
+      onCoverageChange?.(1);
+    } else {
+      setCoverage(0);
+      onCoverageChange?.(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [letter, variant]);
+
+  // Render the visible guide using the SAME drawTemplate as the scorer.
   useEffect(() => {
     const cv = guideRef.current;
     if (!cv) return;
     const ctx = cv.getContext('2d')!;
     ctx.clearRect(0, 0, cv.width, cv.height);
     if (variant === 'guide') {
-      // Trace guide: same template as scorer, soft gray
       drawTemplate(ctx, letter, cv.width, cv.height, {
-        fillStyle: 'rgba(148, 163, 184, 0.55)',
-        strokeScale: 0.12,
+        fillStyle: 'rgba(100, 116, 139, 0.4)',
       });
     } else if (variant === 'shown') {
-      // Hint letter shown to the kid: clean letter shape, no fat outline
       drawTemplate(ctx, letter, cv.width, cv.height, {
         fillStyle: '#1d4ed8',
-        strokeScale: 0,
       });
     }
   }, [letter, variant, width, height]);
+
+  const handleStrokeEnd = () => {
+    const cv = penRef.current?.canvas();
+    if (!cv) return;
+    if (!penRef.current?.hasInk()) {
+      setCoverage(0);
+      onCoverageChange?.(0);
+      return;
+    }
+    const result = scoreLetterSlot(cv, letter);
+    setCoverage(result.ratio);
+    onCoverageChange?.(result.ratio);
+  };
 
   const interactive = variant !== 'shown';
 
   const borderColor = passed
     ? 'border-green-400'
-    : feedback === 'fail'
-      ? 'border-red-400'
+    : coverage > 0
+      ? 'border-yellow-300'
       : 'border-slate-300';
   const bg = passed ? 'bg-green-50' : 'bg-white';
 
   return (
     <div
-      className={`relative rounded-2xl border-4 ${borderColor} ${bg} shadow-sm overflow-hidden`}
+      className={`relative rounded-2xl border-4 ${borderColor} ${bg} shadow-sm overflow-hidden transition-colors`}
       style={{ width, height }}
     >
       <canvas
@@ -105,9 +110,10 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
           width={width}
           height={height}
           className="absolute inset-0 w-full h-full"
+          onStroke={handleStrokeEnd}
         />
       )}
-      {passed && (
+      {passed && interactive && (
         <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-lg font-bold shadow">
           ✓
         </div>

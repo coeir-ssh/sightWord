@@ -1,40 +1,63 @@
-import { useImperativeHandle, useRef, forwardRef } from 'react';
+import { useImperativeHandle, useRef, forwardRef, useState, useCallback } from 'react';
 import { LetterSlot, type LetterSlotHandle, type SlotVariant } from './LetterSlot';
-import type { ScoreResult } from '../lib/scoring';
 import { PASS_RATIO } from '../lib/scoring';
 
 export type WordRowHandle = {
-  /** Returns aggregate {ratio, pass} across interactive slots only. */
-  checkAll: () => ScoreResult;
-  clearAll: () => void;
   resetAll: () => void;
 };
 
 type Props = {
   word: string;
   variants: SlotVariant[];
+  /** Average coverage across interactive slots (0..1) */
+  onAggregateChange?: (avg: number, allPass: boolean) => void;
 };
 
-export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow({ word, variants }, ref) {
+export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow(
+  { word, variants, onAggregateChange },
+  ref
+) {
   const slotRefs = useRef<Array<LetterSlotHandle | null>>([]);
+  const interactiveCountRef = useRef(0);
+  const coveragesRef = useRef<Record<number, number>>({});
+  const [, force] = useState(0);
+
+  // Recompute interactive count when variants change
+  if (interactiveCountRef.current !== variants.filter((v) => v !== 'shown').length) {
+    interactiveCountRef.current = variants.filter((v) => v !== 'shown').length;
+  }
+
+  const reportAggregate = useCallback(() => {
+    const interactiveIndices = variants
+      .map((v, i) => (v !== 'shown' ? i : -1))
+      .filter((i) => i >= 0);
+    if (interactiveIndices.length === 0) {
+      onAggregateChange?.(1, true);
+      return;
+    }
+    let sum = 0;
+    let allPass = true;
+    for (const i of interactiveIndices) {
+      const c = coveragesRef.current[i] ?? 0;
+      sum += c;
+      if (c < PASS_RATIO) allPass = false;
+    }
+    onAggregateChange?.(sum / interactiveIndices.length, allPass);
+  }, [variants, onAggregateChange]);
 
   useImperativeHandle(ref, () => ({
-    checkAll: () => {
-      const ratios: number[] = [];
-      let allPass = true;
-      slotRefs.current.forEach((s) => {
-        if (!s) return;
-        const r = s.check();
-        if (r === null) return; // shown slot, skip
-        ratios.push(r.ratio);
-        if (!r.pass) allPass = false;
-      });
-      const avg = ratios.length ? ratios.reduce((a, b) => a + b, 0) / ratios.length : 0;
-      return { ratio: avg, pass: allPass && avg >= PASS_RATIO };
+    resetAll: () => {
+      slotRefs.current.forEach((s) => s?.reset());
+      coveragesRef.current = {};
+      reportAggregate();
+      force((n) => n + 1);
     },
-    clearAll: () => slotRefs.current.forEach((s) => s?.clear()),
-    resetAll: () => slotRefs.current.forEach((s) => s?.reset()),
   }));
+
+  const handleCoverage = (i: number) => (cov: number) => {
+    coveragesRef.current[i] = cov;
+    reportAggregate();
+  };
 
   const letters = word.split('');
 
@@ -45,6 +68,7 @@ export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow({ word,
           key={`${ch}-${i}`}
           letter={ch}
           variant={variants[i] ?? 'hidden'}
+          onCoverageChange={handleCoverage(i)}
           ref={(el) => {
             slotRefs.current[i] = el;
           }}

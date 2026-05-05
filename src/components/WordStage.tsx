@@ -43,15 +43,16 @@ function variantsFor(word: string, stage: Stage, s2Difficulty: 0 | 1): SlotVaria
 export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
   const rowRef = useRef<WordRowHandle | null>(null);
   const [variants] = useState<SlotVariant[]>(() => variantsFor(word, stage, s2Difficulty));
+  const [coverage, setCoverage] = useState(0);
+  const [allPass, setAllPass] = useState(false);
   const [done, setDone] = useState(false);
-  const [shake, setShake] = useState(false);
-  const [lastScore, setLastScore] = useState<number | null>(null);
   const passThresholdPct = Math.round(PASS_RATIO * 100);
 
   useEffect(() => {
     rowRef.current?.resetAll();
+    setCoverage(0);
+    setAllPass(false);
     setDone(false);
-    setLastScore(null);
   }, [word, stage]);
 
   useEffect(() => {
@@ -65,24 +66,17 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
     await speak(word);
   };
 
-  const handleCheck = () => {
-    const result = rowRef.current?.checkAll();
-    if (!result) return;
-    const pct = Math.round(result.ratio * 100);
-    setLastScore(pct);
-    if (result.pass) {
-      setDone(true);
-      setTimeout(() => onPass(), 800);
-    } else {
-      setShake(true);
-      setTimeout(() => setShake(false), 400);
-    }
+  const handleNext = () => {
+    if (!allPass || done) return;
+    setDone(true);
+    setTimeout(() => onPass(), 600);
   };
 
   const handleRetry = () => {
     rowRef.current?.resetAll();
+    setCoverage(0);
+    setAllPass(false);
     setDone(false);
-    setLastScore(null);
   };
 
   const stageHint =
@@ -93,13 +87,9 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
         : '👂 듣고 단어 전체를 써 보세요!';
 
   const showWord = stage === 'S1';
-
-  const barColor =
-    lastScore === null
-      ? 'bg-slate-300'
-      : lastScore >= passThresholdPct
-        ? 'bg-green-500'
-        : 'bg-red-400';
+  const pct = Math.min(100, Math.round(coverage * 100));
+  const passed = allPass;
+  const barColor = passed ? 'bg-green-500' : pct >= passThresholdPct ? 'bg-yellow-400' : 'bg-yellow-300';
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -120,71 +110,65 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
         )}
       </div>
 
-      <div className={shake ? 'animate-[shake_0.4s_ease-in-out]' : ''}>
-        <WordRow ref={rowRef} word={word} variants={variants} />
-      </div>
+      <WordRow
+        ref={rowRef}
+        word={word}
+        variants={variants}
+        onAggregateChange={(avg, all) => {
+          setCoverage(avg);
+          setAllPass(all);
+        }}
+      />
 
-      {/* Score progress bar */}
+      {/* Live progress bar */}
       <div className="w-full max-w-md">
-        <div className="flex justify-between text-xs font-bold text-slate-500 mb-1 px-1">
-          <span>0%</span>
-          <span className="text-slate-700">통과 {passThresholdPct}%</span>
-          <span>100%</span>
-        </div>
-        <div className="relative h-7 bg-slate-200 rounded-full overflow-hidden shadow-inner">
-          <div
-            className={`h-full ${barColor} transition-all duration-500 rounded-full`}
-            style={{ width: `${lastScore ?? 0}%` }}
-          />
-          {/* threshold marker */}
-          <div
-            className="absolute top-0 bottom-0 w-0.5 bg-slate-800"
-            style={{ left: `${passThresholdPct}%` }}
-          />
-          <div
-            className="absolute -top-1 text-slate-800 text-xs font-bold pointer-events-none"
-            style={{ left: `calc(${passThresholdPct}% - 8px)` }}
+        <div className="flex items-center gap-3">
+          <span
+            className={`font-extrabold text-sm tabular-nums w-10 ${
+              passed ? 'text-green-600' : 'text-yellow-700'
+            }`}
           >
-            ▼
+            {passed ? 'OK!' : `${pct}%`}
+          </span>
+          <div className="relative flex-1 h-5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
+            <div
+              className={`h-full ${barColor} transition-[width] duration-150 rounded-full`}
+              style={{ width: `${pct}%` }}
+            />
+            <div
+              className="absolute top-0 bottom-0 w-0.5 bg-slate-700"
+              style={{ left: `${passThresholdPct}%` }}
+            />
           </div>
-          {lastScore !== null && (
-            <div className="absolute inset-0 flex items-center justify-center text-sm font-extrabold text-slate-900 drop-shadow">
-              {lastScore}%
-            </div>
-          )}
+          <span className="text-xs font-bold text-slate-500 tabular-nums w-10 text-right">
+            {passThresholdPct}%
+          </span>
         </div>
-        {lastScore !== null && (
-          <div className="text-center mt-2 font-bold">
-            {lastScore >= passThresholdPct ? (
-              <span className="text-green-600">🎉 잘했어요! ({lastScore}%)</span>
-            ) : (
-              <span className="text-red-500">
-                글자를 {passThresholdPct}% 이상 따라 써야 다음으로 갈 수 있어요!
-              </span>
-            )}
-          </div>
+        {!passed && (
+          <p className="text-center text-xs font-bold text-amber-600 mt-2">
+            ▶ 글자를 {passThresholdPct}% 이상 따라 써야 다음으로!
+          </p>
         )}
       </div>
 
       <div className="flex gap-4">
         <button
           onClick={handleRetry}
-          className="px-6 py-3 rounded-2xl bg-slate-200 hover:bg-slate-300 text-lg font-bold shadow"
+          className="px-6 py-3 rounded-2xl bg-rose-500 text-white text-lg font-bold shadow active:scale-95"
         >
-          🧽 지우기
+          ▶ 다시 쓰기
         </button>
-        {!done ? (
-          <button
-            onClick={handleCheck}
-            className="px-8 py-3 rounded-2xl bg-blue-500 hover:bg-blue-600 active:scale-95 text-white text-lg font-bold shadow-lg"
-          >
-            확인
-          </button>
-        ) : (
-          <div className="px-8 py-3 rounded-2xl bg-green-500 text-white text-lg font-bold shadow-lg">
-            ⭐ 잘했어요!
-          </div>
-        )}
+        <button
+          onClick={handleNext}
+          disabled={!passed || done}
+          className={`px-8 py-3 rounded-2xl text-lg font-bold shadow-lg transition ${
+            passed && !done
+              ? 'bg-green-500 hover:bg-green-600 active:scale-95 text-white'
+              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+          }`}
+        >
+          {done ? '⭐ 통과!' : '다음 →'}
+        </button>
       </div>
     </div>
   );

@@ -12,13 +12,26 @@ type Props = {
   className?: string;
   strokeColor?: string;
   strokeWidth?: number;
+  glowColor?: string;
+  /** Fired on every pointer event (mid-stroke) — useful for live coverage. */
   onChange?: () => void;
-  /** If true, only pointerType==='pen' creates strokes. If false, touch+pen accepted. */
+  /** Fired when a stroke ends (pointerup / pointercancel / pointerleave). */
+  onStroke?: () => void;
   penOnly?: boolean;
 };
 
 export const PenCanvas = forwardRef<PenCanvasHandle, Props>(function PenCanvas(
-  { width, height, className, strokeColor = '#1d4ed8', strokeWidth = 16, onChange, penOnly = false },
+  {
+    width,
+    height,
+    className,
+    strokeColor = '#1d4ed8',
+    strokeWidth = 20,
+    glowColor,
+    onChange,
+    onStroke,
+    penOnly = false,
+  },
   ref
 ) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -35,6 +48,7 @@ export const PenCanvas = forwardRef<PenCanvasHandle, Props>(function PenCanvas(
       ctx.clearRect(0, 0, cv.width, cv.height);
       hasInkRef.current = false;
       onChange?.();
+      onStroke?.();
     },
     canvas: () => canvasRef.current,
     hasInk: () => hasInkRef.current,
@@ -48,6 +62,15 @@ export const PenCanvas = forwardRef<PenCanvasHandle, Props>(function PenCanvas(
     ctx.lineJoin = 'round';
   }, []);
 
+  const setupBrush = (ctx: CanvasRenderingContext2D) => {
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = strokeWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowColor = glowColor ?? strokeColor;
+    ctx.shadowBlur = 8;
+  };
+
   const getPos = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const cv = canvasRef.current!;
     const rect = cv.getBoundingClientRect();
@@ -57,8 +80,7 @@ export const PenCanvas = forwardRef<PenCanvasHandle, Props>(function PenCanvas(
   };
 
   const isAllowedPointer = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    if (e.pointerType === 'pen') return true;
-    if (e.pointerType === 'mouse') return true;
+    if (e.pointerType === 'pen' || e.pointerType === 'mouse') return true;
     if (e.pointerType === 'touch') return !penOnly;
     return false;
   };
@@ -73,8 +95,7 @@ export const PenCanvas = forwardRef<PenCanvasHandle, Props>(function PenCanvas(
     const pos = getPos(e);
     lastRef.current = pos;
     const ctx = cv.getContext('2d')!;
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = strokeWidth;
+    setupBrush(ctx);
     ctx.beginPath();
     ctx.moveTo(pos.x, pos.y);
     ctx.lineTo(pos.x + 0.01, pos.y + 0.01);
@@ -92,8 +113,7 @@ export const PenCanvas = forwardRef<PenCanvasHandle, Props>(function PenCanvas(
     const ctx = cv.getContext('2d')!;
     const pos = getPos(e);
     const last = lastRef.current!;
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = strokeWidth;
+    setupBrush(ctx);
     ctx.beginPath();
     ctx.moveTo(last.x, last.y);
     ctx.lineTo(pos.x, pos.y);
@@ -107,6 +127,7 @@ export const PenCanvas = forwardRef<PenCanvasHandle, Props>(function PenCanvas(
     drawingRef.current = false;
     lastRef.current = null;
     activePointerRef.current = null;
+    onStroke?.();
   };
 
   return (
