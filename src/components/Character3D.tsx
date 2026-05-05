@@ -16,8 +16,8 @@ const CHEEK = '#fca5a5';
 const MOUTH = '#ef4444';
 
 // Cute 6-year-old: head ~35% of total height, short stubby limbs, round body
-const HEAD_SIZE = 1.0;
-const HEAD_Y = 1.55;
+const HEAD_SIZE = 0.9;
+const HEAD_Y = 1.5;
 
 const TORSO_W = 0.75;
 const TORSO_H = 0.75;
