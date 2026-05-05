@@ -7,3 +7,6 @@ dist-ssr
 .env
 .env.local
 *.tsbuildinfo
+
+# Audio is generated in GitHub Actions during deploy; not committed.
+public/audio/
