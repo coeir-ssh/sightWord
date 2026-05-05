@@ -15,24 +15,24 @@ const EYE_DARK = '#1f2937';
 const CHEEK = '#fca5a5';
 const MOUTH = '#ef4444';
 
-// Chibi proportions: big head, small body
-const HEAD_SIZE = 1.25;
-const HEAD_Y = 1.85;
+// 6-year-old proportions: head ~1/4 of body height, not chibi blob
+const HEAD_SIZE = 0.85;
+const HEAD_Y = 1.65;
 
-const TORSO_W = 0.8;
-const TORSO_H = 0.85;
-const TORSO_D = 0.42;
-const TORSO_Y = 0.75;
+const TORSO_W = 0.95;
+const TORSO_H = 1.05;
+const TORSO_D = 0.5;
+const TORSO_Y = 0.6;
 
-const ARM_W = 0.22;
-const ARM_H = 0.7;
-const ARM_X = 0.55;
-const ARM_Y = 0.85;
+const ARM_W = 0.24;
+const ARM_H = 0.9;
+const ARM_X = 0.62;
+const ARM_Y = 0.72;
 
-const LEG_W = 0.28;
-const LEG_H = 0.7;
-const LEG_X = 0.18;
-const LEG_Y = -0.1;
+const LEG_W = 0.3;
+const LEG_H = 0.9;
+const LEG_X = 0.2;
+const LEG_Y = -0.4;
 
 const FACE_Z = HEAD_SIZE / 2 + 0.001;
 
@@ -51,8 +51,8 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
     scene.background = null;
 
     const camera = new THREE.PerspectiveCamera(32, w / h, 0.1, 100);
-    camera.position.set(0, 1.4, 5.4);
-    camera.lookAt(0, 1.0, 0);
+    camera.position.set(0, 1.0, 6.4);
+    camera.lookAt(0, 0.7, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -79,24 +79,24 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
     head.position.set(0, HEAD_Y, 0);
     char.add(head);
 
-    // Hair: top dome + front bangs
+    // Hair: top dome + front bangs (scaled to smaller head)
     const hairMat = new THREE.MeshStandardMaterial({ color: HAIR, roughness: 0.95 });
     const hairTop = new THREE.Mesh(
-      new THREE.BoxGeometry(HEAD_SIZE + 0.04, 0.32, HEAD_SIZE + 0.04),
+      new THREE.BoxGeometry(HEAD_SIZE + 0.04, 0.22, HEAD_SIZE + 0.04),
       hairMat
     );
-    hairTop.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.04, 0);
+    hairTop.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.02, 0);
     char.add(hairTop);
     const bangs = new THREE.Mesh(
-      new THREE.BoxGeometry(HEAD_SIZE + 0.05, 0.18, 0.12),
+      new THREE.BoxGeometry(HEAD_SIZE + 0.05, 0.13, 0.1),
       hairMat
     );
-    bangs.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.18, FACE_Z + 0.04);
+    bangs.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.13, FACE_Z + 0.03);
     char.add(bangs);
 
     // ---- Eyes: white sphere + dark pupil ----
-    const eyeOffsetX = 0.3;
-    const eyeOffsetY = HEAD_Y + 0.08;
+    const eyeOffsetX = 0.2;
+    const eyeOffsetY = HEAD_Y + 0.05;
     const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: EYE_WHITE, roughness: 0.4 });
     const pupilMat = new THREE.MeshStandardMaterial({ color: EYE_DARK, roughness: 0.4 });
     const highlightMat = new THREE.MeshStandardMaterial({
@@ -106,32 +106,32 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
     });
 
     [-1, 1].forEach((sx) => {
-      const eyeWhite = new THREE.Mesh(new THREE.SphereGeometry(0.15, 24, 24), eyeWhiteMat);
+      const eyeWhite = new THREE.Mesh(new THREE.SphereGeometry(0.1, 20, 20), eyeWhiteMat);
       eyeWhite.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z);
       char.add(eyeWhite);
-      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 16), pupilMat);
-      pupil.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z + 0.07);
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), pupilMat);
+      pupil.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z + 0.05);
       char.add(pupil);
-      const hl = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8), highlightMat);
-      hl.position.set(sx * eyeOffsetX - 0.025, eyeOffsetY + 0.04, FACE_Z + 0.13);
+      const hl = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), highlightMat);
+      hl.position.set(sx * eyeOffsetX - 0.018, eyeOffsetY + 0.03, FACE_Z + 0.09);
       char.add(hl);
     });
 
     // ---- Glasses (always on, signature feature) ----
     const glassMat = new THREE.MeshStandardMaterial({ color: '#0f172a', metalness: 0.4, roughness: 0.4 });
     [-1, 1].forEach((sx) => {
-      const lens = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.025, 12, 28), glassMat);
-      lens.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z + 0.1);
+      const lens = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.02, 12, 28), glassMat);
+      lens.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z + 0.08);
       char.add(lens);
     });
-    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.025, 0.025), glassMat);
-    bridge.position.set(0, eyeOffsetY, FACE_Z + 0.1);
+    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.02, 0.02), glassMat);
+    bridge.position.set(0, eyeOffsetY, FACE_Z + 0.08);
     char.add(bridge);
 
     // ---- Cheeks: pink soft circles ----
     [-1, 1].forEach((sx) => {
       const cheek = new THREE.Mesh(
-        new THREE.SphereGeometry(0.11, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+        new THREE.SphereGeometry(0.075, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
         new THREE.MeshStandardMaterial({
           color: CHEEK,
           transparent: true,
@@ -140,18 +140,18 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
         })
       );
       cheek.rotation.x = Math.PI / 2;
-      cheek.position.set(sx * 0.4, HEAD_Y - 0.18, FACE_Z);
+      cheek.position.set(sx * 0.27, HEAD_Y - 0.13, FACE_Z);
       cheek.scale.set(1, 1, 0.3);
       char.add(cheek);
     });
 
     // ---- Mouth: small smile (tiny torus arc) ----
     const mouth = new THREE.Mesh(
-      new THREE.TorusGeometry(0.07, 0.025, 8, 16, Math.PI),
+      new THREE.TorusGeometry(0.05, 0.018, 8, 16, Math.PI),
       new THREE.MeshStandardMaterial({ color: MOUTH })
     );
     mouth.rotation.z = Math.PI;
-    mouth.position.set(0, HEAD_Y - 0.3, FACE_Z);
+    mouth.position.set(0, HEAD_Y - 0.22, FACE_Z);
     char.add(mouth);
 
     // ---- Body (skin base, replaced by top item) ----
