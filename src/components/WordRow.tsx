@@ -1,15 +1,17 @@
 import { useImperativeHandle, useRef, forwardRef } from 'react';
 import { LetterSlot, type LetterSlotHandle, type SlotVariant } from './LetterSlot';
+import type { ScoreResult } from '../lib/scoring';
+import { PASS_RATIO } from '../lib/scoring';
 
 export type WordRowHandle = {
-  checkAll: () => boolean;
+  /** Returns aggregate {ratio, pass} across interactive slots only. */
+  checkAll: () => ScoreResult;
   clearAll: () => void;
   resetAll: () => void;
 };
 
 type Props = {
   word: string;
-  /** per-letter variant: 'guide' | 'shown' | 'hidden' */
   variants: SlotVariant[];
 };
 
@@ -18,13 +20,17 @@ export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow({ word,
 
   useImperativeHandle(ref, () => ({
     checkAll: () => {
-      let ok = true;
+      const ratios: number[] = [];
+      let allPass = true;
       slotRefs.current.forEach((s) => {
         if (!s) return;
         const r = s.check();
-        if (!r) ok = false;
+        if (r === null) return; // shown slot, skip
+        ratios.push(r.ratio);
+        if (!r.pass) allPass = false;
       });
-      return ok;
+      const avg = ratios.length ? ratios.reduce((a, b) => a + b, 0) / ratios.length : 0;
+      return { ratio: avg, pass: allPass && avg >= PASS_RATIO };
     },
     clearAll: () => slotRefs.current.forEach((s) => s?.clear()),
     resetAll: () => slotRefs.current.forEach((s) => s?.reset()),

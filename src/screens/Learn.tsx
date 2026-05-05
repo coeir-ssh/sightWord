@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { CoinHUD } from '../components/CoinHUD';
+import { CoinFly } from '../components/CoinFly';
 import { WordStage, type Stage } from '../components/WordStage';
 import { Character3D } from '../components/Character3D';
+import { Coin } from '../components/Coin';
 import { useInventory, useProgress, useWallet } from '../lib/state';
 import { getWeek } from '../data/words';
 import { shuffle } from '../lib/shuffle';
@@ -13,49 +15,22 @@ type Props = {
 type DayPlan = {
   day: number;
   label: string;
-  reward: number;
+  /** Bonus coins on day completion (per-word coins are awarded separately, 1 each) */
+  dayBonus: number;
   steps: { stage: Stage; s2Difficulty?: 0 | 1 }[];
-  /** if true, randomize word order per step */
   shuffleWords?: boolean;
-  /** if true (Day5 mock test), word repeats once with S3 only */
   isMockTest?: boolean;
 };
 
 const DAY_PLANS: DayPlan[] = [
-  {
-    day: 0,
-    label: 'Day 1 — 따라쓰기',
-    reward: 5,
-    steps: [{ stage: 'S1' }],
-  },
-  {
-    day: 1,
-    label: 'Day 2 — 따라쓰기 + 빈칸',
-    reward: 7,
-    steps: [{ stage: 'S1' }, { stage: 'S2', s2Difficulty: 0 }],
-  },
-  {
-    day: 2,
-    label: 'Day 3 — 빈칸 채우기',
-    reward: 8,
-    steps: [{ stage: 'S2', s2Difficulty: 1 }],
-  },
-  {
-    day: 3,
-    label: 'Day 4 — 자유 쓰기 연습',
-    reward: 10,
-    steps: [{ stage: 'S3' }],
-    shuffleWords: true,
-  },
-  {
-    day: 4,
-    label: 'Day 5 — 모의 시험',
-    reward: 10,
-    steps: [{ stage: 'S3' }],
-    shuffleWords: true,
-    isMockTest: true,
-  },
+  { day: 0, label: 'Day 1 — 따라쓰기', dayBonus: 2, steps: [{ stage: 'S1' }] },
+  { day: 1, label: 'Day 2 — 따라쓰기 + 빈칸', dayBonus: 3, steps: [{ stage: 'S1' }, { stage: 'S2', s2Difficulty: 0 }] },
+  { day: 2, label: 'Day 3 — 빈칸 채우기', dayBonus: 3, steps: [{ stage: 'S2', s2Difficulty: 1 }] },
+  { day: 3, label: 'Day 4 — 자유 쓰기 연습', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true },
+  { day: 4, label: 'Day 5 — 모의 시험', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true, isMockTest: true },
 ];
+
+const WEEKLY_BONUS = 20;
 
 export function Learn({ onBack }: Props) {
   const { progress, dayDone, completeDay } = useProgress();
@@ -71,8 +46,6 @@ export function Learn({ onBack }: Props) {
 
   const plan = DAY_PLANS[todayDay];
 
-  // Build sequence of (word, stage) for this day.
-  // Each step iterates through all 5 words, optionally shuffled (per-step).
   const sequence = useMemo(() => {
     const seq: { word: string; stage: Stage; s2Difficulty?: 0 | 1 }[] = [];
     plan.steps.forEach((step) => {
@@ -87,37 +60,76 @@ export function Learn({ onBack }: Props) {
   }, [plan, week]);
 
   const [idx, setIdx] = useState(0);
-  const [completedScreen, setCompletedScreen] = useState<null | { coins: number; stars: number }>(null);
+  const [coinTrigger, setCoinTrigger] = useState(0);
+  const [completedScreen, setCompletedScreen] = useState<null | { coins: number; bonus: number; weekly: number }>(null);
   const [jumping, setJumping] = useState(false);
 
   const handlePass = () => {
+    // Award 1 coin per word, with fly animation
+    addCoins(1);
+    setCoinTrigger((n) => n + 1);
     setJumping(true);
     setTimeout(() => setJumping(false), 700);
+
     if (idx + 1 >= sequence.length) {
-      // Day complete
-      const reward = plan.reward;
+      // Day complete: bonus
+      const bonus = plan.dayBonus;
+      addCoins(bonus);
+
       const allDoneSoFar = done.slice();
       allDoneSoFar[todayDay] = true;
       const allFive = allDoneSoFar.every((d) => d);
-      const bonus = allFive && todayDay === 4 ? 20 : 0;
-      addCoins(reward + bonus);
+      const weekly = allFive ? WEEKLY_BONUS : 0;
+      if (weekly > 0) addCoins(weekly);
+
       completeDay(progress.currentWeek, todayDay);
-      setCompletedScreen({ coins: reward + bonus, stars: 3 });
+      setCompletedScreen({ coins: sequence.length, bonus, weekly });
     } else {
       setIdx((n) => n + 1);
     }
   };
 
   if (completedScreen) {
+    const total = completedScreen.coins + completedScreen.bonus + completedScreen.weekly;
     return (
       <div className="min-h-screen bg-gradient-to-b from-sky-soft to-blue-100 flex flex-col items-center justify-center p-8 gap-6">
         <div className="text-6xl">🎉</div>
         <div className="text-4xl font-extrabold text-blue-700">{plan.label} 완료!</div>
         <div className="flex gap-2 text-5xl">⭐⭐⭐</div>
-        <div className="bg-yellow-100 border-4 border-yellow-300 rounded-3xl px-8 py-4 shadow-lg flex items-center gap-3">
-          <span className="text-4xl">🪙</span>
-          <span className="text-4xl font-extrabold text-yellow-800">+{completedScreen.coins}</span>
+
+        <div className="bg-white rounded-3xl px-8 py-5 shadow-lg space-y-2 min-w-[280px]">
+          <div className="flex items-center justify-between gap-6">
+            <span className="font-bold text-slate-700">단어 미션</span>
+            <div className="flex items-center gap-1">
+              <Coin size={26} />
+              <span className="font-extrabold text-yellow-800">+{completedScreen.coins}</span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-6">
+            <span className="font-bold text-slate-700">데이 보너스</span>
+            <div className="flex items-center gap-1">
+              <Coin size={26} />
+              <span className="font-extrabold text-yellow-800">+{completedScreen.bonus}</span>
+            </div>
+          </div>
+          {completedScreen.weekly > 0 && (
+            <div className="flex items-center justify-between gap-6 border-t pt-2 border-yellow-200">
+              <span className="font-bold text-amber-700">🏆 주간 완성 보너스</span>
+              <div className="flex items-center gap-1">
+                <Coin size={26} />
+                <span className="font-extrabold text-yellow-800">+{completedScreen.weekly}</span>
+              </div>
+            </div>
+          )}
+          <div className="flex items-center justify-between gap-6 pt-2 border-t-2 border-slate-300">
+            <span className="font-extrabold text-slate-800 text-lg">합계</span>
+            <div className="flex items-center gap-1">
+              <Coin size={32} />
+              <span className="font-extrabold text-yellow-700 text-2xl">+{total}</span>
+            </div>
+          </div>
         </div>
+
         <div className="w-64 h-64">
           <Character3D equipped={inventory.equipped} jumping />
         </div>
@@ -135,6 +147,7 @@ export function Learn({ onBack }: Props) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-soft to-blue-100 flex flex-col">
+      <CoinFly triggerKey={coinTrigger} />
       <header className="flex items-center justify-between p-4">
         <button
           onClick={onBack}

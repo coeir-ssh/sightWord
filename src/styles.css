@@ -8,6 +8,13 @@
   75% { transform: translateX(6px); }
 }
 
+@keyframes coinfly {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  60% { transform: translate(-50%, -120%) scale(1.0); opacity: 1; }
+  100% { transform: translate(-50%, -180%) scale(0.6); opacity: 0; }
+}
+
 body {
   font-family: 'Comic Sans MS', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }

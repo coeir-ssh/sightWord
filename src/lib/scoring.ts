@@ -1,25 +1,25 @@
 export type ScoreResult = {
-  ratio: number;
+  ratio: number; // 0..1
   pass: boolean;
 };
 
-export const PASS_RATIO = 0.35;
-const MIN_INK_RATIO = 0.025; // at least ~2.5% of the slot must have ink
+export const PASS_RATIO = 0.6;
+const MIN_INK_RATIO = 0.02;
+
 const TEMPLATE_FONT_FAMILY =
   '"Comic Sans MS", "Patrick Hand", "Marker Felt", "Chalkduster", system-ui, sans-serif';
 
 export type DrawTemplateOptions = {
   fillStyle?: string;
   padding?: number;
-  /** Multiplier for the stroke widening; larger = more forgiving template */
+  /** outline thickness as a fraction of font size; 0 disables outline */
   strokeScale?: number;
 };
 
 /**
- * Draws the letter template onto the given context. Used by both:
- *   - LetterSlot guide layer (visible to user)
- *   - scoreLetterSlot (offscreen, for pixel comparison)
- * so they always match in size and position.
+ * Single source of truth for placing the letter on a canvas.
+ * Used both by the visible guide (LetterSlot) and the scorer
+ * (templateMaskFor) so they line up exactly.
  */
 export function drawTemplate(
   ctx: CanvasRenderingContext2D,
@@ -47,15 +47,16 @@ export function drawTemplate(
   ctx.font = `700 ${fontSize}px ${TEMPLATE_FONT_FAMILY}`;
 
   const fill = opts.fillStyle ?? '#000000';
-  const strokeScale = opts.strokeScale ?? 0.18;
+  const strokeScale = opts.strokeScale ?? 0.12;
 
   ctx.fillStyle = fill;
-  ctx.strokeStyle = fill;
-  ctx.lineWidth = Math.max(4, fontSize * strokeScale);
-  ctx.lineJoin = 'round';
-  ctx.lineCap = 'round';
-
-  ctx.strokeText(text, width / 2, height / 2);
+  if (strokeScale > 0) {
+    ctx.strokeStyle = fill;
+    ctx.lineWidth = Math.max(2, fontSize * strokeScale);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.strokeText(text, width / 2, height / 2);
+  }
   ctx.fillText(text, width / 2, height / 2);
 }
 
@@ -66,7 +67,8 @@ function templateMaskFor(text: string, width: number, height: number): Uint8Arra
   const ctx = cv.getContext('2d', { willReadFrequently: true })!;
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, width, height);
-  drawTemplate(ctx, text, width, height, { fillStyle: '#000000' });
+  // Scoring uses the same fattened guide so a clean trace covers most of it.
+  drawTemplate(ctx, text, width, height, { fillStyle: '#000000', strokeScale: 0.12 });
   const data = ctx.getImageData(0, 0, width, height).data;
   const mask = new Uint8Array(width * height);
   for (let i = 0, p = 0; i < data.length; i += 4, p++) {
@@ -113,7 +115,5 @@ export function scoreLetterSlot(
   }
 
   const coverage = templateCount > 0 ? overlap / templateCount : 0;
-  const containment = strokeCount > 0 ? overlap / strokeCount : 0;
-  const ratio = Math.max(coverage, containment * 0.95);
-  return { ratio, pass: ratio >= PASS_RATIO };
+  return { ratio: coverage, pass: coverage >= PASS_RATIO };
 }

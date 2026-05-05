@@ -1,12 +1,13 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { PenCanvas, type PenCanvasHandle } from './PenCanvas';
-import { drawTemplate, scoreLetterSlot } from '../lib/scoring';
+import { drawTemplate, scoreLetterSlot, type ScoreResult } from '../lib/scoring';
 
 export type LetterSlotHandle = {
-  check: () => boolean;
+  /** Returns null for non-interactive (shown) slots. */
+  check: () => ScoreResult | null;
   clear: () => void;
   reset: () => void;
-  isPassed: () => boolean;
+  isInteractive: () => boolean;
 };
 
 export type SlotVariant = 'guide' | 'shown' | 'hidden';
@@ -29,25 +30,21 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
 
   useImperativeHandle(ref, () => ({
     check: () => {
-      if (variant === 'shown') {
-        setPassed(true);
-        return true;
-      }
+      if (variant === 'shown') return null;
       const cv = penRef.current?.canvas();
-      if (!cv) return false;
+      if (!cv) return { ratio: 0, pass: false };
       if (!penRef.current?.hasInk()) {
         setFeedback('fail');
-        return false;
+        return { ratio: 0, pass: false };
       }
       const result = scoreLetterSlot(cv, letter);
-      const ok = result.pass;
-      if (ok) {
+      if (result.pass) {
         setPassed(true);
         setFeedback('idle');
       } else {
         setFeedback('fail');
       }
-      return ok;
+      return result;
     },
     clear: () => {
       penRef.current?.clear();
@@ -58,22 +55,25 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       setPassed(false);
       setFeedback('idle');
     },
-    isPassed: () => passed || variant === 'shown',
+    isInteractive: () => variant !== 'shown',
   }));
 
-  // Draw the visible guide using the SAME renderer as the scoring template.
   useEffect(() => {
     const cv = guideRef.current;
     if (!cv) return;
     const ctx = cv.getContext('2d')!;
     ctx.clearRect(0, 0, cv.width, cv.height);
     if (variant === 'guide') {
+      // Trace guide: same template as scorer, soft gray
       drawTemplate(ctx, letter, cv.width, cv.height, {
-        fillStyle: 'rgba(148, 163, 184, 0.55)', // soft gray dotted-feel
+        fillStyle: 'rgba(148, 163, 184, 0.55)',
+        strokeScale: 0.12,
       });
     } else if (variant === 'shown') {
+      // Hint letter shown to the kid: clean letter shape, no fat outline
       drawTemplate(ctx, letter, cv.width, cv.height, {
         fillStyle: '#1d4ed8',
+        strokeScale: 0,
       });
     }
   }, [letter, variant, width, height]);

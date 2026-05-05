@@ -8,16 +8,39 @@ type Props = {
   className?: string;
 };
 
-const SKIN = '#f5d3b3';
-const HAIR = '#3b2a1a';
+const SKIN = '#ffe1c6';
+const HAIR = '#5b3a1f';
+const EYE_WHITE = '#ffffff';
+const EYE_DARK = '#1f2937';
+const CHEEK = '#fca5a5';
+const MOUTH = '#ef4444';
+
+// Chibi proportions: big head, small body
+const HEAD_SIZE = 1.25;
+const HEAD_Y = 1.85;
+
+const TORSO_W = 0.8;
+const TORSO_H = 0.85;
+const TORSO_D = 0.42;
+const TORSO_Y = 0.75;
+
+const ARM_W = 0.22;
+const ARM_H = 0.7;
+const ARM_X = 0.55;
+const ARM_Y = 0.85;
+
+const LEG_W = 0.28;
+const LEG_H = 0.7;
+const LEG_X = 0.18;
+const LEG_Y = -0.1;
+
+const FACE_Z = HEAD_SIZE / 2 + 0.001;
 
 export function Character3D({ equipped, jumping = false, className }: Props) {
   const mountRef = useRef<HTMLDivElement | null>(null);
-  const sceneRef = useRef<THREE.Scene | null>(null);
   const charRef = useRef<THREE.Group | null>(null);
   const slotGroupsRef = useRef<Record<Slot, THREE.Group>>({} as any);
   const jumpRef = useRef(false);
-  const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
   useEffect(() => {
     const el = mountRef.current!;
@@ -26,103 +49,143 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
 
     const scene = new THREE.Scene();
     scene.background = null;
-    sceneRef.current = scene;
 
-    const camera = new THREE.PerspectiveCamera(35, w / h, 0.1, 100);
-    camera.position.set(0, 1.4, 5.2);
+    const camera = new THREE.PerspectiveCamera(32, w / h, 0.1, 100);
+    camera.position.set(0, 1.4, 5.4);
     camera.lookAt(0, 1.0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(w, h);
     el.appendChild(renderer.domElement);
-    rendererRef.current = renderer;
 
-    const amb = new THREE.AmbientLight(0xffffff, 0.7);
-    scene.add(amb);
-    const dir = new THREE.DirectionalLight(0xffffff, 0.9);
-    dir.position.set(3, 5, 4);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+    const dir = new THREE.DirectionalLight(0xffffff, 0.7);
+    dir.position.set(2, 4, 3);
     scene.add(dir);
+    const rim = new THREE.DirectionalLight(0xffe9ff, 0.3);
+    rim.position.set(-3, 2, -2);
+    scene.add(rim);
 
-    // Build character
     const char = new THREE.Group();
     charRef.current = char;
     scene.add(char);
 
-    // Body parts (Minecraft-ish proportions, scaled)
+    // ---- Head (big chibi cube with rounded look via slight bevel) ----
     const head = new THREE.Mesh(
-      new THREE.BoxGeometry(0.8, 0.8, 0.8),
-      new THREE.MeshStandardMaterial({ color: SKIN })
+      new THREE.BoxGeometry(HEAD_SIZE, HEAD_SIZE, HEAD_SIZE, 1, 1, 1),
+      new THREE.MeshStandardMaterial({ color: SKIN, roughness: 0.8 })
     );
-    head.position.set(0, 1.85, 0);
+    head.position.set(0, HEAD_Y, 0);
     char.add(head);
 
-    // Hair cap
-    const hair = new THREE.Mesh(
-      new THREE.BoxGeometry(0.84, 0.25, 0.84),
-      new THREE.MeshStandardMaterial({ color: HAIR })
+    // Hair: top dome + front bangs
+    const hairMat = new THREE.MeshStandardMaterial({ color: HAIR, roughness: 0.95 });
+    const hairTop = new THREE.Mesh(
+      new THREE.BoxGeometry(HEAD_SIZE + 0.04, 0.32, HEAD_SIZE + 0.04),
+      hairMat
     );
-    hair.position.set(0, 2.15, 0);
-    char.add(hair);
+    hairTop.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.04, 0);
+    char.add(hairTop);
+    const bangs = new THREE.Mesh(
+      new THREE.BoxGeometry(HEAD_SIZE + 0.05, 0.18, 0.12),
+      hairMat
+    );
+    bangs.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.18, FACE_Z + 0.04);
+    char.add(bangs);
 
-    // Face: eyes + glasses (always on)
-    const eyeMat = new THREE.MeshStandardMaterial({ color: '#1f2937' });
-    const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.05), eyeMat);
-    eyeL.position.set(-0.18, 1.92, 0.41);
-    char.add(eyeL);
-    const eyeR = eyeL.clone();
-    eyeR.position.x = 0.18;
-    char.add(eyeR);
+    // ---- Eyes: white sphere + dark pupil ----
+    const eyeOffsetX = 0.3;
+    const eyeOffsetY = HEAD_Y + 0.08;
+    const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: EYE_WHITE, roughness: 0.4 });
+    const pupilMat = new THREE.MeshStandardMaterial({ color: EYE_DARK, roughness: 0.4 });
+    const highlightMat = new THREE.MeshStandardMaterial({
+      color: '#ffffff',
+      emissive: '#ffffff',
+      emissiveIntensity: 0.6,
+    });
 
-    // Glasses (round-ish via tori) — fixed feature
-    const glassMat = new THREE.MeshStandardMaterial({ color: '#0f172a' });
-    const lensL = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.025, 12, 24), glassMat);
-    lensL.position.set(-0.18, 1.92, 0.42);
-    char.add(lensL);
-    const lensR = lensL.clone();
-    lensR.position.x = 0.18;
-    char.add(lensR);
-    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.025, 0.025), glassMat);
-    bridge.position.set(0, 1.92, 0.42);
+    [-1, 1].forEach((sx) => {
+      const eyeWhite = new THREE.Mesh(new THREE.SphereGeometry(0.15, 24, 24), eyeWhiteMat);
+      eyeWhite.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z);
+      char.add(eyeWhite);
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 16), pupilMat);
+      pupil.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z + 0.07);
+      char.add(pupil);
+      const hl = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8), highlightMat);
+      hl.position.set(sx * eyeOffsetX - 0.025, eyeOffsetY + 0.04, FACE_Z + 0.13);
+      char.add(hl);
+    });
+
+    // ---- Glasses (always on, signature feature) ----
+    const glassMat = new THREE.MeshStandardMaterial({ color: '#0f172a', metalness: 0.4, roughness: 0.4 });
+    [-1, 1].forEach((sx) => {
+      const lens = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.025, 12, 28), glassMat);
+      lens.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z + 0.1);
+      char.add(lens);
+    });
+    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.025, 0.025), glassMat);
+    bridge.position.set(0, eyeOffsetY, FACE_Z + 0.1);
     char.add(bridge);
 
-    // Mouth
+    // ---- Cheeks: pink soft circles ----
+    [-1, 1].forEach((sx) => {
+      const cheek = new THREE.Mesh(
+        new THREE.SphereGeometry(0.11, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2),
+        new THREE.MeshStandardMaterial({
+          color: CHEEK,
+          transparent: true,
+          opacity: 0.8,
+          roughness: 0.9,
+        })
+      );
+      cheek.rotation.x = Math.PI / 2;
+      cheek.position.set(sx * 0.4, HEAD_Y - 0.18, FACE_Z);
+      cheek.scale.set(1, 1, 0.3);
+      char.add(cheek);
+    });
+
+    // ---- Mouth: small smile (tiny torus arc) ----
     const mouth = new THREE.Mesh(
-      new THREE.BoxGeometry(0.18, 0.04, 0.04),
-      new THREE.MeshStandardMaterial({ color: '#7f1d1d' })
+      new THREE.TorusGeometry(0.07, 0.025, 8, 16, Math.PI),
+      new THREE.MeshStandardMaterial({ color: MOUTH })
     );
-    mouth.position.set(0, 1.72, 0.41);
+    mouth.rotation.z = Math.PI;
+    mouth.position.set(0, HEAD_Y - 0.3, FACE_Z);
     char.add(mouth);
 
-    // Torso (bare base — top item will overlay or replace look)
+    // ---- Body (skin base, replaced by top item) ----
     const torso = new THREE.Mesh(
-      new THREE.BoxGeometry(0.9, 1.1, 0.45),
+      new THREE.BoxGeometry(TORSO_W, TORSO_H, TORSO_D),
       new THREE.MeshStandardMaterial({ color: SKIN })
     );
-    torso.position.set(0, 0.95, 0);
+    torso.position.set(0, TORSO_Y, 0);
     char.add(torso);
 
-    // Arms
-    const armGeo = new THREE.BoxGeometry(0.28, 1.0, 0.28);
+    // ---- Arms ----
     const armMat = new THREE.MeshStandardMaterial({ color: SKIN });
-    const armL = new THREE.Mesh(armGeo, armMat);
-    armL.position.set(-0.6, 0.95, 0);
-    char.add(armL);
-    const armR = new THREE.Mesh(armGeo, armMat.clone());
-    armR.position.set(0.6, 0.95, 0);
-    char.add(armR);
+    [-1, 1].forEach((sx) => {
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(ARM_W, ARM_H, ARM_W), armMat.clone());
+      arm.position.set(sx * ARM_X, ARM_Y, 0);
+      char.add(arm);
+      // Hand cube at the end
+      const hand = new THREE.Mesh(
+        new THREE.BoxGeometry(ARM_W * 1.1, ARM_W * 1.1, ARM_W * 1.1),
+        armMat.clone()
+      );
+      hand.position.set(sx * ARM_X, ARM_Y - ARM_H / 2 - 0.02, 0);
+      char.add(hand);
+    });
 
-    // Legs (bare; bottom item overlays)
-    const legGeo = new THREE.BoxGeometry(0.32, 1.0, 0.32);
+    // ---- Legs ----
     const legMat = new THREE.MeshStandardMaterial({ color: SKIN });
-    const legL = new THREE.Mesh(legGeo, legMat);
-    legL.position.set(-0.22, -0.1, 0);
-    char.add(legL);
-    const legR = new THREE.Mesh(legGeo, legMat.clone());
-    legR.position.set(0.22, -0.1, 0);
-    char.add(legR);
+    [-1, 1].forEach((sx) => {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(LEG_W, LEG_H, LEG_W), legMat.clone());
+      leg.position.set(sx * LEG_X, LEG_Y, 0);
+      char.add(leg);
+    });
 
-    // Slot groups
+    // ---- Slot groups (each item type clears+adds into its group) ----
     const slotGroups: Record<Slot, THREE.Group> = {
       top: new THREE.Group(),
       bottom: new THREE.Group(),
@@ -134,10 +197,10 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
     Object.values(slotGroups).forEach((g) => char.add(g));
     slotGroupsRef.current = slotGroups;
 
-    // Drag-to-rotate
+    // ---- Drag-to-rotate ----
     let userRotation: number | null = null;
-    let dragStart: { x: number; y: number; rotY: number; rotX: number; pointerId: number } | null = null;
     let userRotX = 0;
+    let dragStart: { x: number; y: number; rotY: number; rotX: number; pid: number } | null = null;
 
     const onPointerDown = (e: PointerEvent) => {
       e.preventDefault();
@@ -147,20 +210,24 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
         y: e.clientY,
         rotY: userRotation ?? char.rotation.y,
         rotX: userRotX,
-        pointerId: e.pointerId,
+        pid: e.pointerId,
       };
+      renderer.domElement.style.cursor = 'grabbing';
     };
     const onPointerMove = (e: PointerEvent) => {
-      if (!dragStart || dragStart.pointerId !== e.pointerId) return;
+      if (!dragStart || dragStart.pid !== e.pointerId) return;
       const dx = e.clientX - dragStart.x;
       const dy = e.clientY - dragStart.y;
       userRotation = dragStart.rotY + dx * 0.012;
-      userRotX = Math.max(-0.6, Math.min(0.6, dragStart.rotX + dy * 0.008));
+      userRotX = Math.max(-0.5, Math.min(0.5, dragStart.rotX + dy * 0.008));
       char.rotation.y = userRotation;
       char.rotation.x = userRotX;
     };
     const onPointerUp = (e: PointerEvent) => {
-      if (dragStart && dragStart.pointerId === e.pointerId) dragStart = null;
+      if (dragStart && dragStart.pid === e.pointerId) {
+        dragStart = null;
+        renderer.domElement.style.cursor = 'grab';
+      }
     };
     renderer.domElement.style.touchAction = 'none';
     renderer.domElement.style.cursor = 'grab';
@@ -169,20 +236,16 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
     renderer.domElement.addEventListener('pointerup', onPointerUp);
     renderer.domElement.addEventListener('pointercancel', onPointerUp);
 
-    // Animation
+    // ---- Animation loop ----
     let raf = 0;
     const start = performance.now();
     let jumpStart = 0;
     const animate = () => {
       const t = (performance.now() - start) / 1000;
-      // Auto-sway only until user takes control
       if (userRotation === null) {
         char.rotation.y = Math.sin(t * 0.6) * 0.25;
       }
-
-      if (jumpRef.current && jumpStart === 0) {
-        jumpStart = performance.now();
-      }
+      if (jumpRef.current && jumpStart === 0) jumpStart = performance.now();
       if (jumpStart > 0) {
         const dt = (performance.now() - jumpStart) / 1000;
         if (dt > 0.6) {
@@ -190,10 +253,9 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
           jumpRef.current = false;
           char.position.y = 0;
         } else {
-          char.position.y = Math.sin((dt / 0.6) * Math.PI) * 0.5;
+          char.position.y = Math.sin((dt / 0.6) * Math.PI) * 0.45;
         }
       }
-
       renderer.render(scene, camera);
       raf = requestAnimationFrame(animate);
     };
@@ -221,20 +283,19 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
     };
   }, []);
 
-  // Apply equipped items
+  // ---- Apply equipped items ----
   useEffect(() => {
     const groups = slotGroupsRef.current;
     if (!groups.top) return;
 
-    const clearGroup = (g: THREE.Group) => {
+    const clear = (g: THREE.Group) => {
       while (g.children.length) {
         const c = g.children.pop()!;
         (c as any).geometry?.dispose?.();
         (c as any).material?.dispose?.();
       }
     };
-
-    (Object.keys(groups) as Slot[]).forEach((slot) => clearGroup(groups[slot]));
+    (Object.keys(groups) as Slot[]).forEach((s) => clear(groups[s]));
 
     const equipItem = (slot: Slot, id: string) => {
       const item = getItem(id);
@@ -246,117 +307,135 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
       switch (slot) {
         case 'top': {
           const m = new THREE.Mesh(
-            new THREE.BoxGeometry(0.95, 1.15, 0.5),
+            new THREE.BoxGeometry(TORSO_W + 0.06, TORSO_H + 0.05, TORSO_D + 0.05),
             new THREE.MeshStandardMaterial({ color })
           );
-          m.position.set(0, 0.95, 0);
+          m.position.set(0, TORSO_Y, 0);
           g.add(m);
-          // sleeves
-          const sleeveGeo = new THREE.BoxGeometry(0.32, 0.55, 0.32);
+          // sleeves on the upper arms
           const sleeveMat = new THREE.MeshStandardMaterial({ color });
-          const sl = new THREE.Mesh(sleeveGeo, sleeveMat);
-          sl.position.set(-0.6, 1.2, 0);
-          g.add(sl);
-          const sr = new THREE.Mesh(sleeveGeo, sleeveMat.clone());
-          sr.position.set(0.6, 1.2, 0);
-          g.add(sr);
+          [-1, 1].forEach((sx) => {
+            const sleeve = new THREE.Mesh(
+              new THREE.BoxGeometry(ARM_W + 0.04, ARM_H * 0.5, ARM_W + 0.04),
+              sleeveMat.clone()
+            );
+            sleeve.position.set(sx * ARM_X, ARM_Y + ARM_H * 0.25, 0);
+            g.add(sleeve);
+          });
           if (accent) {
             const stripe = new THREE.Mesh(
-              new THREE.BoxGeometry(0.96, 0.1, 0.51),
+              new THREE.BoxGeometry(TORSO_W + 0.07, 0.08, TORSO_D + 0.06),
               new THREE.MeshStandardMaterial({ color: accent })
             );
-            stripe.position.set(0, 0.6, 0);
+            stripe.position.set(0, TORSO_Y - TORSO_H / 2 + 0.05, 0);
             g.add(stripe);
           }
           break;
         }
         case 'bottom': {
           const matB = new THREE.MeshStandardMaterial({ color });
-          const lL = new THREE.Mesh(new THREE.BoxGeometry(0.36, 1.05, 0.36), matB);
-          lL.position.set(-0.22, -0.08, 0);
-          g.add(lL);
-          const lR = new THREE.Mesh(new THREE.BoxGeometry(0.36, 1.05, 0.36), matB.clone());
-          lR.position.set(0.22, -0.08, 0);
-          g.add(lR);
+          [-1, 1].forEach((sx) => {
+            const leg = new THREE.Mesh(
+              new THREE.BoxGeometry(LEG_W + 0.03, LEG_H + 0.02, LEG_W + 0.03),
+              matB.clone()
+            );
+            leg.position.set(sx * LEG_X, LEG_Y, 0);
+            g.add(leg);
+          });
           break;
         }
         case 'hat': {
           if (item.shape === 'crown') {
-            const mat = new THREE.MeshStandardMaterial({ color });
-            const band = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.18, 0.9), mat);
-            band.position.set(0, 2.32, 0);
+            const mat = new THREE.MeshStandardMaterial({ color, metalness: 0.4, roughness: 0.4 });
+            const band = new THREE.Mesh(new THREE.BoxGeometry(HEAD_SIZE + 0.1, 0.16, HEAD_SIZE + 0.1), mat);
+            band.position.set(0, HEAD_Y + HEAD_SIZE / 2 + 0.18, 0);
             g.add(band);
             for (let i = 0; i < 5; i++) {
               const angle = (i / 5) * Math.PI * 2;
-              const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 4), mat);
-              spike.position.set(Math.cos(angle) * 0.32, 2.5, Math.sin(angle) * 0.32);
+              const spike = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.22, 4), mat);
+              spike.position.set(
+                Math.cos(angle) * (HEAD_SIZE / 2),
+                HEAD_Y + HEAD_SIZE / 2 + 0.4,
+                Math.sin(angle) * (HEAD_SIZE / 2)
+              );
               g.add(spike);
             }
           } else {
             const mat = new THREE.MeshStandardMaterial({ color });
-            const cap = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.3, 0.9), mat);
-            cap.position.set(0, 2.42, 0);
+            const cap = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.12, 0.28, HEAD_SIZE + 0.12),
+              mat
+            );
+            cap.position.set(0, HEAD_Y + HEAD_SIZE / 2 + 0.16, 0);
             g.add(cap);
-            const brim = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.08, 0.4), mat);
-            brim.position.set(0, 2.3, 0.55);
+            const brim = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.12, 0.06, 0.45),
+              mat
+            );
+            brim.position.set(0, HEAD_Y + HEAD_SIZE / 2 + 0.04, 0.55);
             g.add(brim);
           }
           break;
         }
         case 'back': {
           if (item.shape === 'wing') {
-            const matW = new THREE.MeshStandardMaterial({ color, transparent: true, opacity: 0.9 });
-            const wL = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.05), matW);
-            wL.position.set(-0.7, 1.2, -0.3);
-            wL.rotation.z = 0.4;
-            g.add(wL);
-            const wR = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.05), matW.clone());
-            wR.position.set(0.7, 1.2, -0.3);
-            wR.rotation.z = -0.4;
-            g.add(wR);
+            const matW = new THREE.MeshStandardMaterial({
+              color,
+              transparent: true,
+              opacity: 0.95,
+            });
+            [-1, 1].forEach((sx) => {
+              const wing = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.85, 0.05), matW.clone());
+              wing.position.set(sx * 0.6, TORSO_Y + 0.15, -0.32);
+              wing.rotation.z = sx * 0.4;
+              g.add(wing);
+            });
           } else {
             const mat = new THREE.MeshStandardMaterial({ color });
-            const pack = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.85, 0.3), mat);
-            pack.position.set(0, 1.0, -0.32);
+            const pack = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.85, TORSO_H * 0.8, 0.28),
+              mat
+            );
+            pack.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.16);
             g.add(pack);
           }
           break;
         }
         case 'shoes': {
           const mat = new THREE.MeshStandardMaterial({ color });
-          const sole = new THREE.MeshStandardMaterial({ color: accent ?? color });
-          const sL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.18, 0.5), mat);
-          sL.position.set(-0.22, -0.7, 0.05);
-          g.add(sL);
-          const sR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.18, 0.5), mat.clone());
-          sR.position.set(0.22, -0.7, 0.05);
-          g.add(sR);
-          if (accent) {
-            const tL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.5), sole);
-            tL.position.set(-0.22, -0.78, 0.05);
-            g.add(tL);
-            const tR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.5), sole.clone());
-            tR.position.set(0.22, -0.78, 0.05);
-            g.add(tR);
-          }
+          const soleMat = new THREE.MeshStandardMaterial({ color: accent ?? color });
+          [-1, 1].forEach((sx) => {
+            const shoe = new THREE.Mesh(new THREE.BoxGeometry(LEG_W + 0.06, 0.16, 0.4), mat.clone());
+            shoe.position.set(sx * LEG_X, LEG_Y - LEG_H / 2 - 0.02, 0.06);
+            g.add(shoe);
+            if (accent) {
+              const sole = new THREE.Mesh(new THREE.BoxGeometry(LEG_W + 0.06, 0.05, 0.4), soleMat.clone());
+              sole.position.set(sx * LEG_X, LEG_Y - LEG_H / 2 - 0.13, 0.06);
+              g.add(sole);
+            }
+          });
           break;
         }
         case 'charm': {
-          const mat = new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.2 });
-          let geo: THREE.BufferGeometry;
-          if (item.shape === 'diamond') {
-            geo = new THREE.OctahedronGeometry(0.13);
-          } else {
-            geo = new THREE.IcosahedronGeometry(0.12);
-          }
+          const mat = new THREE.MeshStandardMaterial({
+            color,
+            emissive: color,
+            emissiveIntensity: 0.25,
+            metalness: 0.3,
+            roughness: 0.4,
+          });
+          const geo =
+            item.shape === 'diamond'
+              ? new THREE.OctahedronGeometry(0.13)
+              : new THREE.IcosahedronGeometry(0.12);
           const charm = new THREE.Mesh(geo, mat);
-          charm.position.set(0.45, 0.4, 0.28);
+          charm.position.set(TORSO_W / 2 + 0.08, TORSO_Y - TORSO_H / 2 + 0.05, TORSO_D / 2);
           g.add(charm);
           const string = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.01, 0.01, 0.18, 6),
+            new THREE.CylinderGeometry(0.008, 0.008, 0.18, 6),
             new THREE.MeshStandardMaterial({ color: '#94a3b8' })
           );
-          string.position.set(0.45, 0.55, 0.28);
+          string.position.set(TORSO_W / 2 + 0.08, TORSO_Y - TORSO_H / 2 + 0.18, TORSO_D / 2);
           g.add(string);
           break;
         }
