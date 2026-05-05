@@ -1,6 +1,6 @@
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { PenCanvas, type PenCanvasHandle } from './PenCanvas';
-import { scoreLetterSlot } from '../lib/scoring';
+import { drawTemplate, scoreLetterSlot } from '../lib/scoring';
 
 export type LetterSlotHandle = {
   check: () => boolean;
@@ -23,6 +23,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
   ref
 ) {
   const penRef = useRef<PenCanvasHandle | null>(null);
+  const guideRef = useRef<HTMLCanvasElement | null>(null);
   const [passed, setPassed] = useState(false);
   const [feedback, setFeedback] = useState<'idle' | 'fail'>('idle');
 
@@ -60,8 +61,24 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
     isPassed: () => passed || variant === 'shown',
   }));
 
+  // Draw the visible guide using the SAME renderer as the scoring template.
+  useEffect(() => {
+    const cv = guideRef.current;
+    if (!cv) return;
+    const ctx = cv.getContext('2d')!;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    if (variant === 'guide') {
+      drawTemplate(ctx, letter, cv.width, cv.height, {
+        fillStyle: 'rgba(148, 163, 184, 0.55)', // soft gray dotted-feel
+      });
+    } else if (variant === 'shown') {
+      drawTemplate(ctx, letter, cv.width, cv.height, {
+        fillStyle: '#1d4ed8',
+      });
+    }
+  }, [letter, variant, width, height]);
+
   const interactive = variant !== 'shown';
-  const showTemplate = variant === 'guide' || variant === 'shown';
 
   const borderColor = passed
     ? 'border-green-400'
@@ -72,21 +89,16 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
 
   return (
     <div
-      className={`relative rounded-2xl border-4 ${borderColor} ${bg} shadow-sm`}
+      className={`relative rounded-2xl border-4 ${borderColor} ${bg} shadow-sm overflow-hidden`}
       style={{ width, height }}
     >
-      {showTemplate && (
-        <div
-          className="absolute inset-0 flex items-center justify-center pointer-events-none select-none font-kid font-bold"
-          style={{
-            color: variant === 'shown' ? '#1d4ed8' : '#cbd5e1',
-            fontSize: Math.floor(height * 0.7),
-            lineHeight: 1,
-          }}
-        >
-          {letter}
-        </div>
-      )}
+      <canvas
+        ref={guideRef}
+        width={width}
+        height={height}
+        className="absolute inset-0 pointer-events-none"
+        style={{ width: '100%', height: '100%' }}
+      />
       {interactive && (
         <PenCanvas
           ref={penRef}

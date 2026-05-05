@@ -1,78 +1,75 @@
 let cachedVoice: SpeechSynthesisVoice | null = null;
-let voicesReady: Promise<void> | null = null;
+let voicesPromise: Promise<void> | null = null;
 let unlocked = false;
+
+export function ttsAvailable(): boolean {
+  return typeof window !== 'undefined' && 'speechSynthesis' in window;
+}
 
 function pickVoice(): SpeechSynthesisVoice | null {
   const voices = window.speechSynthesis.getVoices();
   if (!voices.length) return null;
 
   const en = voices.filter((v) => v.lang && v.lang.toLowerCase().startsWith('en'));
-  const preferredNames = ['Samantha', 'Karen', 'Daniel', 'Moira', 'Tessa'];
-  for (const name of preferredNames) {
+
+  // Prefer well-known clear voices across platforms
+  const preferred = [
+    'Google US English',
+    'Google UK English Female',
+    'Microsoft Aria Online',
+    'Microsoft Jenny Online',
+    'Samantha',
+    'Karen',
+    'Moira',
+    'Tessa',
+    'Daniel',
+    'Alex',
+  ];
+  for (const name of preferred) {
     const hit = en.find((v) => v.name.includes(name));
     if (hit) return hit;
   }
-  return en[0] ?? voices[0] ?? null;
+  return en.find((v) => v.localService) ?? en[0] ?? null;
 }
 
 function ensureVoices(): Promise<void> {
-  if (voicesReady) return voicesReady;
-  voicesReady = new Promise<void>((resolve) => {
-    const v = window.speechSynthesis.getVoices();
-    if (v.length) {
-      cachedVoice = pickVoice();
-      resolve();
-      return;
-    }
-    const handler = () => {
-      cachedVoice = pickVoice();
-      window.speechSynthesis.removeEventListener('voiceschanged', handler);
-      resolve();
+  if (voicesPromise) return voicesPromise;
+  voicesPromise = new Promise<void>((resolve) => {
+    if (!ttsAvailable()) return resolve();
+    const trySetVoice = () => {
+      const v = window.speechSynthesis.getVoices();
+      if (v.length) {
+        cachedVoice = pickVoice();
+        return true;
+      }
+      return false;
     };
-    window.speechSynthesis.addEventListener('voiceschanged', handler);
+    if (trySetVoice()) return resolve();
+    const onChange = () => {
+      if (trySetVoice()) {
+        window.speechSynthesis.removeEventListener('voiceschanged', onChange);
+        resolve();
+      }
+    };
+    window.speechSynthesis.addEventListener('voiceschanged', onChange);
+    // Hard fallback: resolve after 2s no matter what so speak() doesn't hang
     setTimeout(() => {
-      if (!cachedVoice) cachedVoice = pickVoice();
+      window.speechSynthesis.removeEventListener('voiceschanged', onChange);
+      cachedVoice = pickVoice();
       resolve();
-    }, 1500);
+    }, 2000);
   });
-  return voicesReady;
+  return voicesPromise;
 }
 
-export async function speak(text: string, opts?: { rate?: number }): Promise<void> {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-  await ensureVoices();
-  return new Promise<void>((resolve) => {
-    try {
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      if (cachedVoice) u.voice = cachedVoice;
-      u.lang = cachedVoice?.lang ?? 'en-US';
-      u.rate = opts?.rate ?? 0.75;
-      u.pitch = 1.05;
-      u.onend = () => resolve();
-      u.onerror = () => resolve();
-      window.speechSynthesis.speak(u);
-    } catch {
-      resolve();
-    }
-  });
-}
-
-export function ttsAvailable(): boolean {
-  return typeof window !== 'undefined' && 'speechSynthesis' in window;
-}
-
-/** Call inside a user gesture (e.g., a click handler) to unlock iOS Safari TTS. */
+/** Call inside a user gesture handler to satisfy autoplay policies. */
 export function unlockTts(): void {
-  if (unlocked) return;
-  if (!ttsAvailable()) return;
+  if (unlocked || !ttsAvailable()) return;
   try {
-    // Force voice list to populate.
     window.speechSynthesis.getVoices();
-    // Speak a near-silent utterance to satisfy iOS gesture requirement.
+    window.speechSynthesis.resume();
     const u = new SpeechSynthesisUtterance(' ');
     u.volume = 0;
-    u.rate = 1;
     window.speechSynthesis.speak(u);
     unlocked = true;
     void ensureVoices();
@@ -83,4 +80,33 @@ export function unlockTts(): void {
 
 export function isTtsUnlocked(): boolean {
   return unlocked;
+}
+
+export async function speak(text: string, opts?: { rate?: number }): Promise<void> {
+  if (!ttsAvailable()) return;
+  await ensureVoices();
+  return new Promise<void>((resolve) => {
+    try {
+      const synth = window.speechSynthesis;
+      synth.resume(); // some browsers leave it paused
+      const u = new SpeechSynthesisUtterance(text);
+      if (cachedVoice) u.voice = cachedVoice;
+      u.lang = cachedVoice?.lang ?? 'en-US';
+      u.rate = opts?.rate ?? 0.8;
+      u.pitch = 1.05;
+      let resolved = false;
+      const done = () => {
+        if (resolved) return;
+        resolved = true;
+        resolve();
+      };
+      u.onend = done;
+      u.onerror = done;
+      synth.speak(u);
+      // Safety: if no event fires within 6s, resolve so UI isn't stuck
+      setTimeout(done, 6000);
+    } catch {
+      resolve();
+    }
+  });
 }

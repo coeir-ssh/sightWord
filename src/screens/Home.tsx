@@ -1,8 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Character3D } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
 import { useInventory, useProgress, useWallet } from '../lib/state';
 import { getWeek } from '../data/words';
+import { speak, unlockTts } from '../lib/tts';
 
 type Props = {
   onLearn: () => void;
@@ -15,6 +16,14 @@ export function Home({ onLearn, onShop, onWardrobe, onParent }: Props) {
   const { progress, dayDone } = useProgress();
   const { wallet } = useWallet();
   const { inventory } = useInventory();
+  const [soundTested, setSoundTested] = useState(false);
+
+  const testSound = () => {
+    unlockTts();
+    void speak('Hello, Haejun!');
+    setSoundTested(true);
+    setTimeout(() => setSoundTested(false), 2000);
+  };
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
@@ -26,24 +35,38 @@ export function Home({ onLearn, onShop, onWardrobe, onParent }: Props) {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-sky-soft to-blue-100 flex flex-col">
-      <header className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3">
+      <header className="flex items-center justify-between p-4 flex-wrap gap-2">
+        <div className="flex items-center gap-3 flex-wrap">
           <CoinHUD coins={wallet.coins} />
           <div className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-blue-700">
             📖 List {progress.currentWeek}
           </div>
         </div>
-        <button
-          onClick={onParent}
-          className="bg-white rounded-2xl px-4 py-2 shadow text-slate-600 font-bold"
-        >
-          🔒 부모용
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={testSound}
+            className={`rounded-2xl px-4 py-2 shadow font-bold transition ${
+              soundTested ? 'bg-green-400 text-white' : 'bg-white text-slate-700'
+            }`}
+            title="사운드 테스트"
+          >
+            {soundTested ? '🔊 들리시나요?' : '🔊 사운드 테스트'}
+          </button>
+          <button
+            onClick={onParent}
+            className="bg-white rounded-2xl px-4 py-2 shadow text-slate-600 font-bold"
+          >
+            🔒 부모용
+          </button>
+        </div>
       </header>
 
       <main className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 px-6 pb-6">
-        <section className="bg-white/70 backdrop-blur rounded-3xl shadow-lg p-4 flex items-center justify-center min-h-[340px]">
+        <section className="bg-white/70 backdrop-blur rounded-3xl shadow-lg p-4 flex flex-col items-center justify-center min-h-[340px] relative">
           <Character3D equipped={inventory.equipped} />
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-500 bg-white/80 rounded-full px-3 py-1 shadow pointer-events-none">
+            👆 캐릭터를 끌어서 돌려보세요
+          </div>
         </section>
 
         <section className="flex flex-col gap-4">
