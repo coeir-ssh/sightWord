@@ -210,6 +210,17 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
       char.add(leg);
     });
 
+    // ---- Feet (bare; shoes slot will overlay these when equipped) ----
+    const footMat = new THREE.MeshStandardMaterial({ color: SKIN });
+    [-1, 1].forEach((sx) => {
+      const foot = new THREE.Mesh(
+        new THREE.BoxGeometry(LEG_W + 0.04, 0.13, 0.34),
+        footMat.clone()
+      );
+      foot.position.set(sx * LEG_X, LEG_Y - LEG_H / 2 - 0.05, 0.07);
+      char.add(foot);
+    });
+
     // ---- Slot groups (each item type clears+adds into its group) ----
     const slotGroups: Record<Slot, THREE.Group> = {
       top: new THREE.Group(),
