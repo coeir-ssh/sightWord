@@ -66,17 +66,47 @@ function templateMaskFor(text: string, width: number, height: number): Uint8Arra
   cv.width = width;
   cv.height = height;
   const ctx = cv.getContext('2d', { willReadFrequently: true })!;
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, width, height);
   drawTemplate(ctx, text, width, height, { fillStyle: '#000000', strokeScale: 0 });
   const data = ctx.getImageData(0, 0, width, height).data;
   const mask = new Uint8Array(width * height);
   for (let i = 0, p = 0; i < data.length; i += 4, p++) {
-    // Pixel is part of letter when noticeably darker than white background
-    const lum = (data[i] + data[i + 1] + data[i + 2]) / 3;
-    mask[p] = lum < 200 ? 1 : 0;
+    // Letter pixels are the ones the glyph actually painted (alpha > 0).
+    if (data[i + 3] >= 32) mask[p] = 1;
   }
-  return mask;
+  return dilate(mask, width, height, 6); // small forgiveness margin
+}
+
+/** Dilate a binary mask by `r` pixels (separable: horizontal + vertical). */
+function dilate(mask: Uint8Array, w: number, h: number, r: number): Uint8Array {
+  if (r <= 0) return mask;
+  // Horizontal pass
+  const tmp = new Uint8Array(mask.length);
+  for (let y = 0; y < h; y++) {
+    let count = 0;
+    // Initial window
+    for (let x = 0; x <= r && x < w; x++) if (mask[y * w + x]) count++;
+    for (let x = 0; x < w; x++) {
+      tmp[y * w + x] = count > 0 ? 1 : 0;
+      const enter = x + r + 1;
+      const leave = x - r;
+      if (enter < w && mask[y * w + enter]) count++;
+      if (leave >= 0 && mask[y * w + leave]) count--;
+    }
+  }
+  // Vertical pass
+  const out = new Uint8Array(mask.length);
+  for (let x = 0; x < w; x++) {
+    let count = 0;
+    for (let y = 0; y <= r && y < h; y++) if (tmp[y * w + x]) count++;
+    for (let y = 0; y < h; y++) {
+      out[y * w + x] = count > 0 ? 1 : 0;
+      const enter = y + r + 1;
+      const leave = y - r;
+      if (enter < h && tmp[enter * w + x]) count++;
+      if (leave >= 0 && tmp[leave * w + x]) count--;
+    }
+  }
+  return out;
 }
 
 function userStrokeMask(canvas: HTMLCanvasElement): Uint8Array {
