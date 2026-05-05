@@ -1,4 +1,4 @@
-import { DEFAULT_ITEMS, type Slot } from '../data/items';
+import { DEFAULT_ITEMS, DEFAULT_OWNED, type Slot } from '../data/items';
 import type { WeekId } from '../data/words';
 
 export type Progress = {
@@ -29,7 +29,7 @@ const DEFAULT_PROGRESS: Progress = {
 const DEFAULT_WALLET: Wallet = { coins: 0 };
 
 const DEFAULT_INVENTORY: Inventory = {
-  owned: ['top.basic_white', 'bottom.jeans'],
+  owned: [...DEFAULT_OWNED],
   equipped: { ...DEFAULT_ITEMS },
 };
 
@@ -58,7 +58,19 @@ export const storage = {
   loadWallet: (): Wallet => read(KEYS.wallet, DEFAULT_WALLET),
   saveWallet: (w: Wallet) => write(KEYS.wallet, w),
 
-  loadInventory: (): Inventory => read(KEYS.inventory, DEFAULT_INVENTORY),
+  loadInventory: (): Inventory => {
+    const inv = read<Inventory>(KEYS.inventory, DEFAULT_INVENTORY);
+    // Merge in any new default-owned items added in later versions
+    let changed = false;
+    for (const id of DEFAULT_OWNED) {
+      if (!inv.owned.includes(id)) {
+        inv.owned.push(id);
+        changed = true;
+      }
+    }
+    if (changed) write(KEYS.inventory, inv);
+    return inv;
+  },
   saveInventory: (i: Inventory) => write(KEYS.inventory, i),
 
   getParentPin: (): string => localStorage.getItem(KEYS.parentPin) ?? '1004',

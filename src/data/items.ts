@@ -37,6 +37,7 @@ export const ITEMS: Item[] = [
   { id: 'hat.crown', name: '왕관', slot: 'hat', price: 120, color: '#fbbf24', shape: 'crown' },
 
   // Back
+  { id: 'back.kinder', name: '유치원 가방', slot: 'back', price: 0, color: '#fb7185', accent: '#fde68a', shape: 'box' },
   { id: 'back.backpack', name: '백팩', slot: 'back', price: 50, color: '#16a34a', shape: 'box' },
   { id: 'back.wings', name: '날개', slot: 'back', price: 100, color: '#fef3c7', accent: '#fcd34d', shape: 'wing' },
 
@@ -53,10 +54,16 @@ export const DEFAULT_ITEMS: Record<Slot, string> = {
   top: 'top.basic_white',
   bottom: 'bottom.jeans',
   hat: '',
-  back: '',
+  back: 'back.kinder',
   shoes: '',
   charm: '',
 };
+
+export const DEFAULT_OWNED: string[] = [
+  'top.basic_white',
+  'bottom.jeans',
+  'back.kinder',
+];
 
 export function getItem(id: string): Item | undefined {
   return ITEMS.find((i) => i.id === id);
