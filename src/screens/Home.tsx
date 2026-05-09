@@ -75,8 +75,12 @@ export function Home({ onLearn, onShop, onWardrobe, onParent, onList }: Props) {
 
         <section className="flex flex-col gap-4">
           <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-5">
-            <div className="text-slate-600 font-bold text-sm">오늘의 미션</div>
-            <div className="text-3xl font-extrabold text-blue-700 my-2">{dayLabel}</div>
+            <div className="text-slate-600 font-bold text-sm">
+              {LIST_LABEL[progress.currentWeek]} · {dayLabel}
+            </div>
+            <div className="text-2xl font-extrabold text-blue-700 my-2">
+              어떤 리스트를 공부할까요?
+            </div>
             <div className="flex gap-2 my-3">
               {done.map((d, i) => (
                 <div
@@ -86,13 +90,19 @@ export function Home({ onLearn, onShop, onWardrobe, onParent, onList }: Props) {
               ))}
             </div>
             <div className="text-slate-700 text-sm">
-              이번 주 단어: {week.words.map((w) => w.text).join(', ')}
+              현재 리스트 단어: {week.words.map((w) => w.text).join(', ')}
             </div>
             <button
-              onClick={onLearn}
+              onClick={onList}
               className="mt-4 w-full text-2xl font-extrabold bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl py-4 shadow-lg"
             >
-              ▶ 오늘 학습 시작
+              📖 리스트 골라서 공부하기
+            </button>
+            <button
+              onClick={onLearn}
+              className="mt-2 w-full text-base font-bold bg-white hover:bg-blue-50 active:scale-95 text-blue-700 rounded-2xl py-3 shadow border border-blue-200"
+            >
+              ▶ {LIST_LABEL[progress.currentWeek]} 이어서 하기
             </button>
           </div>
 

@@ -2,15 +2,15 @@ import { CoinHUD } from '../components/CoinHUD';
 import { useProgress, useWallet } from '../lib/state';
 import { WEEKS, LIST_LABEL, type WeekId } from '../data/words';
 
-type Props = { onBack: () => void };
+type Props = { onBack: () => void; onStart: () => void };
 
-export function ListPicker({ onBack }: Props) {
+export function ListPicker({ onBack, onStart }: Props) {
   const { progress, setWeek, dayDone } = useProgress();
   const { wallet } = useWallet();
 
   const choose = (id: WeekId) => {
     setWeek(id);
-    onBack();
+    onStart();
   };
 
   return (
@@ -22,9 +22,13 @@ export function ListPicker({ onBack }: Props) {
         >
           ← 홈
         </button>
-        <div className="text-blue-700 font-extrabold text-2xl">📖 리스트 고르기</div>
+        <div className="text-blue-700 font-extrabold text-2xl">📖 공부할 리스트 고르기</div>
         <CoinHUD coins={wallet.coins} />
       </header>
+
+      <div className="px-4 pb-2 text-center text-sm font-bold text-slate-600">
+        리스트를 누르면 바로 학습이 시작돼요
+      </div>
 
       <main className="flex-1 p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
         {WEEKS.map((wk) => {

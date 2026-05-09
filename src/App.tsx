@@ -68,7 +68,7 @@ export function App() {
     case 'parent':
       return <ParentGate onBack={() => go('home')} />;
     case 'list':
-      return <ListPicker onBack={() => go('home')} />;
+      return <ListPicker onBack={() => go('home')} onStart={() => go('learn')} />;
     default:
       return (
         <Home
