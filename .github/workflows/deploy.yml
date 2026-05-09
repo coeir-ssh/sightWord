@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - claude/sight-word-learning-app-8SGGz
+      - claude/split-vocab-lists-Qvk2I
   workflow_dispatch:
 
 permissions:
