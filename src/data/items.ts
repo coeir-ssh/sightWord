@@ -1,5 +1,15 @@
 export type Slot = 'top' | 'bottom' | 'hat' | 'back' | 'shoes' | 'charm';
 
+export type TopKind =
+  | 'tee'
+  | 'hoodie'
+  | 'raincoat'
+  | 'spacesuit'
+  | 'striped'
+  | 'dino'
+  | 'sweater'
+  | 'star';
+
 export type Item = {
   id: string;
   name: string;
@@ -8,6 +18,7 @@ export type Item = {
   color: string;
   accent?: string;
   shape?: 'box' | 'wing' | 'crown' | 'star' | 'diamond';
+  kind?: TopKind;
 };
 
 export const SLOT_ORDER: Slot[] = ['top', 'bottom', 'hat', 'back', 'shoes', 'charm'];
@@ -23,16 +34,16 @@ export const SLOT_LABEL: Record<Slot, string> = {
 
 export const ITEMS: Item[] = [
   // ───────── Tops (10) ─────────
-  { id: 'top.basic_white', name: '흰 티', slot: 'top', price: 0, color: '#ffffff' },
-  { id: 'top.red_hoodie', name: '빨간 후디', slot: 'top', price: 50, color: '#ef4444', accent: '#7f1d1d' },
-  { id: 'top.spacesuit', name: '우주복 상의', slot: 'top', price: 80, color: '#cbd5e1', accent: '#3b82f6' },
-  { id: 'top.blue_stripe', name: '파란 줄무늬 티', slot: 'top', price: 40, color: '#60a5fa', accent: '#1e40af' },
-  { id: 'top.pink_tee', name: '핑크 티', slot: 'top', price: 40, color: '#f472b6' },
-  { id: 'top.green_dino', name: '초록 공룡 티', slot: 'top', price: 70, color: '#34d399', accent: '#065f46' },
-  { id: 'top.yellow_rain', name: '노란 우비', slot: 'top', price: 60, color: '#facc15', accent: '#a16207' },
-  { id: 'top.purple_star', name: '보라 별 티', slot: 'top', price: 70, color: '#a78bfa', accent: '#fde047' },
-  { id: 'top.black_tee', name: '검은 티', slot: 'top', price: 40, color: '#111827' },
-  { id: 'top.orange_sweater', name: '주황 스웨터', slot: 'top', price: 60, color: '#fb923c', accent: '#7c2d12' },
+  { id: 'top.basic_white', name: '흰 티', slot: 'top', price: 0, color: '#ffffff', kind: 'tee' },
+  { id: 'top.red_hoodie', name: '빨간 후디', slot: 'top', price: 50, color: '#ef4444', accent: '#7f1d1d', kind: 'hoodie' },
+  { id: 'top.spacesuit', name: '우주복 상의', slot: 'top', price: 80, color: '#e2e8f0', accent: '#3b82f6', kind: 'spacesuit' },
+  { id: 'top.blue_stripe', name: '파란 줄무늬 티', slot: 'top', price: 40, color: '#60a5fa', accent: '#ffffff', kind: 'striped' },
+  { id: 'top.pink_tee', name: '핑크 티', slot: 'top', price: 40, color: '#f472b6', kind: 'tee' },
+  { id: 'top.green_dino', name: '초록 공룡 티', slot: 'top', price: 70, color: '#34d399', accent: '#fde68a', kind: 'dino' },
+  { id: 'top.yellow_rain', name: '노란 우비', slot: 'top', price: 60, color: '#facc15', accent: '#a16207', kind: 'raincoat' },
+  { id: 'top.purple_star', name: '보라 별 티', slot: 'top', price: 70, color: '#a78bfa', accent: '#fde047', kind: 'star' },
+  { id: 'top.black_tee', name: '검은 티', slot: 'top', price: 40, color: '#111827', kind: 'tee' },
+  { id: 'top.orange_sweater', name: '주황 스웨터', slot: 'top', price: 60, color: '#fb923c', accent: '#7c2d12', kind: 'sweater' },
 
   // ───────── Bottoms (10) ─────────
   { id: 'bottom.jeans', name: '청바지', slot: 'bottom', price: 0, color: '#1d4ed8' },

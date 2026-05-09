@@ -343,25 +343,216 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
 
       switch (slot) {
         case 'top': {
-          const m = new THREE.Mesh(
-            new THREE.BoxGeometry(TORSO_W + 0.06, TORSO_H + 0.05, TORSO_D + 0.05),
+          const kind = item.kind ?? 'tee';
+          const isPuffy = kind === 'spacesuit' || kind === 'sweater' || kind === 'raincoat';
+          const fullSleeve = kind === 'hoodie' || kind === 'sweater' || kind === 'raincoat' || kind === 'spacesuit';
+          const padW = isPuffy ? 0.12 : 0.06;
+          const padH = isPuffy ? 0.08 : 0.05;
+          const padD = isPuffy ? 0.10 : 0.05;
+
+          const torsoMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(TORSO_W + padW, TORSO_H + padH, TORSO_D + padD),
             new THREE.MeshStandardMaterial({ color })
           );
-          m.position.set(0, TORSO_Y, 0);
-          g.add(m);
-          // sleeves on the upper arms
-          const sleeveMat = new THREE.MeshStandardMaterial({ color });
+          torsoMesh.position.set(0, TORSO_Y, 0);
+          g.add(torsoMesh);
+
+          const sleeveLen = fullSleeve ? ARM_H + 0.04 : ARM_H * 0.5;
+          const sleeveY = fullSleeve ? ARM_Y - 0.02 : ARM_Y + ARM_H * 0.25;
+          const sleeveExtra = isPuffy ? 0.08 : 0.04;
           [-1, 1].forEach((sx) => {
             const sleeve = new THREE.Mesh(
-              new THREE.BoxGeometry(ARM_W + 0.04, ARM_H * 0.5, ARM_W + 0.04),
-              sleeveMat.clone()
+              new THREE.BoxGeometry(ARM_W + sleeveExtra, sleeveLen, ARM_W + sleeveExtra),
+              new THREE.MeshStandardMaterial({ color })
             );
-            sleeve.position.set(sx * ARM_X, ARM_Y + ARM_H * 0.25, 0);
+            sleeve.position.set(sx * ARM_X, sleeveY, 0);
             g.add(sleeve);
           });
-          if (accent) {
+
+          const frontZ = (TORSO_D + padD) / 2;
+          const backZ = -(TORSO_D + padD) / 2;
+          const topY = TORSO_Y + (TORSO_H + padH) / 2;
+
+          if (kind === 'hoodie') {
+            const hood = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.22, HEAD_SIZE * 0.78, HEAD_SIZE * 0.55),
+              new THREE.MeshStandardMaterial({ color })
+            );
+            hood.position.set(0, topY + HEAD_SIZE * 0.35, backZ + HEAD_SIZE * 0.2);
+            g.add(hood);
+            if (accent) {
+              const pocket = new THREE.Mesh(
+                new THREE.BoxGeometry(TORSO_W * 0.7, 0.22, 0.05),
+                new THREE.MeshStandardMaterial({ color: accent })
+              );
+              pocket.position.set(0, TORSO_Y - 0.12, frontZ + 0.025);
+              g.add(pocket);
+            }
+            const stringMat = new THREE.MeshStandardMaterial({ color: '#ffffff' });
+            [-1, 1].forEach((sx) => {
+              const ds = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.014, 0.014, 0.24, 6),
+                stringMat.clone()
+              );
+              ds.position.set(sx * 0.07, topY - 0.08, frontZ + 0.04);
+              g.add(ds);
+            });
+          } else if (kind === 'raincoat') {
+            const coatMat = new THREE.MeshStandardMaterial({ color, roughness: 0.25, metalness: 0.05 });
+            torsoMesh.material = coatMat;
+            const hood = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.26, HEAD_SIZE * 0.85, HEAD_SIZE * 0.6),
+              coatMat.clone()
+            );
+            hood.position.set(0, topY + HEAD_SIZE * 0.38, backZ + HEAD_SIZE * 0.2);
+            g.add(hood);
+            const skirt = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.08, 0.42, TORSO_D + padD + 0.08),
+              coatMat.clone()
+            );
+            skirt.position.set(0, TORSO_Y - TORSO_H / 2 - 0.12, 0);
+            g.add(skirt);
+            if (accent) {
+              const btnMat = new THREE.MeshStandardMaterial({ color: accent });
+              for (let i = 0; i < 3; i++) {
+                const b = new THREE.Mesh(new THREE.SphereGeometry(0.04, 12, 12), btnMat.clone());
+                b.position.set(0, TORSO_Y + 0.2 - i * 0.2, frontZ + 0.04);
+                g.add(b);
+              }
+            }
+          } else if (kind === 'spacesuit') {
+            const ringMat = new THREE.MeshStandardMaterial({
+              color: '#f1f5f9',
+              metalness: 0.7,
+              roughness: 0.25,
+            });
+            const ring = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.05, 12, 24), ringMat);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.set(0, topY + 0.04, 0);
+            g.add(ring);
+            const panel = new THREE.Mesh(
+              new THREE.BoxGeometry(0.36, 0.24, 0.05),
+              new THREE.MeshStandardMaterial({ color: '#1f2937' })
+            );
+            panel.position.set(0, TORSO_Y + 0.04, frontZ + 0.03);
+            g.add(panel);
+            const lights: [string, number][] = [
+              ['#22c55e', -0.1],
+              ['#ef4444', 0],
+              [accent ? `#${new THREE.Color(accent).getHexString()}` : '#3b82f6', 0.1],
+            ];
+            lights.forEach(([c, x]) => {
+              const lmat = new THREE.MeshStandardMaterial({
+                color: c,
+                emissive: c,
+                emissiveIntensity: 0.9,
+              });
+              const l = new THREE.Mesh(new THREE.SphereGeometry(0.028, 10, 10), lmat);
+              l.position.set(x, TORSO_Y + 0.06, frontZ + 0.06);
+              g.add(l);
+            });
+            [-1, 1].forEach((sx) => {
+              const pad = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2, 14, 14, 0, Math.PI * 2, 0, Math.PI / 2),
+                new THREE.MeshStandardMaterial({ color: '#f1f5f9' })
+              );
+              pad.position.set(sx * (TORSO_W / 2 + 0.04), topY - 0.06, 0);
+              g.add(pad);
+            });
+            const hose = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.025, 0.025, 0.32, 8),
+              new THREE.MeshStandardMaterial({ color: '#475569' })
+            );
+            hose.rotation.x = 0.3;
+            hose.position.set(0.18, TORSO_Y + 0.22, frontZ + 0.02);
+            g.add(hose);
+          } else if (kind === 'striped') {
+            const stripeColor = accent ? new THREE.Color(accent) : new THREE.Color('#ffffff');
+            [-0.2, -0.02, 0.16].forEach((y) => {
+              const s = new THREE.Mesh(
+                new THREE.BoxGeometry(TORSO_W + padW + 0.02, 0.07, TORSO_D + padD + 0.02),
+                new THREE.MeshStandardMaterial({ color: stripeColor })
+              );
+              s.position.set(0, TORSO_Y + y, 0);
+              g.add(s);
+            });
+          } else if (kind === 'dino') {
+            const spikeColor = accent ? new THREE.Color(accent) : color;
+            const spikeMat = new THREE.MeshStandardMaterial({ color: spikeColor });
+            for (let i = 0; i < 4; i++) {
+              const sp = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 4), spikeMat.clone());
+              sp.rotation.x = -Math.PI / 2;
+              sp.position.set(0, TORSO_Y + 0.22 - i * 0.15, backZ - 0.12);
+              g.add(sp);
+            }
+            const bellyMat = new THREE.MeshStandardMaterial({ color: spikeColor });
+            const belly = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.55, TORSO_H * 0.55, 0.04),
+              bellyMat
+            );
+            belly.position.set(0, TORSO_Y - 0.04, frontZ + 0.02);
+            g.add(belly);
+          } else if (kind === 'sweater') {
+            const collar = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.26, 0.26, 0.24, 18),
+              new THREE.MeshStandardMaterial({ color })
+            );
+            collar.position.set(0, topY + 0.08, 0);
+            g.add(collar);
+            if (accent) {
+              const knitMat = new THREE.MeshStandardMaterial({ color: accent });
+              for (let i = -2; i <= 2; i++) {
+                const v = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.025, TORSO_H * 0.7, 0.02),
+                  knitMat.clone()
+                );
+                v.position.set(i * 0.13, TORSO_Y, frontZ + 0.02);
+                g.add(v);
+              }
+              [-1, 1].forEach((sx) => {
+                const cuff = new THREE.Mesh(
+                  new THREE.BoxGeometry(ARM_W + 0.1, 0.09, ARM_W + 0.1),
+                  knitMat.clone()
+                );
+                cuff.position.set(sx * ARM_X, ARM_Y - ARM_H + 0.04, 0);
+                g.add(cuff);
+              });
+              const hem = new THREE.Mesh(
+                new THREE.BoxGeometry(TORSO_W + padW + 0.02, 0.09, TORSO_D + padD + 0.02),
+                new THREE.MeshStandardMaterial({ color: accent })
+              );
+              hem.position.set(0, TORSO_Y - TORSO_H / 2, 0);
+              g.add(hem);
+            }
+          } else if (kind === 'star') {
+            const starColor = accent ? new THREE.Color(accent) : new THREE.Color('#fde047');
+            const starMat = new THREE.MeshStandardMaterial({
+              color: starColor,
+              emissive: starColor,
+              emissiveIntensity: 0.35,
+            });
+            const shape = new THREE.Shape();
+            const outer = 0.18;
+            const inner = 0.075;
+            for (let i = 0; i < 10; i++) {
+              const r = i % 2 === 0 ? outer : inner;
+              const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+              const px = Math.cos(a) * r;
+              const py = Math.sin(a) * r;
+              if (i === 0) shape.moveTo(px, py);
+              else shape.lineTo(px, py);
+            }
+            shape.closePath();
+            const star = new THREE.Mesh(
+              new THREE.ExtrudeGeometry(shape, { depth: 0.04, bevelEnabled: false }),
+              starMat
+            );
+            star.position.set(0, TORSO_Y + 0.05, frontZ + 0.005);
+            g.add(star);
+          } else if (accent) {
+            // plain tee with accent hem
             const stripe = new THREE.Mesh(
-              new THREE.BoxGeometry(TORSO_W + 0.07, 0.08, TORSO_D + 0.06),
+              new THREE.BoxGeometry(TORSO_W + padW + 0.01, 0.08, TORSO_D + padD + 0.01),
               new THREE.MeshStandardMaterial({ color: accent })
             );
             stripe.position.set(0, TORSO_Y - TORSO_H / 2 + 0.05, 0);
