@@ -39,15 +39,21 @@ async def synth_one(word: str, sem: asyncio.Semaphore) -> tuple[str, bool]:
     if out_path.exists() and out_path.stat().st_size > 500:
         return word, True
     async with sem:
-        try:
-            communicate = edge_tts.Communicate(word, VOICE, rate=RATE)
-            await communicate.save(str(out_path))
-            ok = out_path.exists() and out_path.stat().st_size > 500
-            print(f'  {"OK " if ok else "ERR"} {word!r:>10} -> {out_path.name}')
-            return word, ok
-        except Exception as e:
-            print(f'  ERR {word!r}: {e}', file=sys.stderr)
-            return word, False
+        last_err: Exception | None = None
+        for attempt in range(1, 4):
+            try:
+                communicate = edge_tts.Communicate(word, VOICE, rate=RATE)
+                await communicate.save(str(out_path))
+                ok = out_path.exists() and out_path.stat().st_size > 500
+                if ok:
+                    print(f'  OK  {word!r:>10} -> {out_path.name}')
+                    return word, True
+                last_err = RuntimeError('empty file')
+            except Exception as e:
+                last_err = e
+            await asyncio.sleep(0.5 * attempt)
+        print(f'  ERR {word!r}: {last_err}', file=sys.stderr)
+        return word, False
 
 
 async def main() -> int:
@@ -58,8 +64,12 @@ async def main() -> int:
     results = await asyncio.gather(*[synth_one(w, sem) for w in words])
     manifest = [w for w, ok in results if ok]
     MANIFEST_PATH.write_text(json.dumps(sorted(manifest)), encoding='utf-8')
+    failed = [w for w, ok in results if not ok]
     print(f'Wrote manifest: {len(manifest)} / {len(words)} words')
-    return 0 if len(manifest) == len(words) else 1
+    if failed:
+        print(f'  {len(failed)} word(s) failed (browser TTS will be used as fallback): {failed}')
+    # Always succeed: missing audio falls back to Web Speech API in the app.
+    return 0
 
 
 if __name__ == '__main__':
