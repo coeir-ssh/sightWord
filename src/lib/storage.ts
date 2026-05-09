@@ -81,14 +81,42 @@ export const storage = {
   },
   saveInventory: (i: Inventory) => write(KEYS.inventory, i),
 
-  getParentPin: (): string => localStorage.getItem(KEYS.parentPin) ?? '1004',
-  setParentPin: (pin: string) => localStorage.setItem(KEYS.parentPin, pin),
+  getParentPin: (): string => {
+    try {
+      return localStorage.getItem(KEYS.parentPin) ?? '1004';
+    } catch {
+      return '1004';
+    }
+  },
+  setParentPin: (pin: string) => {
+    try {
+      localStorage.setItem(KEYS.parentPin, pin);
+    } catch {
+      /* ignore */
+    }
+  },
 
-  getCharName: (): string => localStorage.getItem(KEYS.charName) ?? '',
-  setCharName: (name: string) => localStorage.setItem(KEYS.charName, name),
+  getCharName: (): string => {
+    try {
+      return localStorage.getItem(KEYS.charName) ?? '';
+    } catch {
+      return '';
+    }
+  },
+  setCharName: (name: string) => {
+    try {
+      localStorage.setItem(KEYS.charName, name);
+    } catch {
+      /* ignore */
+    }
+  },
 
   reset: () => {
-    Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
+    try {
+      Object.values(KEYS).forEach((k) => localStorage.removeItem(k));
+    } catch {
+      /* ignore */
+    }
   },
 };
 
