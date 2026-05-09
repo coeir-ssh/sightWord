@@ -30,19 +30,17 @@ export function useWallet() {
   const addCoins = useCallback((n: number) => {
     setWallet((w) => ({ coins: Math.max(0, w.coins + n) }));
   }, []);
+  // Read coins from the closed-over snapshot (current rendered state).
+  // Reading inside the updater and returning that value doesn't work
+  // because React 18 runs the updater on the next render, so the ref
+  // would still be the initial `false` when spendCoins returns.
   const spendCoins = useCallback(
     (n: number): boolean => {
-      let ok = false;
-      setWallet((w) => {
-        if (w.coins >= n) {
-          ok = true;
-          return { coins: w.coins - n };
-        }
-        return w;
-      });
-      return ok;
+      if (wallet.coins < n) return false;
+      setWallet((w) => ({ coins: Math.max(0, w.coins - n) }));
+      return true;
     },
-    []
+    [wallet.coins]
   );
   return { wallet, addCoins, spendCoins };
 }
