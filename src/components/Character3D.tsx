@@ -561,110 +561,1167 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
           break;
         }
         case 'bottom': {
+          const kind = item.kind ?? 'pants';
           const matB = new THREE.MeshStandardMaterial({ color });
-          [-1, 1].forEach((sx) => {
-            const leg = new THREE.Mesh(
-              new THREE.BoxGeometry(LEG_W + 0.03, LEG_H + 0.02, LEG_W + 0.03),
-              matB.clone()
+
+          if (kind === 'skirt') {
+            const skirt = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.5, 0.32, 0.55, 18),
+              matB
             );
-            leg.position.set(sx * LEG_X, LEG_Y, 0);
-            g.add(leg);
-          });
+            skirt.position.set(0, LEG_Y + LEG_H / 2 - 0.05, 0);
+            g.add(skirt);
+            // bare-ish legs below skirt (use color of skin so they read as legs)
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W, LEG_H * 0.5, LEG_W),
+                new THREE.MeshStandardMaterial({ color: SKIN })
+              );
+              leg.position.set(sx * LEG_X, LEG_Y - LEG_H * 0.25, 0);
+              g.add(leg);
+            });
+          } else if (kind === 'shorts') {
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.05, LEG_H * 0.55, LEG_W + 0.05),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.22, 0);
+              g.add(leg);
+            });
+          } else if (kind === 'spacepants') {
+            const accMat = accent ? new THREE.MeshStandardMaterial({ color: accent }) : null;
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.12, LEG_H + 0.04, LEG_W + 0.12),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+              if (accMat) {
+                const ring = new THREE.Mesh(
+                  new THREE.TorusGeometry(0.18, 0.03, 8, 16),
+                  accMat.clone()
+                );
+                ring.rotation.x = Math.PI / 2;
+                ring.position.set(sx * LEG_X, LEG_Y - LEG_H / 2 + 0.04, 0);
+                g.add(ring);
+                const stripe = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.04, LEG_H, LEG_W + 0.14),
+                  accMat.clone()
+                );
+                stripe.position.set(sx * (LEG_X + LEG_W / 2 + 0.04), LEG_Y, 0);
+                g.add(stripe);
+              }
+            });
+          } else if (kind === 'track') {
+            const accMat = accent ? new THREE.MeshStandardMaterial({ color: accent }) : null;
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.05, LEG_H + 0.02, LEG_W + 0.05),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+              if (accMat) {
+                const stripe = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.05, LEG_H + 0.04, LEG_W + 0.07),
+                  accMat.clone()
+                );
+                stripe.position.set(sx * (LEG_X + LEG_W / 2 + 0.02), LEG_Y, 0);
+                g.add(stripe);
+              }
+            });
+          } else if (kind === 'sweat') {
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.08, LEG_H + 0.02, LEG_W + 0.08),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+              const cuff = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.12, 0.08, LEG_W + 0.12),
+                matB.clone()
+              );
+              cuff.position.set(sx * LEG_X, LEG_Y - LEG_H / 2 + 0.04, 0);
+              g.add(cuff);
+            });
+          } else if (kind === 'plaid') {
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.05, LEG_H + 0.02, LEG_W + 0.05),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+            });
+            if (accent) {
+              const accMat = new THREE.MeshStandardMaterial({ color: accent });
+              [-0.22, -0.04, 0.14].forEach((y) => {
+                [-1, 1].forEach((sx) => {
+                  const h = new THREE.Mesh(
+                    new THREE.BoxGeometry(LEG_W + 0.07, 0.04, LEG_W + 0.07),
+                    accMat.clone()
+                  );
+                  h.position.set(sx * LEG_X, LEG_Y + y, 0);
+                  g.add(h);
+                });
+              });
+              [-1, 1].forEach((sx) => {
+                const v = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.04, LEG_H + 0.04, LEG_W + 0.07),
+                  accMat.clone()
+                );
+                v.position.set(sx * LEG_X, LEG_Y, 0);
+                g.add(v);
+              });
+            }
+          } else if (kind === 'jeans') {
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.05, LEG_H + 0.02, LEG_W + 0.05),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+            });
+            const belt = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.08, 0.08, TORSO_D + 0.06),
+              new THREE.MeshStandardMaterial({ color: '#1f2937' })
+            );
+            belt.position.set(0, LEG_Y + LEG_H / 2 + 0.03, 0);
+            g.add(belt);
+            const buckle = new THREE.Mesh(
+              new THREE.BoxGeometry(0.08, 0.06, 0.04),
+              new THREE.MeshStandardMaterial({
+                color: accent ?? '#fbbf24',
+                metalness: 0.6,
+                roughness: 0.3,
+              })
+            );
+            buckle.position.set(0, LEG_Y + LEG_H / 2 + 0.03, TORSO_D / 2 + 0.04);
+            g.add(buckle);
+            // Pocket lines on the back
+            const pocketMat = new THREE.MeshStandardMaterial({ color: '#1e3a8a' });
+            [-1, 1].forEach((sx) => {
+              const pocket = new THREE.Mesh(
+                new THREE.BoxGeometry(0.13, 0.13, 0.03),
+                pocketMat.clone()
+              );
+              pocket.position.set(sx * 0.13, LEG_Y + LEG_H / 2 - 0.16, -LEG_W / 2 - 0.03);
+              g.add(pocket);
+            });
+          } else {
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.05, LEG_H + 0.02, LEG_W + 0.05),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+            });
+          }
           break;
         }
         case 'hat': {
-          if (item.shape === 'crown') {
-            const mat = new THREE.MeshStandardMaterial({ color, metalness: 0.4, roughness: 0.4 });
-            const band = new THREE.Mesh(new THREE.BoxGeometry(HEAD_SIZE + 0.1, 0.16, HEAD_SIZE + 0.1), mat);
-            band.position.set(0, HEAD_Y + HEAD_SIZE / 2 + 0.18, 0);
+          const kind =
+            item.kind ?? (item.shape === 'crown' ? 'crown' : 'cap');
+          const hatBaseY = HEAD_Y + HEAD_SIZE / 2;
+
+          if (kind === 'crown') {
+            const mat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.5,
+              roughness: 0.35,
+            });
+            const band = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.12, 0.18, HEAD_SIZE + 0.12),
+              mat
+            );
+            band.position.set(0, hatBaseY + 0.1, 0);
             g.add(band);
             for (let i = 0; i < 5; i++) {
               const angle = (i / 5) * Math.PI * 2;
-              const spike = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.22, 4), mat);
+              const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.08, 0.24, 4),
+                mat.clone()
+              );
               spike.position.set(
                 Math.cos(angle) * (HEAD_SIZE / 2),
-                HEAD_Y + HEAD_SIZE / 2 + 0.4,
+                hatBaseY + 0.32,
                 Math.sin(angle) * (HEAD_SIZE / 2)
               );
               g.add(spike);
             }
-          } else {
+            const gem = new THREE.Mesh(
+              new THREE.OctahedronGeometry(0.07),
+              new THREE.MeshStandardMaterial({
+                color: '#ef4444',
+                emissive: '#ef4444',
+                emissiveIntensity: 0.4,
+              })
+            );
+            gem.position.set(0, hatBaseY + 0.1, HEAD_SIZE / 2 + 0.05);
+            g.add(gem);
+          } else if (kind === 'cap') {
             const mat = new THREE.MeshStandardMaterial({ color });
-            const cap = new THREE.Mesh(
-              new THREE.BoxGeometry(HEAD_SIZE + 0.12, 0.28, HEAD_SIZE + 0.12),
+            const dome = new THREE.Mesh(
+              new THREE.SphereGeometry(
+                HEAD_SIZE / 2 + 0.06,
+                18,
+                12,
+                0,
+                Math.PI * 2,
+                0,
+                Math.PI / 2
+              ),
               mat
             );
-            cap.position.set(0, HEAD_Y + HEAD_SIZE / 2 + 0.16, 0);
-            g.add(cap);
+            dome.position.set(0, hatBaseY - 0.04, 0);
+            g.add(dome);
             const brim = new THREE.Mesh(
-              new THREE.BoxGeometry(HEAD_SIZE + 0.12, 0.06, 0.45),
+              new THREE.BoxGeometry(HEAD_SIZE * 0.95, 0.05, 0.42),
+              mat.clone()
+            );
+            brim.position.set(0, hatBaseY - 0.06, FACE_Z + 0.18);
+            g.add(brim);
+            // Tiny button on top
+            const btn = new THREE.Mesh(
+              new THREE.SphereGeometry(0.04, 10, 10),
+              new THREE.MeshStandardMaterial({ color: '#ffffff' })
+            );
+            btn.position.set(0, hatBaseY + 0.42, 0);
+            g.add(btn);
+          } else if (kind === 'beanie') {
+            const mat = new THREE.MeshStandardMaterial({ color });
+            const beanie = new THREE.Mesh(
+              new THREE.SphereGeometry(
+                HEAD_SIZE / 2 + 0.08,
+                18,
+                14,
+                0,
+                Math.PI * 2,
+                0,
+                Math.PI * 0.6
+              ),
               mat
             );
-            brim.position.set(0, HEAD_Y + HEAD_SIZE / 2 + 0.04, 0.55);
+            beanie.position.set(0, hatBaseY - 0.18, 0);
+            g.add(beanie);
+            // cuff/band at base
+            const band = new THREE.Mesh(
+              new THREE.CylinderGeometry(
+                HEAD_SIZE / 2 + 0.09,
+                HEAD_SIZE / 2 + 0.09,
+                0.1,
+                20
+              ),
+              mat.clone()
+            );
+            band.position.set(0, hatBaseY - 0.16, 0);
+            g.add(band);
+            // pom-pom
+            const pom = new THREE.Mesh(
+              new THREE.SphereGeometry(0.11, 14, 14),
+              new THREE.MeshStandardMaterial({ color: '#ffffff' })
+            );
+            pom.position.set(0, hatBaseY + 0.32, 0);
+            g.add(pom);
+          } else if (kind === 'tophat') {
+            const mat = new THREE.MeshStandardMaterial({ color });
+            const cyl = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.36, 0.36, 0.55, 24),
+              mat
+            );
+            cyl.position.set(0, hatBaseY + 0.32, 0);
+            g.add(cyl);
+            const brim = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.55, 0.55, 0.05, 24),
+              mat.clone()
+            );
+            brim.position.set(0, hatBaseY + 0.04, 0);
             g.add(brim);
+            const ribbon = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.37, 0.37, 0.08, 24),
+              new THREE.MeshStandardMaterial({ color: '#dc2626' })
+            );
+            ribbon.position.set(0, hatBaseY + 0.1, 0);
+            g.add(ribbon);
+          } else if (kind === 'wizard' || kind === 'witch') {
+            const mat = new THREE.MeshStandardMaterial({ color });
+            const brimR = kind === 'witch' ? 0.7 : 0.42;
+            const cone = new THREE.Mesh(
+              new THREE.ConeGeometry(0.34, 1.0, 24),
+              mat
+            );
+            cone.position.set(0, hatBaseY + 0.55, 0);
+            // tilt slightly forward for whimsy
+            cone.rotation.x = -0.1;
+            g.add(cone);
+            const brim = new THREE.Mesh(
+              new THREE.CylinderGeometry(brimR, brimR, 0.04, 28),
+              mat.clone()
+            );
+            brim.position.set(0, hatBaseY + 0.04, 0);
+            g.add(brim);
+            if (kind === 'wizard') {
+              for (let i = 0; i < 7; i++) {
+                const a = (i / 7) * Math.PI * 2;
+                const t = i / 7;
+                const star = new THREE.Mesh(
+                  new THREE.IcosahedronGeometry(0.04),
+                  new THREE.MeshStandardMaterial({
+                    color: '#fde047',
+                    emissive: '#fde047',
+                    emissiveIntensity: 0.8,
+                  })
+                );
+                const r = 0.32 - t * 0.22;
+                star.position.set(
+                  Math.cos(a) * r,
+                  hatBaseY + 0.25 + t * 0.7,
+                  Math.sin(a) * r
+                );
+                g.add(star);
+              }
+            } else {
+              const buckle = new THREE.Mesh(
+                new THREE.BoxGeometry(0.18, 0.12, 0.04),
+                new THREE.MeshStandardMaterial({
+                  color: '#fbbf24',
+                  metalness: 0.6,
+                  roughness: 0.3,
+                })
+              );
+              buckle.position.set(0, hatBaseY + 0.18, brimR - 0.02);
+              g.add(buckle);
+            }
+          } else if (kind === 'cowboy') {
+            const mat = new THREE.MeshStandardMaterial({ color });
+            const crown = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.32, 0.36, 0.42, 18),
+              mat
+            );
+            crown.position.set(0, hatBaseY + 0.24, 0);
+            g.add(crown);
+            // pinched top crease
+            const crease = new THREE.Mesh(
+              new THREE.BoxGeometry(0.06, 0.16, 0.5),
+              mat.clone()
+            );
+            crease.position.set(0, hatBaseY + 0.42, 0);
+            g.add(crease);
+            const brim = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.62, 0.62, 0.04, 28),
+              mat.clone()
+            );
+            brim.position.set(0, hatBaseY + 0.05, 0);
+            brim.scale.set(1, 1, 0.85);
+            g.add(brim);
+            const band = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.34, 0.34, 0.06, 18),
+              new THREE.MeshStandardMaterial({ color: '#7c2d12' })
+            );
+            band.position.set(0, hatBaseY + 0.1, 0);
+            g.add(band);
+          } else if (kind === 'sunhat') {
+            const mat = new THREE.MeshStandardMaterial({ color });
+            const crown = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.3, 0.32, 0.22, 24),
+              mat
+            );
+            crown.position.set(0, hatBaseY + 0.14, 0);
+            g.add(crown);
+            const brim = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.72, 0.72, 0.03, 32),
+              mat.clone()
+            );
+            brim.position.set(0, hatBaseY + 0.04, 0);
+            g.add(brim);
+            const ribbon = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.32, 0.32, 0.06, 24),
+              new THREE.MeshStandardMaterial({ color: '#ffffff' })
+            );
+            ribbon.position.set(0, hatBaseY + 0.06, 0);
+            g.add(ribbon);
+            // bow
+            const bow = new THREE.Mesh(
+              new THREE.SphereGeometry(0.06, 12, 12),
+              new THREE.MeshStandardMaterial({ color: '#ffffff' })
+            );
+            bow.scale.set(1.6, 0.7, 0.7);
+            bow.position.set(0, hatBaseY + 0.06, 0.32);
+            g.add(bow);
+          } else if (kind === 'pumpkin') {
+            const pumpMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.55,
+            });
+            const dome = new THREE.Mesh(
+              new THREE.SphereGeometry(
+                HEAD_SIZE / 2 + 0.16,
+                22,
+                16,
+                0,
+                Math.PI * 2,
+                0,
+                Math.PI * 0.7
+              ),
+              pumpMat
+            );
+            dome.position.set(0, hatBaseY - 0.18, 0);
+            g.add(dome);
+            const ridgeMat = new THREE.MeshStandardMaterial({
+              color: '#c2410c',
+            });
+            for (let i = 0; i < 6; i++) {
+              const angle = (i / 6) * Math.PI * 2;
+              const ridge = new THREE.Mesh(
+                new THREE.BoxGeometry(0.05, 0.55, 0.05),
+                ridgeMat.clone()
+              );
+              ridge.position.set(
+                Math.cos(angle) * (HEAD_SIZE / 2 + 0.16),
+                hatBaseY + 0.06,
+                Math.sin(angle) * (HEAD_SIZE / 2 + 0.16)
+              );
+              g.add(ridge);
+            }
+            // stem
+            const stem = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.06, 0.09, 0.2, 8),
+              new THREE.MeshStandardMaterial({ color: '#15803d' })
+            );
+            stem.position.set(0, hatBaseY + 0.4, 0);
+            stem.rotation.z = 0.15;
+            g.add(stem);
+            // leaf
+            const leaf = new THREE.Mesh(
+              new THREE.BoxGeometry(0.22, 0.04, 0.12),
+              new THREE.MeshStandardMaterial({ color: '#16a34a' })
+            );
+            leaf.rotation.z = 0.4;
+            leaf.position.set(0.1, hatBaseY + 0.42, 0.04);
+            g.add(leaf);
           }
           break;
         }
         case 'back': {
-          if (item.shape === 'wing') {
+          const kind =
+            item.kind ?? (item.shape === 'wing' ? 'wing_feather' : 'pack');
+          const isWing =
+            kind === 'wing_feather' ||
+            kind === 'wing_angel' ||
+            kind === 'wing_bat' ||
+            kind === 'wing_star';
+
+          if (isWing) {
             const matW = new THREE.MeshStandardMaterial({
               color,
               transparent: true,
               opacity: 0.95,
             });
             [-1, 1].forEach((sx) => {
-              const wing = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.85, 0.05), matW.clone());
-              wing.position.set(sx * 0.6, TORSO_Y + 0.15, -0.32);
-              wing.rotation.z = sx * 0.4;
-              g.add(wing);
+              if (kind === 'wing_bat') {
+                // scalloped silhouette: main + 3 cone scallops
+                const wing = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.7, 0.7, 0.05),
+                  matW.clone()
+                );
+                wing.position.set(sx * 0.55, TORSO_Y + 0.18, -0.32);
+                wing.rotation.z = sx * 0.4;
+                g.add(wing);
+                const accCol = accent ?? '#7c3aed';
+                const sMat = new THREE.MeshStandardMaterial({ color: accCol });
+                for (let i = 0; i < 3; i++) {
+                  const sc = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.13, 0.22, 4),
+                    sMat.clone()
+                  );
+                  sc.rotation.x = Math.PI;
+                  sc.rotation.z = sx * 0.4;
+                  sc.position.set(
+                    sx * (0.32 + i * 0.18),
+                    TORSO_Y - 0.15 - i * 0.08,
+                    -0.32
+                  );
+                  g.add(sc);
+                }
+              } else {
+                // feather wings: stacked rounded panels
+                const wing = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.7, 0.85, 0.05),
+                  matW.clone()
+                );
+                wing.position.set(sx * 0.6, TORSO_Y + 0.15, -0.32);
+                wing.rotation.z = sx * 0.4;
+                g.add(wing);
+                const featherCol = accent ?? color;
+                const fMat = new THREE.MeshStandardMaterial({ color: featherCol });
+                for (let i = 0; i < 3; i++) {
+                  const f = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.18, 0.24, 0.05),
+                    fMat.clone()
+                  );
+                  f.position.set(
+                    sx * (0.7 + i * 0.04),
+                    TORSO_Y + 0.05 - i * 0.2,
+                    -0.32
+                  );
+                  f.rotation.z = sx * 0.6;
+                  g.add(f);
+                }
+                if (kind === 'wing_star') {
+                  const starCol = accent ?? '#f97316';
+                  const stMat = new THREE.MeshStandardMaterial({
+                    color: starCol,
+                    emissive: starCol,
+                    emissiveIntensity: 0.5,
+                  });
+                  for (let i = 0; i < 3; i++) {
+                    const st = new THREE.Mesh(
+                      new THREE.IcosahedronGeometry(0.07),
+                      stMat.clone()
+                    );
+                    st.position.set(
+                      sx * (0.45 + i * 0.12),
+                      TORSO_Y + 0.32 - i * 0.28,
+                      -0.3
+                    );
+                    g.add(st);
+                  }
+                }
+              }
+            });
+            if (kind === 'wing_angel') {
+              const haloCol = accent ?? '#fde68a';
+              const halo = new THREE.Mesh(
+                new THREE.TorusGeometry(0.3, 0.028, 12, 28),
+                new THREE.MeshStandardMaterial({
+                  color: haloCol,
+                  emissive: haloCol,
+                  emissiveIntensity: 0.7,
+                })
+              );
+              halo.rotation.x = Math.PI / 2;
+              halo.position.set(0, HEAD_Y + HEAD_SIZE / 2 + 0.5, 0);
+              g.add(halo);
+            }
+          } else if (kind === 'cape') {
+            const capeMat = new THREE.MeshStandardMaterial({
+              color,
+              side: THREE.DoubleSide,
+            });
+            const cape = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.22, TORSO_H + 0.55, 0.04),
+              capeMat
+            );
+            cape.position.set(0, TORSO_Y - 0.18, -TORSO_D / 2 - 0.06);
+            g.add(cape);
+            // collar
+            const collarMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#fbbf24',
+            });
+            const collar = new THREE.Mesh(
+              new THREE.BoxGeometry(0.46, 0.12, 0.12),
+              collarMat
+            );
+            collar.position.set(0, TORSO_Y + TORSO_H / 2 + 0.08, -TORSO_D / 2);
+            g.add(collar);
+            // tie/clasp on chest
+            const tie = new THREE.Mesh(
+              new THREE.SphereGeometry(0.05, 12, 12),
+              collarMat.clone()
+            );
+            tie.position.set(0, TORSO_Y + TORSO_H / 2 + 0.06, TORSO_D / 2 + 0.04);
+            g.add(tie);
+          } else if (kind === 'jetpack') {
+            const tankMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.4,
+              roughness: 0.4,
+            });
+            [-1, 1].forEach((sx) => {
+              const tank = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.13, 0.13, 0.62, 18),
+                tankMat.clone()
+              );
+              tank.position.set(sx * 0.18, TORSO_Y, -TORSO_D / 2 - 0.2);
+              g.add(tank);
+              // top cap
+              const cap = new THREE.Mesh(
+                new THREE.SphereGeometry(0.13, 16, 12),
+                tankMat.clone()
+              );
+              cap.position.set(sx * 0.18, TORSO_Y + 0.32, -TORSO_D / 2 - 0.2);
+              g.add(cap);
+              // flame
+              const flameCol = accent ?? '#f97316';
+              const flame = new THREE.Mesh(
+                new THREE.ConeGeometry(0.11, 0.26, 14),
+                new THREE.MeshStandardMaterial({
+                  color: flameCol,
+                  emissive: flameCol,
+                  emissiveIntensity: 0.9,
+                })
+              );
+              flame.rotation.x = Math.PI;
+              flame.position.set(sx * 0.18, TORSO_Y - 0.46, -TORSO_D / 2 - 0.2);
+              g.add(flame);
+            });
+            // connecting back panel
+            const panel = new THREE.Mesh(
+              new THREE.BoxGeometry(0.5, 0.5, 0.06),
+              new THREE.MeshStandardMaterial({ color: '#475569' })
+            );
+            panel.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.08);
+            g.add(panel);
+          } else if (kind === 'shell') {
+            const shellMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.5,
+            });
+            const shell = new THREE.Mesh(
+              new THREE.SphereGeometry(
+                0.5,
+                20,
+                14,
+                0,
+                Math.PI * 2,
+                0,
+                Math.PI / 2
+              ),
+              shellMat
+            );
+            shell.rotation.x = Math.PI / 2;
+            shell.position.set(0, TORSO_Y - 0.05, -TORSO_D / 2 - 0.1);
+            g.add(shell);
+            // hex pattern
+            const hexCol = accent ?? '#854d0e';
+            const hexMat = new THREE.MeshStandardMaterial({ color: hexCol });
+            const hexPos: [number, number, number][] = [
+              [0, 0.1, 0],
+              [-0.22, 0, 0.05],
+              [0.22, 0, 0.05],
+              [0, -0.18, 0],
+              [-0.18, -0.28, 0.1],
+              [0.18, -0.28, 0.1],
+            ];
+            hexPos.forEach(([dx, dy, dzExtra]) => {
+              const hex = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.08, 0.08, 0.04, 6),
+                hexMat.clone()
+              );
+              hex.rotation.x = Math.PI / 2;
+              hex.position.set(dx, TORSO_Y + dy, -TORSO_D / 2 - 0.5 + dzExtra);
+              g.add(hex);
+            });
+          } else if (kind === 'kinder') {
+            const bagMat = new THREE.MeshStandardMaterial({ color });
+            const bag = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.78, TORSO_H * 0.7, 0.24),
+              bagMat
+            );
+            bag.position.set(0, TORSO_Y - 0.04, -TORSO_D / 2 - 0.14);
+            g.add(bag);
+            // rounded top flap
+            const flap = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.8, 0.18, 0.26),
+              bagMat.clone()
+            );
+            flap.position.set(0, TORSO_Y + TORSO_H * 0.32, -TORSO_D / 2 - 0.14);
+            g.add(flap);
+            if (accent) {
+              const pocket = new THREE.Mesh(
+                new THREE.BoxGeometry(TORSO_W * 0.5, TORSO_H * 0.3, 0.04),
+                new THREE.MeshStandardMaterial({ color: accent })
+              );
+              pocket.position.set(0, TORSO_Y - 0.12, -TORSO_D / 2 - 0.27);
+              g.add(pocket);
+            }
+            // straps over shoulders
+            const strapMat = new THREE.MeshStandardMaterial({ color: '#ffffff' });
+            [-1, 1].forEach((sx) => {
+              const strap = new THREE.Mesh(
+                new THREE.BoxGeometry(0.06, TORSO_H * 0.7, 0.05),
+                strapMat.clone()
+              );
+              strap.position.set(
+                sx * (TORSO_W / 2 - 0.05),
+                TORSO_Y + 0.05,
+                -TORSO_D / 2 + 0.02
+              );
+              g.add(strap);
             });
           } else {
+            // pack
             const mat = new THREE.MeshStandardMaterial({ color });
             const pack = new THREE.Mesh(
-              new THREE.BoxGeometry(TORSO_W * 0.85, TORSO_H * 0.8, 0.28),
+              new THREE.BoxGeometry(TORSO_W * 0.85, TORSO_H * 0.85, 0.28),
               mat
             );
             pack.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.16);
             g.add(pack);
+            // front pocket
+            const pocketCol = accent ?? '#0f172a';
+            const pocket = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.55, TORSO_H * 0.3, 0.04),
+              new THREE.MeshStandardMaterial({ color: pocketCol })
+            );
+            pocket.position.set(0, TORSO_Y - 0.16, -TORSO_D / 2 - 0.32);
+            g.add(pocket);
+            // top handle
+            const handle = new THREE.Mesh(
+              new THREE.TorusGeometry(0.06, 0.018, 6, 14),
+              new THREE.MeshStandardMaterial({ color: pocketCol })
+            );
+            handle.position.set(
+              0,
+              TORSO_Y + TORSO_H * 0.45,
+              -TORSO_D / 2 - 0.16
+            );
+            g.add(handle);
+            // straps
+            const strapMat = new THREE.MeshStandardMaterial({ color: pocketCol });
+            [-1, 1].forEach((sx) => {
+              const strap = new THREE.Mesh(
+                new THREE.BoxGeometry(0.06, TORSO_H * 0.85, 0.04),
+                strapMat.clone()
+              );
+              strap.position.set(
+                sx * (TORSO_W / 2 - 0.06),
+                TORSO_Y,
+                -TORSO_D / 2 + 0.02
+              );
+              g.add(strap);
+            });
           }
           break;
         }
         case 'shoes': {
+          const kind = item.kind ?? 'sneakers';
           const mat = new THREE.MeshStandardMaterial({ color });
-          const soleMat = new THREE.MeshStandardMaterial({ color: accent ?? color });
+          const accMat = accent
+            ? new THREE.MeshStandardMaterial({ color: accent })
+            : null;
+          const footY = LEG_Y - LEG_H / 2 - 0.02;
+
           [-1, 1].forEach((sx) => {
-            const shoe = new THREE.Mesh(new THREE.BoxGeometry(LEG_W + 0.06, 0.16, 0.4), mat.clone());
-            shoe.position.set(sx * LEG_X, LEG_Y - LEG_H / 2 - 0.02, 0.06);
-            g.add(shoe);
-            if (accent) {
-              const sole = new THREE.Mesh(new THREE.BoxGeometry(LEG_W + 0.06, 0.05, 0.4), soleMat.clone());
-              sole.position.set(sx * LEG_X, LEG_Y - LEG_H / 2 - 0.13, 0.06);
+            if (
+              kind === 'boots' ||
+              kind === 'rainboots' ||
+              kind === 'snowboots'
+            ) {
+              const shaft = new THREE.Mesh(
+                new THREE.CylinderGeometry(
+                  LEG_W * 0.55,
+                  LEG_W * 0.55,
+                  0.34,
+                  16
+                ),
+                mat.clone()
+              );
+              shaft.position.set(sx * LEG_X, footY + 0.18, 0);
+              g.add(shaft);
+              const toe = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.16, 0.34),
+                mat.clone()
+              );
+              toe.position.set(sx * LEG_X, footY - 0.06, 0.1);
+              g.add(toe);
+              if (kind === 'snowboots' && accMat) {
+                const fur = new THREE.Mesh(
+                  new THREE.CylinderGeometry(
+                    LEG_W * 0.65,
+                    LEG_W * 0.65,
+                    0.1,
+                    20
+                  ),
+                  accMat.clone()
+                );
+                fur.position.set(sx * LEG_X, footY + 0.34, 0);
+                g.add(fur);
+              }
+              if (kind === 'rainboots' && accMat) {
+                const sole = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.07, 0.05, 0.36),
+                  accMat.clone()
+                );
+                sole.position.set(sx * LEG_X, footY - 0.14, 0.08);
+                g.add(sole);
+              }
+              if (kind === 'boots' && accMat) {
+                // buckle on side
+                const buckle = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.06, 0.04, 0.04),
+                  accMat.clone()
+                );
+                buckle.position.set(
+                  sx * (LEG_X + LEG_W * 0.55 + 0.02),
+                  footY + 0.12,
+                  0
+                );
+                g.add(buckle);
+              }
+            } else if (kind === 'sandals') {
+              const sole = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.08, 0.06, 0.38),
+                mat.clone()
+              );
+              sole.position.set(sx * LEG_X, footY - 0.04, 0.06);
               g.add(sole);
+              if (accMat) {
+                // T-strap
+                const strap1 = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.04, 0.03, 0.06),
+                  accMat.clone()
+                );
+                strap1.position.set(sx * LEG_X, footY, 0.1);
+                g.add(strap1);
+                const strap2 = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.04, 0.03, 0.18),
+                  accMat.clone()
+                );
+                strap2.position.set(sx * LEG_X, footY, 0.16);
+                g.add(strap2);
+              }
+            } else if (kind === 'flat') {
+              const shoe = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.12, 0.36),
+                mat.clone()
+              );
+              shoe.position.set(sx * LEG_X, footY - 0.02, 0.06);
+              g.add(shoe);
+              if (accMat) {
+                // bow
+                const bow = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.06, 14, 14),
+                  accMat.clone()
+                );
+                bow.scale.set(1.6, 0.7, 0.7);
+                bow.position.set(sx * LEG_X, footY + 0.04, 0.18);
+                g.add(bow);
+                const knot = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.025, 10, 10),
+                  accMat.clone()
+                );
+                knot.position.set(sx * LEG_X, footY + 0.04, 0.18);
+                g.add(knot);
+              }
+            } else if (kind === 'skates') {
+              const shoe = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.16, 0.42),
+                mat.clone()
+              );
+              shoe.position.set(sx * LEG_X, footY, 0.06);
+              g.add(shoe);
+              const wheelMat = accMat
+                ? accMat.clone()
+                : new THREE.MeshStandardMaterial({ color: '#0f172a' });
+              const wheelPositions: [number, number][] = [
+                [0, -0.14],
+                [0, 0],
+                [0, 0.14],
+                [0, 0.28],
+              ];
+              wheelPositions.forEach(([_, dz]) => {
+                const w = new THREE.Mesh(
+                  new THREE.CylinderGeometry(0.07, 0.07, 0.07, 14),
+                  wheelMat.clone()
+                );
+                w.rotation.z = Math.PI / 2;
+                w.position.set(sx * LEG_X, footY - 0.13, dz);
+                g.add(w);
+              });
+            } else if (kind === 'lightup') {
+              const shoe = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.16, 0.42),
+                mat.clone()
+              );
+              shoe.position.set(sx * LEG_X, footY, 0.06);
+              g.add(shoe);
+              const glowCol = accent ?? '#fde047';
+              const glow = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.08, 0.05, 0.44),
+                new THREE.MeshStandardMaterial({
+                  color: glowCol,
+                  emissive: glowCol,
+                  emissiveIntensity: 1.0,
+                })
+              );
+              glow.position.set(sx * LEG_X, footY - 0.08, 0.06);
+              g.add(glow);
+            } else {
+              // sneakers / sport
+              const shoe = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.16, 0.42),
+                mat.clone()
+              );
+              shoe.position.set(sx * LEG_X, footY, 0.06);
+              g.add(shoe);
+              if (accMat) {
+                const sole = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.07, 0.05, 0.44),
+                  accMat.clone()
+                );
+                sole.position.set(sx * LEG_X, footY - 0.08, 0.06);
+                g.add(sole);
+                if (kind === 'sport') {
+                  const stripe = new THREE.Mesh(
+                    new THREE.BoxGeometry(LEG_W + 0.08, 0.04, 0.22),
+                    accMat.clone()
+                  );
+                  stripe.position.set(sx * LEG_X, footY, 0.06);
+                  g.add(stripe);
+                } else {
+                  // laces (small accent crosshatch on top)
+                  for (let i = 0; i < 3; i++) {
+                    const lace = new THREE.Mesh(
+                      new THREE.BoxGeometry(LEG_W * 0.6, 0.02, 0.04),
+                      accMat.clone()
+                    );
+                    lace.position.set(sx * LEG_X, footY + 0.08, 0.18 - i * 0.07);
+                    g.add(lace);
+                  }
+                }
+              }
             }
           });
           break;
         }
         case 'charm': {
-          const mat = new THREE.MeshStandardMaterial({
-            color,
-            emissive: color,
-            emissiveIntensity: 0.25,
-            metalness: 0.3,
-            roughness: 0.4,
-          });
-          const geo =
-            item.shape === 'diamond'
-              ? new THREE.OctahedronGeometry(0.13)
-              : new THREE.IcosahedronGeometry(0.12);
-          const charm = new THREE.Mesh(geo, mat);
-          charm.position.set(TORSO_W / 2 + 0.08, TORSO_Y - TORSO_H / 2 + 0.05, TORSO_D / 2);
-          g.add(charm);
+          const kind =
+            item.kind ??
+            (item.shape === 'diamond'
+              ? 'diamond'
+              : item.shape === 'box'
+                ? 'cube'
+                : 'star');
+          const cx = TORSO_W / 2 + 0.08;
+          const cy = TORSO_Y - TORSO_H / 2 + 0.05;
+          const cz = TORSO_D / 2;
+
           const string = new THREE.Mesh(
             new THREE.CylinderGeometry(0.008, 0.008, 0.18, 6),
             new THREE.MeshStandardMaterial({ color: '#94a3b8' })
           );
-          string.position.set(TORSO_W / 2 + 0.08, TORSO_Y - TORSO_H / 2 + 0.18, TORSO_D / 2);
+          string.position.set(cx, cy + 0.16, cz);
           g.add(string);
+          const ring = new THREE.Mesh(
+            new THREE.TorusGeometry(0.025, 0.008, 8, 12),
+            new THREE.MeshStandardMaterial({
+              color: '#cbd5e1',
+              metalness: 0.7,
+              roughness: 0.3,
+            })
+          );
+          ring.position.set(cx, cy + 0.13, cz);
+          g.add(ring);
+
+          const shinyMat = new THREE.MeshStandardMaterial({
+            color,
+            emissive: color,
+            emissiveIntensity: 0.3,
+            metalness: 0.4,
+            roughness: 0.4,
+          });
+
+          if (kind === 'diamond') {
+            const c = new THREE.Mesh(new THREE.OctahedronGeometry(0.13), shinyMat);
+            c.position.set(cx, cy, cz);
+            g.add(c);
+          } else if (kind === 'cube') {
+            const c = new THREE.Mesh(
+              new THREE.BoxGeometry(0.18, 0.18, 0.18),
+              shinyMat
+            );
+            c.position.set(cx, cy, cz);
+            c.rotation.set(0.4, 0.4, 0);
+            g.add(c);
+          } else if (kind === 'coin') {
+            const c = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.13, 0.13, 0.04, 24),
+              shinyMat
+            );
+            c.rotation.x = Math.PI / 2;
+            c.position.set(cx, cy, cz);
+            g.add(c);
+            const w = new THREE.Mesh(
+              new THREE.BoxGeometry(0.05, 0.07, 0.005),
+              new THREE.MeshStandardMaterial({ color: '#7c2d12' })
+            );
+            w.position.set(cx, cy, cz + 0.025);
+            g.add(w);
+          } else if (kind === 'bell') {
+            const body = new THREE.Mesh(
+              new THREE.ConeGeometry(0.13, 0.22, 18),
+              shinyMat
+            );
+            body.position.set(cx, cy + 0.02, cz);
+            g.add(body);
+            const rim = new THREE.Mesh(
+              new THREE.TorusGeometry(0.13, 0.018, 8, 18),
+              shinyMat.clone()
+            );
+            rim.rotation.x = Math.PI / 2;
+            rim.position.set(cx, cy - 0.08, cz);
+            g.add(rim);
+            const clap = new THREE.Mesh(
+              new THREE.SphereGeometry(0.04, 12, 12),
+              new THREE.MeshStandardMaterial({ color: '#7c2d12' })
+            );
+            clap.position.set(cx, cy - 0.12, cz);
+            g.add(clap);
+          } else if (kind === 'moon') {
+            const moon = new THREE.Mesh(
+              new THREE.TorusGeometry(0.1, 0.05, 14, 28, Math.PI),
+              shinyMat
+            );
+            moon.rotation.z = Math.PI / 2;
+            moon.position.set(cx, cy, cz);
+            g.add(moon);
+            const cap1 = new THREE.Mesh(
+              new THREE.SphereGeometry(0.05, 14, 14),
+              shinyMat.clone()
+            );
+            cap1.position.set(cx - 0.1, cy, cz);
+            g.add(cap1);
+            const cap2 = new THREE.Mesh(
+              new THREE.SphereGeometry(0.05, 14, 14),
+              shinyMat.clone()
+            );
+            cap2.position.set(cx + 0.1, cy, cz);
+            g.add(cap2);
+          } else if (kind === 'sun') {
+            const disk = new THREE.Mesh(
+              new THREE.SphereGeometry(0.1, 18, 14),
+              shinyMat
+            );
+            disk.position.set(cx, cy, cz);
+            g.add(disk);
+            for (let i = 0; i < 8; i++) {
+              const a = (i / 8) * Math.PI * 2;
+              const ray = new THREE.Mesh(
+                new THREE.ConeGeometry(0.025, 0.09, 8),
+                shinyMat.clone()
+              );
+              ray.position.set(
+                cx + Math.cos(a) * 0.17,
+                cy + Math.sin(a) * 0.17,
+                cz
+              );
+              ray.rotation.z = a - Math.PI / 2;
+              g.add(ray);
+            }
+          } else if (kind === 'cherry') {
+            const c1 = new THREE.Mesh(
+              new THREE.SphereGeometry(0.08, 16, 14),
+              shinyMat
+            );
+            c1.position.set(cx - 0.06, cy - 0.04, cz);
+            g.add(c1);
+            const c2 = new THREE.Mesh(
+              new THREE.SphereGeometry(0.08, 16, 14),
+              shinyMat.clone()
+            );
+            c2.position.set(cx + 0.06, cy - 0.04, cz);
+            g.add(c2);
+            // little white shine on each cherry
+            const shineMat = new THREE.MeshStandardMaterial({
+              color: '#ffffff',
+              emissive: '#ffffff',
+              emissiveIntensity: 0.8,
+            });
+            const sh1 = new THREE.Mesh(
+              new THREE.SphereGeometry(0.018, 8, 8),
+              shineMat.clone()
+            );
+            sh1.position.set(cx - 0.08, cy + 0.0, cz + 0.06);
+            g.add(sh1);
+            const sh2 = new THREE.Mesh(
+              new THREE.SphereGeometry(0.018, 8, 8),
+              shineMat.clone()
+            );
+            sh2.position.set(cx + 0.04, cy + 0.0, cz + 0.06);
+            g.add(sh2);
+            const stem = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.012, 0.012, 0.14, 6),
+              new THREE.MeshStandardMaterial({ color: '#15803d' })
+            );
+            stem.rotation.z = 0.25;
+            stem.position.set(cx, cy + 0.08, cz);
+            g.add(stem);
+            const leaf = new THREE.Mesh(
+              new THREE.BoxGeometry(0.1, 0.025, 0.04),
+              new THREE.MeshStandardMaterial({ color: '#22c55e' })
+            );
+            leaf.rotation.z = 0.5;
+            leaf.position.set(cx + 0.06, cy + 0.12, cz);
+            g.add(leaf);
+          } else if (kind === 'lightning') {
+            const boltMat = new THREE.MeshStandardMaterial({
+              color,
+              emissive: color,
+              emissiveIntensity: 0.85,
+            });
+            const b1 = new THREE.Mesh(
+              new THREE.BoxGeometry(0.06, 0.18, 0.04),
+              boltMat
+            );
+            b1.rotation.z = -0.5;
+            b1.position.set(cx - 0.025, cy + 0.07, cz);
+            g.add(b1);
+            const b2 = new THREE.Mesh(
+              new THREE.BoxGeometry(0.06, 0.18, 0.04),
+              boltMat.clone()
+            );
+            b2.rotation.z = 0.5;
+            b2.position.set(cx + 0.025, cy - 0.07, cz);
+            g.add(b2);
+          } else if (kind === 'heart') {
+            const lobe1 = new THREE.Mesh(
+              new THREE.SphereGeometry(0.075, 16, 14),
+              shinyMat
+            );
+            lobe1.position.set(cx - 0.05, cy + 0.03, cz);
+            g.add(lobe1);
+            const lobe2 = new THREE.Mesh(
+              new THREE.SphereGeometry(0.075, 16, 14),
+              shinyMat.clone()
+            );
+            lobe2.position.set(cx + 0.05, cy + 0.03, cz);
+            g.add(lobe2);
+            const point = new THREE.Mesh(
+              new THREE.ConeGeometry(0.1, 0.18, 4),
+              shinyMat.clone()
+            );
+            point.rotation.x = Math.PI;
+            point.rotation.y = Math.PI / 4;
+            point.position.set(cx, cy - 0.1, cz);
+            g.add(point);
+          } else {
+            // star
+            const shape = new THREE.Shape();
+            const outer = 0.14;
+            const inner = 0.065;
+            for (let i = 0; i < 10; i++) {
+              const r = i % 2 === 0 ? outer : inner;
+              const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+              const px = Math.cos(a) * r;
+              const py = Math.sin(a) * r;
+              if (i === 0) shape.moveTo(px, py);
+              else shape.lineTo(px, py);
+            }
+            shape.closePath();
+            const geo = new THREE.ExtrudeGeometry(shape, {
+              depth: 0.04,
+              bevelEnabled: false,
+            });
+            const star = new THREE.Mesh(geo, shinyMat);
+            star.position.set(cx, cy, cz);
+            g.add(star);
+          }
           break;
         }
       }
