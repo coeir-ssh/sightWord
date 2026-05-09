@@ -74,10 +74,13 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
     // Re-draw once the web font finishes loading, so the canvas matches
     // the loaded glyph instead of the fallback rendered on the first paint.
     let cancelled = false;
-    if (typeof document !== 'undefined' && 'fonts' in document) {
-      document.fonts.ready.then(() => {
+    try {
+      const fonts = (document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts;
+      fonts?.ready?.then(() => {
         if (!cancelled) draw();
-      });
+      }).catch(() => {});
+    } catch {
+      /* fonts API unavailable; fallback already rendered */
     }
     return () => {
       cancelled = true;
