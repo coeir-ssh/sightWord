@@ -10,21 +10,20 @@ export type Week = { id: ListId; words: Word[] };
 
 const w = (text: string): Word => ({ id: text, text });
 
-// NOTE: Lists 6–10 below are taken directly from the Kindergarten Sight Words
-// printed cards provided by the parent. Lists 1–5 and 11 are placeholders
-// (common Dolch / Fry kindergarten progression) until the actual cards are
-// shared — replace those rows freely without touching the data shape.
+// All lists below are typed exactly from the printed Kindergarten Sight Words
+// cards provided by the parent. Order within each list is left-column then
+// right-column on the original card.
 export const WEEKS: Week[] = [
-  // L1 — placeholder
-  { id: 'L1', words: ['I', 'a', 'the', 'see', 'go', 'can', 'my', 'to', 'is', 'you'].map(w) },
-  // L2 — placeholder
-  { id: 'L2', words: ['we', 'like', 'look', 'said', 'this', 'that', 'do', 'here', 'me', 'and'].map(w) },
-  // L3 — placeholder
-  { id: 'L3', words: ['red', 'blue', 'green', 'yellow', 'one', 'two', 'three', 'four', 'five', 'color'].map(w) },
-  // L4 — placeholder
-  { id: 'L4', words: ['little', 'big', 'find', 'make', 'jump', 'run', 'play', 'help', 'down', 'up'].map(w) },
-  // L5 — placeholder
-  { id: 'L5', words: ['for', 'with', 'was', 'are', 'all', 'on', 'in', 'at', 'of', 'said'].map(w) },
+  // L1 — from photo
+  { id: 'L1', words: ['I', 'you', 'red', 'play', 'green', 'the', 'to', 'my', 'we', 'make'].map(w) },
+  // L2 — from photo
+  { id: 'L2', words: ['an', 'go', 'yellow', 'for', 'do', 'is', 'and', 'like', 'blue', 'was'].map(w) },
+  // L3 — from photo
+  { id: 'L3', words: ['by', 'purple', 'from', 'that', 'had', 'are', 'little', 'he', 'they', 'has'].map(w) },
+  // L4 — from photo
+  { id: 'L4', words: ['down', 'brown', 'said', 'with', 'her', 'black', 'have', 'two', 'will', 'his'].map(w) },
+  // L5 — from photo
+  { id: 'L5', words: ['see', 'as', 'can', 'one', 'of', 'orange', 'all', 'she', 'this', 'him'].map(w) },
   // L6 — from photo
   { id: 'L6', words: ['at', 'am', 'it', 'up', 'no', 'yes', 'in', 'eat', 'us', 'on'].map(w) },
   // L7 — from photo
@@ -35,7 +34,7 @@ export const WEEKS: Week[] = [
   { id: 'L9', words: ['six', 'where', 'day', 'could', 'me', 'when', 'jump', 'went', 'four', 'ten'].map(w) },
   // L10 — from photo
   { id: 'L10', words: ['get', 'away', 'came', 'five', 'seven', 'eight', 'your', 'because', 'out', 'who'].map(w) },
-  // L11 — placeholder
+  // L11 — pending photo
   { id: 'L11', words: ['will', 'walk', 'work', 'were', 'with', 'what', 'when', 'where', 'who', 'why'].map(w) },
 ];
 
