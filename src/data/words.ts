@@ -38,8 +38,8 @@ export const WEEKS: Week[] = [
   { id: 'L9', words: ['six', 'where', 'day', 'could', 'me', 'when', 'jump', 'went', 'four', 'ten'].map(w) },
   // L10 — from photo
   { id: 'L10', words: ['get', 'away', 'came', 'five', 'seven', 'eight', 'your', 'because', 'out', 'who'].map(w) },
-  // L11 — pending photo
-  { id: 'L11', words: ['will', 'walk', 'work', 'were', 'with', 'what', 'when', 'where', 'who', 'why'].map(w) },
+  // L11 — from photo (only 5 words on this card → just one sub-list)
+  { id: 'L11', words: ['then', 'pink', 'nine', 'white', 'a'].map(w) },
 ];
 
 export const WEEK_IDS = WEEKS.map((wk) => wk.id);
@@ -60,10 +60,15 @@ export function listNumber(id: WeekId): number {
   return Number(id.replace('L', ''));
 }
 
-/** The 5 words for one half of a list. half 0 = LIST X-1, half 1 = LIST X-2. */
+/** Number of 5-word sub-lists in this list (1 or 2). */
+export function numSubLists(id: WeekId): number {
+  return Math.max(1, Math.ceil(getWeek(id).words.length / 5));
+}
+
+/** The 5 (or fewer) words for one half of a list. */
 export function subListWords(id: WeekId, half: Half): Word[] {
   const all = getWeek(id).words;
-  return half === 0 ? all.slice(0, 5) : all.slice(5, 10);
+  return all.slice(half * 5, half * 5 + 5);
 }
 
 /** Sub-list label like "LIST 1-1" or "LIST 1-2". */

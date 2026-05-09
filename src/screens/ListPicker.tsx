@@ -5,6 +5,7 @@ import {
   WEEKS,
   LIST_LABEL,
   listNumber,
+  numSubLists,
   subListLabel,
   subListWords,
   type Half,
@@ -111,9 +112,12 @@ export function ListPicker({ onBack, onStart }: Props) {
 
       <main className="flex-1 p-4 space-y-4">
         {WEEKS.map((wk) => {
-          const all = listDone(wk.id);
+          const subCount = numSubLists(wk.id);
+          const totalCells = subCount * 5;
+          const all = listDone(wk.id).slice(0, totalCells);
           const completedCells = all.filter(Boolean).length;
           const num = listNumber(wk.id);
+          const halves: Half[] = subCount === 1 ? [0] : [0, 1];
           return (
             <section key={wk.id} className="bg-white rounded-3xl shadow-lg p-4">
               <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
@@ -121,15 +125,14 @@ export function ListPicker({ onBack, onStart }: Props) {
                   {LIST_LABEL[wk.id]}
                 </div>
                 <div className="text-xs font-bold text-slate-500">
-                  {completedCells}/10 완료
+                  {completedCells}/{totalCells} 완료
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[0, 1].map((h) => {
-                  const half = h as Half;
+                {halves.map((half) => {
                   const words = subListWords(wk.id, half);
                   const subDone = all.slice(half * 5, half * 5 + 5);
-                  const subCount = subDone.filter(Boolean).length;
+                  const doneCount = subDone.filter(Boolean).length;
                   const isCurrent =
                     progress.currentWeek === wk.id &&
                     progress.currentSubList === half;
@@ -140,20 +143,20 @@ export function ListPicker({ onBack, onStart }: Props) {
                       className={`rounded-2xl p-4 text-left transition active:scale-95 shadow ${
                         isCurrent
                           ? 'bg-blue-500 text-white ring-4 ring-blue-300'
-                          : subCount === 5
+                          : doneCount === 5
                             ? 'bg-green-100 hover:bg-green-200 text-green-900'
                             : 'bg-slate-50 hover:bg-blue-50 text-slate-800'
                       }`}
                     >
                       <div className="font-extrabold text-lg flex items-center gap-1">
                         LIST {num}-{half + 1}
-                        {subCount === 5 && <span className="text-base">⭐</span>}
+                        {doneCount === 5 && <span className="text-base">⭐</span>}
                       </div>
                       <div
                         className={`text-sm font-bold mt-1 ${
                           isCurrent
                             ? 'text-blue-100'
-                            : subCount === 5
+                            : doneCount === 5
                               ? 'text-green-700'
                               : 'text-slate-600'
                         }`}
@@ -165,7 +168,7 @@ export function ListPicker({ onBack, onStart }: Props) {
                           isCurrent ? 'text-blue-100' : 'text-slate-500'
                         }`}
                       >
-                        활동 {subCount}/5 완료
+                        활동 {doneCount}/5 완료
                       </div>
                     </button>
                   );
