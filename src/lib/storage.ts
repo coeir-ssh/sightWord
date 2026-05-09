@@ -3,6 +3,7 @@ import type { WeekId } from '../data/words';
 
 export type Progress = {
   currentWeek: WeekId;
+  currentDay: number; // 0..4
   // dayCompleted[weekId][dayIndex 0..4]
   dayCompleted: Record<string, boolean[]>;
 };
@@ -23,6 +24,7 @@ const KEYS = {
 
 const DEFAULT_PROGRESS: Progress = {
   currentWeek: 'L1',
+  currentDay: 0,
   dayCompleted: {},
 };
 

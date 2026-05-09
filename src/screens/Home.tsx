@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Character3D } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
 import { useInventory, useProgress, useWallet } from '../lib/state';
-import { getWeek, LIST_LABEL } from '../data/words';
+import { getWeek, LIST_LABEL, subListLabel } from '../data/words';
 import { speak, unlockTts } from '../lib/tts';
 
 type Props = {
@@ -28,11 +28,8 @@ export function Home({ onLearn, onShop, onWardrobe, onParent, onList }: Props) {
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
-  const todayDay = useMemo(() => {
-    const i = done.findIndex((d) => !d);
-    return i === -1 ? 4 : i;
-  }, [done]);
-  const dayLabel = `Day ${todayDay + 1}`;
+  const currentDay = Math.max(0, Math.min(4, progress.currentDay ?? 0));
+  const currentSubLabel = subListLabel(progress.currentWeek, currentDay);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-sky-soft to-blue-100 flex flex-col">
@@ -75,8 +72,12 @@ export function Home({ onLearn, onShop, onWardrobe, onParent, onList }: Props) {
 
         <section className="flex flex-col gap-4">
           <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-5">
-            <div className="text-slate-600 font-bold text-sm">오늘의 미션</div>
-            <div className="text-3xl font-extrabold text-blue-700 my-2">{dayLabel}</div>
+            <div className="text-slate-600 font-bold text-sm">
+              현재 선택: {currentSubLabel}
+            </div>
+            <div className="text-2xl font-extrabold text-blue-700 my-2">
+              어떤 LIST를 공부할까요?
+            </div>
             <div className="flex gap-2 my-3">
               {done.map((d, i) => (
                 <div
@@ -86,13 +87,19 @@ export function Home({ onLearn, onShop, onWardrobe, onParent, onList }: Props) {
               ))}
             </div>
             <div className="text-slate-700 text-sm">
-              이번 주 단어: {week.words.map((w) => w.text).join(', ')}
+              {LIST_LABEL[progress.currentWeek]} 단어: {week.words.map((w) => w.text).join(', ')}
             </div>
             <button
-              onClick={onLearn}
+              onClick={onList}
               className="mt-4 w-full text-2xl font-extrabold bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl py-4 shadow-lg"
             >
-              ▶ 오늘 학습 시작
+              📖 LIST 골라서 공부하기
+            </button>
+            <button
+              onClick={onLearn}
+              className="mt-2 w-full text-base font-bold bg-white hover:bg-blue-50 active:scale-95 text-blue-700 rounded-2xl py-3 shadow border border-blue-200"
+            >
+              ▶ {currentSubLabel} 이어서 하기
             </button>
           </div>
 
