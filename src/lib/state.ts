@@ -9,10 +9,19 @@ export function useProgress() {
   const setWeek = useCallback((week: WeekId) => {
     setProgress((p) => ({ ...p, currentWeek: week }));
   }, []);
+  const setWeekAndDay = useCallback((week: WeekId, day: number) => {
+    setProgress((p) => ({ ...p, currentWeek: week, currentDay: day }));
+  }, []);
   const completeDay = useCallback((week: WeekId, day: number) => {
     setProgress((p) => markDayDone(p, week, day));
   }, []);
-  return { progress, setWeek, completeDay, dayDone: (w: WeekId) => dayDoneArray(progress, w) };
+  return {
+    progress,
+    setWeek,
+    setWeekAndDay,
+    completeDay,
+    dayDone: (w: WeekId) => dayDoneArray(progress, w),
+  };
 }
 
 export function useWallet() {

@@ -51,3 +51,12 @@ export function getWeek(id: WeekId): Week {
   if (!wk) throw new Error(`Unknown list: ${id}`);
   return wk;
 }
+
+export function listNumber(id: WeekId): number {
+  return Number(id.replace('L', ''));
+}
+
+/** Sub-list label like "LIST 1-1" .. "LIST 11-5". day is 0-indexed. */
+export function subListLabel(id: WeekId, day: number): string {
+  return `LIST ${listNumber(id)}-${day + 1}`;
+}

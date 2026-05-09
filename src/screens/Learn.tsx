@@ -5,7 +5,7 @@ import { WordStage, type Stage } from '../components/WordStage';
 import { Character3D } from '../components/Character3D';
 import { Coin } from '../components/Coin';
 import { useInventory, useProgress, useWallet } from '../lib/state';
-import { getWeek } from '../data/words';
+import { getWeek, subListLabel } from '../data/words';
 import { shuffle } from '../lib/shuffle';
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
 
 type DayPlan = {
   day: number;
-  label: string;
+  kind: string;
   /** Bonus coins on day completion (per-word coins are awarded separately, 1 each) */
   dayBonus: number;
   steps: { stage: Stage; s2Difficulty?: 0 | 1 }[];
@@ -23,11 +23,11 @@ type DayPlan = {
 };
 
 const DAY_PLANS: DayPlan[] = [
-  { day: 0, label: 'Day 1 — 따라쓰기', dayBonus: 3, steps: [{ stage: 'S1' }] },
-  { day: 1, label: 'Day 2 — 따라쓰기 복습', dayBonus: 3, steps: [{ stage: 'S1' }] },
-  { day: 2, label: 'Day 3 — 빈칸 채우기', dayBonus: 4, steps: [{ stage: 'S2', s2Difficulty: 0 }] },
-  { day: 3, label: 'Day 4 — 자유 쓰기 연습', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true },
-  { day: 4, label: 'Day 5 — 모의 시험', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true, isMockTest: true },
+  { day: 0, kind: '따라쓰기', dayBonus: 3, steps: [{ stage: 'S1' }] },
+  { day: 1, kind: '따라쓰기 복습', dayBonus: 3, steps: [{ stage: 'S1' }] },
+  { day: 2, kind: '빈칸 채우기', dayBonus: 4, steps: [{ stage: 'S2', s2Difficulty: 0 }] },
+  { day: 3, kind: '자유 쓰기 연습', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true },
+  { day: 4, kind: '모의 시험', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true, isMockTest: true },
 ];
 
 const WEEKLY_BONUS = 20;
@@ -39,12 +39,10 @@ export function Learn({ onBack }: Props) {
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
-  const todayDay = useMemo(() => {
-    const i = done.findIndex((d) => !d);
-    return i === -1 ? 4 : i;
-  }, [done]);
+  const todayDay = Math.max(0, Math.min(4, progress.currentDay ?? 0));
 
   const plan = DAY_PLANS[todayDay];
+  const planLabel = `${subListLabel(progress.currentWeek, todayDay)} — ${plan.kind}`;
 
   const sequence = useMemo(() => {
     const seq: { word: string; stage: Stage; s2Difficulty?: 0 | 1 }[] = [];
@@ -94,7 +92,7 @@ export function Learn({ onBack }: Props) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-sky-soft to-blue-100 flex flex-col items-center justify-center p-8 gap-6">
         <div className="text-6xl">🎉</div>
-        <div className="text-4xl font-extrabold text-blue-700">{plan.label} 완료!</div>
+        <div className="text-4xl font-extrabold text-blue-700">{planLabel} 완료!</div>
         <div className="flex gap-2 text-5xl">⭐⭐⭐</div>
 
         <div className="bg-white rounded-3xl px-8 py-5 shadow-lg space-y-2 min-w-[280px]">
@@ -155,7 +153,7 @@ export function Learn({ onBack }: Props) {
         >
           ← 홈
         </button>
-        <div className="text-blue-700 font-extrabold text-xl">{plan.label}</div>
+        <div className="text-blue-700 font-extrabold text-xl">{planLabel}</div>
         <CoinHUD coins={wallet.coins} />
       </header>
 
