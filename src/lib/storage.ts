@@ -1,5 +1,5 @@
 import { DEFAULT_ITEMS, DEFAULT_OWNED, type Slot } from '../data/items';
-import type { WeekId } from '../data/words';
+import { WEEK_IDS, type WeekId } from '../data/words';
 
 export type Progress = {
   currentWeek: WeekId;
@@ -16,19 +16,20 @@ export type Inventory = {
 };
 
 const KEYS = {
-  progress: 'sw.progress.v1',
-  wallet: 'sw.wallet.v1',
+  progress: 'sw.progress.v2',
+  wallet: 'sw.wallet.v2',
   inventory: 'sw.inventory.v1',
   parentPin: 'sw.parentPin.v1',
+  charName: 'sw.charName.v1',
 };
 
 const DEFAULT_PROGRESS: Progress = {
-  currentWeek: 'L1',
+  currentWeek: 'L1-1',
   currentDay: 0,
   dayCompleted: {},
 };
 
-const DEFAULT_WALLET: Wallet = { coins: 0 };
+const DEFAULT_WALLET: Wallet = { coins: 1000 };
 
 const DEFAULT_INVENTORY: Inventory = {
   owned: [...DEFAULT_OWNED],
@@ -56,16 +57,8 @@ function write<T>(key: string, value: T) {
 export const storage = {
   loadProgress: (): Progress => {
     const p = read<Progress>(KEYS.progress, DEFAULT_PROGRESS);
-    // Migrate old "1-1" .. "5-2" style ids to the new L1..L11 ids
-    const migrate: Record<string, string> = {
-      '1-1': 'L1', '1-2': 'L1',
-      '2-1': 'L2', '2-2': 'L2',
-      '3-1': 'L3', '3-2': 'L3',
-      '4-1': 'L4', '4-2': 'L4',
-      '5-1': 'L5', '5-2': 'L5',
-    };
-    if (migrate[p.currentWeek as string]) {
-      p.currentWeek = migrate[p.currentWeek as string] as Progress['currentWeek'];
+    if (!WEEK_IDS.includes(p.currentWeek as WeekId)) {
+      p.currentWeek = 'L1-1';
     }
     return p;
   },
@@ -76,7 +69,6 @@ export const storage = {
 
   loadInventory: (): Inventory => {
     const inv = read<Inventory>(KEYS.inventory, DEFAULT_INVENTORY);
-    // Merge in any new default-owned items added in later versions
     let changed = false;
     for (const id of DEFAULT_OWNED) {
       if (!inv.owned.includes(id)) {
@@ -91,6 +83,9 @@ export const storage = {
 
   getParentPin: (): string => localStorage.getItem(KEYS.parentPin) ?? '1004',
   setParentPin: (pin: string) => localStorage.setItem(KEYS.parentPin, pin),
+
+  getCharName: (): string => localStorage.getItem(KEYS.charName) ?? '',
+  setCharName: (name: string) => localStorage.setItem(KEYS.charName, name),
 
   reset: () => {
     Object.values(KEYS).forEach((k) => localStorage.removeItem(k));

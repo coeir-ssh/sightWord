@@ -6,6 +6,7 @@ type Props = {
   equipped: Record<Slot, string>;
   jumping?: boolean;
   className?: string;
+  name?: string;
 };
 
 const SKIN = '#ffe1c6';
@@ -36,7 +37,7 @@ const LEG_Y = 0.0;
 
 const FACE_Z = HEAD_SIZE / 2 + 0.001;
 
-export function Character3D({ equipped, jumping = false, className }: Props) {
+export function Character3D({ equipped, jumping = false, className, name }: Props) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const charRef = useRef<THREE.Group | null>(null);
   const slotGroupsRef = useRef<Record<Slot, THREE.Group>>({} as any);
@@ -482,11 +483,67 @@ export function Character3D({ equipped, jumping = false, className }: Props) {
       const id = equipped[slot];
       if (id) equipItem(slot, id);
     });
+
+    // Undershirt (런닝) when nothing in 'top' slot
+    if (!equipped.top) {
+      const g = groups.top;
+      const undershirtMat = new THREE.MeshStandardMaterial({ color: '#ffffff' });
+      const tank = new THREE.Mesh(
+        new THREE.BoxGeometry(TORSO_W + 0.02, TORSO_H + 0.02, TORSO_D + 0.02),
+        undershirtMat
+      );
+      tank.position.set(0, TORSO_Y, 0);
+      g.add(tank);
+      // Carve sleeveless armhole look with skin-colored shoulder caps
+      const skinMat = new THREE.MeshStandardMaterial({ color: SKIN });
+      [-1, 1].forEach((sx) => {
+        const shoulder = new THREE.Mesh(
+          new THREE.BoxGeometry(0.16, 0.18, TORSO_D + 0.04),
+          skinMat.clone()
+        );
+        shoulder.position.set(sx * (TORSO_W / 2 - 0.02), TORSO_Y + TORSO_H / 2 - 0.09, 0);
+        g.add(shoulder);
+      });
+    }
+
+    // Underwear (팬티) when nothing in 'bottom' slot
+    if (!equipped.bottom) {
+      const g = groups.bottom;
+      const briefMat = new THREE.MeshStandardMaterial({ color: '#ffffff' });
+      // Waistband across both legs/hip
+      const band = new THREE.Mesh(
+        new THREE.BoxGeometry(TORSO_W + 0.04, 0.16, TORSO_D + 0.06),
+        briefMat
+      );
+      band.position.set(0, TORSO_Y - TORSO_H / 2 + 0.02, 0);
+      g.add(band);
+      // Brief covering top of each leg
+      [-1, 1].forEach((sx) => {
+        const brief = new THREE.Mesh(
+          new THREE.BoxGeometry(LEG_W + 0.05, 0.22, LEG_W + 0.05),
+          briefMat.clone()
+        );
+        brief.position.set(sx * LEG_X, LEG_Y + LEG_H / 2 - 0.08, 0);
+        g.add(brief);
+      });
+    }
   }, [equipped]);
 
   useEffect(() => {
     if (jumping) jumpRef.current = true;
   }, [jumping]);
 
-  return <div ref={mountRef} className={className} style={{ width: '100%', height: '100%' }} />;
+  return (
+    <div className={className} style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <div ref={mountRef} style={{ width: '100%', height: '100%' }} />
+      {name && name.trim() !== '' && (
+        <div
+          className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-2 px-2 py-0.5 rounded-md bg-black/70 text-white text-xs font-bold shadow"
+          style={{ whiteSpace: 'nowrap' }}
+        >
+          {name}
+        </div>
+      )}
+    </div>
+  );
 }

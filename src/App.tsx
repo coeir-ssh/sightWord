@@ -75,7 +75,6 @@ export function App() {
           onLearn={() => go('learn')}
           onShop={() => go('shop')}
           onWardrobe={() => go('wardrobe')}
-          onParent={() => go('parent')}
           onList={() => go('list')}
         />
       );

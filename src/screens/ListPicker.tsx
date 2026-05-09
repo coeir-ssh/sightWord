@@ -1,6 +1,6 @@
 import { CoinHUD } from '../components/CoinHUD';
 import { useProgress, useWallet } from '../lib/state';
-import { WEEKS, LIST_LABEL, listNumber, type WeekId } from '../data/words';
+import { WEEKS, LIST_LABEL, type WeekId } from '../data/words';
 
 type Props = { onBack: () => void; onStart: () => void };
 
@@ -36,7 +36,6 @@ export function ListPicker({ onBack, onStart }: Props) {
         {WEEKS.map((wk) => {
           const done = dayDone(wk.id);
           const completedDays = done.filter(Boolean).length;
-          const num = listNumber(wk.id);
           return (
             <section
               key={wk.id}
@@ -70,8 +69,8 @@ export function ListPicker({ onBack, onStart }: Props) {
                             : 'bg-slate-50 hover:bg-blue-50 text-slate-800'
                       }`}
                     >
-                      <div className="font-extrabold text-lg flex items-center gap-1">
-                        LIST {num}-{day + 1}
+                      <div className="font-extrabold text-base flex items-center gap-1">
+                        {day + 1}단계
                         {isDone && <span className="text-base">⭐</span>}
                       </div>
                       <div

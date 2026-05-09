@@ -22,32 +22,77 @@ export const SLOT_LABEL: Record<Slot, string> = {
 };
 
 export const ITEMS: Item[] = [
-  // Tops
+  // ───────── Tops (10) ─────────
   { id: 'top.basic_white', name: '흰 티', slot: 'top', price: 0, color: '#ffffff' },
   { id: 'top.red_hoodie', name: '빨간 후디', slot: 'top', price: 50, color: '#ef4444', accent: '#7f1d1d' },
   { id: 'top.spacesuit', name: '우주복 상의', slot: 'top', price: 80, color: '#cbd5e1', accent: '#3b82f6' },
+  { id: 'top.blue_stripe', name: '파란 줄무늬 티', slot: 'top', price: 40, color: '#60a5fa', accent: '#1e40af' },
+  { id: 'top.pink_tee', name: '핑크 티', slot: 'top', price: 40, color: '#f472b6' },
+  { id: 'top.green_dino', name: '초록 공룡 티', slot: 'top', price: 70, color: '#34d399', accent: '#065f46' },
+  { id: 'top.yellow_rain', name: '노란 우비', slot: 'top', price: 60, color: '#facc15', accent: '#a16207' },
+  { id: 'top.purple_star', name: '보라 별 티', slot: 'top', price: 70, color: '#a78bfa', accent: '#fde047' },
+  { id: 'top.black_tee', name: '검은 티', slot: 'top', price: 40, color: '#111827' },
+  { id: 'top.orange_sweater', name: '주황 스웨터', slot: 'top', price: 60, color: '#fb923c', accent: '#7c2d12' },
 
-  // Bottoms
+  // ───────── Bottoms (10) ─────────
   { id: 'bottom.jeans', name: '청바지', slot: 'bottom', price: 0, color: '#1d4ed8' },
   { id: 'bottom.shorts', name: '반바지', slot: 'bottom', price: 40, color: '#f59e0b' },
   { id: 'bottom.spacepants', name: '우주복 바지', slot: 'bottom', price: 80, color: '#94a3b8', accent: '#3b82f6' },
+  { id: 'bottom.pink_skirt', name: '핑크 치마', slot: 'bottom', price: 50, color: '#f472b6' },
+  { id: 'bottom.khaki_shorts', name: '카키 반바지', slot: 'bottom', price: 40, color: '#84cc16' },
+  { id: 'bottom.black_pants', name: '검은 바지', slot: 'bottom', price: 40, color: '#1f2937' },
+  { id: 'bottom.red_shorts', name: '빨간 반바지', slot: 'bottom', price: 40, color: '#ef4444' },
+  { id: 'bottom.green_track', name: '초록 츄리닝', slot: 'bottom', price: 60, color: '#16a34a', accent: '#fef3c7' },
+  { id: 'bottom.gray_sweat', name: '회색 츄리닝', slot: 'bottom', price: 50, color: '#9ca3af' },
+  { id: 'bottom.plaid', name: '체크 바지', slot: 'bottom', price: 70, color: '#b45309', accent: '#fde68a' },
 
-  // Hats
-  { id: 'hat.cap', name: '야구모자', slot: 'hat', price: 60, color: '#ef4444', shape: 'box' },
+  // ───────── Hats (10) ─────────
+  { id: 'hat.cap', name: '빨간 모자', slot: 'hat', price: 60, color: '#ef4444', shape: 'box' },
   { id: 'hat.crown', name: '왕관', slot: 'hat', price: 120, color: '#fbbf24', shape: 'crown' },
+  { id: 'hat.cap_blue', name: '파란 모자', slot: 'hat', price: 60, color: '#3b82f6', shape: 'box' },
+  { id: 'hat.beanie_pink', name: '핑크 비니', slot: 'hat', price: 50, color: '#f472b6', shape: 'box' },
+  { id: 'hat.tophat', name: '검은 톱햇', slot: 'hat', price: 100, color: '#111827', shape: 'box' },
+  { id: 'hat.wizard', name: '마법사 모자', slot: 'hat', price: 130, color: '#7c3aed', shape: 'crown' },
+  { id: 'hat.witch', name: '마녀 모자', slot: 'hat', price: 120, color: '#1f2937', shape: 'crown' },
+  { id: 'hat.cowboy', name: '카우보이 모자', slot: 'hat', price: 90, color: '#a16207', shape: 'box' },
+  { id: 'hat.sun', name: '노란 썬햇', slot: 'hat', price: 70, color: '#fde047', shape: 'box' },
+  { id: 'hat.pumpkin', name: '호박 모자', slot: 'hat', price: 110, color: '#f97316', shape: 'crown' },
 
-  // Back
+  // ───────── Back (10) ─────────
   { id: 'back.kinder', name: '유치원 가방', slot: 'back', price: 0, color: '#fb7185', accent: '#fde68a', shape: 'box' },
-  { id: 'back.backpack', name: '백팩', slot: 'back', price: 50, color: '#16a34a', shape: 'box' },
+  { id: 'back.backpack', name: '초록 백팩', slot: 'back', price: 50, color: '#16a34a', shape: 'box' },
   { id: 'back.wings', name: '날개', slot: 'back', price: 100, color: '#fef3c7', accent: '#fcd34d', shape: 'wing' },
+  { id: 'back.angel_wings', name: '천사 날개', slot: 'back', price: 140, color: '#ffffff', accent: '#fde68a', shape: 'wing' },
+  { id: 'back.bat_wings', name: '박쥐 날개', slot: 'back', price: 130, color: '#1f2937', accent: '#7c3aed', shape: 'wing' },
+  { id: 'back.jet_pack', name: '제트팩', slot: 'back', price: 150, color: '#94a3b8', accent: '#ef4444', shape: 'box' },
+  { id: 'back.turtle_shell', name: '거북이 등껍질', slot: 'back', price: 90, color: '#16a34a', accent: '#854d0e', shape: 'box' },
+  { id: 'back.cape_red', name: '빨간 망토', slot: 'back', price: 110, color: '#dc2626', accent: '#fbbf24', shape: 'box' },
+  { id: 'back.black_backpack', name: '검은 백팩', slot: 'back', price: 60, color: '#1f2937', shape: 'box' },
+  { id: 'back.star_wings', name: '별 날개', slot: 'back', price: 160, color: '#fde047', accent: '#f97316', shape: 'wing' },
 
-  // Shoes
+  // ───────── Shoes (10) ─────────
   { id: 'shoes.sneakers', name: '운동화', slot: 'shoes', price: 40, color: '#f8fafc', accent: '#0f172a' },
-  { id: 'shoes.boots', name: '부츠', slot: 'shoes', price: 70, color: '#7c2d12' },
+  { id: 'shoes.boots', name: '갈색 부츠', slot: 'shoes', price: 70, color: '#7c2d12' },
+  { id: 'shoes.pink', name: '핑크 신발', slot: 'shoes', price: 50, color: '#f472b6', accent: '#be185d' },
+  { id: 'shoes.rain_boots', name: '노란 장화', slot: 'shoes', price: 60, color: '#facc15', accent: '#a16207' },
+  { id: 'shoes.red_sport', name: '빨간 스포츠화', slot: 'shoes', price: 60, color: '#ef4444', accent: '#ffffff' },
+  { id: 'shoes.black_sneakers', name: '검은 운동화', slot: 'shoes', price: 50, color: '#111827', accent: '#ffffff' },
+  { id: 'shoes.sandals', name: '샌들', slot: 'shoes', price: 40, color: '#92400e', accent: '#fbbf24' },
+  { id: 'shoes.skates', name: '롤러스케이트', slot: 'shoes', price: 120, color: '#3b82f6', accent: '#ffffff' },
+  { id: 'shoes.snow', name: '눈 부츠', slot: 'shoes', price: 90, color: '#ffffff', accent: '#94a3b8' },
+  { id: 'shoes.light_up', name: '불빛 신발', slot: 'shoes', price: 130, color: '#c084fc', accent: '#fde047' },
 
-  // Charm
+  // ───────── Charms (10) ─────────
   { id: 'charm.star', name: '별 키링', slot: 'charm', price: 30, color: '#fde047', shape: 'star' },
   { id: 'charm.diamond', name: '다이아 키링', slot: 'charm', price: 90, color: '#7dd3fc', shape: 'diamond' },
+  { id: 'charm.heart', name: '하트 키링', slot: 'charm', price: 50, color: '#ef4444', shape: 'star' },
+  { id: 'charm.cube', name: '큐브 키링', slot: 'charm', price: 40, color: '#a78bfa', shape: 'box' },
+  { id: 'charm.coin', name: '코인 키링', slot: 'charm', price: 60, color: '#fbbf24', shape: 'star' },
+  { id: 'charm.bell', name: '종 키링', slot: 'charm', price: 50, color: '#f59e0b', shape: 'diamond' },
+  { id: 'charm.moon', name: '달 키링', slot: 'charm', price: 60, color: '#e0e7ff', shape: 'diamond' },
+  { id: 'charm.sun', name: '태양 키링', slot: 'charm', price: 60, color: '#fbbf24', shape: 'star' },
+  { id: 'charm.cherry', name: '체리 키링', slot: 'charm', price: 40, color: '#ef4444', shape: 'diamond' },
+  { id: 'charm.lightning', name: '번개 키링', slot: 'charm', price: 80, color: '#facc15', shape: 'diamond' },
 ];
 
 export const DEFAULT_ITEMS: Record<Slot, string> = {

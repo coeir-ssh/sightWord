@@ -4,8 +4,8 @@ import { CoinFly } from '../components/CoinFly';
 import { WordStage, type Stage } from '../components/WordStage';
 import { Character3D } from '../components/Character3D';
 import { Coin } from '../components/Coin';
-import { useInventory, useProgress, useWallet } from '../lib/state';
-import { getWeek, subListLabel } from '../data/words';
+import { useCharName, useInventory, useProgress, useWallet } from '../lib/state';
+import { getWeek } from '../data/words';
 import { shuffle } from '../lib/shuffle';
 
 type Props = {
@@ -36,13 +36,14 @@ export function Learn({ onBack }: Props) {
   const { progress, dayDone, completeDay } = useProgress();
   const { wallet, addCoins } = useWallet();
   const { inventory } = useInventory();
+  const { name: charName } = useCharName();
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
   const todayDay = Math.max(0, Math.min(4, progress.currentDay ?? 0));
 
   const plan = DAY_PLANS[todayDay];
-  const planLabel = `${subListLabel(progress.currentWeek, todayDay)} — ${plan.kind}`;
+  const planLabel = `${todayDay + 1}단계 - ${plan.kind}`;
 
   const sequence = useMemo(() => {
     const seq: { word: string; stage: Stage; s2Difficulty?: 0 | 1 }[] = [];
@@ -129,7 +130,7 @@ export function Learn({ onBack }: Props) {
         </div>
 
         <div className="w-64 h-64">
-          <Character3D equipped={inventory.equipped} jumping />
+          <Character3D equipped={inventory.equipped} jumping name={charName} />
         </div>
         <button
           onClick={onBack}

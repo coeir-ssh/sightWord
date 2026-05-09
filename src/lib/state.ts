@@ -63,3 +63,12 @@ export function useInventory() {
 
   return { inventory: inv, addItem, equip, unequip };
 }
+
+export function useCharName() {
+  const [name, setName] = useState<string>(() => storage.getCharName());
+  const update = useCallback((next: string) => {
+    setName(next);
+    storage.setCharName(next);
+  }, []);
+  return { name, setName: update };
+}
