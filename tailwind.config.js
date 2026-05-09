@@ -4,7 +4,14 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        kid: ['"Comic Sans MS"', 'system-ui', 'sans-serif'],
+        kid: [
+          '"Fredoka"',
+          '"Quicksand"',
+          '"Patrick Hand"',
+          '"Comic Sans MS"',
+          'system-ui',
+          'sans-serif',
+        ],
       },
       colors: {
         sky: {

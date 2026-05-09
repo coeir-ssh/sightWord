@@ -7,7 +7,7 @@ export const PASS_RATIO = 0.6;
 const MIN_INK_RATIO = 0.015;
 
 const TEMPLATE_FONT_FAMILY =
-  '"Comic Sans MS", "Patrick Hand", "Marker Felt", "Chalkduster", system-ui, sans-serif';
+  '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
 
 export type DrawTemplateOptions = {
   fillStyle?: string;

@@ -20,7 +20,7 @@ type Props = {
 };
 
 export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlot(
-  { letter, variant, width = 110, height = 150, onCoverageChange },
+  { letter, variant, width = 140, height = 190, onCoverageChange },
   ref
 ) {
   const penRef = useRef<PenCanvasHandle | null>(null);
@@ -57,17 +57,31 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
   useEffect(() => {
     const cv = guideRef.current;
     if (!cv) return;
-    const ctx = cv.getContext('2d')!;
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    if (variant === 'guide') {
-      drawTemplate(ctx, letter, cv.width, cv.height, {
-        fillStyle: 'rgba(100, 116, 139, 0.4)',
-      });
-    } else if (variant === 'shown') {
-      drawTemplate(ctx, letter, cv.width, cv.height, {
-        fillStyle: '#1d4ed8',
+    const draw = () => {
+      const ctx = cv.getContext('2d')!;
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      if (variant === 'guide') {
+        drawTemplate(ctx, letter, cv.width, cv.height, {
+          fillStyle: 'rgba(71, 85, 105, 0.42)',
+        });
+      } else if (variant === 'shown') {
+        drawTemplate(ctx, letter, cv.width, cv.height, {
+          fillStyle: '#1d4ed8',
+        });
+      }
+    };
+    draw();
+    // Re-draw once the web font finishes loading, so the canvas matches
+    // the loaded glyph instead of the fallback rendered on the first paint.
+    let cancelled = false;
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      document.fonts.ready.then(() => {
+        if (!cancelled) draw();
       });
     }
+    return () => {
+      cancelled = true;
+    };
   }, [letter, variant, width, height]);
 
   const handleStrokeEnd = () => {
