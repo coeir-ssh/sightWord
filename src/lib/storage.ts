@@ -22,7 +22,7 @@ const KEYS = {
 };
 
 const DEFAULT_PROGRESS: Progress = {
-  currentWeek: '1-1',
+  currentWeek: 'L1',
   dayCompleted: {},
 };
 
@@ -52,7 +52,21 @@ function write<T>(key: string, value: T) {
 }
 
 export const storage = {
-  loadProgress: (): Progress => read(KEYS.progress, DEFAULT_PROGRESS),
+  loadProgress: (): Progress => {
+    const p = read<Progress>(KEYS.progress, DEFAULT_PROGRESS);
+    // Migrate old "1-1" .. "5-2" style ids to the new L1..L11 ids
+    const migrate: Record<string, string> = {
+      '1-1': 'L1', '1-2': 'L1',
+      '2-1': 'L2', '2-2': 'L2',
+      '3-1': 'L3', '3-2': 'L3',
+      '4-1': 'L4', '4-2': 'L4',
+      '5-1': 'L5', '5-2': 'L5',
+    };
+    if (migrate[p.currentWeek as string]) {
+      p.currentWeek = migrate[p.currentWeek as string] as Progress['currentWeek'];
+    }
+    return p;
+  },
   saveProgress: (p: Progress) => write(KEYS.progress, p),
 
   loadWallet: (): Wallet => read(KEYS.wallet, DEFAULT_WALLET),

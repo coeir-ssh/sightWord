@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Character3D } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
 import { useInventory, useProgress, useWallet } from '../lib/state';
-import { getWeek } from '../data/words';
+import { getWeek, LIST_LABEL } from '../data/words';
 import { speak, unlockTts } from '../lib/tts';
 
 type Props = {
@@ -10,9 +10,10 @@ type Props = {
   onShop: () => void;
   onWardrobe: () => void;
   onParent: () => void;
+  onList: () => void;
 };
 
-export function Home({ onLearn, onShop, onWardrobe, onParent }: Props) {
+export function Home({ onLearn, onShop, onWardrobe, onParent, onList }: Props) {
   const { progress, dayDone } = useProgress();
   const { wallet } = useWallet();
   const { inventory } = useInventory();
@@ -38,9 +39,12 @@ export function Home({ onLearn, onShop, onWardrobe, onParent }: Props) {
       <header className="flex items-center justify-between p-4 flex-wrap gap-2">
         <div className="flex items-center gap-3 flex-wrap">
           <CoinHUD coins={wallet.coins} />
-          <div className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-blue-700">
-            📖 List {progress.currentWeek}
-          </div>
+          <button
+            onClick={onList}
+            className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-blue-700 active:scale-95 hover:bg-blue-50 transition"
+          >
+            📖 {LIST_LABEL[progress.currentWeek]} ▾
+          </button>
         </div>
         <div className="flex items-center gap-2">
           <button

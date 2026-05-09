@@ -23,9 +23,9 @@ type DayPlan = {
 };
 
 const DAY_PLANS: DayPlan[] = [
-  { day: 0, label: 'Day 1 — 따라쓰기', dayBonus: 2, steps: [{ stage: 'S1' }] },
-  { day: 1, label: 'Day 2 — 따라쓰기 + 빈칸', dayBonus: 3, steps: [{ stage: 'S1' }, { stage: 'S2', s2Difficulty: 0 }] },
-  { day: 2, label: 'Day 3 — 빈칸 채우기', dayBonus: 3, steps: [{ stage: 'S2', s2Difficulty: 1 }] },
+  { day: 0, label: 'Day 1 — 따라쓰기', dayBonus: 3, steps: [{ stage: 'S1' }] },
+  { day: 1, label: 'Day 2 — 따라쓰기 복습', dayBonus: 3, steps: [{ stage: 'S1' }] },
+  { day: 2, label: 'Day 3 — 빈칸 채우기', dayBonus: 4, steps: [{ stage: 'S2', s2Difficulty: 0 }] },
   { day: 3, label: 'Day 4 — 자유 쓰기 연습', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true },
   { day: 4, label: 'Day 5 — 모의 시험', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true, isMockTest: true },
 ];

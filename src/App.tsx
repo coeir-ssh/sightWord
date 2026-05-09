@@ -4,13 +4,22 @@ import { Learn } from './screens/Learn';
 import { Shop } from './screens/Shop';
 import { Wardrobe } from './screens/Wardrobe';
 import { ParentGate } from './screens/ParentGate';
+import { ListPicker } from './screens/ListPicker';
 import { unlockTts } from './lib/tts';
 
-type Route = 'home' | 'learn' | 'shop' | 'wardrobe' | 'parent';
+type Route = 'home' | 'learn' | 'shop' | 'wardrobe' | 'parent' | 'list';
 
 function parseHash(): Route {
   const h = location.hash.replace(/^#\/?/, '');
-  if (h === 'learn' || h === 'shop' || h === 'wardrobe' || h === 'parent') return h;
+  if (
+    h === 'learn' ||
+    h === 'shop' ||
+    h === 'wardrobe' ||
+    h === 'parent' ||
+    h === 'list'
+  ) {
+    return h;
+  }
   return 'home';
 }
 
@@ -58,6 +67,8 @@ export function App() {
       return <Wardrobe onBack={() => go('home')} />;
     case 'parent':
       return <ParentGate onBack={() => go('home')} />;
+    case 'list':
+      return <ListPicker onBack={() => go('home')} />;
     default:
       return (
         <Home
@@ -65,6 +76,7 @@ export function App() {
           onShop={() => go('shop')}
           onWardrobe={() => go('wardrobe')}
           onParent={() => go('parent')}
+          onList={() => go('list')}
         />
       );
   }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { storage } from '../lib/storage';
-import { WEEK_IDS, type WeekId } from '../data/words';
+import { WEEK_IDS, LIST_LABEL, type WeekId } from '../data/words';
 import { useProgress } from '../lib/state';
 
 type Props = { onBack: () => void };
@@ -70,18 +70,18 @@ export function ParentGate({ onBack }: Props) {
 
       <section className="bg-white rounded-3xl shadow p-5">
         <div className="text-lg font-bold text-slate-700 mb-3">이번 주 List 선택</div>
-        <div className="grid grid-cols-5 gap-3">
+        <div className="grid grid-cols-4 gap-3">
           {WEEK_IDS.map((id: WeekId) => (
             <button
               key={id}
               onClick={() => setWeek(id)}
-              className={`rounded-2xl py-3 px-2 text-lg font-extrabold shadow transition ${
+              className={`rounded-2xl py-3 px-2 text-base font-extrabold shadow transition ${
                 progress.currentWeek === id
                   ? 'bg-blue-500 text-white'
                   : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
               }`}
             >
-              {id}
+              {LIST_LABEL[id]}
             </button>
           ))}
         </div>
