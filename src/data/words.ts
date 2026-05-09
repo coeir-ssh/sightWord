@@ -8,11 +8,15 @@ export type ListId =
 export type WeekId = ListId;
 export type Week = { id: ListId; words: Word[] };
 
+export type Half = 0 | 1;
+
 const w = (text: string): Word => ({ id: text, text });
 
 // All lists below are typed exactly from the printed Kindergarten Sight Words
 // cards provided by the parent. Order within each list is left-column then
-// right-column on the original card.
+// right-column on the original card. Each list's 10 words split into two
+// 5-word sub-lists: half 0 = words[0..4] (LIST X-1), half 1 = words[5..9]
+// (LIST X-2).
 export const WEEKS: Week[] = [
   // L1 — from photo
   { id: 'L1', words: ['I', 'you', 'red', 'play', 'green', 'the', 'to', 'my', 'we', 'make'].map(w) },
@@ -56,7 +60,13 @@ export function listNumber(id: WeekId): number {
   return Number(id.replace('L', ''));
 }
 
-/** Sub-list label like "LIST 1-1" .. "LIST 11-5". day is 0-indexed. */
-export function subListLabel(id: WeekId, day: number): string {
-  return `LIST ${listNumber(id)}-${day + 1}`;
+/** The 5 words for one half of a list. half 0 = LIST X-1, half 1 = LIST X-2. */
+export function subListWords(id: WeekId, half: Half): Word[] {
+  const all = getWeek(id).words;
+  return half === 0 ? all.slice(0, 5) : all.slice(5, 10);
+}
+
+/** Sub-list label like "LIST 1-1" or "LIST 1-2". */
+export function subListLabel(id: WeekId, half: Half): string {
+  return `LIST ${listNumber(id)}-${half + 1}`;
 }

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Character3D } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
 import { useInventory, useProgress, useWallet } from '../lib/state';
-import { getWeek, LIST_LABEL, subListLabel } from '../data/words';
+import { LIST_LABEL, subListLabel, subListWords } from '../data/words';
 import { speak, unlockTts } from '../lib/tts';
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
 };
 
 export function Home({ onLearn, onShop, onWardrobe, onParent, onList }: Props) {
-  const { progress, dayDone } = useProgress();
+  const { progress, subListDone } = useProgress();
   const { wallet } = useWallet();
   const { inventory } = useInventory();
   const [soundTested, setSoundTested] = useState(false);
@@ -26,10 +26,10 @@ export function Home({ onLearn, onShop, onWardrobe, onParent, onList }: Props) {
     setTimeout(() => setSoundTested(false), 2000);
   };
 
-  const week = getWeek(progress.currentWeek);
-  const done = dayDone(progress.currentWeek);
-  const currentDay = Math.max(0, Math.min(4, progress.currentDay ?? 0));
-  const currentSubLabel = subListLabel(progress.currentWeek, currentDay);
+  const half = progress.currentSubList;
+  const done = subListDone(progress.currentWeek, half);
+  const currentSubLabel = subListLabel(progress.currentWeek, half);
+  const subWords = subListWords(progress.currentWeek, half);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-sky-soft to-blue-100 flex flex-col">
@@ -87,7 +87,7 @@ export function Home({ onLearn, onShop, onWardrobe, onParent, onList }: Props) {
               ))}
             </div>
             <div className="text-slate-700 text-sm">
-              {LIST_LABEL[progress.currentWeek]} 단어: {week.words.map((w) => w.text).join(', ')}
+              {currentSubLabel} 단어: {subWords.map((w) => w.text).join(', ')}
             </div>
             <button
               onClick={onList}

@@ -1,11 +1,12 @@
 import { DEFAULT_ITEMS, DEFAULT_OWNED, type Slot } from '../data/items';
-import type { WeekId } from '../data/words';
+import type { Half, WeekId } from '../data/words';
 
 export type Progress = {
   currentWeek: WeekId;
-  currentDay: number; // 0..4
-  // dayCompleted[weekId][dayIndex 0..4]
-  dayCompleted: Record<string, boolean[]>;
+  currentSubList: Half; // 0 or 1
+  currentActivity: number; // 0..4
+  // activityCompleted[listId] = boolean[10] where idx = half*5 + activity
+  activityCompleted: Record<string, boolean[]>;
 };
 
 export type Wallet = { coins: number };
@@ -24,8 +25,9 @@ const KEYS = {
 
 const DEFAULT_PROGRESS: Progress = {
   currentWeek: 'L1',
-  currentDay: 0,
-  dayCompleted: {},
+  currentSubList: 0,
+  currentActivity: 0,
+  activityCompleted: {},
 };
 
 const DEFAULT_WALLET: Wallet = { coins: 0 };
@@ -53,21 +55,53 @@ function write<T>(key: string, value: T) {
   }
 }
 
+type LegacyProgress = {
+  currentWeek: string;
+  currentDay?: number;
+  dayCompleted?: Record<string, boolean[]>;
+};
+
 export const storage = {
   loadProgress: (): Progress => {
-    const p = read<Progress>(KEYS.progress, DEFAULT_PROGRESS);
-    // Migrate old "1-1" .. "5-2" style ids to the new L1..L11 ids
-    const migrate: Record<string, string> = {
+    const p = read<Progress & LegacyProgress>(
+      KEYS.progress,
+      DEFAULT_PROGRESS as Progress & LegacyProgress,
+    );
+    // Migrate old "1-1" .. "5-2" style ids to L1..L11
+    const idMigrate: Record<string, string> = {
       '1-1': 'L1', '1-2': 'L1',
       '2-1': 'L2', '2-2': 'L2',
       '3-1': 'L3', '3-2': 'L3',
       '4-1': 'L4', '4-2': 'L4',
       '5-1': 'L5', '5-2': 'L5',
     };
-    if (migrate[p.currentWeek as string]) {
-      p.currentWeek = migrate[p.currentWeek as string] as Progress['currentWeek'];
+    if (idMigrate[p.currentWeek as string]) {
+      p.currentWeek = idMigrate[p.currentWeek as string] as WeekId;
     }
-    return p;
+
+    // Migrate the old 5-day model (day = activity over the full 10-word list)
+    // into the new (sub-list, activity) model. Old completion fills half 0;
+    // half 1 starts empty so the kid still needs to learn LIST X-2.
+    if (p.dayCompleted && !p.activityCompleted) {
+      const ac: Record<string, boolean[]> = {};
+      for (const [list, days] of Object.entries(p.dayCompleted)) {
+        const arr = Array<boolean>(10).fill(false);
+        for (let i = 0; i < Math.min(5, days.length); i++) arr[i] = !!days[i];
+        ac[list] = arr;
+      }
+      p.activityCompleted = ac;
+    }
+    if (!p.activityCompleted) p.activityCompleted = {};
+
+    if (p.currentSubList !== 0 && p.currentSubList !== 1) p.currentSubList = 0;
+    if (typeof p.currentActivity !== 'number') {
+      p.currentActivity = typeof p.currentDay === 'number' ? p.currentDay : 0;
+    }
+    p.currentActivity = Math.max(0, Math.min(4, p.currentActivity));
+
+    delete p.currentDay;
+    delete p.dayCompleted;
+    return p as Progress;
   },
   saveProgress: (p: Progress) => write(KEYS.progress, p),
 
@@ -97,15 +131,37 @@ export const storage = {
   },
 };
 
-export function dayDoneArray(p: Progress, week: WeekId): boolean[] {
-  return p.dayCompleted[week] ?? [false, false, false, false, false];
+function emptyList(): boolean[] {
+  return [false, false, false, false, false, false, false, false, false, false];
 }
 
-export function markDayDone(p: Progress, week: WeekId, day: number): Progress {
-  const arr = dayDoneArray(p, week).slice();
-  arr[day] = true;
+/** All 10 (half, activity) flags for a list. */
+export function listDoneArray(p: Progress, week: WeekId): boolean[] {
+  const arr = p.activityCompleted[week];
+  if (!arr || arr.length < 10) {
+    const padded = emptyList();
+    if (arr) for (let i = 0; i < arr.length && i < 10; i++) padded[i] = !!arr[i];
+    return padded;
+  }
+  return arr;
+}
+
+/** The 5 activity flags for one sub-list (half). */
+export function subListDoneArray(p: Progress, week: WeekId, half: Half): boolean[] {
+  const arr = listDoneArray(p, week);
+  return arr.slice(half * 5, half * 5 + 5);
+}
+
+export function markActivityDone(
+  p: Progress,
+  week: WeekId,
+  half: Half,
+  activity: number,
+): Progress {
+  const arr = listDoneArray(p, week).slice();
+  arr[half * 5 + activity] = true;
   return {
     ...p,
-    dayCompleted: { ...p.dayCompleted, [week]: arr },
+    activityCompleted: { ...p.activityCompleted, [week]: arr },
   };
 }

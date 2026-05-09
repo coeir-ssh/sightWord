@@ -1,26 +1,55 @@
 import { useEffect, useState, useCallback } from 'react';
-import { storage, dayDoneArray, markDayDone, type Progress, type Wallet, type Inventory } from './storage';
-import type { WeekId } from '../data/words';
+import {
+  storage,
+  listDoneArray,
+  subListDoneArray,
+  markActivityDone,
+  type Progress,
+  type Wallet,
+  type Inventory,
+} from './storage';
+import type { Half, WeekId } from '../data/words';
 import type { Slot } from '../data/items';
 
 export function useProgress() {
   const [progress, setProgress] = useState<Progress>(() => storage.loadProgress());
   useEffect(() => storage.saveProgress(progress), [progress]);
+
   const setWeek = useCallback((week: WeekId) => {
     setProgress((p) => ({ ...p, currentWeek: week }));
   }, []);
-  const setWeekAndDay = useCallback((week: WeekId, day: number) => {
-    setProgress((p) => ({ ...p, currentWeek: week, currentDay: day }));
+
+  const setSubList = useCallback((week: WeekId, half: Half) => {
+    setProgress((p) => ({ ...p, currentWeek: week, currentSubList: half }));
   }, []);
-  const completeDay = useCallback((week: WeekId, day: number) => {
-    setProgress((p) => markDayDone(p, week, day));
-  }, []);
+
+  const setActivity = useCallback(
+    (week: WeekId, half: Half, activity: number) => {
+      setProgress((p) => ({
+        ...p,
+        currentWeek: week,
+        currentSubList: half,
+        currentActivity: activity,
+      }));
+    },
+    [],
+  );
+
+  const completeActivity = useCallback(
+    (week: WeekId, half: Half, activity: number) => {
+      setProgress((p) => markActivityDone(p, week, half, activity));
+    },
+    [],
+  );
+
   return {
     progress,
     setWeek,
-    setWeekAndDay,
-    completeDay,
-    dayDone: (w: WeekId) => dayDoneArray(progress, w),
+    setSubList,
+    setActivity,
+    completeActivity,
+    listDone: (w: WeekId) => listDoneArray(progress, w),
+    subListDone: (w: WeekId, h: Half) => subListDoneArray(progress, w, h),
   };
 }
 
