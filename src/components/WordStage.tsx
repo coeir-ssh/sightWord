@@ -62,6 +62,14 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
     return () => clearTimeout(t);
   }, [word, stage]);
 
+  // Auto-advance to next word once every letter is at or above the pass ratio.
+  useEffect(() => {
+    if (!allPass || done) return;
+    setDone(true);
+    const t = setTimeout(() => onPass(), 700);
+    return () => clearTimeout(t);
+  }, [allPass, done, onPass]);
+
   const handleListen = async () => {
     await speak(word);
   };
@@ -98,10 +106,22 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
       <div className="flex items-center gap-4">
         <button
           onClick={handleListen}
-          className="text-5xl bg-yellow-300 hover:bg-yellow-400 active:scale-95 rounded-full w-20 h-20 shadow-lg transition flex items-center justify-center"
+          className="bg-gradient-to-b from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 active:scale-95 rounded-full w-20 h-20 shadow-lg transition flex items-center justify-center text-white ring-4 ring-blue-200"
           aria-label="단어 듣기"
         >
-          🔊
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-10 h-10"
+          >
+            <path d="M11 5 6 9H2v6h4l5 4z" fill="currentColor" />
+            <path d="M16 8.5a4.5 4.5 0 0 1 0 7" />
+            <path d="M19.5 5a8.5 8.5 0 0 1 0 14" />
+          </svg>
         </button>
         {showWord && (
           <div className="text-5xl font-kid font-bold text-blue-700 px-6 py-3 bg-white rounded-2xl shadow">

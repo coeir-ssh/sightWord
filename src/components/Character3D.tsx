@@ -1498,9 +1498,10 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               : item.shape === 'box'
                 ? 'cube'
                 : 'star');
+          // Hang the charm off the bag/strap on the right side.
           const cx = TORSO_W / 2 + 0.08;
-          const cy = TORSO_Y - TORSO_H / 2 + 0.05;
-          const cz = TORSO_D / 2;
+          const cy = TORSO_Y - 0.05;
+          const cz = -TORSO_D / 2 - 0.04;
 
           const string = new THREE.Mesh(
             new THREE.CylinderGeometry(0.008, 0.008, 0.18, 6),
@@ -1729,7 +1730,10 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
 
     (Object.keys(equipped) as Slot[]).forEach((slot) => {
       const id = equipped[slot];
-      if (id) equipItem(slot, id);
+      if (!id) return;
+      // Charms hang from the bag — skip if no bag is equipped.
+      if (slot === 'charm' && !equipped.back) return;
+      equipItem(slot, id);
     });
 
     // Undershirt (런닝) when nothing in 'top' slot

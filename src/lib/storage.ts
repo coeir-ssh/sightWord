@@ -17,7 +17,7 @@ export type Inventory = {
 
 const KEYS = {
   progress: 'sw.progress.v2',
-  wallet: 'sw.wallet.v2',
+  wallet: 'sw.wallet.v3',
   inventory: 'sw.inventory.v1',
   parentPin: 'sw.parentPin.v1',
   charName: 'sw.charName.v1',
@@ -29,7 +29,7 @@ const DEFAULT_PROGRESS: Progress = {
   dayCompleted: {},
 };
 
-const DEFAULT_WALLET: Wallet = { coins: 1000 };
+const DEFAULT_WALLET: Wallet = { coins: 10000 };
 
 const DEFAULT_INVENTORY: Inventory = {
   owned: [...DEFAULT_OWNED],

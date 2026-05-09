@@ -58,7 +58,9 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
 
       <main className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 px-6 pb-6">
         <section className="bg-white/70 backdrop-blur rounded-3xl shadow-lg p-4 flex flex-col items-center justify-center min-h-[340px] relative">
-          <Character3D equipped={inventory.equipped} name={name} />
+          <div className="w-full max-w-[420px] aspect-square mx-auto">
+            <Character3D equipped={inventory.equipped} name={name} />
+          </div>
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-500 bg-white/80 rounded-full px-3 py-1 shadow pointer-events-none">
             👆 캐릭터를 끌어서 돌려보세요
           </div>

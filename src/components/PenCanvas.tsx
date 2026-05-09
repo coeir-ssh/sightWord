@@ -26,7 +26,7 @@ export const PenCanvas = forwardRef<PenCanvasHandle, Props>(function PenCanvas(
     height,
     className,
     strokeColor = '#1d4ed8',
-    strokeWidth = 20,
+    strokeWidth = 13,
     glowColor,
     onChange,
     onStroke,

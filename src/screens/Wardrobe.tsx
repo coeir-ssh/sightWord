@@ -37,7 +37,7 @@ export function Wardrobe({ onBack }: Props) {
           <div className="text-center text-sm font-extrabold text-pink-700 mb-2">
             👀 미리보기 (실시간)
           </div>
-          <div className="bg-white rounded-2xl border-2 border-slate-100 h-[360px] w-full overflow-hidden">
+          <div className="bg-white rounded-2xl border-2 border-slate-100 w-full max-w-[360px] aspect-square mx-auto overflow-hidden">
             <Character3D equipped={inventory.equipped} name={charName} />
           </div>
           <div className="text-center text-xs text-slate-500 mt-2">
