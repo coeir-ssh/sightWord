@@ -173,3 +173,31 @@ export async function speak(text: string, opts?: { rate?: number }): Promise<voi
   // Fall back to Web Speech API
   await speakViaSynth(text, opts);
 }
+
+// English letter names — pronounced explicitly, since some voices speak a
+// bare single character ("t") as silence or as a phoneme rather than the
+// letter name learners need to hear.
+const LETTER_NAMES: Record<string, string> = {
+  a: 'ay', b: 'bee', c: 'see', d: 'dee', e: 'ee', f: 'eff', g: 'gee',
+  h: 'aitch', i: 'eye', j: 'jay', k: 'kay', l: 'el', m: 'em', n: 'en',
+  o: 'oh', p: 'pee', q: 'cue', r: 'are', s: 'ess', t: 'tee', u: 'you',
+  v: 'vee', w: 'double you', x: 'ex', y: 'why', z: 'zee',
+};
+
+export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
+  const key = letter.trim().toLowerCase();
+  const name = LETTER_NAMES[key] ?? key;
+  // Cancel any in-flight synth utterance so the letter cue isn't queued
+  // behind the longer word announcement.
+  if (ttsAvailable()) {
+    try { window.speechSynthesis.cancel(); } catch { /* ignore */ }
+  }
+  if (currentAudio) {
+    try {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    } catch { /* ignore */ }
+    currentAudio = null;
+  }
+  await speakViaSynth(name, { rate: opts?.rate ?? 0.95 });
+}
