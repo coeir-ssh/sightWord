@@ -48,8 +48,10 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
   const [progress, setProgress] = useState<Progress>({ passedCount: 0, total: 0, allPass: false });
   const advancingRef = useRef(false);
   const passThresholdPct = Math.round(PASS_RATIO * 100);
-  // No interactive slots (e.g. all 'shown') counts as already passed.
-  const passed = progress.total === 0 ? true : progress.allPass;
+  // Require WordRow to have reported at least one interactive slot AND
+  // every one of them to have individually passed. Avoids the initial
+  // {total: 0} state being misread as "done" before the row mounts.
+  const passed = progress.total > 0 && progress.allPass;
 
   useEffect(() => {
     rowRef.current?.resetAll();
