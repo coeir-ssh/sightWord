@@ -44,14 +44,14 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
   const rowRef = useRef<WordRowHandle | null>(null);
   const [variants] = useState<SlotVariant[]>(() => variantsFor(word, stage, s2Difficulty));
   const [coverage, setCoverage] = useState(0);
-  const [done, setDone] = useState(false);
+  const advancingRef = useRef(false);
   const passThresholdPct = Math.round(PASS_RATIO * 100);
   const passed = coverage >= PASS_RATIO;
 
   useEffect(() => {
     rowRef.current?.resetAll();
     setCoverage(0);
-    setDone(false);
+    advancingRef.current = false;
   }, [word, stage]);
 
   useEffect(() => {
@@ -62,19 +62,16 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
   }, [word, stage]);
 
   // Auto-advance once average coverage hits the pass ratio: pronounce the
-  // word one more time, then move to the next.
+  // word one more time, then move to the next. Ref guard prevents the
+  // effect from re-firing (or being cancelled) when `done` flips.
   useEffect(() => {
-    if (!passed || done) return;
-    setDone(true);
-    let cancelled = false;
+    if (!passed || advancingRef.current) return;
+    advancingRef.current = true;
     void (async () => {
       await speak(word);
-      if (!cancelled) onPass();
+      onPass();
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, [passed, done, onPass, word]);
+  }, [passed, onPass, word]);
 
   const handleListen = async () => {
     await speak(word);
@@ -83,7 +80,7 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
   const handleRetry = () => {
     rowRef.current?.resetAll();
     setCoverage(0);
-    setDone(false);
+    advancingRef.current = false;
   };
 
   const stageHint =
