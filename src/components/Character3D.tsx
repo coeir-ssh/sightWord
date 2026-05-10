@@ -63,6 +63,17 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
         powerPreference: 'low-power',
         failIfMajorPerformanceCaveat: false,
       });
+      // Probe the context: on iPad in Low Power Mode, WebGLRenderer can
+      // construct successfully but every gl.createShader returns null,
+      // which then throws inside Three.js material compilation later. Catch
+      // that here so we hit the 2D fallback cleanly instead of blowing up
+      // the whole app.
+      const gl = renderer.getContext();
+      const probe = gl.createShader(gl.VERTEX_SHADER);
+      if (!probe) {
+        throw new Error('GL context unusable (createShader returned null) — likely Low Power Mode / very low battery on iPad.');
+      }
+      gl.deleteShader(probe);
     } catch (err) {
       const e = err as Error;
       console.error('WebGL init failed:', err);
@@ -316,7 +327,23 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
           char.position.y = Math.sin((dt / 0.6) * Math.PI) * 0.45;
         }
       }
-      renderer.render(scene, camera);
+      try {
+        renderer.render(scene, camera);
+      } catch (err) {
+        // First render compiles shaders — on iPad WebKit in Low Power Mode
+        // that compile can throw (createShader returns null → shaderSource
+        // gets null). Treat as a renderer failure: stop the loop, dispose,
+        // and flip to the 2D fallback.
+        const e = err as Error;
+        console.error('WebGL render failed:', err);
+        cancelAnimationFrame(raf);
+        try { renderer.dispose(); } catch { /* noop */ }
+        try { el.removeChild(renderer.domElement); } catch { /* noop */ }
+        const head = `${e?.name ?? 'Error'}: ${e?.message ?? String(err)}`;
+        const stackTop = (e?.stack ?? '').split('\n').slice(0, 3).join('\n');
+        setFailed(stackTop ? `${head}\n${stackTop}` : head);
+        return;
+      }
       raf = requestAnimationFrame(animate);
     };
     animate();
@@ -1831,8 +1858,12 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
         {name && name.trim() !== '' && (
           <div style={{ fontWeight: 800, fontSize: 16 }}>{name}</div>
         )}
-        <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.8 }}>
-          이 기기에서는 3D 캐릭터를 표시할 수 없어요
+        <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.85 }}>
+          지금은 3D 캐릭터를 표시할 수 없어요
+        </div>
+        <div style={{ fontSize: 11, fontWeight: 500, opacity: 0.7, lineHeight: 1.4, maxWidth: 260 }}>
+          iPad가 저전력 모드이거나 배터리가 부족하면 발생할 수 있어요. 충전 후
+          다시 열어 보세요.
         </div>
         <div
           style={{
