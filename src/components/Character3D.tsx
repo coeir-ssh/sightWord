@@ -55,7 +55,9 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     } catch (err) {
       const e = err as Error;
       console.error('WebGL init failed:', err);
-      setFailed(`${e?.name ?? 'Error'}: ${e?.message ?? String(err)}`);
+      const head = `${e?.name ?? 'Error'}: ${e?.message ?? String(err)}`;
+      const stackTop = (e?.stack ?? '').split('\n').slice(0, 3).join('\n');
+      setFailed(stackTop ? `${head}\n${stackTop}` : head);
       return;
     }
 

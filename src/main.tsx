@@ -5,10 +5,20 @@ import './styles.css';
 
 // iPad WebKit (iOS 17.x) returns null from a few WebGL introspection calls
 // that Three.js dereferences directly (`getShaderPrecisionFormat().precision`,
-// `getSupportedExtensions().indexOf(...)`), which throws and forces the 2D
-// fallback. Substitute safe defaults so WebGLRenderer can build normally.
+// `getSupportedExtensions().indexOf(...)`, `getParameter(VERSION).indexOf(...)`),
+// which throws and forces the 2D fallback. Substitute safe defaults so
+// WebGLRenderer can build normally.
 function patchWebGLNullSafety() {
   try {
+    // String-valued pnames Three.js calls .indexOf on. Hardcoded constants so
+    // we don't have to read them off a context that might not exist yet.
+    // VERSION=0x1F02, RENDERER=0x1F01, VENDOR=0x1F00, SHADING_LANGUAGE_VERSION=0x8B8C
+    const STRING_PNAMES = new Map<number, string>([
+      [0x1f02, 'WebGL 2.0'],
+      [0x1f01, ''],
+      [0x1f00, ''],
+      [0x8b8c, ''],
+    ]);
     const fixOne = (proto: any) => {
       if (!proto) return;
       if (typeof proto.getShaderPrecisionFormat === 'function') {
@@ -23,6 +33,15 @@ function patchWebGLNullSafety() {
         proto.getSupportedExtensions = function (...args: unknown[]) {
           const r = orig.apply(this, args);
           return r ?? [];
+        };
+      }
+      if (typeof proto.getParameter === 'function') {
+        const orig = proto.getParameter;
+        proto.getParameter = function (pname: number) {
+          const r = orig.call(this, pname);
+          if (r != null) return r;
+          const fallback = STRING_PNAMES.get(pname);
+          return fallback !== undefined ? fallback : r;
         };
       }
     };
