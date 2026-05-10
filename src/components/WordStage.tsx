@@ -4,6 +4,8 @@ import type { SlotVariant } from './LetterSlot';
 import { speak } from '../lib/tts';
 import { PASS_RATIO } from '../lib/scoring';
 
+type Progress = { passedCount: number; total: number; allPass: boolean };
+
 export type Stage = 'S1' | 'S2' | 'S3';
 
 type Props = {
@@ -43,14 +45,15 @@ function variantsFor(word: string, stage: Stage, s2Difficulty: 0 | 1): SlotVaria
 export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
   const rowRef = useRef<WordRowHandle | null>(null);
   const [variants] = useState<SlotVariant[]>(() => variantsFor(word, stage, s2Difficulty));
-  const [coverage, setCoverage] = useState(0);
+  const [progress, setProgress] = useState<Progress>({ passedCount: 0, total: 0, allPass: false });
   const advancingRef = useRef(false);
   const passThresholdPct = Math.round(PASS_RATIO * 100);
-  const passed = coverage >= PASS_RATIO;
+  // No interactive slots (e.g. all 'shown') counts as already passed.
+  const passed = progress.total === 0 ? true : progress.allPass;
 
   useEffect(() => {
     rowRef.current?.resetAll();
-    setCoverage(0);
+    setProgress({ passedCount: 0, total: 0, allPass: false });
     advancingRef.current = false;
   }, [word, stage]);
 
@@ -61,13 +64,14 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
     return () => clearTimeout(t);
   }, [word, stage]);
 
-  // Auto-advance once average coverage hits the pass ratio: pronounce the
-  // word one more time, then move to the next. Ref guard prevents the
-  // effect from re-firing (or being cancelled) when `done` flips.
+  // Auto-advance once every interactive slot has individually passed: give
+  // the per-letter announcement a beat to play, pronounce the whole word,
+  // then move on. Ref guard prevents re-firing.
   useEffect(() => {
     if (!passed || advancingRef.current) return;
     advancingRef.current = true;
     void (async () => {
+      await new Promise((r) => setTimeout(r, 650));
       await speak(word);
       onPass();
     })();
@@ -79,7 +83,7 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
 
   const handleRetry = () => {
     rowRef.current?.resetAll();
-    setCoverage(0);
+    setProgress({ passedCount: 0, total: 0, allPass: false });
     advancingRef.current = false;
   };
 
@@ -91,8 +95,10 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
         : '👂 듣고 단어 전체를 써 보세요!';
 
   const showWord = stage === 'S1';
-  const pct = Math.min(100, Math.round(coverage * 100));
-  const barColor = passed ? 'bg-green-500' : pct >= passThresholdPct ? 'bg-yellow-400' : 'bg-yellow-300';
+  // Bar reflects how many letters have individually passed (the new gate).
+  const pct =
+    progress.total === 0 ? 100 : Math.round((progress.passedCount / progress.total) * 100);
+  const barColor = passed ? 'bg-green-500' : pct > 0 ? 'bg-yellow-400' : 'bg-yellow-300';
 
   return (
     <div className="flex flex-col items-center gap-6">
@@ -129,38 +135,35 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
         ref={rowRef}
         word={word}
         variants={variants}
-        onAggregateChange={(avg) => {
-          setCoverage(avg);
+        onAggregateChange={(info) => {
+          setProgress({
+            passedCount: info.passedCount,
+            total: info.total,
+            allPass: info.allPass,
+          });
         }}
       />
 
-      {/* Live progress bar */}
+      {/* Live progress bar — counts letters that individually hit the pass mark. */}
       <div className="w-full max-w-md">
         <div className="flex items-center gap-3">
           <span
-            className={`font-extrabold text-sm tabular-nums w-10 ${
+            className={`font-extrabold text-sm tabular-nums w-14 ${
               passed ? 'text-green-600' : 'text-yellow-700'
             }`}
           >
-            {passed ? 'OK!' : `${pct}%`}
+            {passed ? 'OK!' : `${progress.passedCount}/${progress.total}`}
           </span>
           <div className="relative flex-1 h-5 bg-slate-200 rounded-full overflow-hidden shadow-inner">
             <div
               className={`h-full ${barColor} transition-[width] duration-150 rounded-full`}
               style={{ width: `${pct}%` }}
             />
-            <div
-              className="absolute top-0 bottom-0 w-0.5 bg-slate-700"
-              style={{ left: `${passThresholdPct}%` }}
-            />
           </div>
-          <span className="text-xs font-bold text-slate-500 tabular-nums w-10 text-right">
-            {passThresholdPct}%
-          </span>
         </div>
         {!passed && (
           <p className="text-center text-xs font-bold text-amber-600 mt-2">
-            ▶ 평균 {passThresholdPct}% 이상 따라 쓰면 자동으로 다음으로!
+            ▶ 모든 글자를 {passThresholdPct}% 이상 따라 쓰면 자동으로 다음으로!
           </p>
         )}
       </div>
