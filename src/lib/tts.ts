@@ -187,17 +187,6 @@ const LETTER_NAMES: Record<string, string> = {
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
   const name = LETTER_NAMES[key] ?? key;
-  // Cancel any in-flight synth utterance so the letter cue isn't queued
-  // behind the longer word announcement.
-  if (ttsAvailable()) {
-    try { window.speechSynthesis.cancel(); } catch { /* ignore */ }
-  }
-  if (currentAudio) {
-    try {
-      currentAudio.pause();
-      currentAudio.currentTime = 0;
-    } catch { /* ignore */ }
-    currentAudio = null;
-  }
+  console.debug('[tts] speakLetter', { letter, name, ttsAvailable: ttsAvailable(), unlocked });
   await speakViaSynth(name, { rate: opts?.rate ?? 0.95 });
 }
