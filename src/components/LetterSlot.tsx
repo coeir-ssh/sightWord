@@ -1,6 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { PenCanvas, type PenCanvasHandle } from './PenCanvas';
 import { drawTemplate, scoreLetterSlot, PASS_RATIO } from '../lib/scoring';
+import { speakLetter } from '../lib/tts';
 
 export type LetterSlotHandle = {
   reset: () => void;
@@ -28,6 +29,15 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
   const [coverage, setCoverage] = useState(variant === 'shown' ? 1 : 0);
 
   const passed = coverage >= PASS_RATIO || variant === 'shown';
+  const prevPassedRef = useRef(false);
+
+  useEffect(() => {
+    const interactive = variant !== 'shown';
+    if (interactive && passed && !prevPassedRef.current) {
+      void speakLetter(letter);
+    }
+    prevPassedRef.current = passed;
+  }, [passed, variant, letter]);
 
   useImperativeHandle(ref, () => ({
     reset: () => {

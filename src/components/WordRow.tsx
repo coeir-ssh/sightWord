@@ -6,12 +6,30 @@ export type WordRowHandle = {
   resetAll: () => void;
 };
 
+export type AggregateInfo = {
+  /** Average coverage across interactive slots (0..1) */
+  avg: number;
+  /** True when every interactive slot is at or above PASS_RATIO. */
+  allPass: boolean;
+  /** Number of interactive slots that have passed. */
+  passedCount: number;
+  /** Total interactive slots. */
+  total: number;
+};
+
 type Props = {
   word: string;
   variants: SlotVariant[];
-  /** Average coverage across interactive slots (0..1) */
-  onAggregateChange?: (avg: number, allPass: boolean) => void;
+  onAggregateChange?: (info: AggregateInfo) => void;
 };
+
+function slotSizeFor(length: number): { width: number; height: number } {
+  // Shrink slots so the whole word fits in a single row.
+  const width =
+    length <= 5 ? 140 : length <= 6 ? 120 : length <= 7 ? 104 : length <= 8 ? 92 : 82;
+  const height = Math.round((width * 190) / 140);
+  return { width, height };
+}
 
 export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow(
   { word, variants, onAggregateChange },
@@ -32,17 +50,22 @@ export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow(
       .map((v, i) => (v !== 'shown' ? i : -1))
       .filter((i) => i >= 0);
     if (interactiveIndices.length === 0) {
-      onAggregateChange?.(1, true);
+      onAggregateChange?.({ avg: 1, allPass: true, passedCount: 0, total: 0 });
       return;
     }
     let sum = 0;
-    let allPass = true;
+    let passedCount = 0;
     for (const i of interactiveIndices) {
       const c = coveragesRef.current[i] ?? 0;
       sum += c;
-      if (c < PASS_RATIO) allPass = false;
+      if (c >= PASS_RATIO) passedCount += 1;
     }
-    onAggregateChange?.(sum / interactiveIndices.length, allPass);
+    onAggregateChange?.({
+      avg: sum / interactiveIndices.length,
+      allPass: passedCount === interactiveIndices.length,
+      passedCount,
+      total: interactiveIndices.length,
+    });
   }, [variants, onAggregateChange]);
 
   useImperativeHandle(ref, () => ({
@@ -60,14 +83,18 @@ export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow(
   };
 
   const letters = word.split('');
+  const { width, height } = slotSizeFor(letters.length);
+  const gap = letters.length >= 7 ? 'gap-2' : 'gap-3';
 
   return (
-    <div className="flex items-center justify-center gap-3 flex-wrap">
+    <div className={`flex items-center justify-center ${gap} flex-nowrap`}>
       {letters.map((ch, i) => (
         <LetterSlot
           key={`${ch}-${i}`}
           letter={ch}
           variant={variants[i] ?? 'hidden'}
+          width={width}
+          height={height}
           onCoverageChange={handleCoverage(i)}
           ref={(el) => {
             slotRefs.current[i] = el;
