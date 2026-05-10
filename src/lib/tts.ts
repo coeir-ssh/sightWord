@@ -187,6 +187,6 @@ const LETTER_NAMES: Record<string, string> = {
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
   const name = LETTER_NAMES[key] ?? key;
-  console.debug('[tts] speakLetter', { letter, name, ttsAvailable: ttsAvailable(), unlocked });
+  console.log('[tts] speakLetter', { letter, name, ttsAvailable: ttsAvailable(), unlocked });
   await speakViaSynth(name, { rate: opts?.rate ?? 0.95 });
 }

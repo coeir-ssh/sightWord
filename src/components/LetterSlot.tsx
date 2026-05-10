@@ -33,11 +33,19 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
 
   useEffect(() => {
     const interactive = variant !== 'shown';
+    console.log('[LetterSlot] passed-effect', {
+      letter,
+      variant,
+      coverage,
+      passed,
+      prevPassed: prevPassedRef.current,
+      willSpeak: interactive && passed && !prevPassedRef.current,
+    });
     if (interactive && passed && !prevPassedRef.current) {
       void speakLetter(letter);
     }
     prevPassedRef.current = passed;
-  }, [passed, variant, letter]);
+  }, [passed, variant, letter, coverage]);
 
   useImperativeHandle(ref, () => ({
     reset: () => {
