@@ -44,15 +44,14 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
   const rowRef = useRef<WordRowHandle | null>(null);
   const [variants] = useState<SlotVariant[]>(() => variantsFor(word, stage, s2Difficulty));
   const [coverage, setCoverage] = useState(0);
-  const [allPass, setAllPass] = useState(false);
-  const [done, setDone] = useState(false);
+  const advancingRef = useRef(false);
   const passThresholdPct = Math.round(PASS_RATIO * 100);
+  const passed = coverage >= PASS_RATIO;
 
   useEffect(() => {
     rowRef.current?.resetAll();
     setCoverage(0);
-    setAllPass(false);
-    setDone(false);
+    advancingRef.current = false;
   }, [word, stage]);
 
   useEffect(() => {
@@ -62,29 +61,26 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
     return () => clearTimeout(t);
   }, [word, stage]);
 
-  // Auto-advance to next word once every letter is at or above the pass ratio.
+  // Auto-advance once average coverage hits the pass ratio: pronounce the
+  // word one more time, then move to the next. Ref guard prevents the
+  // effect from re-firing (or being cancelled) when `done` flips.
   useEffect(() => {
-    if (!allPass || done) return;
-    setDone(true);
-    const t = setTimeout(() => onPass(), 700);
-    return () => clearTimeout(t);
-  }, [allPass, done, onPass]);
+    if (!passed || advancingRef.current) return;
+    advancingRef.current = true;
+    void (async () => {
+      await speak(word);
+      onPass();
+    })();
+  }, [passed, onPass, word]);
 
   const handleListen = async () => {
     await speak(word);
   };
 
-  const handleNext = () => {
-    if (!allPass || done) return;
-    setDone(true);
-    setTimeout(() => onPass(), 600);
-  };
-
   const handleRetry = () => {
     rowRef.current?.resetAll();
     setCoverage(0);
-    setAllPass(false);
-    setDone(false);
+    advancingRef.current = false;
   };
 
   const stageHint =
@@ -96,7 +92,6 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
 
   const showWord = stage === 'S1';
   const pct = Math.min(100, Math.round(coverage * 100));
-  const passed = allPass;
   const barColor = passed ? 'bg-green-500' : pct >= passThresholdPct ? 'bg-yellow-400' : 'bg-yellow-300';
 
   return (
@@ -134,9 +129,8 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
         ref={rowRef}
         word={word}
         variants={variants}
-        onAggregateChange={(avg, all) => {
+        onAggregateChange={(avg) => {
           setCoverage(avg);
-          setAllPass(all);
         }}
       />
 
@@ -166,7 +160,7 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
         </div>
         {!passed && (
           <p className="text-center text-xs font-bold text-amber-600 mt-2">
-            ▶ 글자를 {passThresholdPct}% 이상 따라 써야 다음으로!
+            ▶ 평균 {passThresholdPct}% 이상 따라 쓰면 자동으로 다음으로!
           </p>
         )}
       </div>
@@ -178,17 +172,15 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
         >
           ▶ 다시 쓰기
         </button>
-        <button
-          onClick={handleNext}
-          disabled={!passed || done}
+        <div
           className={`px-8 py-3 rounded-2xl text-lg font-bold shadow-lg transition ${
-            passed && !done
-              ? 'bg-green-500 hover:bg-green-600 active:scale-95 text-white'
-              : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+            passed
+              ? 'bg-green-500 text-white'
+              : 'bg-slate-200 text-slate-400'
           }`}
         >
-          {done ? '⭐ 통과!' : '다음 →'}
-        </button>
+          {passed ? '⭐ 통과!' : '다음 →'}
+        </div>
       </div>
     </div>
   );
