@@ -3,22 +3,30 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './styles.css';
 
-// iPad WebKit (iOS 17.x) returns null from a few WebGL introspection calls
-// that Three.js dereferences directly (`getShaderPrecisionFormat().precision`,
-// `getSupportedExtensions().indexOf(...)`, `getParameter(VERSION).indexOf(...)`),
-// which throws and forces the 2D fallback. Substitute safe defaults so
-// WebGLRenderer can build normally.
+// iPad WebKit (iOS 17.x, especially under Low Power Mode / low battery)
+// returns null from many WebGL introspection calls that Three.js dereferences
+// directly, which throws inside the WebGLRenderer constructor and forces the
+// 2D fallback. Substitute non-null defaults for every call Three.js makes
+// during construction so the renderer can build normally.
 function patchWebGLNullSafety() {
   try {
-    // String-valued pnames Three.js calls .indexOf on. Hardcoded constants so
-    // we don't have to read them off a context that might not exist yet.
-    // VERSION=0x1F02, RENDERER=0x1F01, VENDOR=0x1F00, SHADING_LANGUAGE_VERSION=0x8B8C
-    const STRING_PNAMES = new Map<number, string>([
-      [0x1f02, 'WebGL 2.0'],
-      [0x1f01, ''],
-      [0x1f00, ''],
-      [0x8b8c, ''],
-    ]);
+    // pname -> default. Constants are hardcoded so we don't depend on a live
+    // context being available at module load time.
+    const STRING_DEFAULTS: Record<number, string> = {
+      0x1f00: '',           // VENDOR
+      0x1f01: '',           // RENDERER
+      0x1f02: 'WebGL 2.0',  // VERSION
+      0x8b8c: '',           // SHADING_LANGUAGE_VERSION
+    };
+    const ARRAY_DEFAULTS: Record<number, () => ArrayBufferView> = {
+      0x0c10: () => new Int32Array([0, 0, 1, 1]),    // SCISSOR_BOX
+      0x0ba2: () => new Int32Array([0, 0, 1, 1]),    // VIEWPORT
+      0x0c22: () => new Float32Array([0, 0, 0, 0]),  // COLOR_CLEAR_VALUE
+      0x0b70: () => new Float32Array([0, 1]),         // DEPTH_RANGE
+      0x0c23: () => new Int32Array([1, 1, 1, 1]),    // COLOR_WRITEMASK
+      0x0b72: () => new Int32Array([1]),             // DEPTH_WRITEMASK
+    };
+
     const fixOne = (proto: any) => {
       if (!proto) return;
       if (typeof proto.getShaderPrecisionFormat === 'function') {
@@ -40,8 +48,11 @@ function patchWebGLNullSafety() {
         proto.getParameter = function (pname: number) {
           const r = orig.call(this, pname);
           if (r != null) return r;
-          const fallback = STRING_PNAMES.get(pname);
-          return fallback !== undefined ? fallback : r;
+          if (pname in STRING_DEFAULTS) return STRING_DEFAULTS[pname];
+          if (pname in ARRAY_DEFAULTS) return ARRAY_DEFAULTS[pname]();
+          // Unknown numeric pname: return a benign positive integer so any
+          // capability comparison (`max > 0`, etc.) succeeds.
+          return 4096;
         };
       }
     };

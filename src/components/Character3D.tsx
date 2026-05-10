@@ -46,12 +46,23 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
 
   useEffect(() => {
     const el = mountRef.current!;
-    const w = el.clientWidth;
-    const h = el.clientHeight;
+    // aspect-square wrappers can momentarily report 0 on first mount before
+    // layout settles. Floor to a positive size so we never feed 0 into the
+    // renderer (which on iPad WebKit produces a half-broken context).
+    const w = Math.max(el.clientWidth, 1);
+    const h = Math.max(el.clientHeight, 1);
 
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      // Tuned for iPad iOS 17 WebKit: lower-power preference + skip the
+      // performance-caveat veto so a battery-throttled device still gives us
+      // a real WebGL2 context. antialias off to widen device support.
+      renderer = new THREE.WebGLRenderer({
+        antialias: false,
+        alpha: true,
+        powerPreference: 'low-power',
+        failIfMajorPerformanceCaveat: false,
+      });
     } catch (err) {
       const e = err as Error;
       console.error('WebGL init failed:', err);
