@@ -1836,6 +1836,12 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
   }, [jumping]);
 
   if (failed) {
+    // iOS Chrome (UA contains "CriOS") routes WebGL through a WKWebView
+    // configuration that exposes WebGL2 unreliably on many iPads, even when
+    // Safari on the same device works fine. There's no client-side fix —
+    // tell the user to open the page in Safari instead.
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    const isIOSChrome = /CriOS\//.test(ua);
     return (
       <div
         className={className}
@@ -1861,15 +1867,16 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
         <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.85 }}>
           지금은 3D 캐릭터를 표시할 수 없어요
         </div>
-        <div style={{ fontSize: 11, fontWeight: 500, opacity: 0.7, lineHeight: 1.4, maxWidth: 260 }}>
-          iPad가 저전력 모드이거나 배터리가 부족하면 발생할 수 있어요. 충전 후
-          다시 열어 보세요.
+        <div style={{ fontSize: 11, fontWeight: 500, opacity: 0.75, lineHeight: 1.4, maxWidth: 280 }}>
+          {isIOSChrome
+            ? 'iPad의 Chrome 앱은 3D를 제대로 표시하지 못해요. 같은 주소를 Safari로 열면 정상으로 나와요.'
+            : 'iPad가 저전력 모드이거나 배터리가 부족하면 발생할 수 있어요. 충전 후 다시 열어 보세요.'}
         </div>
         <div
           style={{
             fontSize: 10,
             fontWeight: 500,
-            opacity: 0.7,
+            opacity: 0.6,
             background: 'rgba(120,53,15,0.08)',
             border: '1px solid rgba(120,53,15,0.2)',
             borderRadius: 6,
