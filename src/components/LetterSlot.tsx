@@ -141,7 +141,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
         />
       )}
       {passed && interactive && (
-        <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-lg font-bold shadow">
+        <div className="absolute top-1 right-1 w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold shadow">
           ✓
         </div>
       )}

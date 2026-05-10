@@ -3,7 +3,7 @@ export type ScoreResult = {
   pass: boolean;
 };
 
-export const PASS_RATIO = 0.6;
+export const PASS_RATIO = 0.5;
 const MIN_INK_RATIO = 0.015;
 
 const TEMPLATE_FONT_FAMILY =
