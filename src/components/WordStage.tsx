@@ -67,17 +67,15 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
   }, [word, stage]);
 
   // Auto-advance once every interactive slot has individually passed: give
-  // the per-letter announcement a beat to play, pronounce the whole word,
-  // then move on. Ref guard prevents re-firing.
+  // the last per-letter announcement a brief beat, then move on. The next
+  // stage announces its own word on mount, so we skip a redundant replay
+  // here (which previously made the transition feel sluggish).
   useEffect(() => {
     if (!passed || advancingRef.current) return;
     advancingRef.current = true;
-    void (async () => {
-      await new Promise((r) => setTimeout(r, 650));
-      await speak(word);
-      onPass();
-    })();
-  }, [passed, onPass, word]);
+    const t = setTimeout(() => onPass(), 350);
+    return () => clearTimeout(t);
+  }, [passed, onPass]);
 
   const handleListen = async () => {
     await speak(word);

@@ -3,8 +3,6 @@ import audioManifest from '../data/audioManifest.json';
 const AUDIO_SET = new Set<string>((audioManifest as string[]).map((w) => w.toLowerCase()));
 const AUDIO_BASE = `${import.meta.env.BASE_URL}audio/`;
 
-let currentAudio: HTMLAudioElement | null = null;
-
 let cachedVoice: SpeechSynthesisVoice | null = null;
 let voicesPromise: Promise<void> | null = null;
 let unlocked = false;
@@ -69,11 +67,14 @@ function ensureVoices(): Promise<void> {
 /** Call inside a user gesture handler to unlock iOS audio + TTS. */
 export function unlockTts(): void {
   if (unlocked) return;
-  // Prime HTMLAudioElement (silent play) so first audio.play() works on iOS
+  // Prime the SAME HTMLAudioElement we'll reuse for every cue. iOS Safari
+  // only blesses elements that have called .play() inside a user gesture;
+  // a one-shot throwaway Audio() doesn't help subsequent new ones.
   try {
-    const a = new Audio(
-      'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='
-    );
+    const a = getPooledAudio();
+    a.src =
+      'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+    a.muted = true;
     a.volume = 0;
     void a.play().catch(() => {});
   } catch {
@@ -98,6 +99,20 @@ export function isTtsUnlocked(): boolean {
   return unlocked;
 }
 
+// iOS Safari only blesses an HTMLAudioElement that has been .play()'d once
+// inside a user gesture. After that, the SAME element can play a new src
+// without another gesture — but a freshly created Audio() would be locked
+// again. So we keep a single pooled element and just swap its src.
+let pooledAudio: HTMLAudioElement | null = null;
+
+function getPooledAudio(): HTMLAudioElement {
+  if (!pooledAudio) {
+    pooledAudio = new Audio();
+    pooledAudio.preload = 'auto';
+  }
+  return pooledAudio;
+}
+
 function playFile(text: string, opts?: { rate?: number }): Promise<boolean> {
   const key = text.toLowerCase();
   if (!AUDIO_SET.has(key)) {
@@ -105,29 +120,35 @@ function playFile(text: string, opts?: { rate?: number }): Promise<boolean> {
   }
   return new Promise<boolean>((resolve) => {
     try {
-      if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-        currentAudio = null;
-      }
-      const url = `${AUDIO_BASE}${encodeURIComponent(key)}.mp3`;
-      const audio = new Audio(url);
-      if (opts?.rate) audio.playbackRate = opts.rate;
+      const audio = getPooledAudio();
+      audio.pause();
+      audio.onended = null;
+      audio.onerror = null;
+      audio.muted = false;
       audio.volume = 1;
-      currentAudio = audio;
+      audio.playbackRate = opts?.rate ?? 1;
+      audio.src = `${AUDIO_BASE}${encodeURIComponent(key)}.mp3`;
+      audio.currentTime = 0;
+      let resolved = false;
       const done = (ok: boolean) => {
-        if (currentAudio === audio) currentAudio = null;
+        if (resolved) return;
+        resolved = true;
         resolve(ok);
       };
       audio.onended = () => done(true);
       audio.onerror = () => {
-        console.warn('[tts] audio file error:', url);
+        console.warn('[tts] audio file error:', audio.src);
         done(false);
       };
       const p = audio.play();
       if (p && typeof p.catch === 'function') {
         p.catch((err) => {
-          console.warn('[tts] audio.play rejected, fallback to TTS:', text, err);
+          // AbortError fires when we pause+swap src for the next cue while
+          // a play() is still pending. That's expected, not a real failure
+          // — let the next call drive the new resolution.
+          if ((err as DOMException)?.name !== 'AbortError') {
+            console.warn('[tts] audio.play rejected, fallback to TTS:', text, err);
+          }
           done(false);
         });
       }
