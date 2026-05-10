@@ -20,16 +20,14 @@ MANIFEST_PATH = REPO_ROOT / 'src/data/audioManifest.json'
 
 VOICE = 'en-US-AriaNeural'  # natural-sounding kid-friendly female voice
 RATE = '-15%'                # a bit slower for kids
+LETTERS = 'abcdefghijklmnopqrstuvwxyz'
 
-# English letter names — pronounced explicitly so the synthesizer says the
-# alphabet name rather than the phoneme of a single character.
-LETTER_NAMES: dict[str, str] = {
-    'a': 'ay', 'b': 'bee', 'c': 'see', 'd': 'dee', 'e': 'ee', 'f': 'eff',
-    'g': 'gee', 'h': 'aitch', 'i': 'eye', 'j': 'jay', 'k': 'kay', 'l': 'el',
-    'm': 'em', 'n': 'en', 'o': 'oh', 'p': 'pee', 'q': 'cue', 'r': 'are',
-    's': 'ess', 't': 'tee', 'u': 'you', 'v': 'vee', 'w': 'double you',
-    'x': 'ex', 'y': 'why', 'z': 'zee',
-}
+# Force the engine to say the alphabet name. Plain spellings ("ay", "bee")
+# get pronounced as words — Aria reads "ay" as /aɪ/ which sounds like the
+# letter I, not A. SSML <say-as interpret-as="characters"> picks the canonical
+# letter-name pronunciation for each character.
+def letter_ssml(letter: str) -> str:
+    return f'<say-as interpret-as="characters">{letter}</say-as>'
 
 
 def parse_words() -> list[str]:
@@ -44,14 +42,22 @@ def parse_words() -> list[str]:
 
 
 async def synth_one(
-    manifest_key: str, spoken_text: str, file_stem: str, sem: asyncio.Semaphore
+    manifest_key: str,
+    spoken_text: str,
+    file_stem: str,
+    sem: asyncio.Semaphore,
+    is_ssml: bool = False,
 ) -> tuple[str, bool]:
     """Generate one MP3.
 
     manifest_key: identifier appended to the audio manifest (and used as the
                   lookup key in the app, e.g. 'the' or 'letter-a').
-    spoken_text:  text passed to the TTS engine ('the', 'ay', 'bee', ...).
+    spoken_text:  text passed to the TTS engine ('the', or an SSML fragment).
     file_stem:    on-disk filename stem under OUT_DIR (without .mp3).
+    is_ssml:      when True, treat spoken_text as a raw SSML fragment that
+                  gets embedded inside edge-tts's wrapping prosody/voice
+                  block (without the XML-escape edge-tts applies to plain
+                  text). Used for letter-name pronunciation via <say-as>.
     """
     import edge_tts
     out_path = OUT_DIR / f'{file_stem}.mp3'
@@ -61,7 +67,13 @@ async def synth_one(
         last_err: Exception | None = None
         for attempt in range(1, 4):
             try:
-                communicate = edge_tts.Communicate(spoken_text, VOICE, rate=RATE)
+                if is_ssml:
+                    communicate = edge_tts.Communicate('x', VOICE, rate=RATE)
+                    # Bypass edge-tts's XML-escape on plain text so our SSML
+                    # tags reach Azure as markup rather than literal text.
+                    communicate.texts = [spoken_text.encode('utf-8')]
+                else:
+                    communicate = edge_tts.Communicate(spoken_text, VOICE, rate=RATE)
                 await communicate.save(str(out_path))
                 ok = out_path.exists() and out_path.stat().st_size > 500
                 if ok:
@@ -81,20 +93,21 @@ async def main() -> int:
     # Schedule words and per-letter announcements together. Letter names are
     # stored as 'letter-<a-z>.mp3' with manifest key 'letter-<a-z>' so they
     # don't collide with the sight word "a".
-    tasks: list[tuple[str, str, str]] = []  # (manifest_key, spoken_text, file_stem)
+    # tuple: (manifest_key, spoken_text, file_stem, is_ssml)
+    tasks: list[tuple[str, str, str, bool]] = []
     for w in words:
         key = w.lower()
-        tasks.append((key, w, key))
-    for letter, name in LETTER_NAMES.items():
-        tasks.append((f'letter-{letter}', name, f'letter-{letter}'))
+        tasks.append((key, w, key, False))
+    for letter in LETTERS:
+        tasks.append((f'letter-{letter}', letter_ssml(letter), f'letter-{letter}', True))
 
     print(
         f'Generating audio: {len(words)} sight words + '
-        f'{len(LETTER_NAMES)} letters -> {OUT_DIR}'
+        f'{len(LETTERS)} letters -> {OUT_DIR}'
     )
     sem = asyncio.Semaphore(4)
     results = await asyncio.gather(
-        *[synth_one(k, t, s, sem) for k, t, s in tasks]
+        *[synth_one(k, t, s, sem, ssml) for k, t, s, ssml in tasks]
     )
     manifest = [k for k, ok in results if ok]
     MANIFEST_PATH.write_text(json.dumps(sorted(manifest)), encoding='utf-8')
