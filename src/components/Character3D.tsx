@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { getItem, type Slot } from '../data/items';
 
@@ -42,11 +42,21 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
   const charRef = useRef<THREE.Group | null>(null);
   const slotGroupsRef = useRef<Record<Slot, THREE.Group>>({} as any);
   const jumpRef = useRef(false);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const el = mountRef.current!;
     const w = el.clientWidth;
     const h = el.clientHeight;
+
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    } catch (err) {
+      console.error('WebGL init failed:', err);
+      setFailed(true);
+      return;
+    }
 
     const scene = new THREE.Scene();
     scene.background = null;
@@ -55,7 +65,6 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     camera.position.set(0, 1.1, 5.6);
     camera.lookAt(0, 0.9, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(w, h);
     el.appendChild(renderer.domElement);
@@ -1784,6 +1793,36 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
   useEffect(() => {
     if (jumping) jumpRef.current = true;
   }, [jumping]);
+
+  if (failed) {
+    return (
+      <div
+        className={className}
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(180deg, #fef3c7 0%, #fde68a 100%)',
+          borderRadius: 16,
+          color: '#92400e',
+          textAlign: 'center',
+          padding: 16,
+          gap: 8,
+        }}
+      >
+        <div style={{ fontSize: 56 }}>🧒</div>
+        {name && name.trim() !== '' && (
+          <div style={{ fontWeight: 800, fontSize: 16 }}>{name}</div>
+        )}
+        <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.8 }}>
+          이 기기에서는 3D 캐릭터를 표시할 수 없어요
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={className} style={{ width: '100%', height: '100%', position: 'relative' }}>
