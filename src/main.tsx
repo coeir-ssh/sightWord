@@ -3,6 +3,27 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './styles.css';
 
+// iPad WebKit (iOS 17.x) returns null from gl.getShaderPrecisionFormat,
+// which makes Three.js throw on `.precision` and blanks the 3D character.
+// Fall back to the standard highp values so WebGLRenderer can construct.
+function patchWebGLPrecision() {
+  try {
+    const fixOne = (proto: any) => {
+      if (!proto || typeof proto.getShaderPrecisionFormat !== 'function') return;
+      const orig = proto.getShaderPrecisionFormat;
+      proto.getShaderPrecisionFormat = function (...args: unknown[]) {
+        const r = orig.apply(this, args);
+        return r ?? { precision: 23, rangeMin: 127, rangeMax: 127 };
+      };
+    };
+    fixOne((globalThis as any).WebGLRenderingContext?.prototype);
+    fixOne((globalThis as any).WebGL2RenderingContext?.prototype);
+  } catch {
+    /* never block startup */
+  }
+}
+patchWebGLPrecision();
+
 const rootEl = document.getElementById('root')!;
 
 function showFatal(msg: string) {
