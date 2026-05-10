@@ -3,18 +3,28 @@ import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import './styles.css';
 
-// iPad WebKit (iOS 17.x) returns null from gl.getShaderPrecisionFormat,
-// which makes Three.js throw on `.precision` and blanks the 3D character.
-// Fall back to the standard highp values so WebGLRenderer can construct.
-function patchWebGLPrecision() {
+// iPad WebKit (iOS 17.x) returns null from a few WebGL introspection calls
+// that Three.js dereferences directly (`getShaderPrecisionFormat().precision`,
+// `getSupportedExtensions().indexOf(...)`), which throws and forces the 2D
+// fallback. Substitute safe defaults so WebGLRenderer can build normally.
+function patchWebGLNullSafety() {
   try {
     const fixOne = (proto: any) => {
-      if (!proto || typeof proto.getShaderPrecisionFormat !== 'function') return;
-      const orig = proto.getShaderPrecisionFormat;
-      proto.getShaderPrecisionFormat = function (...args: unknown[]) {
-        const r = orig.apply(this, args);
-        return r ?? { precision: 23, rangeMin: 127, rangeMax: 127 };
-      };
+      if (!proto) return;
+      if (typeof proto.getShaderPrecisionFormat === 'function') {
+        const orig = proto.getShaderPrecisionFormat;
+        proto.getShaderPrecisionFormat = function (...args: unknown[]) {
+          const r = orig.apply(this, args);
+          return r ?? { precision: 23, rangeMin: 127, rangeMax: 127 };
+        };
+      }
+      if (typeof proto.getSupportedExtensions === 'function') {
+        const orig = proto.getSupportedExtensions;
+        proto.getSupportedExtensions = function (...args: unknown[]) {
+          const r = orig.apply(this, args);
+          return r ?? [];
+        };
+      }
     };
     fixOne((globalThis as any).WebGLRenderingContext?.prototype);
     fixOne((globalThis as any).WebGL2RenderingContext?.prototype);
@@ -22,7 +32,7 @@ function patchWebGLPrecision() {
     /* never block startup */
   }
 }
-patchWebGLPrecision();
+patchWebGLNullSafety();
 
 const rootEl = document.getElementById('root')!;
 
