@@ -186,7 +186,11 @@ const LETTER_NAMES: Record<string, string> = {
 
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
+  // Pre-recorded letter MP3s ('letter-a' .. 'letter-z') sidestep Chrome's
+  // autoplay restriction on speechSynthesis, which silently drops utterances
+  // started outside an active user gesture.
+  const ok = await playFile(`letter-${key}`, opts);
+  if (ok) return;
   const name = LETTER_NAMES[key] ?? key;
-  console.log('[tts] speakLetter', { letter, name, ttsAvailable: ttsAvailable(), unlocked });
   await speakViaSynth(name, { rate: opts?.rate ?? 0.95 });
 }
