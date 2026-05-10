@@ -6,6 +6,7 @@ import { Wardrobe } from './screens/Wardrobe';
 import { ParentGate } from './screens/ParentGate';
 import { ListPicker } from './screens/ListPicker';
 import { unlockTts } from './lib/tts';
+import { startBgm } from './lib/bgm';
 
 type Route = 'home' | 'learn' | 'shop' | 'wardrobe' | 'parent' | 'list';
 
@@ -42,6 +43,7 @@ export function App() {
   useEffect(() => {
     const onFirstGesture = () => {
       unlockTts();
+      startBgm();
       window.removeEventListener('pointerdown', onFirstGesture);
       window.removeEventListener('touchstart', onFirstGesture);
       window.removeEventListener('keydown', onFirstGesture);

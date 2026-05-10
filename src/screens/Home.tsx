@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Character3D } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
+import { BgmToggle } from '../components/BgmToggle';
 import { useCharName, useInventory, useProgress, useWallet } from '../lib/state';
 import { getWeek, LIST_LABEL } from '../data/words';
 
@@ -46,6 +47,7 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
           </button>
         </div>
         <div className="flex items-center gap-2">
+          <BgmToggle />
           <button
             onClick={openNameModal}
             className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700 active:scale-95 hover:bg-blue-50 transition"
