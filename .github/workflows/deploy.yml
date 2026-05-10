@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - claude/sight-word-learning-app-8SGGz
+      - claude/fix-word-progress-auto-advance-jDLwi
   workflow_dispatch:
 
 permissions:
