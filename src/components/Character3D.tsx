@@ -42,7 +42,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
   const charRef = useRef<THREE.Group | null>(null);
   const slotGroupsRef = useRef<Record<Slot, THREE.Group>>({} as any);
   const jumpRef = useRef(false);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState<string | null>(null);
 
   useEffect(() => {
     const el = mountRef.current!;
@@ -53,8 +53,9 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     } catch (err) {
+      const e = err as Error;
       console.error('WebGL init failed:', err);
-      setFailed(true);
+      setFailed(`${e?.name ?? 'Error'}: ${e?.message ?? String(err)}`);
       return;
     }
 
@@ -1819,6 +1820,23 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
         )}
         <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.8 }}>
           이 기기에서는 3D 캐릭터를 표시할 수 없어요
+        </div>
+        <div
+          style={{
+            fontSize: 10,
+            fontWeight: 500,
+            opacity: 0.7,
+            background: 'rgba(120,53,15,0.08)',
+            border: '1px solid rgba(120,53,15,0.2)',
+            borderRadius: 6,
+            padding: '6px 8px',
+            maxWidth: '100%',
+            wordBreak: 'break-word',
+            whiteSpace: 'pre-wrap',
+            fontFamily: 'ui-monospace, Menlo, monospace',
+          }}
+        >
+          {failed}
         </div>
       </div>
     );
