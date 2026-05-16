@@ -207,6 +207,17 @@ export async function speak(text: string, opts?: { rate?: number }): Promise<voi
   await speakViaSynth(text, opts);
 }
 
+// English letter names — used only when the pre-recorded SSML MP3 isn't
+// available. Pre-recorded files are the primary source, so this fallback
+// just needs to be a plain spelling the synth voice can read; quirks like
+// "ay" -> "I" on some voices are tolerable because the MP3 normally wins.
+const LETTER_NAMES: Record<string, string> = {
+  a: 'ay', b: 'bee', c: 'see', d: 'dee', e: 'ee', f: 'eff', g: 'gee',
+  h: 'aitch', i: 'eye', j: 'jay', k: 'kay', l: 'el', m: 'em', n: 'en',
+  o: 'oh', p: 'pee', q: 'cue', r: 'are', s: 'ess', t: 'tee', u: 'you',
+  v: 'vee', w: 'double you', x: 'ex', y: 'why', z: 'zee',
+};
+
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
   // Pre-recorded letter MP3s ('letter-a' .. 'letter-z') sidestep Chrome's
@@ -214,9 +225,6 @@ export async function speakLetter(letter: string, opts?: { rate?: number }): Pro
   // started outside an active user gesture.
   const ok = await playFile(`letter-${key}`, opts);
   if (ok) return;
-  // Prefix with "letter" so the synth doesn't read a bare phonetic name like
-  // "ay" / "eye" as the English words "aye" or "I". With the prefix every
-  // voice tested (Aria, Samantha, Google US) pronounces the actual letter.
-  const upper = key.toUpperCase();
-  await speakViaSynth(`letter ${upper}`, { rate: opts?.rate ?? 0.85 });
+  const name = LETTER_NAMES[key] ?? key;
+  await speakViaSynth(name, { rate: opts?.rate ?? 0.95 });
 }

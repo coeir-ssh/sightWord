@@ -31,6 +31,7 @@ const DAY_PLANS: DayPlan[] = [
 ];
 
 const WEEKLY_BONUS = 20;
+const PER_WORD_COINS = 5;
 
 export function Learn({ onBack }: Props) {
   const { progress, dayDone, completeDay, setWeekAndDay } = useProgress();
@@ -67,7 +68,8 @@ export function Learn({ onBack }: Props) {
 
   const handlePass = () => {
     // Award per-word coins, with fly animation (Super Mode = 2x)
-    addCoins(1 * multiplier);
+    const perWord = PER_WORD_COINS * multiplier;
+    addCoins(perWord);
     setCoinTrigger((n) => n + 1);
     setJumping(true);
     setTimeout(() => setJumping(false), 700);
@@ -93,7 +95,7 @@ export function Learn({ onBack }: Props) {
         setWeekAndDay(nextWeek, 0);
       }
 
-      setCompletedScreen({ coins: sequence.length * multiplier, bonus, weekly });
+      setCompletedScreen({ coins: sequence.length * perWord, bonus, weekly });
     } else {
       setIdx((n) => n + 1);
     }
