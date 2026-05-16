@@ -70,10 +70,6 @@ export function unlockTts(): void {
   // Prime the SAME HTMLAudioElement we'll reuse for every cue. iOS Safari
   // only blesses elements that have called .play() inside a user gesture;
   // a one-shot throwaway Audio() doesn't help subsequent new ones.
-  // The priming play() runs SYNCHRONOUSLY in the gesture frame; we then
-  // immediately reset muted/volume so the next real cue is audible. We do
-  // NOT pause asynchronously after the promise resolves — a deferred pause
-  // would clobber whatever cue the app has started in the meantime.
   try {
     const a = getPooledAudio();
     a.src =
@@ -81,26 +77,16 @@ export function unlockTts(): void {
     a.muted = true;
     a.volume = 0;
     void a.play().catch(() => {});
-    a.muted = false;
-    a.volume = 1;
   } catch {
     /* ignore */
   }
   if (ttsAvailable()) {
     try {
-      const synth = window.speechSynthesis;
-      synth.getVoices();
-      // Prime the synth queue inside the gesture by speaking a single
-      // inaudible utterance and letting it finish on its own. We deliberately
-      // do NOT call synth.cancel() here — on Chrome, a speak() followed
-      // immediately by cancel() leaves the engine in a state where the next
-      // real utterance is dropped silently (the symptom users hit: "no audio
-      // anywhere, even in incognito"). Letting a near-zero-duration ' '
-      // utterance complete naturally primes the engine without poisoning it.
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.resume();
       const u = new SpeechSynthesisUtterance(' ');
       u.volume = 0;
-      u.rate = 1;
-      synth.speak(u);
+      window.speechSynthesis.speak(u);
       void ensureVoices();
     } catch {
       /* ignore */
@@ -127,21 +113,12 @@ function getPooledAudio(): HTMLAudioElement {
   return pooledAudio;
 }
 
-type PlayResult = { ok: boolean; silent: boolean };
-
-/** Play an MP3 from /audio. Reports whether playback completed and whether
- *  the audible duration was non-trivial (so callers can detect a silent or
- *  near-zero file and fall back to TTS). `skipManifest` lets letter cues
- *  attempt the file even when the build manifest doesn't list it. */
-function playFile(
-  text: string,
-  opts?: { rate?: number; skipManifest?: boolean }
-): Promise<PlayResult> {
+function playFile(text: string, opts?: { rate?: number }): Promise<boolean> {
   const key = text.toLowerCase();
-  if (!opts?.skipManifest && !AUDIO_SET.has(key)) {
-    return Promise.resolve({ ok: false, silent: false });
+  if (!AUDIO_SET.has(key)) {
+    return Promise.resolve(false);
   }
-  return new Promise<PlayResult>((resolve) => {
+  return new Promise<boolean>((resolve) => {
     try {
       const audio = getPooledAudio();
       audio.pause();
@@ -153,22 +130,15 @@ function playFile(
       audio.src = `${AUDIO_BASE}${encodeURIComponent(key)}.mp3`;
       audio.currentTime = 0;
       let resolved = false;
-      const finish = (r: PlayResult) => {
+      const done = (ok: boolean) => {
         if (resolved) return;
         resolved = true;
-        resolve(r);
+        resolve(ok);
       };
-      audio.onended = () => {
-        // onended only fires after the engine actually played the file
-        // through. Trust it as a successful playback — earlier attempts to
-        // flag "suspiciously short" durations as silent caused the synth
-        // fallback to take over for legitimate short letter cues like 'a',
-        // where the fallback voice pronounces "ay" as /aɪ/ ("I").
-        finish({ ok: true, silent: false });
-      };
+      audio.onended = () => done(true);
       audio.onerror = () => {
         console.warn('[tts] audio file error:', audio.src);
-        finish({ ok: false, silent: false });
+        done(false);
       };
       const p = audio.play();
       if (p && typeof p.catch === 'function') {
@@ -179,30 +149,22 @@ function playFile(
           if ((err as DOMException)?.name !== 'AbortError') {
             console.warn('[tts] audio.play rejected, fallback to TTS:', text, err);
           }
-          finish({ ok: false, silent: false });
+          done(false);
         });
       }
     } catch (err) {
       console.warn('[tts] audio creation failed:', text, err);
-      resolve({ ok: false, silent: false });
+      resolve(false);
     }
   });
 }
 
-async function speakViaSynth(
-  text: string,
-  opts?: { rate?: number; skipCancel?: boolean }
-): Promise<void> {
+async function speakViaSynth(text: string, opts?: { rate?: number }): Promise<void> {
   if (!ttsAvailable()) return;
   await ensureVoices();
   return new Promise<void>((resolve) => {
     try {
       const synth = window.speechSynthesis;
-      // Only cancel when something is actually playing or queued; cancelling
-      // an idle synth on Chrome leaves the next utterance silenced.
-      if (!opts?.skipCancel && (synth.speaking || synth.pending)) {
-        synth.cancel();
-      }
       synth.resume();
       const u = new SpeechSynthesisUtterance(text);
       if (cachedVoice) u.voice = cachedVoice;
@@ -217,11 +179,7 @@ async function speakViaSynth(
       };
       u.onend = done;
       u.onerror = done;
-      try {
-        synth.speak(u);
-      } catch {
-        done();
-      }
+      synth.speak(u);
       setTimeout(done, 6000);
     } catch {
       resolve();
@@ -231,16 +189,15 @@ async function speakViaSynth(
 
 export async function speak(text: string, opts?: { rate?: number }): Promise<void> {
   // Try pre-recorded MP3 first (most reliable across browsers / iOS)
-  const r = await playFile(text, opts);
-  if (r.ok && !r.silent) return;
+  const ok = await playFile(text, opts);
+  if (ok) return;
   // Fall back to Web Speech API
   await speakViaSynth(text, opts);
 }
 
-// English letter names — used when the pre-recorded SSML MP3 isn't available
-// or plays silently. Plain spellings ("ay", "bee", ...) are pronounced as the
-// letter name by every voice we tested; quirks like Aria reading "ay" as /aɪ/
-// only matter when the MP3 is missing entirely.
+// English letter names — pronounced explicitly, since some voices speak a
+// bare single character ("t") as silence or as a phoneme rather than the
+// letter name learners need to hear.
 const LETTER_NAMES: Record<string, string> = {
   a: 'ay', b: 'bee', c: 'see', d: 'dee', e: 'ee', f: 'eff', g: 'gee',
   h: 'aitch', i: 'eye', j: 'jay', k: 'kay', l: 'el', m: 'em', n: 'en',
@@ -250,21 +207,11 @@ const LETTER_NAMES: Record<string, string> = {
 
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
-  // Stage 1: try the pre-recorded letter MP3 by manifest.
-  let r = await playFile(`letter-${key}`, opts);
-  if (r.ok && !r.silent) return;
-  // Stage 2: manifest miss → still attempt the URL directly. Build-time
-  // generation occasionally drops one letter due to network blips, but the
-  // static file is sometimes deployed anyway. 404s come back as onerror and
-  // simply fall through.
-  if (!r.ok) {
-    r = await playFile(`letter-${key}`, { ...opts, skipManifest: true });
-    if (r.ok && !r.silent) return;
-  }
-  // Stage 3: synth. Letter cues run on idle synth (words use mp3), so skip
-  // the cancel() — it's the historical cause of Chrome silencing the next
-  // utterance after a blanket cancel.
+  // Pre-recorded letter MP3s ('letter-a' .. 'letter-z') sidestep Chrome's
+  // autoplay restriction on speechSynthesis, which silently drops utterances
+  // started outside an active user gesture.
+  const ok = await playFile(`letter-${key}`, opts);
+  if (ok) return;
   const name = LETTER_NAMES[key] ?? key;
-  console.debug('[tts] speakLetter -> synth fallback', { letter: key, name });
-  await speakViaSynth(name, { rate: opts?.rate ?? 0.95, skipCancel: true });
+  await speakViaSynth(name, { rate: opts?.rate ?? 0.95 });
 }
