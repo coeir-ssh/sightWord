@@ -159,10 +159,12 @@ function playFile(
         resolve(r);
       };
       audio.onended = () => {
-        // A real spoken letter mp3 from Azure is ~200ms+; flag anything
-        // suspiciously short as silent so callers can re-try via synth.
-        const dur = Number.isFinite(audio.duration) ? audio.duration : 0;
-        finish({ ok: true, silent: dur > 0 && dur < 0.1 });
+        // onended only fires after the engine actually played the file
+        // through. Trust it as a successful playback — earlier attempts to
+        // flag "suspiciously short" durations as silent caused the synth
+        // fallback to take over for legitimate short letter cues like 'a',
+        // where the fallback voice pronounces "ay" as /aɪ/ ("I").
+        finish({ ok: true, silent: false });
       };
       audio.onerror = () => {
         console.warn('[tts] audio file error:', audio.src);
