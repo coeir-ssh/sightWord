@@ -70,6 +70,10 @@ export function unlockTts(): void {
   // Prime the SAME HTMLAudioElement we'll reuse for every cue. iOS Safari
   // only blesses elements that have called .play() inside a user gesture;
   // a one-shot throwaway Audio() doesn't help subsequent new ones.
+  // The priming play() runs SYNCHRONOUSLY in the gesture frame; we then
+  // immediately reset muted/volume so the next real cue is audible. We do
+  // NOT pause asynchronously after the promise resolves — a deferred pause
+  // would clobber whatever cue the app has started in the meantime.
   try {
     const a = getPooledAudio();
     a.src =
@@ -77,16 +81,25 @@ export function unlockTts(): void {
     a.muted = true;
     a.volume = 0;
     void a.play().catch(() => {});
+    a.muted = false;
+    a.volume = 1;
   } catch {
     /* ignore */
   }
   if (ttsAvailable()) {
     try {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.resume();
-      const u = new SpeechSynthesisUtterance(' ');
-      u.volume = 0;
-      window.speechSynthesis.speak(u);
+      const synth = window.speechSynthesis;
+      synth.getVoices();
+      // Speak-then-cancel a real (non-zero-volume) utterance inside the
+      // gesture. Zero-volume utterances are known to wedge the queue on
+      // Chrome — synth.speaking stays true forever, silencing every later
+      // cue. A real utterance that we immediately cancel leaves the engine
+      // primed but idle.
+      const u = new SpeechSynthesisUtterance('.');
+      u.volume = 1;
+      u.rate = 1;
+      synth.speak(u);
+      synth.cancel();
       void ensureVoices();
     } catch {
       /* ignore */
