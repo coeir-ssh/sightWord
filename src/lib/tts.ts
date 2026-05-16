@@ -128,6 +128,10 @@ function playFile(text: string, opts?: { rate?: number }): Promise<boolean> {
       audio.volume = 1;
       audio.playbackRate = opts?.rate ?? 1;
       audio.src = `${AUDIO_BASE}${encodeURIComponent(key)}.mp3`;
+      // iPad WebKit retains the previous file's media state across a bare
+      // src swap — the next play() then runs silently. An explicit load()
+      // forces the element to re-initialize for the new URL.
+      audio.load();
       audio.currentTime = 0;
       let resolved = false;
       const done = (ok: boolean) => {
