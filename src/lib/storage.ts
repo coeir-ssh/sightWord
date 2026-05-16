@@ -17,10 +17,11 @@ export type Inventory = {
 
 const KEYS = {
   progress: 'sw.progress.v2',
-  wallet: 'sw.wallet.v4',
+  wallet: 'sw.wallet.v5',
   inventory: 'sw.inventory.v1',
   parentPin: 'sw.parentPin.v1',
   charName: 'sw.charName.v1',
+  superMode: 'sw.superMode.v1',
 };
 
 const DEFAULT_PROGRESS: Progress = {
@@ -106,6 +107,21 @@ export const storage = {
   setCharName: (name: string) => {
     try {
       localStorage.setItem(KEYS.charName, name);
+    } catch {
+      /* ignore */
+    }
+  },
+
+  getSuperMode: (): boolean => {
+    try {
+      return localStorage.getItem(KEYS.superMode) === '1';
+    } catch {
+      return false;
+    }
+  },
+  setSuperMode: (on: boolean) => {
+    try {
+      localStorage.setItem(KEYS.superMode, on ? '1' : '0');
     } catch {
       /* ignore */
     }

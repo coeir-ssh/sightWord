@@ -4,7 +4,7 @@ import { CoinFly } from '../components/CoinFly';
 import { WordStage, type Stage } from '../components/WordStage';
 import { Character3D } from '../components/Character3D';
 import { Coin } from '../components/Coin';
-import { useCharName, useInventory, useProgress, useWallet } from '../lib/state';
+import { useCharName, useInventory, useProgress, useSuperMode, useWallet } from '../lib/state';
 import { getWeek, WEEK_IDS } from '../data/words';
 import { shuffle } from '../lib/shuffle';
 
@@ -37,6 +37,8 @@ export function Learn({ onBack }: Props) {
   const { wallet, addCoins } = useWallet();
   const { inventory } = useInventory();
   const { name: charName } = useCharName();
+  const { superMode } = useSuperMode();
+  const multiplier = superMode ? 2 : 1;
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
@@ -64,21 +66,21 @@ export function Learn({ onBack }: Props) {
   const [jumping, setJumping] = useState(false);
 
   const handlePass = () => {
-    // Award 1 coin per word, with fly animation
-    addCoins(1);
+    // Award per-word coins, with fly animation (Super Mode = 2x)
+    addCoins(1 * multiplier);
     setCoinTrigger((n) => n + 1);
     setJumping(true);
     setTimeout(() => setJumping(false), 700);
 
     if (idx + 1 >= sequence.length) {
-      // Day complete: bonus
-      const bonus = plan.dayBonus;
+      // Day complete: bonus (Super Mode doubles bonus + weekly)
+      const bonus = plan.dayBonus * multiplier;
       addCoins(bonus);
 
       const allDoneSoFar = done.slice();
       allDoneSoFar[todayDay] = true;
       const allFive = allDoneSoFar.every((d) => d);
-      const weekly = allFive ? WEEKLY_BONUS : 0;
+      const weekly = allFive ? WEEKLY_BONUS * multiplier : 0;
       if (weekly > 0) addCoins(weekly);
 
       completeDay(progress.currentWeek, todayDay);
@@ -91,7 +93,7 @@ export function Learn({ onBack }: Props) {
         setWeekAndDay(nextWeek, 0);
       }
 
-      setCompletedScreen({ coins: sequence.length, bonus, weekly });
+      setCompletedScreen({ coins: sequence.length * multiplier, bonus, weekly });
     } else {
       setIdx((n) => n + 1);
     }
@@ -163,7 +165,14 @@ export function Learn({ onBack }: Props) {
         >
           ← 홈
         </button>
-        <div className="text-blue-700 font-extrabold text-xl">{planLabel}</div>
+        <div className="flex flex-col items-center">
+          <div className="text-blue-700 font-extrabold text-xl">{planLabel}</div>
+          {superMode && (
+            <div className="mt-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-gradient-to-r from-fuchsia-500 to-indigo-500 text-white shadow">
+              🦸‍♂️ SUPER MODE · 코인 2배
+            </div>
+          )}
+        </div>
         <CoinHUD coins={wallet.coins} />
       </header>
 

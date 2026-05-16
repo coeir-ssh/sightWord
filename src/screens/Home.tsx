@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Character3D } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
-import { useCharName, useInventory, useProgress, useWallet } from '../lib/state';
+import { useCharName, useInventory, useProgress, useSuperMode, useWallet } from '../lib/state';
 import { getWeek, LIST_LABEL } from '../data/words';
 
 type Props = {
@@ -16,6 +16,7 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
   const { wallet } = useWallet();
   const { inventory } = useInventory();
   const { name, setName } = useCharName();
+  const { superMode, toggleSuperMode } = useSuperMode();
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState(name);
 
@@ -92,6 +93,28 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
               ▶ {currentLabel} {currentDay + 1}단계 이어서 하기
             </button>
           </div>
+
+          <button
+            onClick={toggleSuperMode}
+            aria-pressed={superMode}
+            className={`w-full rounded-3xl py-5 shadow-lg text-xl font-extrabold active:scale-95 transition border-4 ${
+              superMode
+                ? 'bg-gradient-to-r from-fuchsia-500 via-purple-500 to-indigo-500 text-white border-yellow-300 animate-pulse'
+                : 'bg-white text-purple-700 border-purple-200 hover:bg-purple-50'
+            }`}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-2xl">🦸‍♂️</span>
+              <span>SUPER EYE TRAINING MODE</span>
+              <span
+                className={`ml-2 px-2 py-0.5 rounded-full text-xs ${
+                  superMode ? 'bg-yellow-300 text-yellow-900' : 'bg-slate-200 text-slate-600'
+                }`}
+              >
+                {superMode ? 'ON · 코인 2배' : 'OFF'}
+              </span>
+            </div>
+          </button>
 
           <div className="grid grid-cols-2 gap-4">
             <button

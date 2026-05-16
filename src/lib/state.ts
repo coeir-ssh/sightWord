@@ -70,3 +70,19 @@ export function useCharName() {
   }, []);
   return { name, setName: update };
 }
+
+export function useSuperMode() {
+  const [superMode, setSuperMode] = useState<boolean>(() => storage.getSuperMode());
+  const update = useCallback((next: boolean) => {
+    setSuperMode(next);
+    storage.setSuperMode(next);
+  }, []);
+  const toggle = useCallback(() => {
+    setSuperMode((prev) => {
+      const next = !prev;
+      storage.setSuperMode(next);
+      return next;
+    });
+  }, []);
+  return { superMode, setSuperMode: update, toggleSuperMode: toggle };
+}
