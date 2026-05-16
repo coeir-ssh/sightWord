@@ -80,6 +80,17 @@ export function unlockTts(): void {
   } catch {
     /* ignore */
   }
+  // Spin up an AudioContext inside the gesture too. iPad Safari leaves new
+  // contexts in 'suspended' state until a gesture-bound resume() runs;
+  // without this the per-letter Web Audio path stays silent.
+  try {
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === 'suspended') {
+      void ctx.resume().catch(() => {});
+    }
+  } catch {
+    /* ignore */
+  }
   if (ttsAvailable()) {
     try {
       window.speechSynthesis.getVoices();
@@ -111,6 +122,105 @@ function getPooledAudio(): HTMLAudioElement {
     pooledAudio.preload = 'auto';
   }
   return pooledAudio;
+}
+
+// Web Audio path used exclusively for per-letter cues. The pooled
+// HTMLAudioElement above is rock-solid for the first cue but silently
+// fails on iPad WebKit when a second short cue swaps src right after the
+// previous play ended — which is exactly when the per-letter cue fires.
+// Decoding each letter MP3 once and replaying via AudioBufferSourceNode
+// sidesteps the element-reuse bug entirely.
+let audioCtx: AudioContext | null = null;
+const letterBufferCache = new Map<string, AudioBuffer>();
+const letterBufferPending = new Map<string, Promise<AudioBuffer | null>>();
+
+function getAudioContext(): AudioContext | null {
+  if (audioCtx) return audioCtx;
+  if (typeof window === 'undefined') return null;
+  const Ctor =
+    (window as unknown as { AudioContext?: typeof AudioContext }).AudioContext ??
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctor) return null;
+  try {
+    audioCtx = new Ctor();
+  } catch {
+    audioCtx = null;
+  }
+  return audioCtx;
+}
+
+async function loadLetterBuffer(key: string): Promise<AudioBuffer | null> {
+  const cached = letterBufferCache.get(key);
+  if (cached) return cached;
+  const pending = letterBufferPending.get(key);
+  if (pending) return pending;
+  const ctx = getAudioContext();
+  if (!ctx) return null;
+  const url = `${AUDIO_BASE}letter-${encodeURIComponent(key)}.mp3`;
+  const task = (async () => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const ab = await res.arrayBuffer();
+      const buf = await new Promise<AudioBuffer | null>((resolve) => {
+        // decodeAudioData supports both promise and callback forms; the
+        // callback form is required on older iOS Safari.
+        try {
+          const p = ctx.decodeAudioData(
+            ab,
+            (b) => resolve(b),
+            () => resolve(null)
+          );
+          if (p && typeof (p as Promise<AudioBuffer>).then === 'function') {
+            (p as Promise<AudioBuffer>).then((b) => resolve(b)).catch(() => resolve(null));
+          }
+        } catch {
+          resolve(null);
+        }
+      });
+      if (buf) letterBufferCache.set(key, buf);
+      return buf;
+    } catch {
+      return null;
+    } finally {
+      letterBufferPending.delete(key);
+    }
+  })();
+  letterBufferPending.set(key, task);
+  return task;
+}
+
+async function playLetterViaWebAudio(key: string): Promise<boolean> {
+  const ctx = getAudioContext();
+  if (!ctx) return false;
+  if (ctx.state === 'suspended') {
+    try {
+      await ctx.resume();
+    } catch {
+      /* ignore */
+    }
+  }
+  const buf = await loadLetterBuffer(key);
+  if (!buf) return false;
+  return new Promise<boolean>((resolve) => {
+    let resolved = false;
+    const finish = (ok: boolean) => {
+      if (resolved) return;
+      resolved = true;
+      resolve(ok);
+    };
+    try {
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+      src.onended = () => finish(true);
+      src.start(0);
+      // Safety: if onended never fires (rare), bail after the buffer length.
+      setTimeout(() => finish(true), Math.ceil(buf.duration * 1000) + 500);
+    } catch {
+      finish(false);
+    }
+  });
 }
 
 function playFile(text: string, opts?: { rate?: number }): Promise<boolean> {
@@ -209,14 +319,16 @@ export async function speak(text: string, opts?: { rate?: number }): Promise<voi
 
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
-  // Pre-recorded letter MP3s ('letter-a' .. 'letter-z') sidestep Chrome's
-  // autoplay restriction on speechSynthesis, which silently drops utterances
-  // started outside an active user gesture.
+  // Stage 1: Web Audio path. iPad WebKit silently drops the per-letter cue
+  // when the pooled HTMLAudioElement gets a fresh src right after a previous
+  // play ended; AudioBufferSourceNode replays the same decoded MP3 without
+  // touching the element-reuse code path that bug lives in.
+  if (await playLetterViaWebAudio(key)) return;
+  // Stage 2: pooled element fallback (works on PC + iOS for the first cue).
   const ok = await playFile(`letter-${key}`, opts);
   if (ok) return;
-  // Prefix with "letter" so the synth doesn't read a bare phonetic name like
-  // "ay" / "eye" as the English words "aye" or "I". With the prefix every
-  // voice tested (Aria, Samantha, Google US) pronounces the actual letter.
+  // Stage 3: synth fallback. Prefix with "letter" so the voice doesn't read
+  // a bare phonetic name like "ay" / "eye" as the English words "aye"/"I".
   const upper = key.toUpperCase();
   await speakViaSynth(`letter ${upper}`, { rate: opts?.rate ?? 0.85 });
 }
