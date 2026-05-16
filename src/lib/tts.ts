@@ -165,6 +165,10 @@ async function speakViaSynth(text: string, opts?: { rate?: number }): Promise<vo
   return new Promise<void>((resolve) => {
     try {
       const synth = window.speechSynthesis;
+      // iOS Safari + Chrome both have a long-standing bug where leftover or
+      // stale utterances cause subsequent speak() calls to silently no-op.
+      // A fresh cancel() before each speak resets the queue reliably.
+      synth.cancel();
       synth.resume();
       const u = new SpeechSynthesisUtterance(text);
       if (cachedVoice) u.voice = cachedVoice;
@@ -179,7 +183,15 @@ async function speakViaSynth(text: string, opts?: { rate?: number }): Promise<vo
       };
       u.onend = done;
       u.onerror = done;
-      synth.speak(u);
+      // Defer speak() to the next tick: Chrome occasionally drops the
+      // utterance when speak() runs in the same task as cancel().
+      setTimeout(() => {
+        try {
+          synth.speak(u);
+        } catch {
+          done();
+        }
+      }, 60);
       setTimeout(done, 6000);
     } catch {
       resolve();
@@ -195,16 +207,6 @@ export async function speak(text: string, opts?: { rate?: number }): Promise<voi
   await speakViaSynth(text, opts);
 }
 
-// English letter names — pronounced explicitly, since some voices speak a
-// bare single character ("t") as silence or as a phoneme rather than the
-// letter name learners need to hear.
-const LETTER_NAMES: Record<string, string> = {
-  a: 'ay', b: 'bee', c: 'see', d: 'dee', e: 'ee', f: 'eff', g: 'gee',
-  h: 'aitch', i: 'eye', j: 'jay', k: 'kay', l: 'el', m: 'em', n: 'en',
-  o: 'oh', p: 'pee', q: 'cue', r: 'are', s: 'ess', t: 'tee', u: 'you',
-  v: 'vee', w: 'double you', x: 'ex', y: 'why', z: 'zee',
-};
-
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
   // Pre-recorded letter MP3s ('letter-a' .. 'letter-z') sidestep Chrome's
@@ -212,6 +214,9 @@ export async function speakLetter(letter: string, opts?: { rate?: number }): Pro
   // started outside an active user gesture.
   const ok = await playFile(`letter-${key}`, opts);
   if (ok) return;
-  const name = LETTER_NAMES[key] ?? key;
-  await speakViaSynth(name, { rate: opts?.rate ?? 0.95 });
+  // Prefix with "letter" so the synth doesn't read a bare phonetic name like
+  // "ay" / "eye" as the English words "aye" or "I". With the prefix every
+  // voice tested (Aria, Samantha, Google US) pronounces the actual letter.
+  const upper = key.toUpperCase();
+  await speakViaSynth(`letter ${upper}`, { rate: opts?.rate ?? 0.85 });
 }
