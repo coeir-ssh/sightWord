@@ -90,16 +90,17 @@ export function unlockTts(): void {
     try {
       const synth = window.speechSynthesis;
       synth.getVoices();
-      // Speak-then-cancel a real (non-zero-volume) utterance inside the
-      // gesture. Zero-volume utterances are known to wedge the queue on
-      // Chrome — synth.speaking stays true forever, silencing every later
-      // cue. A real utterance that we immediately cancel leaves the engine
-      // primed but idle.
-      const u = new SpeechSynthesisUtterance('.');
-      u.volume = 1;
+      // Prime the synth queue inside the gesture by speaking a single
+      // inaudible utterance and letting it finish on its own. We deliberately
+      // do NOT call synth.cancel() here — on Chrome, a speak() followed
+      // immediately by cancel() leaves the engine in a state where the next
+      // real utterance is dropped silently (the symptom users hit: "no audio
+      // anywhere, even in incognito"). Letting a near-zero-duration ' '
+      // utterance complete naturally primes the engine without poisoning it.
+      const u = new SpeechSynthesisUtterance(' ');
+      u.volume = 0;
       u.rate = 1;
       synth.speak(u);
-      synth.cancel();
       void ensureVoices();
     } catch {
       /* ignore */
@@ -195,9 +196,8 @@ async function speakViaSynth(
   return new Promise<void>((resolve) => {
     try {
       const synth = window.speechSynthesis;
-      // Chrome silences the *next* utterance if speak() comes right after a
-      // blanket cancel(). Only cancel when something is actually playing
-      // or queued; idle synth must be left alone.
+      // Only cancel when something is actually playing or queued; cancelling
+      // an idle synth on Chrome leaves the next utterance silenced.
       if (!opts?.skipCancel && (synth.speaking || synth.pending)) {
         synth.cancel();
       }
@@ -215,14 +215,11 @@ async function speakViaSynth(
       };
       u.onend = done;
       u.onerror = done;
-      // Brief tick to let any cancel() above finish settling before speak.
-      setTimeout(() => {
-        try {
-          synth.speak(u);
-        } catch {
-          done();
-        }
-      }, 60);
+      try {
+        synth.speak(u);
+      } catch {
+        done();
+      }
       setTimeout(done, 6000);
     } catch {
       resolve();
