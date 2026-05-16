@@ -22,12 +22,13 @@ VOICE = 'en-US-AriaNeural'  # natural-sounding kid-friendly female voice
 RATE = '-15%'                # a bit slower for kids
 LETTERS = 'abcdefghijklmnopqrstuvwxyz'
 
-# Force the engine to say the alphabet name. Plain spellings ("ay", "bee")
-# get pronounced as words — Aria reads "ay" as /aɪ/ which sounds like the
-# letter I, not A. SSML <say-as interpret-as="characters"> picks the canonical
-# letter-name pronunciation for each character.
-def letter_ssml(letter: str) -> str:
-    return f'<say-as interpret-as="characters">{letter}</say-as>'
+# Plain-text prompt that Aria reliably reads as the actual letter name.
+# We used to inject `<say-as interpret-as="characters">x</say-as>` via
+# edge-tts internals, but that hack broke silently on a recent edge-tts
+# release — letter MP3s stopped being generated, which then routed every
+# per-letter cue through the synth fallback (silent on iPad).
+def letter_prompt(letter: str) -> str:
+    return f'letter {letter.upper()}'
 
 
 def parse_words() -> list[str]:
@@ -46,18 +47,13 @@ async def synth_one(
     spoken_text: str,
     file_stem: str,
     sem: asyncio.Semaphore,
-    is_ssml: bool = False,
 ) -> tuple[str, bool]:
     """Generate one MP3.
 
     manifest_key: identifier appended to the audio manifest (and used as the
                   lookup key in the app, e.g. 'the' or 'letter-a').
-    spoken_text:  text passed to the TTS engine ('the', or an SSML fragment).
+    spoken_text:  text passed to the TTS engine ('the', 'letter A', ...).
     file_stem:    on-disk filename stem under OUT_DIR (without .mp3).
-    is_ssml:      when True, treat spoken_text as a raw SSML fragment that
-                  gets embedded inside edge-tts's wrapping prosody/voice
-                  block (without the XML-escape edge-tts applies to plain
-                  text). Used for letter-name pronunciation via <say-as>.
     """
     import edge_tts
     out_path = OUT_DIR / f'{file_stem}.mp3'
@@ -67,13 +63,7 @@ async def synth_one(
         last_err: Exception | None = None
         for attempt in range(1, 4):
             try:
-                if is_ssml:
-                    communicate = edge_tts.Communicate('x', VOICE, rate=RATE)
-                    # Bypass edge-tts's XML-escape on plain text so our SSML
-                    # tags reach Azure as markup rather than literal text.
-                    communicate.texts = [spoken_text.encode('utf-8')]
-                else:
-                    communicate = edge_tts.Communicate(spoken_text, VOICE, rate=RATE)
+                communicate = edge_tts.Communicate(spoken_text, VOICE, rate=RATE)
                 await communicate.save(str(out_path))
                 ok = out_path.exists() and out_path.stat().st_size > 500
                 if ok:
@@ -93,13 +83,13 @@ async def main() -> int:
     # Schedule words and per-letter announcements together. Letter names are
     # stored as 'letter-<a-z>.mp3' with manifest key 'letter-<a-z>' so they
     # don't collide with the sight word "a".
-    # tuple: (manifest_key, spoken_text, file_stem, is_ssml)
-    tasks: list[tuple[str, str, str, bool]] = []
+    # tuple: (manifest_key, spoken_text, file_stem)
+    tasks: list[tuple[str, str, str]] = []
     for w in words:
         key = w.lower()
-        tasks.append((key, w, key, False))
+        tasks.append((key, w, key))
     for letter in LETTERS:
-        tasks.append((f'letter-{letter}', letter_ssml(letter), f'letter-{letter}', True))
+        tasks.append((f'letter-{letter}', letter_prompt(letter), f'letter-{letter}'))
 
     print(
         f'Generating audio: {len(words)} sight words + '
@@ -107,7 +97,7 @@ async def main() -> int:
     )
     sem = asyncio.Semaphore(4)
     results = await asyncio.gather(
-        *[synth_one(k, t, s, sem, ssml) for k, t, s, ssml in tasks]
+        *[synth_one(k, t, s, sem) for k, t, s in tasks]
     )
     manifest = [k for k, ok in results if ok]
     MANIFEST_PATH.write_text(json.dumps(sorted(manifest)), encoding='utf-8')
