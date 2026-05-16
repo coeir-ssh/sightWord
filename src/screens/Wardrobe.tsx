@@ -32,20 +32,20 @@ export function Wardrobe({ onBack }: Props) {
         <CoinHUD coins={wallet.coins} />
       </header>
 
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-4 p-4">
-        <aside className="bg-white rounded-3xl shadow-lg border-2 border-white p-4 sticky top-4 self-start flex flex-col items-stretch">
-          <div className="text-center text-sm font-extrabold text-pink-700 mb-2">
-            👀 미리보기 (실시간)
+      <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4">
+        <aside className="sticky top-2 z-30 self-start bg-white/95 backdrop-blur rounded-3xl shadow-lg border-2 border-white p-3 flex flex-col items-stretch w-full lg:w-[220px] mx-auto lg:mx-0">
+          <div className="text-center text-xs font-extrabold text-pink-700 mb-1">
+            👀 미리보기
           </div>
-          <div className="bg-white rounded-2xl border-2 border-slate-100 w-full max-w-[360px] aspect-square mx-auto overflow-hidden">
+          <div className="bg-white rounded-2xl border-2 border-slate-100 w-[180px] aspect-square mx-auto overflow-hidden">
             <Character3D equipped={inventory.equipped} name={charName} />
           </div>
-          <div className="text-center text-xs text-slate-500 mt-2">
+          <div className="hidden lg:block text-center text-xs text-slate-500 mt-2">
             아이템을 누르면 바로 반영돼요
           </div>
         </aside>
 
-        <div className="space-y-6">
+        <div className="flex-1 space-y-6">
           {SLOT_ORDER.map((slot) => {
             const owned = ITEMS.filter(
               (i) => i.slot === slot && inventory.owned.includes(i.id)

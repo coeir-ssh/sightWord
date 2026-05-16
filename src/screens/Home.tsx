@@ -86,14 +86,8 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
               {currentLabel} 단어: {week.words.map((w) => w.text).join(', ')}
             </div>
             <button
-              onClick={onList}
-              className="mt-4 w-full text-2xl font-extrabold bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl py-4 shadow-lg"
-            >
-              📖 LIST 골라서 공부하기
-            </button>
-            <button
               onClick={onLearn}
-              className="mt-2 w-full text-base font-bold bg-white hover:bg-blue-50 active:scale-95 text-blue-700 rounded-2xl py-3 shadow border border-blue-200"
+              className="mt-4 w-full text-2xl font-extrabold bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl py-4 shadow-lg"
             >
               ▶ {currentLabel} {currentDay + 1}단계 이어서 하기
             </button>

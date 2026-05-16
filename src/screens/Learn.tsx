@@ -5,7 +5,7 @@ import { WordStage, type Stage } from '../components/WordStage';
 import { Character3D } from '../components/Character3D';
 import { Coin } from '../components/Coin';
 import { useCharName, useInventory, useProgress, useWallet } from '../lib/state';
-import { getWeek } from '../data/words';
+import { getWeek, WEEK_IDS } from '../data/words';
 import { shuffle } from '../lib/shuffle';
 
 type Props = {
@@ -33,7 +33,7 @@ const DAY_PLANS: DayPlan[] = [
 const WEEKLY_BONUS = 20;
 
 export function Learn({ onBack }: Props) {
-  const { progress, dayDone, completeDay } = useProgress();
+  const { progress, dayDone, completeDay, setWeekAndDay } = useProgress();
   const { wallet, addCoins } = useWallet();
   const { inventory } = useInventory();
   const { name: charName } = useCharName();
@@ -82,6 +82,15 @@ export function Learn({ onBack }: Props) {
       if (weekly > 0) addCoins(weekly);
 
       completeDay(progress.currentWeek, todayDay);
+
+      if (todayDay < 4) {
+        setWeekAndDay(progress.currentWeek, todayDay + 1);
+      } else {
+        const idx = WEEK_IDS.indexOf(progress.currentWeek);
+        const nextWeek = WEEK_IDS[idx + 1] ?? progress.currentWeek;
+        setWeekAndDay(nextWeek, 0);
+      }
+
       setCompletedScreen({ coins: sequence.length, bonus, weekly });
     } else {
       setIdx((n) => n + 1);

@@ -1,5 +1,6 @@
 import type { Item } from '../data/items';
 import { Coin } from './Coin';
+import { TileIcon } from './TileIcon';
 
 type Props = {
   item: Item;
@@ -34,30 +35,8 @@ export function ItemTile({ item, state, owned, equipped, canAfford, onAction }: 
 
   return (
     <div className={`rounded-2xl border-4 ${bg} p-4 flex flex-col items-center gap-3 shadow`}>
-      <div
-        className="w-20 h-20 rounded-xl flex items-center justify-center text-4xl"
-        style={{ background: item.color }}
-      >
-        {item.shape === 'crown'
-          ? '👑'
-          : item.shape === 'wing'
-            ? '🪽'
-            : item.shape === 'star'
-              ? '⭐'
-              : item.shape === 'diamond'
-                ? '💎'
-                : item.slot === 'top'
-                  ? '👕'
-                  : item.slot === 'bottom'
-                    ? '👖'
-                    : item.slot === 'hat'
-                      ? '🧢'
-                      : item.slot === 'shoes'
-                        ? '👟'
-                        : item.slot === 'back'
-                          ? '🎒'
-                          : '🔗'}
-      </div>
+      <TileIcon item={item} />
+
       <div className="font-bold text-slate-800 text-center">{item.name}</div>
       <button
         onClick={onAction}
