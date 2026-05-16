@@ -1899,7 +1899,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       {name && name.trim() !== '' && (
         <div
           className="pointer-events-none absolute left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-md bg-black/70 text-white text-xs font-bold shadow"
-          style={{ whiteSpace: 'nowrap', top: '8%' }}
+          style={{ whiteSpace: 'nowrap', top: 2 }}
         >
           {name}
         </div>
