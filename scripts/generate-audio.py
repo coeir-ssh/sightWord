@@ -37,10 +37,12 @@ def letter_prompt(letter: str) -> str:
     return f'letter {letter.upper()}'
 
 
-# Fallback trim offset (seconds) used when silence detection can't find the
-# natural pause between "letter" and the letter name. At rate=-15% Aria's
-# "letter " takes roughly 380-450ms.
-LETTER_PREFIX_FALLBACK = 0.42
+# Fixed trim offset (seconds) used to remove the leading "letter " word.
+# At rate=-15% Aria reads "letter " in ~430-460ms; 0.46s lops it off
+# cleanly without eating into the letter name that follows. Silence-based
+# detection was unreliable (Aria prepends ~80ms of leading silence which
+# silencedetect was mistakenly latching onto), so we just trust the timing.
+LETTER_TRIM_OFFSET = 0.46
 
 
 def parse_words() -> list[str]:
@@ -54,79 +56,42 @@ def parse_words() -> list[str]:
     return list(seen.keys())
 
 
-def find_first_silence_end(audio_path: Path, min_start: float = 0.30) -> float | None:
-    """Return the timestamp (s) at which the first silence in `audio_path`
-    ends, restricted to silences that *start* at or after `min_start`. Used
-    to locate the gap between "letter" and the letter name without latching
-    onto the ~50-100ms of leading silence that Aria typically prepends.
-    Returns None if ffmpeg isn't available or no qualifying silence found."""
-    if shutil.which('ffmpeg') is None:
-        return None
-    try:
-        det = subprocess.run(
-            [
-                'ffmpeg', '-hide_banner', '-nostats',
-                '-i', str(audio_path),
-                '-af', 'silencedetect=noise=-30dB:d=0.04',
-                '-f', 'null', '-',
-            ],
-            capture_output=True, text=True, check=False,
-        )
-    except Exception as e:  # pragma: no cover
-        print(f'  ffmpeg silencedetect failed for {audio_path.name}: {e}', file=sys.stderr)
-        return None
-    silence_start: float | None = None
-    for line in det.stderr.splitlines():
-        if 'silence_start' in line:
-            try:
-                silence_start = float(line.split('silence_start:')[1].strip().split()[0])
-            except (IndexError, ValueError):
-                silence_start = None
-        elif 'silence_end' in line:
-            try:
-                tail = line.split('silence_end:')[1].strip()
-                silence_end = float(tail.split('|')[0].strip())
-            except (IndexError, ValueError):
-                continue
-            # Only accept silences that begin after "letter" can plausibly
-            # have finished — the leading silence at t≈0 is ignored.
-            if silence_start is not None and silence_start >= min_start:
-                return silence_end
-            silence_start = None
-    return None
-
-
 def trim_letter_prefix(src_path: Path, dst_path: Path) -> bool:
-    """Trim the "letter " prefix off a `letter X` MP3 and write to dst_path.
-    Uses ffmpeg silencedetect to find the natural gap; falls back to a fixed
-    offset. If ffmpeg isn't available, copies the source verbatim so the cue
-    is at least audible (says "letter A" instead of "A")."""
-    if shutil.which('ffmpeg') is None:
-        # No ffmpeg — best we can do is keep the "letter X" audio
-        dst_path.write_bytes(src_path.read_bytes())
-        return True
-    offset = find_first_silence_end(src_path) or LETTER_PREFIX_FALLBACK
-    try:
-        # Stream-copy (no re-encode) so we don't depend on libmp3lame being
-        # present in the runner's ffmpeg build. -ss after -i seeks on the
-        # decoded stream and copies from the nearest mp3 frame >= offset.
-        subprocess.run(
-            [
-                'ffmpeg', '-hide_banner', '-nostats', '-y',
-                '-i', str(src_path),
-                '-ss', f'{offset:.3f}',
-                '-codec:a', 'copy',
-                str(dst_path),
-            ],
-            capture_output=True, text=True, check=True,
+    """Trim a fixed LETTER_TRIM_OFFSET seconds off the start of src_path and
+    write to dst_path. Loud, explicit logging so we can see in the deploy
+    log exactly whether the trim ran or fell back to untrimmed audio."""
+    ffmpeg_bin = shutil.which('ffmpeg')
+    if ffmpeg_bin is None:
+        print(
+            f'  TRIM SKIP {src_path.name}: ffmpeg not found; shipping "letter X"',
+            file=sys.stderr,
         )
-        print(f'  trim {src_path.name} from {offset:.3f}s -> {dst_path.name}')
-    except subprocess.CalledProcessError as e:
-        print(f'  ffmpeg trim failed for {src_path.name}: {e.stderr[:200]}', file=sys.stderr)
-        # Fall back to untrimmed audio rather than dropping the cue entirely.
         dst_path.write_bytes(src_path.read_bytes())
         return True
-    return dst_path.exists() and dst_path.stat().st_size > 500
+    # -ss BEFORE -i: input seek, fast for mp3. -codec:a copy: no re-encode,
+    # so we don't depend on libmp3lame. Trimmed file starts at the nearest
+    # mp3 frame >= LETTER_TRIM_OFFSET (frame granularity ~26ms).
+    cmd = [
+        ffmpeg_bin, '-hide_banner', '-nostats', '-y',
+        '-ss', f'{LETTER_TRIM_OFFSET:.3f}',
+        '-i', str(src_path),
+        '-codec:a', 'copy',
+        str(dst_path),
+    ]
+    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
+    if proc.returncode != 0 or not dst_path.exists() or dst_path.stat().st_size <= 500:
+        print(
+            f'  TRIM FAIL {src_path.name}: rc={proc.returncode}; '
+            f'stderr={proc.stderr.strip()[-200:]}',
+            file=sys.stderr,
+        )
+        dst_path.write_bytes(src_path.read_bytes())
+        return True
+    print(
+        f'  TRIM OK   {src_path.name} -> {dst_path.name} '
+        f'(start={LETTER_TRIM_OFFSET}s, size={dst_path.stat().st_size}B)'
+    )
+    return True
 
 
 async def synth_one(
