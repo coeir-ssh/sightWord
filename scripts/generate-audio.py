@@ -95,16 +95,20 @@ def trim_letter_prefix(src_path: Path, dst_path: Path) -> bool:
         return True
     offset = find_first_silence_end(src_path) or LETTER_PREFIX_FALLBACK
     try:
+        # Stream-copy (no re-encode) so we don't depend on libmp3lame being
+        # present in the runner's ffmpeg build. -ss after -i seeks on the
+        # decoded stream and copies from the nearest mp3 frame >= offset.
         subprocess.run(
             [
                 'ffmpeg', '-hide_banner', '-nostats', '-y',
-                '-ss', f'{offset:.3f}',
                 '-i', str(src_path),
-                '-codec:a', 'libmp3lame', '-q:a', '4',
+                '-ss', f'{offset:.3f}',
+                '-codec:a', 'copy',
                 str(dst_path),
             ],
             capture_output=True, text=True, check=True,
         )
+        print(f'  trim {src_path.name} from {offset:.3f}s -> {dst_path.name}')
     except subprocess.CalledProcessError as e:
         print(f'  ffmpeg trim failed for {src_path.name}: {e.stderr[:200]}', file=sys.stderr)
         # Fall back to untrimmed audio rather than dropping the cue entirely.
