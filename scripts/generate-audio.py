@@ -54,10 +54,12 @@ def parse_words() -> list[str]:
     return list(seen.keys())
 
 
-def find_first_silence_end(audio_path: Path) -> float | None:
+def find_first_silence_end(audio_path: Path, min_start: float = 0.30) -> float | None:
     """Return the timestamp (s) at which the first silence in `audio_path`
-    ends. Used to locate the gap between "letter" and the letter name.
-    Returns None if ffmpeg isn't available or no silence is detected."""
+    ends, restricted to silences that *start* at or after `min_start`. Used
+    to locate the gap between "letter" and the letter name without latching
+    onto the ~50-100ms of leading silence that Aria typically prepends.
+    Returns None if ffmpeg isn't available or no qualifying silence found."""
     if shutil.which('ffmpeg') is None:
         return None
     try:
@@ -65,7 +67,7 @@ def find_first_silence_end(audio_path: Path) -> float | None:
             [
                 'ffmpeg', '-hide_banner', '-nostats',
                 '-i', str(audio_path),
-                '-af', 'silencedetect=noise=-30dB:d=0.05',
+                '-af', 'silencedetect=noise=-30dB:d=0.04',
                 '-f', 'null', '-',
             ],
             capture_output=True, text=True, check=False,
@@ -73,14 +75,24 @@ def find_first_silence_end(audio_path: Path) -> float | None:
     except Exception as e:  # pragma: no cover
         print(f'  ffmpeg silencedetect failed for {audio_path.name}: {e}', file=sys.stderr)
         return None
+    silence_start: float | None = None
     for line in det.stderr.splitlines():
-        if 'silence_end' in line:
-            # "[silencedetect ...] silence_end: 0.50 | silence_duration: 0.07"
+        if 'silence_start' in line:
+            try:
+                silence_start = float(line.split('silence_start:')[1].strip().split()[0])
+            except (IndexError, ValueError):
+                silence_start = None
+        elif 'silence_end' in line:
             try:
                 tail = line.split('silence_end:')[1].strip()
-                return float(tail.split('|')[0].strip())
+                silence_end = float(tail.split('|')[0].strip())
             except (IndexError, ValueError):
                 continue
+            # Only accept silences that begin after "letter" can plausibly
+            # have finished — the leading silence at t≈0 is ignored.
+            if silence_start is not None and silence_start >= min_start:
+                return silence_end
+            silence_start = None
     return None
 
 
