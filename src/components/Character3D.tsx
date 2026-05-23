@@ -41,6 +41,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
   const mountRef = useRef<HTMLDivElement | null>(null);
   const charRef = useRef<THREE.Group | null>(null);
   const slotGroupsRef = useRef<Record<Slot, THREE.Group>>({} as any);
+  const limbPivotsRef = useRef<{ arms: [THREE.Group, THREE.Group]; legs: [THREE.Group, THREE.Group] } | null>(null);
   const jumpRef = useRef(false);
   const [failed, setFailed] = useState<string | null>(null);
 
@@ -94,13 +95,20 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     renderer.setSize(w, h);
     el.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
-    const dir = new THREE.DirectionalLight(0xffffff, 0.7);
-    dir.position.set(2, 4, 3);
-    scene.add(dir);
-    const rim = new THREE.DirectionalLight(0xffe9ff, 0.3);
-    rim.position.set(-3, 2, -2);
-    scene.add(rim);
+    // Wraparound lighting so metallic armor (ironman / robot) stays bright
+    // from every angle. Sky+ground hemisphere fill carries the back side
+    // while two opposing directionals add specular highlights.
+    scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+    scene.add(new THREE.HemisphereLight(0xfff5e8, 0xb3c4d6, 1.0));
+    const dirFront = new THREE.DirectionalLight(0xffffff, 0.9);
+    dirFront.position.set(2, 4, 3);
+    scene.add(dirFront);
+    const dirBack = new THREE.DirectionalLight(0xfff0ff, 0.6);
+    dirBack.position.set(-3, 2, -3);
+    scene.add(dirBack);
+    const dirSide = new THREE.DirectionalLight(0xffffff, 0.5);
+    dirSide.position.set(-4, 1, 2);
+    scene.add(dirSide);
 
     const char = new THREE.Group();
     charRef.current = char;
@@ -222,48 +230,57 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     torso.position.set(0, TORSO_Y, 0);
     char.add(torso);
 
-    // ---- Arms ----
-    // Hand + arm meshes kept in arrays so the animation loop can bob them
-    // independently per side; same for feet below.
-    const handBaseY = ARM_Y - ARM_H / 2 - 0.02;
-    const armMeshes: THREE.Mesh[] = [];
-    const handMeshes: THREE.Mesh[] = [];
+    // ---- Limb pivots ----
+    // Arms and legs (with their hands/feet AND any per-limb item armor
+    // attached later) hang under a Group whose origin is the shoulder/hip
+    // joint. Rotating these groups around X swings the whole limb, so the
+    // animation is visible even when full-coverage armor (ironman) is on.
+    const ARM_PIVOT_Y = ARM_Y + ARM_H / 2;
+    const LEG_PIVOT_Y = LEG_Y + LEG_H / 2;
+    const armPivots: [THREE.Group, THREE.Group] = [new THREE.Group(), new THREE.Group()];
+    const legPivots: [THREE.Group, THREE.Group] = [new THREE.Group(), new THREE.Group()];
+    armPivots[0].position.set(-ARM_X, ARM_PIVOT_Y, 0);
+    armPivots[1].position.set(ARM_X, ARM_PIVOT_Y, 0);
+    legPivots[0].position.set(-LEG_X, LEG_PIVOT_Y, 0);
+    legPivots[1].position.set(LEG_X, LEG_PIVOT_Y, 0);
+    char.add(armPivots[0], armPivots[1], legPivots[0], legPivots[1]);
+    limbPivotsRef.current = { arms: armPivots, legs: legPivots };
+
+    const tagPermanent = (m: THREE.Object3D) => {
+      m.userData.permanent = true;
+    };
+
+    // ---- Arms (inside the pivot groups, with local Y < 0) ----
     const armMat = new THREE.MeshStandardMaterial({ color: SKIN });
-    [-1, 1].forEach((sx) => {
+    [0, 1].forEach((i) => {
       const arm = new THREE.Mesh(new THREE.BoxGeometry(ARM_W, ARM_H, ARM_W), armMat.clone());
-      arm.position.set(sx * ARM_X, ARM_Y, 0);
-      char.add(arm);
-      armMeshes.push(arm);
-      // Hand cube at the end
+      arm.position.set(0, -ARM_H / 2, 0);
+      armPivots[i].add(arm);
+      tagPermanent(arm);
+      // Hand cube at the end of the arm
       const hand = new THREE.Mesh(
         new THREE.BoxGeometry(ARM_W * 1.1, ARM_W * 1.1, ARM_W * 1.1),
         armMat.clone()
       );
-      hand.position.set(sx * ARM_X, handBaseY, 0);
-      char.add(hand);
-      handMeshes.push(hand);
+      hand.position.set(0, -ARM_H - 0.02, 0);
+      armPivots[i].add(hand);
+      tagPermanent(hand);
     });
 
-    // ---- Legs ----
+    // ---- Legs (inside the pivot groups) ----
     const legMat = new THREE.MeshStandardMaterial({ color: SKIN });
-    [-1, 1].forEach((sx) => {
+    [0, 1].forEach((i) => {
       const leg = new THREE.Mesh(new THREE.BoxGeometry(LEG_W, LEG_H, LEG_W), legMat.clone());
-      leg.position.set(sx * LEG_X, LEG_Y, 0);
-      char.add(leg);
-    });
-
-    // ---- Feet (bare; shoes slot will overlay these when equipped) ----
-    const footBaseY = LEG_Y - LEG_H / 2 - 0.05;
-    const footMeshes: THREE.Mesh[] = [];
-    const footMat = new THREE.MeshStandardMaterial({ color: SKIN });
-    [-1, 1].forEach((sx) => {
+      leg.position.set(0, -LEG_H / 2, 0);
+      legPivots[i].add(leg);
+      tagPermanent(leg);
       const foot = new THREE.Mesh(
         new THREE.BoxGeometry(LEG_W + 0.04, 0.13, 0.34),
-        footMat.clone()
+        legMat.clone()
       );
-      foot.position.set(sx * LEG_X, footBaseY, 0.07);
-      char.add(foot);
-      footMeshes.push(foot);
+      foot.position.set(0, -LEG_H - 0.05, 0.07);
+      legPivots[i].add(foot);
+      tagPermanent(foot);
     });
 
     // ---- Slot groups (each item type clears+adds into its group) ----
@@ -328,20 +345,16 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
         char.rotation.y = Math.sin(t * 0.6) * 0.25;
       }
 
-      // Idle limb motion: opposite-phase gentle bob on each hand and foot
-      // so the character reads as "alive" between jumps. Arms get a tiny
-      // forward/back rotation matched to the bob (small enough that any
-      // overlap with item armor is not visible).
+      // Idle limb motion: swing each whole limb (with everything attached
+      // to it through the redistribute pass) around the shoulder/hip. Arms
+      // and legs move in opposite phase so it reads as a relaxed gait.
       const idle = Math.sin(t * 1.6);
-      const handBob = idle * 0.025;
-      const footBob = idle * 0.015;
-      const armSwing = idle * 0.08;
-      if (handMeshes[0]) handMeshes[0].position.y = handBaseY + handBob;
-      if (handMeshes[1]) handMeshes[1].position.y = handBaseY - handBob;
-      if (armMeshes[0]) armMeshes[0].rotation.x = armSwing;
-      if (armMeshes[1]) armMeshes[1].rotation.x = -armSwing;
-      if (footMeshes[0]) footMeshes[0].position.y = footBaseY - footBob;
-      if (footMeshes[1]) footMeshes[1].position.y = footBaseY + footBob;
+      const armSwing = idle * 0.22;
+      const legSwing = idle * 0.18;
+      armPivots[0].rotation.x = armSwing;
+      armPivots[1].rotation.x = -armSwing;
+      legPivots[0].rotation.x = -legSwing;
+      legPivots[1].rotation.x = legSwing;
 
       if (jumpRef.current && jumpStart === 0) jumpStart = performance.now();
       if (jumpStart > 0) {
@@ -401,6 +414,11 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
   useEffect(() => {
     const groups = slotGroupsRef.current;
     if (!groups.top) return;
+    const pivots = limbPivotsRef.current;
+
+    const ARM_PIVOT_Y_LOC = ARM_Y + ARM_H / 2;
+    const LEG_PIVOT_Y_LOC = LEG_Y + LEG_H / 2;
+    const ARM_LEG_SPLIT_Y = ARM_Y - ARM_H; // below this is leg region
 
     const clear = (g: THREE.Group) => {
       while (g.children.length) {
@@ -409,7 +427,66 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
         (c as any).material?.dispose?.();
       }
     };
-    (Object.keys(groups) as Slot[]).forEach((s) => clear(groups[s]));
+
+    // Drop any item meshes we previously redistributed onto the limb pivots
+    // (they're tagged with userData.sourceSlot). Base body parts are tagged
+    // userData.permanent and are kept.
+    const clearLimbsForSlot = (slot: Slot) => {
+      if (!pivots) return;
+      const drop = (g: THREE.Group) => {
+        g.children.slice().forEach((c) => {
+          if (c.userData?.sourceSlot === slot) {
+            g.remove(c);
+            (c as any).geometry?.dispose?.();
+            (c as any).material?.dispose?.();
+          }
+        });
+      };
+      pivots.arms.forEach(drop);
+      pivots.legs.forEach(drop);
+    };
+
+    (Object.keys(groups) as Slot[]).forEach((s) => {
+      clear(groups[s]);
+      clearLimbsForSlot(s);
+    });
+
+    // After equipItem populates a slot group, move any per-arm or per-leg
+    // children onto the matching limb pivot so they swing with the limb.
+    // Center-of-body meshes (chest, belt, etc.) stay in the slot group.
+    const redistribute = (slot: Slot) => {
+      if (!pivots) return;
+      const slotGroup = groups[slot];
+      // Per-slot rule for what counts as "per-limb":
+      //   top    → above leg cutoff, |x| > 0.18 → arm side
+      //   bottom → below arm cutoff,  |x| > 0.05 → leg side
+      //   shoes  → always per-foot by x sign
+      // Other slots (hat, mask, back, charm) stay center-attached.
+      const wantArm = slot === 'top';
+      const wantLeg = slot === 'bottom' || slot === 'shoes';
+      if (!wantArm && !wantLeg) return;
+      slotGroup.children.slice().forEach((c) => {
+        const wx = c.position.x;
+        const wy = c.position.y;
+        const inArmRegion = wantArm && Math.abs(wx) > 0.18 && wy > ARM_LEG_SPLIT_Y;
+        const inLegRegion =
+          wantLeg &&
+          (slot === 'shoes'
+            ? Math.abs(wx) > 0.05
+            : Math.abs(wx) > 0.05 && wy <= ARM_LEG_SPLIT_Y);
+        if (!inArmRegion && !inLegRegion) return;
+        const isRight = wx > 0;
+        const pivot = inArmRegion
+          ? pivots.arms[isRight ? 1 : 0]
+          : pivots.legs[isRight ? 1 : 0];
+        const pivotY = inArmRegion ? ARM_PIVOT_Y_LOC : LEG_PIVOT_Y_LOC;
+        const pivotX = inArmRegion ? (isRight ? ARM_X : -ARM_X) : (isRight ? LEG_X : -LEG_X);
+        // Re-express world position as pivot-local.
+        c.position.set(wx - pivotX, wy - pivotY, c.position.z);
+        c.userData.sourceSlot = slot;
+        pivot.add(c); // also detaches from slotGroup
+      });
+    };
 
     const equipItem = (slot: Slot, id: string) => {
       const item = getItem(id);
@@ -708,23 +785,47 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               ridge.position.set(0, TORSO_Y - 0.12 - i * 0.07, frontZ + 0.06);
               g.add(ridge);
             }
-            // Arc reactor: gold ring + glowing cyan core
-            const reactorRing = new THREE.Mesh(
-              new THREE.TorusGeometry(0.11, 0.025, 14, 28),
+            // Gold neck collar
+            const collar = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.22, 0.26, 0.1, 18, 1, true),
               goldMat.clone()
             );
-            reactorRing.position.set(0, TORSO_Y + 0.05, frontZ + 0.04);
-            g.add(reactorRing);
-            const reactorCore = new THREE.Mesh(
-              new THREE.CircleGeometry(0.085, 28),
+            collar.position.set(0, topY + 0.04, 0);
+            g.add(collar);
+            // Larger Mark III arc reactor with white-hot core
+            const reactorOuter = new THREE.Mesh(
+              new THREE.TorusGeometry(0.15, 0.035, 14, 32),
+              goldMat.clone()
+            );
+            reactorOuter.position.set(0, TORSO_Y + 0.04, frontZ + 0.04);
+            g.add(reactorOuter);
+            const reactorRing = new THREE.Mesh(
+              new THREE.TorusGeometry(0.11, 0.018, 12, 24),
               new THREE.MeshStandardMaterial({
-                color: '#ecfeff',
-                emissive: '#22d3ee',
-                emissiveIntensity: 1.6,
+                color: '#ffffff',
+                emissive: '#a5f3fc',
+                emissiveIntensity: 0.8,
+                metalness: 0.4,
+                roughness: 0.2,
               })
             );
-            reactorCore.position.set(0, TORSO_Y + 0.05, frontZ + 0.05);
+            reactorRing.position.set(0, TORSO_Y + 0.04, frontZ + 0.055);
+            g.add(reactorRing);
+            const reactorCore = new THREE.Mesh(
+              new THREE.CircleGeometry(0.095, 28),
+              new THREE.MeshStandardMaterial({
+                color: '#ffffff',
+                emissive: '#bae6fd',
+                emissiveIntensity: 1.8,
+              })
+            );
+            reactorCore.position.set(0, TORSO_Y + 0.04, frontZ + 0.06);
             g.add(reactorCore);
+            // Soft cyan rim light point source so the reactor self-glows
+            // even when the camera is behind the character's shoulder.
+            const reactorLight = new THREE.PointLight('#22d3ee', 0.8, 1.0);
+            reactorLight.position.set(0, TORSO_Y + 0.04, frontZ + 0.12);
+            g.add(reactorLight);
             // Gold belt
             const belt = new THREE.Mesh(
               new THREE.BoxGeometry(TORSO_W + padW + 0.04, 0.07, TORSO_D + padD + 0.04),
@@ -1424,24 +1525,23 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             );
             jaw.position.set(0, HEAD_Y - HEAD_SIZE * 0.42, FACE_Z + 0.16);
             g.add(jaw);
-            // Forehead gold band
-            const browBand = new THREE.Mesh(
-              new THREE.BoxGeometry(HEAD_SIZE + 0.06, 0.08, 0.06),
-              goldMat.clone()
-            );
-            browBand.position.set(0, HEAD_Y + HEAD_SIZE * 0.32, FACE_Z + 0.2);
-            g.add(browBand);
-            // Forehead V triangle
+            // Forehead V triangle — large gold piece spanning the whole
+            // upper face, matching the Mark III helmet's signature shape.
             const vShape = new THREE.Shape();
-            vShape.moveTo(-0.22, 0.06);
-            vShape.lineTo(0.22, 0.06);
-            vShape.lineTo(0, -0.14);
-            vShape.lineTo(-0.22, 0.06);
+            vShape.moveTo(-0.34, 0.14);
+            vShape.lineTo(-0.28, 0.04);
+            vShape.lineTo(0, -0.18);
+            vShape.lineTo(0.28, 0.04);
+            vShape.lineTo(0.34, 0.14);
+            vShape.lineTo(0.18, 0.16);
+            vShape.lineTo(0, 0.04);
+            vShape.lineTo(-0.18, 0.16);
+            vShape.lineTo(-0.34, 0.14);
             const vTri = new THREE.Mesh(
-              new THREE.ExtrudeGeometry(vShape, { depth: 0.04, bevelEnabled: false }),
+              new THREE.ExtrudeGeometry(vShape, { depth: 0.05, bevelEnabled: false }),
               goldMat.clone()
             );
-            vTri.position.set(0, HEAD_Y + HEAD_SIZE * 0.18, FACE_Z + 0.22);
+            vTri.position.set(0, HEAD_Y + HEAD_SIZE * 0.22, FACE_Z + 0.22);
             g.add(vTri);
             // Two glowing eye slits
             const eyeMat = new THREE.MeshStandardMaterial({
@@ -2463,6 +2563,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       // Charms hang from the bag — skip if no bag is equipped.
       if (slot === 'charm' && !equipped.back) return;
       equipItem(slot, id);
+      redistribute(slot);
     });
 
     // Undershirt (런닝) when nothing in 'top' slot
