@@ -96,20 +96,19 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     renderer.setSize(w, h);
     el.appendChild(renderer.domElement);
 
-    // Lighting balance: lower ambient/hemisphere fill than before so a
-    // shaded face is visibly darker than the lit one — the user wants
-    // actual depth back, not the flat washed-out look. The back-fill
-    // directional + emissive on the armor materials guarantee the shaded
-    // side never drops to true black.
-    scene.add(new THREE.AmbientLight(0xffffff, 0.45));
-    scene.add(new THREE.HemisphereLight(0xfff5e8, 0xb3c4d6, 0.35));
-    const dirFront = new THREE.DirectionalLight(0xffffff, 1.1);
+    // Pronounced directional shading: ambient + hemisphere intentionally
+    // low so a face's lit-vs-shaded contrast is obvious, and the front
+    // directional is the dominant key light. Emissive on the ironman
+    // materials below was also pulled down so the contrast actually reads.
+    scene.add(new THREE.AmbientLight(0xffffff, 0.22));
+    scene.add(new THREE.HemisphereLight(0xfff5e8, 0x8896a8, 0.25));
+    const dirFront = new THREE.DirectionalLight(0xffffff, 1.4);
     dirFront.position.set(2, 4, 3);
     scene.add(dirFront);
-    const dirBack = new THREE.DirectionalLight(0xfff0ff, 0.35);
+    const dirBack = new THREE.DirectionalLight(0xfff0ff, 0.2);
     dirBack.position.set(-3, 2, -3);
     scene.add(dirBack);
-    const dirSide = new THREE.DirectionalLight(0xffffff, 0.35);
+    const dirSide = new THREE.DirectionalLight(0xffffff, 0.25);
     dirSide.position.set(-4, 1, 2);
     scene.add(dirSide);
 
@@ -741,7 +740,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               color,
               metalness: 0,
               roughness: 0.55,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.02),
             });
             (torsoMesh as THREE.Mesh).material = armorMat;
             const goldColor = accent ?? new THREE.Color('#fbbf24');
@@ -749,7 +748,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               color: goldColor,
               metalness: 0,
               roughness: 0.5,
-              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.08),
+              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.025),
             });
             // Override the default red sleeves with armored sections:
             // upper arm red, gold forearm, red glove. The base sleeve loop
@@ -1083,14 +1082,14 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               color,
               metalness: 0,
               roughness: 0.55,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.02),
             });
             const goldColor = accent ?? new THREE.Color('#fbbf24');
             const goldMat = new THREE.MeshStandardMaterial({
               color: goldColor,
               metalness: 0,
               roughness: 0.5,
-              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.08),
+              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.025),
             });
             [-1, 1].forEach((sx) => {
               // Crimson thigh
@@ -1538,14 +1537,14 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               color,
               metalness: 0,
               roughness: 0.55,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.02),
             });
             const goldColor = accent ?? new THREE.Color('#fbbf24');
             const goldMat = new THREE.MeshStandardMaterial({
               color: goldColor,
               metalness: 0,
               roughness: 0.5,
-              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.08),
+              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.025),
             });
             // Faceplate covering the whole front of the head
             const facePlate = new THREE.Mesh(
@@ -1749,14 +1748,14 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               color,
               metalness: 0,
               roughness: 0.55,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.02),
             });
             const goldColor = accent ?? new THREE.Color('#fbbf24');
             const goldMat = new THREE.MeshStandardMaterial({
               color: goldColor,
               metalness: 0,
               roughness: 0.5,
-              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.08),
+              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.025),
             });
             // Twin red triangular wing-thrusters that sweep up behind the back
             [-1, 1].forEach((sx) => {
@@ -2159,14 +2158,14 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
                 color,
                 metalness: 0,
                 roughness: 0.5,
-                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.08),
+                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.025),
               });
               const accentColor = accent ?? new THREE.Color('#b91c1c');
               const accentMat = new THREE.MeshStandardMaterial({
                 color: accentColor,
                 metalness: 0,
                 roughness: 0.55,
-                emissive: new THREE.Color(accentColor.getHex()).multiplyScalar(0.06),
+                emissive: new THREE.Color(accentColor.getHex()).multiplyScalar(0.02),
               });
               // Gold shin guard
               const shin = new THREE.Mesh(
