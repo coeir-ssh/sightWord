@@ -599,6 +599,58 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             );
             star.position.set(0, TORSO_Y + 0.05, frontZ + 0.005);
             g.add(star);
+          } else if (kind === 'robot') {
+            // Chrome chassis: replace the cloth torso material with metallic.
+            const chromeMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.75,
+              roughness: 0.25,
+            });
+            torsoMesh.material = chromeMat;
+            // Black chest LED panel
+            const panel = new THREE.Mesh(
+              new THREE.BoxGeometry(0.42, 0.26, 0.04),
+              new THREE.MeshStandardMaterial({ color: '#0f172a' })
+            );
+            panel.position.set(0, TORSO_Y + 0.05, frontZ + 0.025);
+            g.add(panel);
+            // Three blinking-style LEDs across the panel
+            const ledColors = [
+              accent ? `#${new THREE.Color(accent).getHexString()}` : '#22d3ee',
+              '#fde047',
+              '#ef4444',
+            ];
+            ledColors.forEach((cc, i) => {
+              const lmat = new THREE.MeshStandardMaterial({
+                color: cc,
+                emissive: cc,
+                emissiveIntensity: 0.95,
+              });
+              const l = new THREE.Mesh(new THREE.SphereGeometry(0.034, 10, 10), lmat);
+              l.position.set(-0.12 + i * 0.12, TORSO_Y + 0.05, frontZ + 0.06);
+              g.add(l);
+            });
+            // Shoulder bolts
+            [-1, 1].forEach((sx) => {
+              const bolt = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.05, 0.05, 0.05, 12),
+                new THREE.MeshStandardMaterial({
+                  color: '#475569',
+                  metalness: 0.85,
+                  roughness: 0.2,
+                })
+              );
+              bolt.rotation.z = Math.PI / 2;
+              bolt.position.set(sx * (TORSO_W / 2 + padW / 2 + 0.01), topY - 0.08, 0);
+              g.add(bolt);
+            });
+            // Vent grille along the waist
+            const ventMat = new THREE.MeshStandardMaterial({ color: '#1e293b' });
+            for (let i = 0; i < 3; i++) {
+              const v = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.025, 0.02), ventMat.clone());
+              v.position.set(0, TORSO_Y - 0.2 - i * 0.06, frontZ + 0.025);
+              g.add(v);
+            }
           } else if (accent) {
             // plain tee with accent hem
             const stripe = new THREE.Mesh(
@@ -761,6 +813,51 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               );
               pocket.position.set(sx * 0.13, LEG_Y + LEG_H / 2 - 0.16, -LEG_W / 2 - 0.03);
               g.add(pocket);
+            });
+          } else if (kind === 'robot') {
+            const chromeMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.75,
+              roughness: 0.25,
+            });
+            const jointMat = new THREE.MeshStandardMaterial({
+              color: '#334155',
+              metalness: 0.8,
+              roughness: 0.2,
+            });
+            const ledColor = accent ? new THREE.Color(accent) : new THREE.Color('#22d3ee');
+            const ledMat = new THREE.MeshStandardMaterial({
+              color: ledColor,
+              emissive: ledColor,
+              emissiveIntensity: 0.9,
+            });
+            [-1, 1].forEach((sx) => {
+              // Thigh segment
+              const thigh = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.05, LEG_H * 0.45, LEG_W + 0.05),
+                chromeMat.clone()
+              );
+              thigh.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.2, 0);
+              g.add(thigh);
+              // Knee joint ring
+              const knee = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.14, 0.14, 0.1, 18),
+                jointMat.clone()
+              );
+              knee.rotation.z = Math.PI / 2;
+              knee.position.set(sx * LEG_X, LEG_Y - 0.04, 0);
+              g.add(knee);
+              // Knee LED
+              const led = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 10), ledMat.clone());
+              led.position.set(sx * LEG_X, LEG_Y - 0.04, LEG_W / 2 + 0.04);
+              g.add(led);
+              // Shin segment
+              const shin = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.04, LEG_H * 0.45, LEG_W + 0.04),
+                chromeMat.clone()
+              );
+              shin.position.set(sx * LEG_X, LEG_Y - LEG_H * 0.25, 0);
+              g.add(shin);
             });
           } else {
             [-1, 1].forEach((sx) => {
@@ -1054,6 +1151,75 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             leaf.rotation.z = 0.4;
             leaf.position.set(0.1, hatBaseY + 0.42, 0.04);
             g.add(leaf);
+          } else if (kind === 'robot') {
+            // Boxy helmet
+            const helmetMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.8,
+              roughness: 0.25,
+            });
+            const helmet = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.12, HEAD_SIZE * 0.55, HEAD_SIZE + 0.12),
+              helmetMat
+            );
+            helmet.position.set(0, hatBaseY + 0.18, 0);
+            g.add(helmet);
+            // Visor strip (dark glass)
+            const visor = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.08, HEAD_SIZE * 0.18, 0.03),
+              new THREE.MeshStandardMaterial({ color: '#0f172a' })
+            );
+            visor.position.set(0, hatBaseY + 0.16, HEAD_SIZE / 2 + 0.07);
+            g.add(visor);
+            // Cyan visor glow
+            const glowMat = new THREE.MeshStandardMaterial({
+              color: '#22d3ee',
+              emissive: '#22d3ee',
+              emissiveIntensity: 0.8,
+            });
+            const glow = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE - 0.06, 0.03, 0.02),
+              glowMat
+            );
+            glow.position.set(0, hatBaseY + 0.16, HEAD_SIZE / 2 + 0.09);
+            g.add(glow);
+            // Side bolts
+            [-1, 1].forEach((sx) => {
+              const bolt = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.05, 0.05, 0.08, 12),
+                new THREE.MeshStandardMaterial({
+                  color: '#475569',
+                  metalness: 0.9,
+                  roughness: 0.15,
+                })
+              );
+              bolt.rotation.z = Math.PI / 2;
+              bolt.position.set(sx * (HEAD_SIZE / 2 + 0.07), hatBaseY + 0.05, 0);
+              g.add(bolt);
+            });
+            // Antenna with red blinker
+            const antennaMat = new THREE.MeshStandardMaterial({
+              color: '#1e293b',
+              metalness: 0.7,
+              roughness: 0.3,
+            });
+            const antenna = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.025, 0.025, 0.32, 8),
+              antennaMat
+            );
+            antenna.position.set(0, hatBaseY + 0.62, 0);
+            g.add(antenna);
+            const blinkerColor = accent ? new THREE.Color(accent) : new THREE.Color('#ef4444');
+            const blinker = new THREE.Mesh(
+              new THREE.SphereGeometry(0.06, 14, 14),
+              new THREE.MeshStandardMaterial({
+                color: blinkerColor,
+                emissive: blinkerColor,
+                emissiveIntensity: 1.0,
+              })
+            );
+            blinker.position.set(0, hatBaseY + 0.82, 0);
+            g.add(blinker);
           }
           break;
         }
@@ -1186,6 +1352,58 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             );
             tie.position.set(0, TORSO_Y + TORSO_H / 2 + 0.06, TORSO_D / 2 + 0.04);
             g.add(tie);
+          } else if (kind === 'robot') {
+            const chassisMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.8,
+              roughness: 0.25,
+            });
+            [-1, 1].forEach((sx) => {
+              // Rectangular thruster
+              const thruster = new THREE.Mesh(
+                new THREE.BoxGeometry(0.22, 0.62, 0.2),
+                chassisMat.clone()
+              );
+              thruster.position.set(sx * 0.18, TORSO_Y, -TORSO_D / 2 - 0.18);
+              g.add(thruster);
+              // Yellow + black warning band
+              const yellow = new THREE.Mesh(
+                new THREE.BoxGeometry(0.22, 0.04, 0.01),
+                new THREE.MeshStandardMaterial({ color: '#fde047' })
+              );
+              yellow.position.set(sx * 0.18, TORSO_Y + 0.14, -TORSO_D / 2 - 0.08);
+              g.add(yellow);
+              const black = new THREE.Mesh(
+                new THREE.BoxGeometry(0.22, 0.04, 0.01),
+                new THREE.MeshStandardMaterial({ color: '#0f172a' })
+              );
+              black.position.set(sx * 0.18, TORSO_Y + 0.08, -TORSO_D / 2 - 0.08);
+              g.add(black);
+              // Flame jet
+              const flameCol = accent ?? '#f97316';
+              const flame = new THREE.Mesh(
+                new THREE.ConeGeometry(0.1, 0.24, 12),
+                new THREE.MeshStandardMaterial({
+                  color: flameCol,
+                  emissive: flameCol,
+                  emissiveIntensity: 0.95,
+                })
+              );
+              flame.rotation.x = Math.PI;
+              flame.position.set(sx * 0.18, TORSO_Y - 0.44, -TORSO_D / 2 - 0.18);
+              g.add(flame);
+            });
+            // Center spine plate
+            const plate = new THREE.Mesh(
+              new THREE.BoxGeometry(0.46, 0.5, 0.06),
+              new THREE.MeshStandardMaterial({
+                color: '#334155',
+                metalness: 0.7,
+                roughness: 0.3,
+              })
+            );
+            plate.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.06);
+            g.add(plate);
           } else if (kind === 'jetpack') {
             const tankMat = new THREE.MeshStandardMaterial({
               color,
@@ -1484,6 +1702,46 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
                 w.position.set(sx * LEG_X, footY - 0.13, dz);
                 g.add(w);
               });
+            } else if (kind === 'robot') {
+              const chromeMat = new THREE.MeshStandardMaterial({
+                color,
+                metalness: 0.85,
+                roughness: 0.2,
+              });
+              // Chunky armored block above the foot
+              const ankle = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.08, 0.18, 0.22),
+                chromeMat.clone()
+              );
+              ankle.position.set(sx * LEG_X, footY + 0.06, 0.0);
+              g.add(ankle);
+              // Toe plate
+              const toe = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.1, 0.16, 0.42),
+                chromeMat.clone()
+              );
+              toe.position.set(sx * LEG_X, footY, 0.08);
+              g.add(toe);
+              // Tread sole
+              const soleCol = accent ?? '#1e293b';
+              const sole = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.12, 0.06, 0.46),
+                new THREE.MeshStandardMaterial({ color: soleCol })
+              );
+              sole.position.set(sx * LEG_X, footY - 0.09, 0.06);
+              g.add(sole);
+              // Ankle bolt
+              const bolt = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.03, 0.03, 0.06, 10),
+                new THREE.MeshStandardMaterial({
+                  color: '#22d3ee',
+                  emissive: '#22d3ee',
+                  emissiveIntensity: 0.6,
+                })
+              );
+              bolt.rotation.z = Math.PI / 2;
+              bolt.position.set(sx * LEG_X, footY + 0.1, 0.12);
+              g.add(bolt);
             } else if (kind === 'lightup') {
               const shoe = new THREE.Mesh(
                 new THREE.BoxGeometry(LEG_W + 0.06, 0.16, 0.42),
@@ -1730,6 +1988,47 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             b2.rotation.z = 0.5;
             b2.position.set(cx + 0.025, cy - 0.07, cz);
             g.add(b2);
+          } else if (kind === 'robot') {
+            // Tiny robot head pendant
+            const headMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.7,
+              roughness: 0.3,
+            });
+            const head = new THREE.Mesh(
+              new THREE.BoxGeometry(0.18, 0.16, 0.16),
+              headMat
+            );
+            head.position.set(cx, cy, cz);
+            g.add(head);
+            // Cyan visor strip
+            const visor = new THREE.Mesh(
+              new THREE.BoxGeometry(0.16, 0.04, 0.02),
+              new THREE.MeshStandardMaterial({
+                color: '#22d3ee',
+                emissive: '#22d3ee',
+                emissiveIntensity: 0.9,
+              })
+            );
+            visor.position.set(cx, cy + 0.015, cz + 0.085);
+            g.add(visor);
+            // Tiny antenna with red blinker
+            const ant = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.008, 0.008, 0.07, 6),
+              new THREE.MeshStandardMaterial({ color: '#1e293b' })
+            );
+            ant.position.set(cx, cy + 0.12, cz);
+            g.add(ant);
+            const blink = new THREE.Mesh(
+              new THREE.SphereGeometry(0.022, 10, 10),
+              new THREE.MeshStandardMaterial({
+                color: '#ef4444',
+                emissive: '#ef4444',
+                emissiveIntensity: 1.0,
+              })
+            );
+            blink.position.set(cx, cy + 0.165, cz);
+            g.add(blink);
           } else if (kind === 'heart') {
             const lobe1 = new THREE.Mesh(
               new THREE.SphereGeometry(0.075, 16, 14),

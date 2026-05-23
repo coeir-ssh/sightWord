@@ -41,6 +41,26 @@ function Top({ item }: { item: Item }) {
   const a = item.accent ?? darken(c);
   const kind = item.kind ?? 'tee';
 
+  if (kind === 'robot') {
+    return (
+      <g>
+        {/* Boxy chrome chassis */}
+        <rect x="26" y="28" width="48" height="52" rx="3" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Shoulder bolts */}
+        <circle cx="32" cy="34" r="2.5" fill={darken(c)} stroke={STROKE} strokeWidth={1} />
+        <circle cx="68" cy="34" r="2.5" fill={darken(c)} stroke={STROKE} strokeWidth={1} />
+        {/* Chest LED panel */}
+        <rect x="38" y="44" width="24" height="16" rx="2" fill={darken(c)} stroke={STROKE} strokeWidth={1} />
+        <circle cx="44" cy="52" r="2" fill={a} />
+        <circle cx="50" cy="52" r="2" fill="#fde047" />
+        <circle cx="56" cy="52" r="2" fill="#ef4444" />
+        {/* Lower vent stripes */}
+        <rect x="34" y="68" width="32" height="2" fill={a} />
+        <rect x="34" y="73" width="32" height="2" fill={a} />
+      </g>
+    );
+  }
+
   // Base T-shirt silhouette
   const body = (
     <path
@@ -120,6 +140,23 @@ function Bottom({ item }: { item: Item }) {
   const a = item.accent ?? darken(c);
   const kind = item.kind ?? 'pants';
 
+  if (kind === 'robot') {
+    return (
+      <g>
+        {/* Chrome cylindrical legs with knee joint rings */}
+        <rect x="32" y="22" width="36" height="60" rx="2" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <rect x="46" y="22" width="8" height="60" fill={darken(c)} />
+        {/* Knee joints */}
+        <circle cx="40" cy="50" r="6" fill={darken(c)} stroke={STROKE} strokeWidth={SW} />
+        <circle cx="60" cy="50" r="6" fill={darken(c)} stroke={STROKE} strokeWidth={SW} />
+        <circle cx="40" cy="50" r="2" fill={a} />
+        <circle cx="60" cy="50" r="2" fill={a} />
+        {/* Belt strip */}
+        <rect x="32" y="26" width="36" height="4" fill={a} />
+      </g>
+    );
+  }
+
   if (kind === 'skirt') {
     return (
       <g>
@@ -182,6 +219,24 @@ function Hat({ item }: { item: Item }) {
   const c = item.color;
   const a = item.accent ?? darken(c);
   const kind = item.kind ?? 'cap';
+
+  if (kind === 'robot') {
+    return (
+      <g>
+        {/* Boxy helmet */}
+        <rect x="22" y="34" width="56" height="40" rx="4" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Visor strip */}
+        <rect x="28" y="46" width="44" height="10" rx="2" fill="#0f172a" stroke={STROKE} strokeWidth={1} />
+        <rect x="32" y="48" width="36" height="2" fill="#22d3ee" />
+        {/* Side bolts */}
+        <circle cx="26" cy="64" r="2" fill={darken(c)} stroke={STROKE} strokeWidth={1} />
+        <circle cx="74" cy="64" r="2" fill={darken(c)} stroke={STROKE} strokeWidth={1} />
+        {/* Antenna */}
+        <line x1="50" y1="34" x2="50" y2="14" stroke={STROKE} strokeWidth={2} />
+        <circle cx="50" cy="12" r="4" fill={a} stroke={STROKE} strokeWidth={SW} />
+      </g>
+    );
+  }
 
   switch (kind) {
     case 'crown':
@@ -300,6 +355,27 @@ function Back({ item }: { item: Item }) {
   const a = item.accent ?? darken(c);
   const kind = item.kind ?? 'pack';
 
+  if (kind === 'robot') {
+    return (
+      <g>
+        {/* Twin rectangular thrusters with warning stripes */}
+        <rect x="22" y="20" width="22" height="56" rx="4" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <rect x="56" y="20" width="22" height="56" rx="4" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Yellow + black warning bands */}
+        <rect x="22" y="30" width="22" height="3" fill="#fde047" />
+        <rect x="22" y="36" width="22" height="3" fill="#0f172a" />
+        <rect x="56" y="30" width="22" height="3" fill="#fde047" />
+        <rect x="56" y="36" width="22" height="3" fill="#0f172a" />
+        {/* Bolts */}
+        <circle cx="33" cy="68" r="2" fill={darken(c)} stroke={STROKE} strokeWidth={1} />
+        <circle cx="67" cy="68" r="2" fill={darken(c)} stroke={STROKE} strokeWidth={1} />
+        {/* Flames */}
+        <path d="M24,76 L33,90 L42,76 Z" fill={a} stroke="#dc2626" strokeWidth={1} />
+        <path d="M58,76 L67,90 L76,76 Z" fill={a} stroke="#dc2626" strokeWidth={1} />
+      </g>
+    );
+  }
+
   if (kind.startsWith('wing')) {
     return (
       <g>
@@ -376,6 +452,28 @@ function Shoes({ item }: { item: Item }) {
   const a = item.accent ?? darken(c);
   const kind = item.kind ?? 'sneakers';
 
+  if (kind === 'robot') {
+    return (
+      <g>
+        {/* Chunky armored boot */}
+        <rect x="24" y="28" width="40" height="40" rx="2" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <rect x="24" y="60" width="60" height="14" rx="3" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Tread sole */}
+        <rect x="24" y="72" width="60" height="6" fill={a} stroke={STROKE} strokeWidth={SW} />
+        <line x1="32" y1="72" x2="32" y2="78" stroke={STROKE} strokeWidth={1} />
+        <line x1="44" y1="72" x2="44" y2="78" stroke={STROKE} strokeWidth={1} />
+        <line x1="56" y1="72" x2="56" y2="78" stroke={STROKE} strokeWidth={1} />
+        <line x1="68" y1="72" x2="68" y2="78" stroke={STROKE} strokeWidth={1} />
+        <line x1="76" y1="72" x2="76" y2="78" stroke={STROKE} strokeWidth={1} />
+        {/* Ankle bolts */}
+        <circle cx="32" cy="42" r="2.5" fill={a} stroke={STROKE} strokeWidth={1} />
+        <circle cx="56" cy="42" r="2.5" fill={a} stroke={STROKE} strokeWidth={1} />
+        {/* Toe panel */}
+        <rect x="68" y="62" width="14" height="8" fill={a} stroke={STROKE} strokeWidth={1} />
+      </g>
+    );
+  }
+
   if (kind === 'rainboots' || kind === 'snowboots' || kind === 'boots') {
     return (
       <g>
@@ -436,6 +534,29 @@ function Shoes({ item }: { item: Item }) {
 function Charm({ item }: { item: Item }) {
   const c = item.color;
   const kind = item.kind ?? 'star';
+
+  if (kind === 'robot') {
+    return (
+      <g>
+        {/* Tiny robot head pendant */}
+        <line x1="50" y1="14" x2="50" y2="22" stroke={STROKE} strokeWidth={2} />
+        <circle cx="50" cy="12" r="3" fill="#ef4444" stroke={STROKE} strokeWidth={1} />
+        <rect x="28" y="24" width="44" height="44" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Visor */}
+        <rect x="34" y="36" width="32" height="10" rx="2" fill="#0f172a" stroke={STROKE} strokeWidth={1} />
+        <circle cx="42" cy="41" r="2" fill="#22d3ee" />
+        <circle cx="58" cy="41" r="2" fill="#22d3ee" />
+        {/* Mouth grid */}
+        <rect x="40" y="52" width="20" height="8" fill={darken(c)} stroke={STROKE} strokeWidth={1} />
+        <line x1="44" y1="52" x2="44" y2="60" stroke={STROKE} strokeWidth={0.6} />
+        <line x1="50" y1="52" x2="50" y2="60" stroke={STROKE} strokeWidth={0.6} />
+        <line x1="56" y1="52" x2="56" y2="60" stroke={STROKE} strokeWidth={0.6} />
+        {/* Bottom keyring loop */}
+        <circle cx="50" cy="78" r="6" fill="none" stroke={STROKE} strokeWidth={SW} />
+        <line x1="50" y1="68" x2="50" y2="72" stroke={STROKE} strokeWidth={2} />
+      </g>
+    );
+  }
 
   switch (kind) {
     case 'heart':

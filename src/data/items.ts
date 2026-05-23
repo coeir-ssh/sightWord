@@ -8,7 +8,8 @@ export type TopKind =
   | 'striped'
   | 'dino'
   | 'sweater'
-  | 'star';
+  | 'star'
+  | 'robot';
 
 export type BottomKind =
   | 'pants'
@@ -18,7 +19,8 @@ export type BottomKind =
   | 'skirt'
   | 'track'
   | 'sweat'
-  | 'plaid';
+  | 'plaid'
+  | 'robot';
 
 export type HatKind =
   | 'cap'
@@ -29,7 +31,8 @@ export type HatKind =
   | 'witch'
   | 'cowboy'
   | 'sunhat'
-  | 'pumpkin';
+  | 'pumpkin'
+  | 'robot';
 
 export type BackKind =
   | 'kinder'
@@ -40,7 +43,8 @@ export type BackKind =
   | 'wing_star'
   | 'jetpack'
   | 'shell'
-  | 'cape';
+  | 'cape'
+  | 'robot';
 
 export type ShoeKind =
   | 'sneakers'
@@ -51,7 +55,8 @@ export type ShoeKind =
   | 'sandals'
   | 'skates'
   | 'snowboots'
-  | 'lightup';
+  | 'lightup'
+  | 'robot';
 
 export type CharmKind =
   | 'star'
@@ -63,7 +68,8 @@ export type CharmKind =
   | 'moon'
   | 'sun'
   | 'cherry'
-  | 'lightning';
+  | 'lightning'
+  | 'robot';
 
 export type ItemKind =
   | TopKind
@@ -107,7 +113,7 @@ export const ITEMS: Item[] = [
   { id: 'top.purple_star', name: '보라 별 티', slot: 'top', price: 70, color: '#a78bfa', accent: '#fde047', kind: 'star' },
   { id: 'top.black_tee', name: '검은 티', slot: 'top', price: 40, color: '#111827', kind: 'tee' },
   { id: 'top.orange_sweater', name: '주황 스웨터', slot: 'top', price: 60, color: '#fb923c', accent: '#7c2d12', kind: 'sweater' },
-  { id: 'top.robot', name: '로봇 상의', slot: 'top', price: 100, color: '#94a3b8', accent: '#22d3ee', kind: 'spacesuit' },
+  { id: 'top.robot', name: '로봇 상의', slot: 'top', price: 100, color: '#94a3b8', accent: '#22d3ee', kind: 'robot' },
 
   // ───────── Bottoms (10) ─────────
   { id: 'bottom.jeans', name: '청바지', slot: 'bottom', price: 0, color: '#1d4ed8', accent: '#fbbf24', kind: 'jeans' },
@@ -120,7 +126,7 @@ export const ITEMS: Item[] = [
   { id: 'bottom.green_track', name: '초록 츄리닝', slot: 'bottom', price: 60, color: '#16a34a', accent: '#ffffff', kind: 'track' },
   { id: 'bottom.gray_sweat', name: '회색 츄리닝', slot: 'bottom', price: 50, color: '#9ca3af', kind: 'sweat' },
   { id: 'bottom.plaid', name: '체크 바지', slot: 'bottom', price: 70, color: '#b45309', accent: '#fde68a', kind: 'plaid' },
-  { id: 'bottom.robot', name: '로봇 바지', slot: 'bottom', price: 90, color: '#94a3b8', accent: '#22d3ee', kind: 'spacepants' },
+  { id: 'bottom.robot', name: '로봇 바지', slot: 'bottom', price: 90, color: '#94a3b8', accent: '#22d3ee', kind: 'robot' },
 
   // ───────── Hats (10) ─────────
   { id: 'hat.cap', name: '빨간 모자', slot: 'hat', price: 60, color: '#ef4444', kind: 'cap' },
@@ -133,7 +139,7 @@ export const ITEMS: Item[] = [
   { id: 'hat.cowboy', name: '카우보이 모자', slot: 'hat', price: 90, color: '#a16207', kind: 'cowboy' },
   { id: 'hat.sun', name: '노란 썬햇', slot: 'hat', price: 70, color: '#fde047', kind: 'sunhat' },
   { id: 'hat.pumpkin', name: '호박 모자', slot: 'hat', price: 110, color: '#f97316', kind: 'pumpkin' },
-  { id: 'hat.robot', name: '로봇 헬멧', slot: 'hat', price: 110, color: '#475569', accent: '#ef4444', kind: 'tophat' },
+  { id: 'hat.robot', name: '로봇 헬멧', slot: 'hat', price: 110, color: '#475569', accent: '#ef4444', kind: 'robot' },
 
   // ───────── Back (10) ─────────
   { id: 'back.kinder', name: '유치원 가방', slot: 'back', price: 0, color: '#fb7185', accent: '#fde68a', kind: 'kinder' },
@@ -146,7 +152,7 @@ export const ITEMS: Item[] = [
   { id: 'back.cape_red', name: '빨간 망토', slot: 'back', price: 110, color: '#dc2626', accent: '#fbbf24', kind: 'cape' },
   { id: 'back.black_backpack', name: '검은 백팩', slot: 'back', price: 60, color: '#1f2937', accent: '#475569', kind: 'pack' },
   { id: 'back.star_wings', name: '별 날개', slot: 'back', price: 160, color: '#fde047', accent: '#f97316', kind: 'wing_star' },
-  { id: 'back.robot', name: '로봇 가방', slot: 'back', price: 140, color: '#94a3b8', accent: '#f97316', kind: 'jetpack' },
+  { id: 'back.robot', name: '로봇 가방', slot: 'back', price: 140, color: '#94a3b8', accent: '#f97316', kind: 'robot' },
 
   // ───────── Shoes (10) ─────────
   { id: 'shoes.sneakers', name: '운동화', slot: 'shoes', price: 40, color: '#f8fafc', accent: '#0f172a', kind: 'sneakers' },
@@ -159,7 +165,7 @@ export const ITEMS: Item[] = [
   { id: 'shoes.skates', name: '롤러스케이트', slot: 'shoes', price: 120, color: '#3b82f6', accent: '#ffffff', kind: 'skates' },
   { id: 'shoes.snow', name: '눈 부츠', slot: 'shoes', price: 90, color: '#ffffff', accent: '#94a3b8', kind: 'snowboots' },
   { id: 'shoes.light_up', name: '불빛 신발', slot: 'shoes', price: 130, color: '#c084fc', accent: '#fde047', kind: 'lightup' },
-  { id: 'shoes.robot', name: '로봇 신발', slot: 'shoes', price: 90, color: '#94a3b8', accent: '#1e293b', kind: 'boots' },
+  { id: 'shoes.robot', name: '로봇 신발', slot: 'shoes', price: 90, color: '#94a3b8', accent: '#1e293b', kind: 'robot' },
 
   // ───────── Charms (10) ─────────
   { id: 'charm.star', name: '별 키링', slot: 'charm', price: 30, color: '#fde047', kind: 'star' },
@@ -172,7 +178,7 @@ export const ITEMS: Item[] = [
   { id: 'charm.sun', name: '태양 키링', slot: 'charm', price: 60, color: '#fbbf24', kind: 'sun' },
   { id: 'charm.cherry', name: '체리 키링', slot: 'charm', price: 40, color: '#ef4444', kind: 'cherry' },
   { id: 'charm.lightning', name: '번개 키링', slot: 'charm', price: 80, color: '#facc15', kind: 'lightning' },
-  { id: 'charm.robot', name: '로봇 키링', slot: 'charm', price: 70, color: '#94a3b8', kind: 'cube' },
+  { id: 'charm.robot', name: '로봇 키링', slot: 'charm', price: 70, color: '#94a3b8', kind: 'robot' },
 ];
 
 export const DEFAULT_ITEMS: Record<Slot, string> = {
