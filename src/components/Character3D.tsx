@@ -95,18 +95,19 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     renderer.setSize(w, h);
     el.appendChild(renderer.domElement);
 
-    // Wraparound lighting so metallic armor (ironman / robot) stays bright
-    // from every angle. Sky+ground hemisphere fill carries the back side
-    // while two opposing directionals add specular highlights.
-    scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-    scene.add(new THREE.HemisphereLight(0xfff5e8, 0xb3c4d6, 1.0));
+    // Lighting balance: a soft ambient base + sky/ground hemisphere fill so
+    // shaded surfaces never go black, plus three directionals for subtle
+    // depth. Tuned so non-metallic StandardMaterial still has some natural
+    // shading variation without flipping any face to true black.
+    scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+    scene.add(new THREE.HemisphereLight(0xfff5e8, 0xb3c4d6, 0.55));
     const dirFront = new THREE.DirectionalLight(0xffffff, 0.9);
     dirFront.position.set(2, 4, 3);
     scene.add(dirFront);
-    const dirBack = new THREE.DirectionalLight(0xfff0ff, 0.6);
+    const dirBack = new THREE.DirectionalLight(0xfff0ff, 0.45);
     dirBack.position.set(-3, 2, -3);
     scene.add(dirBack);
-    const dirSide = new THREE.DirectionalLight(0xffffff, 0.5);
+    const dirSide = new THREE.DirectionalLight(0xffffff, 0.4);
     dirSide.position.set(-4, 1, 2);
     scene.add(dirSide);
 
@@ -458,7 +459,10 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       if (!pivots) return;
       const slotGroup = groups[slot];
       // Per-slot rule for what counts as "per-limb":
-      //   top    → above leg cutoff, |x| > 0.18 → arm side
+      //   top    → above leg cutoff, |x| > 0.45 → arm side (true arm/hand
+      //            meshes at ±ARM_X=0.5). Shoulder caps and other near-
+      //            torso pieces at |x|≈0.42 stay in the slot group so they
+      //            don't visibly oscillate with the arm swing.
       //   bottom → below arm cutoff,  |x| > 0.05 → leg side
       //   shoes  → always per-foot by x sign
       // Other slots (hat, mask, back, charm) stay center-attached.
@@ -468,7 +472,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       slotGroup.children.slice().forEach((c) => {
         const wx = c.position.x;
         const wy = c.position.y;
-        const inArmRegion = wantArm && Math.abs(wx) > 0.18 && wy > ARM_LEG_SPLIT_Y;
+        const inArmRegion = wantArm && Math.abs(wx) > 0.45 && wy > ARM_LEG_SPLIT_Y;
         const inLegRegion =
           wantLeg &&
           (slot === 'shoes'
@@ -713,18 +717,23 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             star.position.set(0, TORSO_Y + 0.05, frontZ + 0.005);
             g.add(star);
           } else if (kind === 'ironman') {
-            // Flat crimson/gold — no metalness so the color stays bright
-            // from every viewing angle instead of going near-black on the
-            // shaded side. Emissive accents below keep the lit pop.
-            const armorMat = new THREE.MeshLambertMaterial({
+            // Pure diffuse (metalness 0) so the surface stays full-color
+            // from every angle. A small self-emissive lifts the deepest
+            // shaded side off black; roughness 0.55 keeps a hint of
+            // natural highlight without the metallic darkness.
+            const armorMat = new THREE.MeshStandardMaterial({
               color,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.18),
+              metalness: 0,
+              roughness: 0.55,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
             });
             (torsoMesh as THREE.Mesh).material = armorMat;
             const goldColor = accent ?? new THREE.Color('#fbbf24');
-            const goldMat = new THREE.MeshLambertMaterial({
+            const goldMat = new THREE.MeshStandardMaterial({
               color: goldColor,
-              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.22),
+              metalness: 0,
+              roughness: 0.5,
+              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.08),
             });
             // Override the default red sleeves with armored sections:
             // upper arm red, gold forearm, red glove. The base sleeve loop
@@ -777,7 +786,11 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             abs.position.set(0, TORSO_Y - 0.18, frontZ + 0.03);
             g.add(abs);
             // Subtle muscle lines on the gold abs (3 ridges)
-            const ridgeMat = new THREE.MeshLambertMaterial({ color: '#92400e' });
+            const ridgeMat = new THREE.MeshStandardMaterial({
+              color: '#92400e',
+              metalness: 0,
+              roughness: 0.7,
+            });
             for (let i = 0; i < 2; i++) {
               const ridge = new THREE.Mesh(
                 new THREE.BoxGeometry(0.28, 0.012, 0.01),
@@ -1050,14 +1063,18 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               g.add(pocket);
             });
           } else if (kind === 'ironman') {
-            const armorMat = new THREE.MeshLambertMaterial({
+            const armorMat = new THREE.MeshStandardMaterial({
               color,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.18),
+              metalness: 0,
+              roughness: 0.55,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
             });
             const goldColor = accent ?? new THREE.Color('#fbbf24');
-            const goldMat = new THREE.MeshLambertMaterial({
+            const goldMat = new THREE.MeshStandardMaterial({
               color: goldColor,
-              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.22),
+              metalness: 0,
+              roughness: 0.5,
+              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.08),
             });
             [-1, 1].forEach((sx) => {
               // Crimson thigh
@@ -1206,7 +1223,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               new THREE.BoxGeometry(HEAD_SIZE * 0.95, 0.05, 0.42),
               mat.clone()
             );
-            brim.position.set(0, hatBaseY - 0.06, FACE_Z + 0.18);
+            brim.position.set(0, hatBaseY - 0.06, FACE_Z + 0.04);
             g.add(brim);
             // Tiny button on top
             const btn = new THREE.Mesh(
@@ -1501,28 +1518,32 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
         case 'mask': {
           const kind = item.kind ?? 'ironman';
           if (kind === 'ironman') {
-            const armorMat = new THREE.MeshLambertMaterial({
+            const armorMat = new THREE.MeshStandardMaterial({
               color,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.18),
+              metalness: 0,
+              roughness: 0.55,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
             });
             const goldColor = accent ?? new THREE.Color('#fbbf24');
-            const goldMat = new THREE.MeshLambertMaterial({
+            const goldMat = new THREE.MeshStandardMaterial({
               color: goldColor,
-              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.22),
+              metalness: 0,
+              roughness: 0.5,
+              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.08),
             });
             // Faceplate covering the whole front of the head
             const facePlate = new THREE.Mesh(
               new THREE.BoxGeometry(HEAD_SIZE + 0.04, HEAD_SIZE * 0.95, 0.08),
               armorMat
             );
-            facePlate.position.set(0, HEAD_Y, FACE_Z + 0.18);
+            facePlate.position.set(0, HEAD_Y, FACE_Z + 0.04);
             g.add(facePlate);
             // Pointed chin block (jaw)
             const jaw = new THREE.Mesh(
               new THREE.BoxGeometry(HEAD_SIZE * 0.55, 0.18, 0.1),
               armorMat.clone()
             );
-            jaw.position.set(0, HEAD_Y - HEAD_SIZE * 0.42, FACE_Z + 0.16);
+            jaw.position.set(0, HEAD_Y - HEAD_SIZE * 0.42, FACE_Z + 0.08);
             g.add(jaw);
             // Forehead V triangle — large gold piece spanning the whole
             // upper face, matching the Mark III helmet's signature shape.
@@ -1540,7 +1561,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               new THREE.ExtrudeGeometry(vShape, { depth: 0.05, bevelEnabled: false }),
               goldMat.clone()
             );
-            vTri.position.set(0, HEAD_Y + HEAD_SIZE * 0.22, FACE_Z + 0.22);
+            vTri.position.set(0, HEAD_Y + HEAD_SIZE * 0.22, FACE_Z + 0.1);
             g.add(vTri);
             // Two glowing eye slits
             const eyeMat = new THREE.MeshStandardMaterial({
@@ -1553,7 +1574,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
                 new THREE.BoxGeometry(0.17, 0.05, 0.02),
                 eyeMat.clone()
               );
-              eye.position.set(sx * 0.16, HEAD_Y + 0.03, FACE_Z + 0.23);
+              eye.position.set(sx * 0.16, HEAD_Y + 0.03, FACE_Z + 0.11);
               g.add(eye);
             });
             // Vertical mouth slats (helmet vents)
@@ -1563,7 +1584,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
                 new THREE.BoxGeometry(0.02, 0.08, 0.02),
                 ventMat.clone()
               );
-              slat.position.set(i * 0.05, HEAD_Y - HEAD_SIZE * 0.3, FACE_Z + 0.23);
+              slat.position.set(i * 0.05, HEAD_Y - HEAD_SIZE * 0.3, FACE_Z + 0.11);
               g.add(slat);
             }
             // Side gold cheek strips
@@ -1572,7 +1593,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
                 new THREE.BoxGeometry(0.04, 0.32, 0.04),
                 goldMat.clone()
               );
-              cheek.position.set(sx * (HEAD_SIZE / 2 + 0.02), HEAD_Y - 0.04, FACE_Z + 0.17);
+              cheek.position.set(sx * (HEAD_SIZE / 2 + 0.02), HEAD_Y - 0.04, FACE_Z + 0.09);
               g.add(cheek);
             });
           }
@@ -1708,14 +1729,18 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             tie.position.set(0, TORSO_Y + TORSO_H / 2 + 0.06, TORSO_D / 2 + 0.04);
             g.add(tie);
           } else if (kind === 'ironman') {
-            const armorMat = new THREE.MeshLambertMaterial({
+            const armorMat = new THREE.MeshStandardMaterial({
               color,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.18),
+              metalness: 0,
+              roughness: 0.55,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
             });
             const goldColor = accent ?? new THREE.Color('#fbbf24');
-            const goldMat = new THREE.MeshLambertMaterial({
+            const goldMat = new THREE.MeshStandardMaterial({
               color: goldColor,
-              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.22),
+              metalness: 0,
+              roughness: 0.5,
+              emissive: new THREE.Color(goldColor.getHex()).multiplyScalar(0.08),
             });
             // Twin red triangular wing-thrusters that sweep up behind the back
             [-1, 1].forEach((sx) => {
@@ -2114,14 +2139,18 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
                 g.add(w);
               });
             } else if (kind === 'ironman') {
-              const bootMat = new THREE.MeshLambertMaterial({
+              const bootMat = new THREE.MeshStandardMaterial({
                 color,
-                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.18),
+                metalness: 0,
+                roughness: 0.5,
+                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.08),
               });
               const accentColor = accent ?? new THREE.Color('#b91c1c');
-              const accentMat = new THREE.MeshLambertMaterial({
+              const accentMat = new THREE.MeshStandardMaterial({
                 color: accentColor,
-                emissive: new THREE.Color(accentColor.getHex()).multiplyScalar(0.18),
+                metalness: 0,
+                roughness: 0.55,
+                emissive: new THREE.Color(accentColor.getHex()).multiplyScalar(0.06),
               });
               // Gold shin guard
               const shin = new THREE.Mesh(
@@ -2445,9 +2474,11 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
           } else if (kind === 'ironman') {
             // Glowing arc reactor pendant
             const ringColor = accent ?? new THREE.Color('#fbbf24');
-            const ringMat = new THREE.MeshLambertMaterial({
+            const ringMat = new THREE.MeshStandardMaterial({
               color: ringColor,
-              emissive: new THREE.Color(ringColor.getHex()).multiplyScalar(0.3),
+              metalness: 0,
+              roughness: 0.45,
+              emissive: new THREE.Color(ringColor.getHex()).multiplyScalar(0.15),
             });
             const reactorRing = new THREE.Mesh(
               new THREE.TorusGeometry(0.085, 0.02, 12, 24),
