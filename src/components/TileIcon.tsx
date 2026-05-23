@@ -47,7 +47,7 @@ function Top({ item }: { item: Item }) {
     const gold = a;
     return (
       <g>
-        {/* Crimson chest plate */}
+        {/* Crimson armor body */}
         <path
           d="M26,30 L40,24 L48,30 L52,30 L60,24 L74,30 L78,42 L72,46 L72,80 L28,80 L28,46 L22,42 Z"
           fill={c}
@@ -55,17 +55,33 @@ function Top({ item }: { item: Item }) {
           strokeWidth={SW}
           strokeLinejoin="round"
         />
+        {/* Long red upper arms */}
+        <rect x="14" y="32" width="10" height="22" rx="2" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <rect x="76" y="32" width="10" height="22" rx="2" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Gold forearms */}
+        <rect x="14" y="54" width="10" height="18" rx="2" fill={gold} stroke={STROKE} strokeWidth={SW} />
+        <rect x="76" y="54" width="10" height="18" rx="2" fill={gold} stroke={STROKE} strokeWidth={SW} />
+        {/* Red armored gloves */}
+        <rect x="13" y="72" width="12" height="9" rx="2" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <rect x="75" y="72" width="12" height="9" rx="2" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Palm repulsor glow */}
+        <circle cx="19" cy="77" r="2" fill="#a5f3fc" />
+        <circle cx="81" cy="77" r="2" fill="#a5f3fc" />
         {/* Gold shoulder caps */}
-        <ellipse cx="30" cy="32" rx="7" ry="6" fill={gold} stroke={STROKE} strokeWidth={1} />
-        <ellipse cx="70" cy="32" rx="7" ry="6" fill={gold} stroke={STROKE} strokeWidth={1} />
+        <ellipse cx="30" cy="32" rx="9" ry="7" fill={gold} stroke={STROKE} strokeWidth={1} />
+        <ellipse cx="70" cy="32" rx="9" ry="7" fill={gold} stroke={STROKE} strokeWidth={1} />
         {/* Gold V chest yoke */}
         <path d="M32,40 L50,52 L68,40 L66,46 L50,58 L34,46 Z" fill={gold} stroke={STROKE} strokeWidth={1} />
         {/* Arc reactor */}
-        <circle cx="50" cy="62" r="7" fill={gold} stroke={STROKE} strokeWidth={1} />
-        <circle cx="50" cy="62" r="5" fill="#a5f3fc" />
-        <circle cx="50" cy="62" r="2.5" fill="#ffffff" />
+        <circle cx="50" cy="56" r="6" fill={gold} stroke={STROKE} strokeWidth={1} />
+        <circle cx="50" cy="56" r="4" fill="#a5f3fc" />
+        <circle cx="50" cy="56" r="2" fill="#ffffff" />
+        {/* Gold abdominal plate */}
+        <rect x="40" y="64" width="20" height="10" fill={gold} stroke={STROKE} strokeWidth={1} />
+        <line x1="40" y1="68" x2="60" y2="68" stroke="#92400e" strokeWidth={0.6} />
+        <line x1="40" y1="71" x2="60" y2="71" stroke="#92400e" strokeWidth={0.6} />
         {/* Gold belt */}
-        <rect x="28" y="74" width="44" height="5" fill={gold} stroke={STROKE} strokeWidth={1} />
+        <rect x="28" y="76" width="44" height="4" fill={gold} stroke={STROKE} strokeWidth={1} />
       </g>
     );
   }

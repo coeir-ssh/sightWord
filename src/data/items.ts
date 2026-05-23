@@ -190,11 +190,11 @@ export const ITEMS: Item[] = [
   { id: 'charm.robot', name: '로봇 키링', slot: 'charm', price: 70, color: '#94a3b8', kind: 'robot' },
 
   // ───────── Ironman set ─────────
-  { id: 'top.ironman', name: '아이언맨 갑옷', slot: 'top', price: 200, color: '#b91c1c', accent: '#fbbf24', kind: 'ironman' },
-  { id: 'bottom.ironman', name: '아이언맨 다리', slot: 'bottom', price: 180, color: '#b91c1c', accent: '#fbbf24', kind: 'ironman' },
-  { id: 'mask.ironman', name: '아이언맨 가면', slot: 'mask', price: 220, color: '#b91c1c', accent: '#fbbf24', kind: 'ironman' },
-  { id: 'back.ironman', name: '아이언맨 윙', slot: 'back', price: 220, color: '#b91c1c', accent: '#fbbf24', kind: 'ironman' },
-  { id: 'shoes.ironman', name: '아이언맨 부츠', slot: 'shoes', price: 150, color: '#fbbf24', accent: '#b91c1c', kind: 'ironman' },
+  { id: 'top.ironman', name: '아이언맨 갑옷', slot: 'top', price: 200, color: '#dc2626', accent: '#fbbf24', kind: 'ironman' },
+  { id: 'bottom.ironman', name: '아이언맨 다리', slot: 'bottom', price: 180, color: '#dc2626', accent: '#fbbf24', kind: 'ironman' },
+  { id: 'mask.ironman', name: '아이언맨 가면', slot: 'mask', price: 220, color: '#dc2626', accent: '#fbbf24', kind: 'ironman' },
+  { id: 'back.ironman', name: '아이언맨 윙', slot: 'back', price: 220, color: '#dc2626', accent: '#fbbf24', kind: 'ironman' },
+  { id: 'shoes.ironman', name: '아이언맨 부츠', slot: 'shoes', price: 150, color: '#fbbf24', accent: '#dc2626', kind: 'ironman' },
   { id: 'charm.ironman', name: '아크 리액터 키링', slot: 'charm', price: 100, color: '#22d3ee', accent: '#fbbf24', kind: 'ironman' },
 ];
 

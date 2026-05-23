@@ -223,18 +223,25 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     char.add(torso);
 
     // ---- Arms ----
+    // Hand + arm meshes kept in arrays so the animation loop can bob them
+    // independently per side; same for feet below.
+    const handBaseY = ARM_Y - ARM_H / 2 - 0.02;
+    const armMeshes: THREE.Mesh[] = [];
+    const handMeshes: THREE.Mesh[] = [];
     const armMat = new THREE.MeshStandardMaterial({ color: SKIN });
     [-1, 1].forEach((sx) => {
       const arm = new THREE.Mesh(new THREE.BoxGeometry(ARM_W, ARM_H, ARM_W), armMat.clone());
       arm.position.set(sx * ARM_X, ARM_Y, 0);
       char.add(arm);
+      armMeshes.push(arm);
       // Hand cube at the end
       const hand = new THREE.Mesh(
         new THREE.BoxGeometry(ARM_W * 1.1, ARM_W * 1.1, ARM_W * 1.1),
         armMat.clone()
       );
-      hand.position.set(sx * ARM_X, ARM_Y - ARM_H / 2 - 0.02, 0);
+      hand.position.set(sx * ARM_X, handBaseY, 0);
       char.add(hand);
+      handMeshes.push(hand);
     });
 
     // ---- Legs ----
@@ -246,14 +253,17 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     });
 
     // ---- Feet (bare; shoes slot will overlay these when equipped) ----
+    const footBaseY = LEG_Y - LEG_H / 2 - 0.05;
+    const footMeshes: THREE.Mesh[] = [];
     const footMat = new THREE.MeshStandardMaterial({ color: SKIN });
     [-1, 1].forEach((sx) => {
       const foot = new THREE.Mesh(
         new THREE.BoxGeometry(LEG_W + 0.04, 0.13, 0.34),
         footMat.clone()
       );
-      foot.position.set(sx * LEG_X, LEG_Y - LEG_H / 2 - 0.05, 0.07);
+      foot.position.set(sx * LEG_X, footBaseY, 0.07);
       char.add(foot);
+      footMeshes.push(foot);
     });
 
     // ---- Slot groups (each item type clears+adds into its group) ----
@@ -317,6 +327,22 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       if (userRotation === null) {
         char.rotation.y = Math.sin(t * 0.6) * 0.25;
       }
+
+      // Idle limb motion: opposite-phase gentle bob on each hand and foot
+      // so the character reads as "alive" between jumps. Arms get a tiny
+      // forward/back rotation matched to the bob (small enough that any
+      // overlap with item armor is not visible).
+      const idle = Math.sin(t * 1.6);
+      const handBob = idle * 0.025;
+      const footBob = idle * 0.015;
+      const armSwing = idle * 0.08;
+      if (handMeshes[0]) handMeshes[0].position.y = handBaseY + handBob;
+      if (handMeshes[1]) handMeshes[1].position.y = handBaseY - handBob;
+      if (armMeshes[0]) armMeshes[0].rotation.x = armSwing;
+      if (armMeshes[1]) armMeshes[1].rotation.x = -armSwing;
+      if (footMeshes[0]) footMeshes[0].position.y = footBaseY - footBob;
+      if (footMeshes[1]) footMeshes[1].position.y = footBaseY + footBob;
+
       if (jumpRef.current && jumpStart === 0) jumpStart = performance.now();
       if (jumpStart > 0) {
         const dt = (performance.now() - jumpStart) / 1000;
@@ -395,8 +421,17 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       switch (slot) {
         case 'top': {
           const kind = item.kind ?? 'tee';
-          const isPuffy = kind === 'spacesuit' || kind === 'sweater' || kind === 'raincoat';
-          const fullSleeve = kind === 'hoodie' || kind === 'sweater' || kind === 'raincoat' || kind === 'spacesuit';
+          const isPuffy =
+            kind === 'spacesuit' ||
+            kind === 'sweater' ||
+            kind === 'raincoat' ||
+            kind === 'ironman';
+          const fullSleeve =
+            kind === 'hoodie' ||
+            kind === 'sweater' ||
+            kind === 'raincoat' ||
+            kind === 'spacesuit' ||
+            kind === 'ironman';
           const padW = isPuffy ? 0.12 : 0.06;
           const padH = isPuffy ? 0.08 : 0.05;
           const padD = isPuffy ? 0.10 : 0.05;
@@ -604,60 +639,92 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             // Crimson armor plating with gold trim and an arc reactor.
             const armorMat = new THREE.MeshStandardMaterial({
               color,
-              metalness: 0.85,
-              roughness: 0.18,
+              metalness: 0.9,
+              roughness: 0.15,
             });
             torsoMesh.material = armorMat;
             const goldMat = new THREE.MeshStandardMaterial({
               color: accent ?? '#fbbf24',
-              metalness: 0.9,
-              roughness: 0.2,
+              metalness: 0.95,
+              roughness: 0.15,
             });
-            // Gold chest yoke / shoulder caps
+            // Override the default red sleeves with armored sections:
+            // upper arm red, gold forearm, red glove. The base sleeve loop
+            // above already added red boxes at the arm positions; we layer
+            // gold forearm + red glove on top.
             [-1, 1].forEach((sx) => {
-              const cap = new THREE.Mesh(
-                new THREE.SphereGeometry(0.18, 14, 14, 0, Math.PI * 2, 0, Math.PI / 2),
+              // Gold forearm (lower half) overlays the bottom of the sleeve
+              const forearm = new THREE.Mesh(
+                new THREE.BoxGeometry(ARM_W + 0.09, ARM_H * 0.45, ARM_W + 0.09),
                 goldMat.clone()
               );
-              cap.position.set(sx * (TORSO_W / 2 + 0.02), topY - 0.04, 0);
+              forearm.position.set(sx * ARM_X, ARM_Y - ARM_H * 0.25, 0);
+              g.add(forearm);
+              // Red armored glove
+              const glove = new THREE.Mesh(
+                new THREE.BoxGeometry(ARM_W * 1.25, ARM_W * 1.2, ARM_W * 1.25),
+                armorMat.clone()
+              );
+              glove.position.set(sx * ARM_X, ARM_Y - ARM_H / 2 - 0.04, 0);
+              g.add(glove);
+              // Tiny palm repulsor glow
+              const palmGlow = new THREE.Mesh(
+                new THREE.CircleGeometry(0.04, 16),
+                new THREE.MeshStandardMaterial({
+                  color: '#a5f3fc',
+                  emissive: '#22d3ee',
+                  emissiveIntensity: 1.2,
+                })
+              );
+              palmGlow.rotation.y = sx * Math.PI / 2;
+              palmGlow.position.set(
+                sx * (ARM_X + ARM_W * 0.62),
+                ARM_Y - ARM_H / 2 - 0.04,
+                0
+              );
+              g.add(palmGlow);
+              // Gold shoulder cap
+              const cap = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2, 14, 14, 0, Math.PI * 2, 0, Math.PI / 2),
+                goldMat.clone()
+              );
+              cap.position.set(sx * (TORSO_W / 2 + 0.04), topY - 0.02, 0);
               g.add(cap);
             });
-            // V-shaped gold chest trim
-            const yoke = new THREE.Mesh(
-              new THREE.BoxGeometry(TORSO_W + padW + 0.02, 0.12, 0.04),
+            // Gold abdominal plate (visible mid-section like Mark III)
+            const abs = new THREE.Mesh(
+              new THREE.BoxGeometry(0.28, 0.22, 0.05),
               goldMat.clone()
             );
-            yoke.position.set(0, topY - 0.08, frontZ + 0.02);
-            g.add(yoke);
-            // Arc reactor: glowing cyan ring + bright core
+            abs.position.set(0, TORSO_Y - 0.18, frontZ + 0.03);
+            g.add(abs);
+            // Subtle muscle lines on the gold abs (3 ridges)
+            const ridgeMat = new THREE.MeshStandardMaterial({ color: '#92400e' });
+            for (let i = 0; i < 2; i++) {
+              const ridge = new THREE.Mesh(
+                new THREE.BoxGeometry(0.28, 0.012, 0.01),
+                ridgeMat.clone()
+              );
+              ridge.position.set(0, TORSO_Y - 0.12 - i * 0.07, frontZ + 0.06);
+              g.add(ridge);
+            }
+            // Arc reactor: gold ring + glowing cyan core
             const reactorRing = new THREE.Mesh(
-              new THREE.TorusGeometry(0.13, 0.025, 14, 24),
-              new THREE.MeshStandardMaterial({
-                color: '#fbbf24',
-                metalness: 0.9,
-                roughness: 0.2,
-              })
+              new THREE.TorusGeometry(0.11, 0.025, 14, 28),
+              goldMat.clone()
             );
-            reactorRing.position.set(0, TORSO_Y + 0.05, frontZ + 0.03);
+            reactorRing.position.set(0, TORSO_Y + 0.05, frontZ + 0.04);
             g.add(reactorRing);
             const reactorCore = new THREE.Mesh(
-              new THREE.CircleGeometry(0.1, 24),
+              new THREE.CircleGeometry(0.085, 28),
               new THREE.MeshStandardMaterial({
-                color: '#a5f3fc',
+                color: '#ecfeff',
                 emissive: '#22d3ee',
-                emissiveIntensity: 1.4,
+                emissiveIntensity: 1.6,
               })
             );
-            reactorCore.position.set(0, TORSO_Y + 0.05, frontZ + 0.04);
+            reactorCore.position.set(0, TORSO_Y + 0.05, frontZ + 0.05);
             g.add(reactorCore);
-            // Side gold strip down the front
-            const stripMat = goldMat.clone();
-            const strip = new THREE.Mesh(
-              new THREE.BoxGeometry(0.06, 0.5, 0.02),
-              stripMat
-            );
-            strip.position.set(0, TORSO_Y - 0.2, frontZ + 0.025);
-            g.add(strip);
             // Gold belt
             const belt = new THREE.Mesh(
               new THREE.BoxGeometry(TORSO_W + padW + 0.04, 0.07, TORSO_D + padD + 0.04),
