@@ -42,6 +42,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
   const charRef = useRef<THREE.Group | null>(null);
   const slotGroupsRef = useRef<Record<Slot, THREE.Group>>({} as any);
   const limbPivotsRef = useRef<{ arms: [THREE.Group, THREE.Group]; legs: [THREE.Group, THREE.Group] } | null>(null);
+  const faceFeaturesRef = useRef<THREE.Object3D[]>([]);
   const jumpRef = useRef(false);
   const [failed, setFailed] = useState<string | null>(null);
 
@@ -95,19 +96,20 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     renderer.setSize(w, h);
     el.appendChild(renderer.domElement);
 
-    // Lighting balance: a soft ambient base + sky/ground hemisphere fill so
-    // shaded surfaces never go black, plus three directionals for subtle
-    // depth. Tuned so non-metallic StandardMaterial still has some natural
-    // shading variation without flipping any face to true black.
-    scene.add(new THREE.AmbientLight(0xffffff, 0.75));
-    scene.add(new THREE.HemisphereLight(0xfff5e8, 0xb3c4d6, 0.55));
-    const dirFront = new THREE.DirectionalLight(0xffffff, 0.9);
+    // Lighting balance: lower ambient/hemisphere fill than before so a
+    // shaded face is visibly darker than the lit one — the user wants
+    // actual depth back, not the flat washed-out look. The back-fill
+    // directional + emissive on the armor materials guarantee the shaded
+    // side never drops to true black.
+    scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+    scene.add(new THREE.HemisphereLight(0xfff5e8, 0xb3c4d6, 0.35));
+    const dirFront = new THREE.DirectionalLight(0xffffff, 1.1);
     dirFront.position.set(2, 4, 3);
     scene.add(dirFront);
-    const dirBack = new THREE.DirectionalLight(0xfff0ff, 0.45);
+    const dirBack = new THREE.DirectionalLight(0xfff0ff, 0.35);
     dirBack.position.set(-3, 2, -3);
     scene.add(dirBack);
-    const dirSide = new THREE.DirectionalLight(0xffffff, 0.4);
+    const dirSide = new THREE.DirectionalLight(0xffffff, 0.35);
     dirSide.position.set(-4, 1, 2);
     scene.add(dirSide);
 
@@ -148,6 +150,9 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     });
 
     // ---- Eyes: BIG round eyes (kid-like) ----
+    // Every face feature is collected so the mask slot can hide them all
+    // at once when an ironman / faceplate mask is equipped.
+    const faceFeatures: THREE.Object3D[] = [];
     const eyeOffsetX = 0.24;
     const eyeOffsetY = HEAD_Y + 0.02;
     const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: EYE_WHITE, roughness: 0.4 });
@@ -164,17 +169,21 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       eyeWhite.scale.set(1, 1.05, 0.7);
       eyeWhite.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z);
       char.add(eyeWhite);
+      faceFeatures.push(eyeWhite);
       const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.1, 18, 18), pupilMat);
       pupil.scale.set(1, 1.05, 0.6);
       pupil.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z + 0.06);
       char.add(pupil);
+      faceFeatures.push(pupil);
       // Two highlights for that twinkle look
       const hl = new THREE.Mesh(new THREE.SphereGeometry(0.035, 10, 10), highlightMat);
       hl.position.set(sx * eyeOffsetX - 0.035, eyeOffsetY + 0.045, FACE_Z + 0.13);
       char.add(hl);
+      faceFeatures.push(hl);
       const hl2 = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 8), highlightMat);
       hl2.position.set(sx * eyeOffsetX + 0.025, eyeOffsetY - 0.04, FACE_Z + 0.13);
       char.add(hl2);
+      faceFeatures.push(hl2);
     });
 
     // ---- Glasses (signature, sized to fit big eyes) ----
@@ -183,10 +192,12 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       const lens = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.022, 12, 28), glassMat);
       lens.position.set(sx * eyeOffsetX, eyeOffsetY, FACE_Z + 0.1);
       char.add(lens);
+      faceFeatures.push(lens);
     });
     const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.022, 0.022), glassMat);
     bridge.position.set(0, eyeOffsetY, FACE_Z + 0.1);
     char.add(bridge);
+    faceFeatures.push(bridge);
 
     // ---- Cheeks: bigger rosy circles ----
     [-1, 1].forEach((sx) => {
@@ -203,6 +214,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       cheek.position.set(sx * 0.34, HEAD_Y - 0.2, FACE_Z);
       cheek.scale.set(1, 1, 0.25);
       char.add(cheek);
+      faceFeatures.push(cheek);
     });
 
     // ---- Mouth: bigger smile ----
@@ -213,6 +225,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     mouth.rotation.z = Math.PI;
     mouth.position.set(0, HEAD_Y - 0.3, FACE_Z);
     char.add(mouth);
+    faceFeatures.push(mouth);
     // Tiny tongue inside smile (peeking)
     const tongue = new THREE.Mesh(
       new THREE.SphereGeometry(0.04, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2),
@@ -222,6 +235,9 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     tongue.position.set(0, HEAD_Y - 0.32, FACE_Z + 0.02);
     tongue.scale.set(1.2, 0.6, 0.4);
     char.add(tongue);
+    faceFeatures.push(tongue);
+
+    faceFeaturesRef.current = faceFeatures;
 
     // ---- Body (skin base, replaced by top item) ----
     const torso = new THREE.Mesh(
@@ -2592,6 +2608,14 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       if (slot === 'charm' && !equipped.back) return;
       equipItem(slot, id);
       redistribute(slot);
+    });
+
+    // Hide the base face features (eyes, glasses, cheeks, mouth, tongue)
+    // when a mask is equipped — otherwise the kid's glasses and smile
+    // would show on top of the Iron Man faceplate.
+    const maskOn = !!equipped.mask;
+    faceFeaturesRef.current.forEach((m) => {
+      m.visible = !maskOn;
     });
 
     // Undershirt (런닝) when nothing in 'top' slot
