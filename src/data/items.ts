@@ -1,4 +1,4 @@
-export type Slot = 'top' | 'bottom' | 'hat' | 'back' | 'shoes' | 'charm';
+export type Slot = 'top' | 'bottom' | 'hat' | 'mask' | 'back' | 'shoes' | 'charm';
 
 export type TopKind =
   | 'tee'
@@ -9,7 +9,8 @@ export type TopKind =
   | 'dino'
   | 'sweater'
   | 'star'
-  | 'robot';
+  | 'robot'
+  | 'ironman';
 
 export type BottomKind =
   | 'pants'
@@ -20,7 +21,8 @@ export type BottomKind =
   | 'track'
   | 'sweat'
   | 'plaid'
-  | 'robot';
+  | 'robot'
+  | 'ironman';
 
 export type HatKind =
   | 'cap'
@@ -34,6 +36,8 @@ export type HatKind =
   | 'pumpkin'
   | 'robot';
 
+export type MaskKind = 'ironman';
+
 export type BackKind =
   | 'kinder'
   | 'pack'
@@ -44,7 +48,8 @@ export type BackKind =
   | 'jetpack'
   | 'shell'
   | 'cape'
-  | 'robot';
+  | 'robot'
+  | 'ironman';
 
 export type ShoeKind =
   | 'sneakers'
@@ -56,7 +61,8 @@ export type ShoeKind =
   | 'skates'
   | 'snowboots'
   | 'lightup'
-  | 'robot';
+  | 'robot'
+  | 'ironman';
 
 export type CharmKind =
   | 'star'
@@ -69,12 +75,14 @@ export type CharmKind =
   | 'sun'
   | 'cherry'
   | 'lightning'
-  | 'robot';
+  | 'robot'
+  | 'ironman';
 
 export type ItemKind =
   | TopKind
   | BottomKind
   | HatKind
+  | MaskKind
   | BackKind
   | ShoeKind
   | CharmKind;
@@ -90,12 +98,13 @@ export type Item = {
   kind?: ItemKind;
 };
 
-export const SLOT_ORDER: Slot[] = ['top', 'bottom', 'hat', 'back', 'shoes', 'charm'];
+export const SLOT_ORDER: Slot[] = ['mask', 'top', 'bottom', 'hat', 'back', 'shoes', 'charm'];
 
 export const SLOT_LABEL: Record<Slot, string> = {
   top: '상의',
   bottom: '하의',
   hat: '모자',
+  mask: '가면',
   back: '가방',
   shoes: '신발',
   charm: '키링',
@@ -179,22 +188,28 @@ export const ITEMS: Item[] = [
   { id: 'charm.cherry', name: '체리 키링', slot: 'charm', price: 40, color: '#ef4444', kind: 'cherry' },
   { id: 'charm.lightning', name: '번개 키링', slot: 'charm', price: 80, color: '#facc15', kind: 'lightning' },
   { id: 'charm.robot', name: '로봇 키링', slot: 'charm', price: 70, color: '#94a3b8', kind: 'robot' },
+
+  // ───────── Ironman set ─────────
+  { id: 'top.ironman', name: '아이언맨 갑옷', slot: 'top', price: 200, color: '#b91c1c', accent: '#fbbf24', kind: 'ironman' },
+  { id: 'bottom.ironman', name: '아이언맨 다리', slot: 'bottom', price: 180, color: '#b91c1c', accent: '#fbbf24', kind: 'ironman' },
+  { id: 'mask.ironman', name: '아이언맨 가면', slot: 'mask', price: 220, color: '#b91c1c', accent: '#fbbf24', kind: 'ironman' },
+  { id: 'back.ironman', name: '아이언맨 윙', slot: 'back', price: 220, color: '#b91c1c', accent: '#fbbf24', kind: 'ironman' },
+  { id: 'shoes.ironman', name: '아이언맨 부츠', slot: 'shoes', price: 150, color: '#fbbf24', accent: '#b91c1c', kind: 'ironman' },
+  { id: 'charm.ironman', name: '아크 리액터 키링', slot: 'charm', price: 100, color: '#22d3ee', accent: '#fbbf24', kind: 'ironman' },
 ];
 
 export const DEFAULT_ITEMS: Record<Slot, string> = {
-  top: 'top.basic_white',
-  bottom: 'bottom.jeans',
+  top: '',
+  bottom: '',
   hat: '',
-  back: 'back.kinder',
+  mask: '',
+  back: '',
   shoes: '',
   charm: '',
 };
 
-export const DEFAULT_OWNED: string[] = [
-  'top.basic_white',
-  'bottom.jeans',
-  'back.kinder',
-];
+// Wardrobe starts empty — every item must be purchased.
+export const DEFAULT_OWNED: string[] = [];
 
 export function getItem(id: string): Item | undefined {
   return ITEMS.find((i) => i.id === id);

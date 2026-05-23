@@ -261,6 +261,7 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       top: new THREE.Group(),
       bottom: new THREE.Group(),
       hat: new THREE.Group(),
+      mask: new THREE.Group(),
       back: new THREE.Group(),
       shoes: new THREE.Group(),
       charm: new THREE.Group(),
@@ -599,6 +600,71 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             );
             star.position.set(0, TORSO_Y + 0.05, frontZ + 0.005);
             g.add(star);
+          } else if (kind === 'ironman') {
+            // Crimson armor plating with gold trim and an arc reactor.
+            const armorMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.85,
+              roughness: 0.18,
+            });
+            torsoMesh.material = armorMat;
+            const goldMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#fbbf24',
+              metalness: 0.9,
+              roughness: 0.2,
+            });
+            // Gold chest yoke / shoulder caps
+            [-1, 1].forEach((sx) => {
+              const cap = new THREE.Mesh(
+                new THREE.SphereGeometry(0.18, 14, 14, 0, Math.PI * 2, 0, Math.PI / 2),
+                goldMat.clone()
+              );
+              cap.position.set(sx * (TORSO_W / 2 + 0.02), topY - 0.04, 0);
+              g.add(cap);
+            });
+            // V-shaped gold chest trim
+            const yoke = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.02, 0.12, 0.04),
+              goldMat.clone()
+            );
+            yoke.position.set(0, topY - 0.08, frontZ + 0.02);
+            g.add(yoke);
+            // Arc reactor: glowing cyan ring + bright core
+            const reactorRing = new THREE.Mesh(
+              new THREE.TorusGeometry(0.13, 0.025, 14, 24),
+              new THREE.MeshStandardMaterial({
+                color: '#fbbf24',
+                metalness: 0.9,
+                roughness: 0.2,
+              })
+            );
+            reactorRing.position.set(0, TORSO_Y + 0.05, frontZ + 0.03);
+            g.add(reactorRing);
+            const reactorCore = new THREE.Mesh(
+              new THREE.CircleGeometry(0.1, 24),
+              new THREE.MeshStandardMaterial({
+                color: '#a5f3fc',
+                emissive: '#22d3ee',
+                emissiveIntensity: 1.4,
+              })
+            );
+            reactorCore.position.set(0, TORSO_Y + 0.05, frontZ + 0.04);
+            g.add(reactorCore);
+            // Side gold strip down the front
+            const stripMat = goldMat.clone();
+            const strip = new THREE.Mesh(
+              new THREE.BoxGeometry(0.06, 0.5, 0.02),
+              stripMat
+            );
+            strip.position.set(0, TORSO_Y - 0.2, frontZ + 0.025);
+            g.add(strip);
+            // Gold belt
+            const belt = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.04, 0.07, TORSO_D + padD + 0.04),
+              goldMat.clone()
+            );
+            belt.position.set(0, TORSO_Y - TORSO_H / 2 + 0.04, 0);
+            g.add(belt);
           } else if (kind === 'robot') {
             // Chrome chassis: replace the cloth torso material with metallic.
             const chromeMat = new THREE.MeshStandardMaterial({
@@ -813,6 +879,47 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
               );
               pocket.position.set(sx * 0.13, LEG_Y + LEG_H / 2 - 0.16, -LEG_W / 2 - 0.03);
               g.add(pocket);
+            });
+          } else if (kind === 'ironman') {
+            const armorMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.85,
+              roughness: 0.18,
+            });
+            const goldMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#fbbf24',
+              metalness: 0.9,
+              roughness: 0.2,
+            });
+            [-1, 1].forEach((sx) => {
+              // Crimson thigh
+              const thigh = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, LEG_H * 0.5, LEG_W + 0.06),
+                armorMat.clone()
+              );
+              thigh.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.2, 0);
+              g.add(thigh);
+              // Crimson shin
+              const shin = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.05, LEG_H * 0.46, LEG_W + 0.05),
+                armorMat.clone()
+              );
+              shin.position.set(sx * LEG_X, LEG_Y - LEG_H * 0.24, 0);
+              g.add(shin);
+              // Gold knee plate
+              const knee = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.08, 0.08, LEG_W + 0.04),
+                goldMat.clone()
+              );
+              knee.position.set(sx * LEG_X, LEG_Y - 0.03, 0.02);
+              g.add(knee);
+              // Gold thigh band near the belt
+              const band = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.08, 0.05, LEG_W + 0.08),
+                goldMat.clone()
+              );
+              band.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.42, 0);
+              g.add(band);
             });
           } else if (kind === 'robot') {
             const chromeMat = new THREE.MeshStandardMaterial({
@@ -1223,6 +1330,88 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
           }
           break;
         }
+        case 'mask': {
+          const kind = item.kind ?? 'ironman';
+          if (kind === 'ironman') {
+            const armorMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.9,
+              roughness: 0.18,
+            });
+            const goldMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#fbbf24',
+              metalness: 0.95,
+              roughness: 0.16,
+            });
+            // Faceplate covering the whole front of the head
+            const facePlate = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.04, HEAD_SIZE * 0.95, 0.08),
+              armorMat
+            );
+            facePlate.position.set(0, HEAD_Y, FACE_Z + 0.18);
+            g.add(facePlate);
+            // Pointed chin block (jaw)
+            const jaw = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE * 0.55, 0.18, 0.1),
+              armorMat.clone()
+            );
+            jaw.position.set(0, HEAD_Y - HEAD_SIZE * 0.42, FACE_Z + 0.16);
+            g.add(jaw);
+            // Forehead gold band
+            const browBand = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.06, 0.08, 0.06),
+              goldMat.clone()
+            );
+            browBand.position.set(0, HEAD_Y + HEAD_SIZE * 0.32, FACE_Z + 0.2);
+            g.add(browBand);
+            // Forehead V triangle
+            const vShape = new THREE.Shape();
+            vShape.moveTo(-0.22, 0.06);
+            vShape.lineTo(0.22, 0.06);
+            vShape.lineTo(0, -0.14);
+            vShape.lineTo(-0.22, 0.06);
+            const vTri = new THREE.Mesh(
+              new THREE.ExtrudeGeometry(vShape, { depth: 0.04, bevelEnabled: false }),
+              goldMat.clone()
+            );
+            vTri.position.set(0, HEAD_Y + HEAD_SIZE * 0.18, FACE_Z + 0.22);
+            g.add(vTri);
+            // Two glowing eye slits
+            const eyeMat = new THREE.MeshStandardMaterial({
+              color: '#fef9c3',
+              emissive: '#facc15',
+              emissiveIntensity: 1.5,
+            });
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.BoxGeometry(0.17, 0.05, 0.02),
+                eyeMat.clone()
+              );
+              eye.position.set(sx * 0.16, HEAD_Y + 0.03, FACE_Z + 0.23);
+              g.add(eye);
+            });
+            // Vertical mouth slats (helmet vents)
+            const ventMat = new THREE.MeshStandardMaterial({ color: '#1e1b1b' });
+            for (let i = -2; i <= 2; i++) {
+              const slat = new THREE.Mesh(
+                new THREE.BoxGeometry(0.02, 0.08, 0.02),
+                ventMat.clone()
+              );
+              slat.position.set(i * 0.05, HEAD_Y - HEAD_SIZE * 0.3, FACE_Z + 0.23);
+              g.add(slat);
+            }
+            // Side gold cheek strips
+            [-1, 1].forEach((sx) => {
+              const cheek = new THREE.Mesh(
+                new THREE.BoxGeometry(0.04, 0.32, 0.04),
+                goldMat.clone()
+              );
+              cheek.position.set(sx * (HEAD_SIZE / 2 + 0.02), HEAD_Y - 0.04, FACE_Z + 0.17);
+              g.add(cheek);
+            });
+          }
+          break;
+        }
         case 'back': {
           const kind =
             item.kind ?? (item.shape === 'wing' ? 'wing_feather' : 'pack');
@@ -1352,6 +1541,63 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             );
             tie.position.set(0, TORSO_Y + TORSO_H / 2 + 0.06, TORSO_D / 2 + 0.04);
             g.add(tie);
+          } else if (kind === 'ironman') {
+            const armorMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.85,
+              roughness: 0.18,
+            });
+            const goldMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#fbbf24',
+              metalness: 0.9,
+              roughness: 0.2,
+            });
+            // Twin red triangular wing-thrusters that sweep up behind the back
+            [-1, 1].forEach((sx) => {
+              const wingShape = new THREE.Shape();
+              wingShape.moveTo(0, 0);
+              wingShape.lineTo(0.06, 0.42);
+              wingShape.lineTo(0.34, 0.34);
+              wingShape.lineTo(0.18, 0.04);
+              wingShape.lineTo(0, 0);
+              const wing = new THREE.Mesh(
+                new THREE.ExtrudeGeometry(wingShape, {
+                  depth: 0.05,
+                  bevelEnabled: false,
+                }),
+                armorMat.clone()
+              );
+              wing.position.set(sx * 0.1, TORSO_Y - 0.05, -TORSO_D / 2 - 0.08);
+              wing.scale.x = sx;
+              g.add(wing);
+              // Gold trim along the leading edge
+              const trim = new THREE.Mesh(
+                new THREE.BoxGeometry(0.02, 0.36, 0.06),
+                goldMat.clone()
+              );
+              trim.position.set(sx * 0.12, TORSO_Y + 0.13, -TORSO_D / 2 - 0.06);
+              trim.rotation.z = sx * -0.18;
+              g.add(trim);
+              // Boost thruster glow at the wing base
+              const boost = new THREE.Mesh(
+                new THREE.ConeGeometry(0.07, 0.2, 14),
+                new THREE.MeshStandardMaterial({
+                  color: '#a5f3fc',
+                  emissive: '#22d3ee',
+                  emissiveIntensity: 1.2,
+                })
+              );
+              boost.rotation.x = Math.PI;
+              boost.position.set(sx * 0.18, TORSO_Y - 0.35, -TORSO_D / 2 - 0.08);
+              g.add(boost);
+            });
+            // Center backplate
+            const plate = new THREE.Mesh(
+              new THREE.BoxGeometry(0.42, 0.5, 0.06),
+              armorMat.clone()
+            );
+            plate.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.06);
+            g.add(plate);
           } else if (kind === 'robot') {
             const chassisMat = new THREE.MeshStandardMaterial({
               color,
@@ -1702,6 +1948,50 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
                 w.position.set(sx * LEG_X, footY - 0.13, dz);
                 g.add(w);
               });
+            } else if (kind === 'ironman') {
+              const bootMat = new THREE.MeshStandardMaterial({
+                color,
+                metalness: 0.9,
+                roughness: 0.18,
+              });
+              const accentMat = new THREE.MeshStandardMaterial({
+                color: accent ?? '#b91c1c',
+                metalness: 0.85,
+                roughness: 0.2,
+              });
+              // Gold shin guard
+              const shin = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.2, 0.22),
+                bootMat.clone()
+              );
+              shin.position.set(sx * LEG_X, footY + 0.1, 0);
+              g.add(shin);
+              // Gold boot box
+              const boot = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.1, 0.16, 0.46),
+                bootMat.clone()
+              );
+              boot.position.set(sx * LEG_X, footY, 0.08);
+              g.add(boot);
+              // Red toe cap
+              const toe = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.11, 0.14, 0.16),
+                accentMat.clone()
+              );
+              toe.position.set(sx * LEG_X, footY, 0.24);
+              g.add(toe);
+              // Repulsor thruster glow on the sole
+              const repulsor = new THREE.Mesh(
+                new THREE.CircleGeometry(0.06, 18),
+                new THREE.MeshStandardMaterial({
+                  color: '#a5f3fc',
+                  emissive: '#22d3ee',
+                  emissiveIntensity: 1.4,
+                })
+              );
+              repulsor.rotation.x = -Math.PI / 2;
+              repulsor.position.set(sx * LEG_X, footY - 0.085, 0.06);
+              g.add(repulsor);
             } else if (kind === 'robot') {
               const chromeMat = new THREE.MeshStandardMaterial({
                 color,
@@ -1988,6 +2278,29 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
             b2.rotation.z = 0.5;
             b2.position.set(cx + 0.025, cy - 0.07, cz);
             g.add(b2);
+          } else if (kind === 'ironman') {
+            // Glowing arc reactor pendant
+            const ringMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#fbbf24',
+              metalness: 0.9,
+              roughness: 0.18,
+            });
+            const reactorRing = new THREE.Mesh(
+              new THREE.TorusGeometry(0.085, 0.02, 12, 24),
+              ringMat
+            );
+            reactorRing.position.set(cx, cy, cz);
+            g.add(reactorRing);
+            const reactorCore = new THREE.Mesh(
+              new THREE.CircleGeometry(0.075, 24),
+              new THREE.MeshStandardMaterial({
+                color: '#a5f3fc',
+                emissive: color,
+                emissiveIntensity: 1.4,
+              })
+            );
+            reactorCore.position.set(cx, cy, cz + 0.012);
+            g.add(reactorCore);
           } else if (kind === 'robot') {
             // Tiny robot head pendant
             const headMat = new THREE.MeshStandardMaterial({

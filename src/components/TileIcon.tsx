@@ -24,6 +24,8 @@ function renderIcon(item: Item) {
       return <Bottom item={item} />;
     case 'hat':
       return <Hat item={item} />;
+    case 'mask':
+      return <Mask item={item} />;
     case 'back':
       return <Back item={item} />;
     case 'shoes':
@@ -40,6 +42,33 @@ function Top({ item }: { item: Item }) {
   const c = item.color;
   const a = item.accent ?? darken(c);
   const kind = item.kind ?? 'tee';
+
+  if (kind === 'ironman') {
+    const gold = a;
+    return (
+      <g>
+        {/* Crimson chest plate */}
+        <path
+          d="M26,30 L40,24 L48,30 L52,30 L60,24 L74,30 L78,42 L72,46 L72,80 L28,80 L28,46 L22,42 Z"
+          fill={c}
+          stroke={STROKE}
+          strokeWidth={SW}
+          strokeLinejoin="round"
+        />
+        {/* Gold shoulder caps */}
+        <ellipse cx="30" cy="32" rx="7" ry="6" fill={gold} stroke={STROKE} strokeWidth={1} />
+        <ellipse cx="70" cy="32" rx="7" ry="6" fill={gold} stroke={STROKE} strokeWidth={1} />
+        {/* Gold V chest yoke */}
+        <path d="M32,40 L50,52 L68,40 L66,46 L50,58 L34,46 Z" fill={gold} stroke={STROKE} strokeWidth={1} />
+        {/* Arc reactor */}
+        <circle cx="50" cy="62" r="7" fill={gold} stroke={STROKE} strokeWidth={1} />
+        <circle cx="50" cy="62" r="5" fill="#a5f3fc" />
+        <circle cx="50" cy="62" r="2.5" fill="#ffffff" />
+        {/* Gold belt */}
+        <rect x="28" y="74" width="44" height="5" fill={gold} stroke={STROKE} strokeWidth={1} />
+      </g>
+    );
+  }
 
   if (kind === 'robot') {
     return (
@@ -139,6 +168,25 @@ function Bottom({ item }: { item: Item }) {
   const c = item.color;
   const a = item.accent ?? darken(c);
   const kind = item.kind ?? 'pants';
+
+  if (kind === 'ironman') {
+    const gold = a;
+    return (
+      <g>
+        {/* Crimson armored legs */}
+        <rect x="32" y="22" width="36" height="60" rx="2" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Center gap */}
+        <rect x="48" y="22" width="4" height="60" fill={STROKE} />
+        {/* Gold thigh band */}
+        <rect x="30" y="26" width="40" height="6" fill={gold} stroke={STROKE} strokeWidth={1} />
+        {/* Gold knee plates */}
+        <rect x="32" y="46" width="14" height="10" rx="2" fill={gold} stroke={STROKE} strokeWidth={1} />
+        <rect x="54" y="46" width="14" height="10" rx="2" fill={gold} stroke={STROKE} strokeWidth={1} />
+        {/* Gold ankle band */}
+        <rect x="30" y="74" width="40" height="6" fill={gold} stroke={STROKE} strokeWidth={1} />
+      </g>
+    );
+  }
 
   if (kind === 'robot') {
     return (
@@ -350,10 +398,73 @@ function Hat({ item }: { item: Item }) {
   }
 }
 
+function Mask({ item }: { item: Item }) {
+  const c = item.color;
+  const a = item.accent ?? darken(c);
+  // Ironman is the only mask kind for now; default to it.
+  return (
+    <g>
+      {/* Crimson faceplate silhouette */}
+      <path
+        d="M28,18 L72,18 L78,54 L70,76 L60,86 L40,86 L30,76 L22,54 Z"
+        fill={c}
+        stroke={STROKE}
+        strokeWidth={SW}
+        strokeLinejoin="round"
+      />
+      {/* Forehead gold band */}
+      <rect x="26" y="22" width="48" height="6" fill={a} stroke={STROKE} strokeWidth={1} />
+      {/* Forehead V */}
+      <polygon points="38,30 62,30 50,46" fill={a} stroke={STROKE} strokeWidth={1} />
+      {/* Eye slits */}
+      <rect x="30" y="44" width="14" height="5" rx="1" fill="#facc15" stroke={STROKE} strokeWidth={1} />
+      <rect x="56" y="44" width="14" height="5" rx="1" fill="#facc15" stroke={STROKE} strokeWidth={1} />
+      {/* Cheek gold strips */}
+      <rect x="22" y="54" width="4" height="22" fill={a} />
+      <rect x="74" y="54" width="4" height="22" fill={a} />
+      {/* Mouth vent slats */}
+      <rect x="40" y="62" width="2" height="12" fill="#1f2937" />
+      <rect x="45" y="62" width="2" height="12" fill="#1f2937" />
+      <rect x="50" y="62" width="2" height="12" fill="#1f2937" />
+      <rect x="55" y="62" width="2" height="12" fill="#1f2937" />
+      <rect x="60" y="62" width="2" height="12" fill="#1f2937" />
+    </g>
+  );
+}
+
 function Back({ item }: { item: Item }) {
   const c = item.color;
   const a = item.accent ?? darken(c);
   const kind = item.kind ?? 'pack';
+
+  if (kind === 'ironman') {
+    const gold = a;
+    return (
+      <g>
+        {/* Crimson swept-back wings */}
+        <path
+          d="M50,40 L18,18 L24,52 L42,46 L36,72 L50,58 Z"
+          fill={c}
+          stroke={STROKE}
+          strokeWidth={SW}
+          strokeLinejoin="round"
+        />
+        <path
+          d="M50,40 L82,18 L76,52 L58,46 L64,72 L50,58 Z"
+          fill={c}
+          stroke={STROKE}
+          strokeWidth={SW}
+          strokeLinejoin="round"
+        />
+        {/* Gold trim */}
+        <line x1="50" y1="40" x2="20" y2="22" stroke={gold} strokeWidth={2.5} />
+        <line x1="50" y1="40" x2="80" y2="22" stroke={gold} strokeWidth={2.5} />
+        {/* Repulsor thruster glows at wing base */}
+        <circle cx="38" cy="70" r="4" fill="#a5f3fc" stroke={STROKE} strokeWidth={1} />
+        <circle cx="62" cy="70" r="4" fill="#a5f3fc" stroke={STROKE} strokeWidth={1} />
+      </g>
+    );
+  }
 
   if (kind === 'robot') {
     return (
@@ -452,6 +563,24 @@ function Shoes({ item }: { item: Item }) {
   const a = item.accent ?? darken(c);
   const kind = item.kind ?? 'sneakers';
 
+  if (kind === 'ironman') {
+    const accent = a;
+    return (
+      <g>
+        {/* Gold shin guard */}
+        <rect x="28" y="20" width="40" height="36" rx="4" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Gold boot box */}
+        <rect x="22" y="50" width="58" height="22" rx="4" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Red toe cap */}
+        <rect x="58" y="52" width="22" height="20" rx="4" fill={accent} stroke={STROKE} strokeWidth={SW} />
+        {/* Repulsor glow on sole */}
+        <ellipse cx="42" cy="76" rx="14" ry="4" fill="#a5f3fc" stroke={STROKE} strokeWidth={1} />
+        {/* Knee accent */}
+        <rect x="32" y="42" width="32" height="6" fill={accent} />
+      </g>
+    );
+  }
+
   if (kind === 'robot') {
     return (
       <g>
@@ -534,6 +663,23 @@ function Shoes({ item }: { item: Item }) {
 function Charm({ item }: { item: Item }) {
   const c = item.color;
   const kind = item.kind ?? 'star';
+
+  if (kind === 'ironman') {
+    const ring = item.accent ?? '#fbbf24';
+    return (
+      <g>
+        {/* Arc reactor pendant */}
+        <line x1="50" y1="12" x2="50" y2="22" stroke={STROKE} strokeWidth={2} />
+        <circle cx="50" cy="10" r="4" fill="none" stroke={STROKE} strokeWidth={SW} />
+        <circle cx="50" cy="54" r="26" fill={ring} stroke={STROKE} strokeWidth={SW} />
+        <circle cx="50" cy="54" r="18" fill={c} />
+        <circle cx="50" cy="54" r="10" fill="#a5f3fc" stroke="#ffffff" strokeWidth={1} />
+        <circle cx="50" cy="54" r="4" fill="#ffffff" />
+        {/* Inner triangular coil */}
+        <polygon points="50,40 60,58 40,58" fill="none" stroke="#0e7490" strokeWidth={1} />
+      </g>
+    );
+  }
 
   if (kind === 'robot') {
     return (
