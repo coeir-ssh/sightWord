@@ -2,6 +2,13 @@ import audioManifest from '../data/audioManifest.json';
 
 const AUDIO_SET = new Set<string>((audioManifest as string[]).map((w) => w.toLowerCase()));
 const AUDIO_BASE = `${import.meta.env.BASE_URL}audio/`;
+// Per-letter MP3s are *bundled* with the build (see public/letters/),
+// generated offline with espeak-ng so they don't depend on CI being able
+// to reach Azure TTS. Everything that touches the alphabet — green-slot
+// cues, eventually any alphabet drill — should pull from here so we get
+// the exact same audio across browsers, with zero trim/SSML/autoplay
+// quirks in the loop.
+const LETTER_AUDIO_BASE = `${import.meta.env.BASE_URL}letters/`;
 
 let cachedVoice: SpeechSynthesisVoice | null = null;
 let voicesPromise: Promise<void> | null = null;
@@ -67,9 +74,9 @@ function ensureVoices(): Promise<void> {
 /** Call inside a user gesture handler to unlock iOS audio + TTS. */
 export function unlockTts(): void {
   if (unlocked) return;
-  // Prime the SAME HTMLAudioElement we'll reuse for every word cue. iOS
-  // Safari only blesses elements that have called .play() inside a user
-  // gesture; a one-shot throwaway Audio() doesn't help subsequent new ones.
+  // Prime the SAME HTMLAudioElement we'll reuse for every cue. iOS Safari
+  // only blesses elements that have called .play() inside a user gesture;
+  // a one-shot throwaway Audio() doesn't help subsequent new ones.
   try {
     const a = getPooledAudio();
     a.src =
@@ -113,11 +120,7 @@ function getPooledAudio(): HTMLAudioElement {
   return pooledAudio;
 }
 
-function playFile(text: string, opts?: { rate?: number }): Promise<boolean> {
-  const key = text.toLowerCase();
-  if (!AUDIO_SET.has(key)) {
-    return Promise.resolve(false);
-  }
+function playAudioFile(url: string, opts?: { rate?: number }): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
     try {
       const audio = getPooledAudio();
@@ -127,7 +130,7 @@ function playFile(text: string, opts?: { rate?: number }): Promise<boolean> {
       audio.muted = false;
       audio.volume = 1;
       audio.playbackRate = opts?.rate ?? 1;
-      audio.src = `${AUDIO_BASE}${encodeURIComponent(key)}.mp3`;
+      audio.src = url;
       audio.currentTime = 0;
       let resolved = false;
       const done = (ok: boolean) => {
@@ -147,16 +150,24 @@ function playFile(text: string, opts?: { rate?: number }): Promise<boolean> {
           // a play() is still pending. That's expected, not a real failure
           // — let the next call drive the new resolution.
           if ((err as DOMException)?.name !== 'AbortError') {
-            console.warn('[tts] audio.play rejected, fallback to TTS:', text, err);
+            console.warn('[tts] audio.play rejected, fallback to TTS:', url, err);
           }
           done(false);
         });
       }
     } catch (err) {
-      console.warn('[tts] audio creation failed:', text, err);
+      console.warn('[tts] audio creation failed:', url, err);
       resolve(false);
     }
   });
+}
+
+function playFile(text: string, opts?: { rate?: number }): Promise<boolean> {
+  const key = text.toLowerCase();
+  if (!AUDIO_SET.has(key)) {
+    return Promise.resolve(false);
+  }
+  return playAudioFile(`${AUDIO_BASE}${encodeURIComponent(key)}.mp3`, opts);
 }
 
 async function speakViaSynth(text: string, opts?: { rate?: number }): Promise<void> {
@@ -207,24 +218,9 @@ export async function speak(text: string, opts?: { rate?: number }): Promise<voi
   await speakViaSynth(text, opts);
 }
 
-// Phonetic spelling for each letter. We route the per-letter cue straight
-// through the Web Speech API: the earlier MP3-cached pipeline (Web Audio
-// + pooled element + ffmpeg-trimmed "letter X" MP3s) kept regressing —
-// residual "letter" prefix when the trim was too short, dead-silent
-// playback when the trim was too long — and the user explicitly asked
-// to ditch it in favor of a guaranteed-audible synth pronunciation.
-//
-// Quirks of the synth path that come with this trade-off:
-//   - A bare "A" gets read as the article /ə/ on most voices, so we feed
-//     "ay" / "bee" / ... to force the letter name.
-//   - "ay" is read as /eɪ/ on Chrome Google voices and Safari Samantha,
-//     but some system voices (older Aria, certain Edge fallbacks) read
-//     it as /aɪ/ — i.e. it can come out sounding like the letter I. The
-//     user accepted this trade-off ("아이"로 들리더라도 일관되게 들리는
-//     게 낫다) so we don't try to disambiguate further.
-//   - The synth queue is serial: rapidly drawing several letters in a
-//     row can cancel mid-utterance because each call resets the queue.
-//     That's intentional — last cue wins.
+// Phonetic fallback for the synth path. Only fires if the bundled MP3 fails
+// to play — should be near-zero in production. Kept terse so a regression
+// never reintroduces the "letter " prefix that started the cycle.
 const LETTER_PHONETIC: Record<string, string> = {
   a: 'ay', b: 'bee', c: 'see', d: 'dee', e: 'ee', f: 'eff',
   g: 'gee', h: 'aitch', i: 'eye', j: 'jay', k: 'kay', l: 'el',
@@ -235,6 +231,13 @@ const LETTER_PHONETIC: Record<string, string> = {
 
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
-  const spoken = LETTER_PHONETIC[key] ?? key;
-  await speakViaSynth(spoken, { rate: opts?.rate ?? 0.85 });
+  // Only a–z have a bundled MP3. Anything else (digit, punctuation) goes
+  // straight to the synth fallback.
+  if (/^[a-z]$/.test(key)) {
+    const ok = await playAudioFile(`${LETTER_AUDIO_BASE}letter-${key}.mp3`, opts);
+    if (ok) return;
+  }
+  // Last-resort synth so a broken deploy (missing letters/ folder) doesn't
+  // leave the user completely silent.
+  await speakViaSynth(LETTER_PHONETIC[key] ?? key, { rate: opts?.rate ?? 0.85 });
 }
