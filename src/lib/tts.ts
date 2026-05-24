@@ -67,9 +67,9 @@ function ensureVoices(): Promise<void> {
 /** Call inside a user gesture handler to unlock iOS audio + TTS. */
 export function unlockTts(): void {
   if (unlocked) return;
-  // Prime the SAME HTMLAudioElement we'll reuse for every cue. iOS Safari
-  // only blesses elements that have called .play() inside a user gesture;
-  // a one-shot throwaway Audio() doesn't help subsequent new ones.
+  // Prime the SAME HTMLAudioElement we'll reuse for every word cue. iOS
+  // Safari only blesses elements that have called .play() inside a user
+  // gesture; a one-shot throwaway Audio() doesn't help subsequent new ones.
   try {
     const a = getPooledAudio();
     a.src =
@@ -77,17 +77,6 @@ export function unlockTts(): void {
     a.muted = true;
     a.volume = 0;
     void a.play().catch(() => {});
-  } catch {
-    /* ignore */
-  }
-  // Spin up an AudioContext inside the gesture too. iPad Safari leaves new
-  // contexts in 'suspended' state until a gesture-bound resume() runs;
-  // without this the per-letter Web Audio path stays silent.
-  try {
-    const ctx = getAudioContext();
-    if (ctx && ctx.state === 'suspended') {
-      void ctx.resume().catch(() => {});
-    }
   } catch {
     /* ignore */
   }
@@ -122,133 +111,6 @@ function getPooledAudio(): HTMLAudioElement {
     pooledAudio.preload = 'auto';
   }
   return pooledAudio;
-}
-
-// Web Audio path used exclusively for per-letter cues. The pooled
-// HTMLAudioElement above is rock-solid for the first cue but silently
-// fails on iPad WebKit when a second short cue swaps src right after the
-// previous play ended — which is exactly when the per-letter cue fires.
-// Decoding each letter MP3 once and replaying via AudioBufferSourceNode
-// sidesteps the element-reuse bug entirely.
-let audioCtx: AudioContext | null = null;
-const letterBufferCache = new Map<string, AudioBuffer>();
-const letterBufferPending = new Map<string, Promise<AudioBuffer | null>>();
-// Letters whose MP3 decoded to something unusable (empty buffer, sub-100ms
-// — typical of an over-trimmed generation step that ate the letter name).
-// Once a letter lands here we stop trying the MP3 pipeline for that letter
-// and go straight to the synth fallback; otherwise both the WebAudio and
-// pooled-element paths would silently "succeed" on a file that is actually
-// silent, and the user hears nothing on every subsequent green-letter cue.
-const knownBadLetters = new Set<string>();
-// Minimum buffer length that still plausibly contains a letter name. Even
-// the shortest English letter sound (/eɪ/, /iː/, ...) is well over 150ms at
-// rate=-15%; anything below 100ms is almost certainly a truncated/empty
-// file from a broken trim step.
-const MIN_LETTER_BUFFER_DURATION = 0.1;
-
-function getAudioContext(): AudioContext | null {
-  if (audioCtx) return audioCtx;
-  if (typeof window === 'undefined') return null;
-  const Ctor =
-    (window as unknown as { AudioContext?: typeof AudioContext }).AudioContext ??
-    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!Ctor) return null;
-  try {
-    audioCtx = new Ctor();
-  } catch {
-    audioCtx = null;
-  }
-  return audioCtx;
-}
-
-async function loadLetterBuffer(key: string): Promise<AudioBuffer | null> {
-  const cached = letterBufferCache.get(key);
-  if (cached) return cached;
-  const pending = letterBufferPending.get(key);
-  if (pending) return pending;
-  const ctx = getAudioContext();
-  if (!ctx) return null;
-  const url = `${AUDIO_BASE}letter-${encodeURIComponent(key)}.mp3`;
-  const task = (async () => {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) return null;
-      const ab = await res.arrayBuffer();
-      const buf = await new Promise<AudioBuffer | null>((resolve) => {
-        // decodeAudioData supports both promise and callback forms; the
-        // callback form is required on older iOS Safari.
-        try {
-          const p = ctx.decodeAudioData(
-            ab,
-            (b) => resolve(b),
-            () => resolve(null)
-          );
-          if (p && typeof (p as Promise<AudioBuffer>).then === 'function') {
-            (p as Promise<AudioBuffer>).then((b) => resolve(b)).catch(() => resolve(null));
-          }
-        } catch {
-          resolve(null);
-        }
-      });
-      if (buf) {
-        // Guard against silently-truncated letter MP3s. A trim step in the
-        // generator that ate the letter name leaves a sub-100ms buffer that
-        // would still decode + play "successfully" — onended fires after a
-        // few ms and no fallback runs. Flag the letter as bad so subsequent
-        // cues skip the MP3 pipeline entirely.
-        if (buf.duration < MIN_LETTER_BUFFER_DURATION) {
-          console.warn(
-            '[tts] letter buffer too short — falling back to synth:',
-            key,
-            buf.duration
-          );
-          knownBadLetters.add(key);
-          return null;
-        }
-        letterBufferCache.set(key, buf);
-      }
-      return buf;
-    } catch {
-      return null;
-    } finally {
-      letterBufferPending.delete(key);
-    }
-  })();
-  letterBufferPending.set(key, task);
-  return task;
-}
-
-async function playLetterViaWebAudio(key: string): Promise<boolean> {
-  const ctx = getAudioContext();
-  if (!ctx) return false;
-  if (ctx.state === 'suspended') {
-    try {
-      await ctx.resume();
-    } catch {
-      /* ignore */
-    }
-  }
-  const buf = await loadLetterBuffer(key);
-  if (!buf) return false;
-  return new Promise<boolean>((resolve) => {
-    let resolved = false;
-    const finish = (ok: boolean) => {
-      if (resolved) return;
-      resolved = true;
-      resolve(ok);
-    };
-    try {
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      src.connect(ctx.destination);
-      src.onended = () => finish(true);
-      src.start(0);
-      // Safety: if onended never fires (rare), bail after the buffer length.
-      setTimeout(() => finish(true), Math.ceil(buf.duration * 1000) + 500);
-    } catch {
-      finish(false);
-    }
-  });
 }
 
 function playFile(text: string, opts?: { rate?: number }): Promise<boolean> {
@@ -345,13 +207,24 @@ export async function speak(text: string, opts?: { rate?: number }): Promise<voi
   await speakViaSynth(text, opts);
 }
 
-// Phonetic spelling for each letter, used by the synth fallback when the
-// pre-recorded MP3 path fails. Browser SpeechSynthesis voices read a bare
-// "A" as the article /ə/ ("uh") rather than the letter name — feeding the
-// spelling instead gets the canonical /eɪ/ on Chrome, Safari, and Edge.
-// Some letters (a, i) are ambiguous as English words ("aye"/"eye") but
-// the synth path is a last-resort fallback; the SSML-generated MP3s ship
-// the correct sound and run first.
+// Phonetic spelling for each letter. We route the per-letter cue straight
+// through the Web Speech API: the earlier MP3-cached pipeline (Web Audio
+// + pooled element + ffmpeg-trimmed "letter X" MP3s) kept regressing —
+// residual "letter" prefix when the trim was too short, dead-silent
+// playback when the trim was too long — and the user explicitly asked
+// to ditch it in favor of a guaranteed-audible synth pronunciation.
+//
+// Quirks of the synth path that come with this trade-off:
+//   - A bare "A" gets read as the article /ə/ on most voices, so we feed
+//     "ay" / "bee" / ... to force the letter name.
+//   - "ay" is read as /eɪ/ on Chrome Google voices and Safari Samantha,
+//     but some system voices (older Aria, certain Edge fallbacks) read
+//     it as /aɪ/ — i.e. it can come out sounding like the letter I. The
+//     user accepted this trade-off ("아이"로 들리더라도 일관되게 들리는
+//     게 낫다) so we don't try to disambiguate further.
+//   - The synth queue is serial: rapidly drawing several letters in a
+//     row can cancel mid-utterance because each call resets the queue.
+//     That's intentional — last cue wins.
 const LETTER_PHONETIC: Record<string, string> = {
   a: 'ay', b: 'bee', c: 'see', d: 'dee', e: 'ee', f: 'eff',
   g: 'gee', h: 'aitch', i: 'eye', j: 'jay', k: 'kay', l: 'el',
@@ -362,27 +235,6 @@ const LETTER_PHONETIC: Record<string, string> = {
 
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
-  // If a previous attempt already proved the letter MP3 is silent/empty,
-  // skip the MP3 pipeline entirely — both the WebAudio and pool paths use
-  // the same file and would "succeed" while playing nothing. Go to synth.
-  if (!knownBadLetters.has(key)) {
-    // Stage 1: Web Audio path. iPad WebKit silently drops the per-letter cue
-    // when the pooled HTMLAudioElement gets a fresh src right after a previous
-    // play ended; AudioBufferSourceNode replays the same decoded MP3 without
-    // touching the element-reuse code path that bug lives in.
-    if (await playLetterViaWebAudio(key)) return;
-    // playLetterViaWebAudio may have just flagged the file as bad (too-short
-    // buffer) — re-check before falling through to the pool path, which would
-    // play the same silent MP3 with a "success" event.
-    if (!knownBadLetters.has(key)) {
-      // Stage 2: pooled element fallback (works on PC + iOS for the first cue).
-      const ok = await playFile(`letter-${key}`, opts);
-      if (ok) return;
-    }
-  }
-  // Stage 3: synth fallback. Use the phonetic spelling rather than "letter X"
-  // so the user just hears the letter name (no "레터" prefix bleeding through
-  // when the MP3 pipeline misses).
   const spoken = LETTER_PHONETIC[key] ?? key;
   await speakViaSynth(spoken, { rate: opts?.rate ?? 0.85 });
 }

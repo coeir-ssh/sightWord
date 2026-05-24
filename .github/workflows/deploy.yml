@@ -32,22 +32,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install ffmpeg
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends ffmpeg
-          ffmpeg -version | head -1
-
       - name: Install edge-tts
-        # Pin a version known to expose `Communicate.texts` — the letter-MP3
-        # generator overrides that attribute to inject SSML <say-as> markup
-        # directly into edge-tts's wrapped envelope. A future edge-tts
-        # release could rename or remove `texts` and silently break the
-        # letter audio (the rest still works, so the deploy stays "green"
-        # while the letter cues degrade). The script also asserts that the
-        # attribute exists and errors out if not, but pinning prevents the
-        # accidental upgrade.
-        run: pip install 'edge-tts==7.2.8'
+        run: pip install edge-tts
 
       - name: Generate audio + manifest
         run: python scripts/generate-audio.py
