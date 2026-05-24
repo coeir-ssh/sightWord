@@ -10,7 +10,8 @@ export type TopKind =
   | 'sweater'
   | 'star'
   | 'robot'
-  | 'ironman';
+  | 'ironman'
+  | 'princess_dress';
 
 export type BottomKind =
   | 'pants'
@@ -22,7 +23,9 @@ export type BottomKind =
   | 'sweat'
   | 'plaid'
   | 'robot'
-  | 'ironman';
+  | 'ironman'
+  | 'princess_skirt'
+  | 'tutu';
 
 export type HatKind =
   | 'cap'
@@ -34,7 +37,10 @@ export type HatKind =
   | 'cowboy'
   | 'sunhat'
   | 'pumpkin'
-  | 'robot';
+  | 'robot'
+  | 'tiara'
+  | 'flower_crown'
+  | 'princess_crown';
 
 export type MaskKind = 'ironman';
 
@@ -49,7 +55,10 @@ export type BackKind =
   | 'shell'
   | 'cape'
   | 'robot'
-  | 'ironman';
+  | 'ironman'
+  | 'fairy_wings'
+  | 'butterfly'
+  | 'princess_cape';
 
 export type ShoeKind =
   | 'sneakers'
@@ -62,7 +71,10 @@ export type ShoeKind =
   | 'snowboots'
   | 'lightup'
   | 'robot'
-  | 'ironman';
+  | 'ironman'
+  | 'glass_slipper'
+  | 'ballet'
+  | 'ribbon_heel';
 
 export type CharmKind =
   | 'star'
@@ -76,7 +88,10 @@ export type CharmKind =
   | 'cherry'
   | 'lightning'
   | 'robot'
-  | 'ironman';
+  | 'ironman'
+  | 'wand'
+  | 'ribbon_bow'
+  | 'rose';
 
 export type ItemKind =
   | TopKind
@@ -196,6 +211,31 @@ export const ITEMS: Item[] = [
   { id: 'back.ironman', name: '아이언맨 윙', slot: 'back', price: 220, color: '#dc2626', accent: '#fbbf24', kind: 'ironman' },
   { id: 'shoes.ironman', name: '아이언맨 부츠', slot: 'shoes', price: 150, color: '#fbbf24', accent: '#dc2626', kind: 'ironman' },
   { id: 'charm.ironman', name: '아크 리액터 키링', slot: 'charm', price: 100, color: '#22d3ee', accent: '#fbbf24', kind: 'ironman' },
+
+  // ───────── Princess set (girl) ─────────
+  { id: 'top.princess_pink', name: '핑크 공주 드레스', slot: 'top', price: 220, color: '#f9a8d4', accent: '#fde68a', kind: 'princess_dress' },
+  { id: 'top.princess_snow', name: '눈의 공주 드레스', slot: 'top', price: 220, color: '#bae6fd', accent: '#ffffff', kind: 'princess_dress' },
+  { id: 'top.princess_gold', name: '황금 공주 드레스', slot: 'top', price: 240, color: '#fde047', accent: '#fffbeb', kind: 'princess_dress' },
+
+  { id: 'bottom.princess_pink', name: '핑크 공주 치마', slot: 'bottom', price: 200, color: '#f9a8d4', accent: '#ffffff', kind: 'princess_skirt' },
+  { id: 'bottom.princess_snow', name: '눈의 공주 치마', slot: 'bottom', price: 200, color: '#bae6fd', accent: '#ffffff', kind: 'princess_skirt' },
+  { id: 'bottom.tutu', name: '발레 튀튀', slot: 'bottom', price: 160, color: '#fce7f3', kind: 'tutu' },
+
+  { id: 'hat.tiara', name: '티아라', slot: 'hat', price: 180, color: '#fbbf24', accent: '#ec4899', kind: 'tiara' },
+  { id: 'hat.flower_crown', name: '꽃 화관', slot: 'hat', price: 140, color: '#f472b6', accent: '#ffffff', kind: 'flower_crown' },
+  { id: 'hat.princess_crown', name: '공주 왕관', slot: 'hat', price: 220, color: '#fbbf24', accent: '#ec4899', kind: 'princess_crown' },
+
+  { id: 'back.fairy_wings', name: '요정 날개', slot: 'back', price: 180, color: '#fbcfe8', kind: 'fairy_wings' },
+  { id: 'back.butterfly', name: '나비 날개', slot: 'back', price: 180, color: '#c084fc', accent: '#fde047', kind: 'butterfly' },
+  { id: 'back.princess_cape', name: '공주 망토', slot: 'back', price: 200, color: '#ec4899', accent: '#ffffff', kind: 'princess_cape' },
+
+  { id: 'shoes.glass_slipper', name: '유리 구두', slot: 'shoes', price: 240, color: '#e0f2fe', kind: 'glass_slipper' },
+  { id: 'shoes.ballet', name: '발레 슈즈', slot: 'shoes', price: 140, color: '#fbcfe8', accent: '#ec4899', kind: 'ballet' },
+  { id: 'shoes.ribbon_heel', name: '리본 구두', slot: 'shoes', price: 160, color: '#f9a8d4', accent: '#ffffff', kind: 'ribbon_heel' },
+
+  { id: 'charm.wand', name: '요술봉', slot: 'charm', price: 120, color: '#fde047', kind: 'wand' },
+  { id: 'charm.ribbon', name: '리본', slot: 'charm', price: 70, color: '#ec4899', kind: 'ribbon_bow' },
+  { id: 'charm.rose', name: '장미', slot: 'charm', price: 90, color: '#ef4444', kind: 'rose' },
 ];
 
 export const DEFAULT_ITEMS: Record<Slot, string> = {

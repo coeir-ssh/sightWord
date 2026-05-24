@@ -19,58 +19,54 @@ import type { CharGender } from '../lib/storage';
 const GENDER_BUNDLES: Record<CharGender, Partial<Record<Slot, string[]>>> = {
   girl: {
     top: [
+      // 공주풍 3종 — 처음 선택되는 핑크 공주 드레스로 즉시 공주 차림
+      'top.princess_pink',
+      'top.princess_snow',
+      'top.princess_gold',
+      // 캐주얼 3종
       'top.pink_tee',
       'top.purple_star',
       'top.basic_white',
-      // 특이한 상의
-      'top.green_dino',
-      'top.yellow_rain',
-      'top.spacesuit',
     ],
     bottom: [
+      'bottom.princess_pink',
+      'bottom.princess_snow',
+      'bottom.tutu',
       'bottom.pink_skirt',
       'bottom.shorts',
       'bottom.plaid',
-      // 특이한 하의
-      'bottom.spacepants',
-      'bottom.khaki_shorts',
-      'bottom.red_shorts',
     ],
     hat: [
+      'hat.tiara',
+      'hat.princess_crown',
+      'hat.flower_crown',
       'hat.beanie_pink',
       'hat.crown',
       'hat.sun',
-      // 특이한 모자
-      'hat.witch',
-      'hat.wizard',
-      'hat.pumpkin',
     ],
     back: [
+      'back.fairy_wings',
+      'back.butterfly',
+      'back.princess_cape',
       'back.kinder',
       'back.angel_wings',
       'back.star_wings',
-      // 특이한 가방/날개
-      'back.bat_wings',
-      'back.wings',
-      'back.jet_pack',
     ],
     shoes: [
+      'shoes.glass_slipper',
+      'shoes.ballet',
+      'shoes.ribbon_heel',
       'shoes.pink',
       'shoes.sandals',
       'shoes.snow',
-      // 특이한 신발
-      'shoes.skates',
-      'shoes.light_up',
-      'shoes.rain_boots',
     ],
     charm: [
+      'charm.wand',
+      'charm.ribbon',
+      'charm.rose',
       'charm.heart',
       'charm.star',
       'charm.cherry',
-      // 특이한 키링
-      'charm.moon',
-      'charm.diamond',
-      'charm.lightning',
     ],
   },
   boy: {

@@ -503,6 +503,64 @@ export function Character3D({ equipped, jumping = false, className, name, gender
       switch (slot) {
         case 'top': {
           const kind = item.kind ?? 'tee';
+
+          if (kind === 'princess_dress') {
+            // Fitted gown bodice with metallic trim along neckline and
+            // waist, plus puffy short cap sleeves at each shoulder.
+            const fabricMat = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
+            const trimColor = accent ?? new THREE.Color('#fde68a');
+            const trimMat = new THREE.MeshStandardMaterial({
+              color: trimColor,
+              metalness: 0.5,
+              roughness: 0.3,
+            });
+
+            const bodice = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.04, TORSO_H + 0.04, TORSO_D + 0.04),
+              fabricMat
+            );
+            bodice.position.set(0, TORSO_Y, 0);
+            g.add(bodice);
+
+            // Sweetheart neckline trim
+            const neckTrim = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.06, 0.05, TORSO_D + 0.05),
+              trimMat.clone()
+            );
+            neckTrim.position.set(0, TORSO_Y + TORSO_H / 2 - 0.02, 0);
+            g.add(neckTrim);
+            // Waist sash trim
+            const waistTrim = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.06, 0.06, TORSO_D + 0.05),
+              trimMat.clone()
+            );
+            waistTrim.position.set(0, TORSO_Y - TORSO_H / 2 + 0.04, 0);
+            g.add(waistTrim);
+
+            // Front V-decoration on bodice
+            const vDecor = new THREE.Mesh(
+              new THREE.ConeGeometry(0.07, 0.18, 3),
+              trimMat.clone()
+            );
+            vDecor.rotation.x = Math.PI;
+            vDecor.rotation.y = Math.PI / 6;
+            vDecor.position.set(0, TORSO_Y, (TORSO_D + 0.04) / 2 + 0.025);
+            g.add(vDecor);
+
+            // Puffy cap sleeves at each shoulder
+            [-1, 1].forEach((sx) => {
+              const puff = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2, 18, 14),
+                fabricMat.clone()
+              );
+              puff.scale.set(1, 0.75, 1);
+              puff.position.set(sx * ARM_X, ARM_Y + ARM_H / 2 - 0.04, 0);
+              g.add(puff);
+            });
+
+            break;
+          }
+
           const isPuffy =
             kind === 'spacesuit' ||
             kind === 'sweater' ||
@@ -915,6 +973,79 @@ export function Character3D({ equipped, jumping = false, className, name, gender
           const kind = item.kind ?? 'pants';
           const matB = new THREE.MeshStandardMaterial({ color });
 
+          if (kind === 'princess_skirt') {
+            // Long flowing ball-gown cone covering legs from waist to floor.
+            const gown = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.42, 0.85, 1.0, 28),
+              new THREE.MeshStandardMaterial({ color, roughness: 0.6 })
+            );
+            gown.position.set(0, -0.15, 0);
+            g.add(gown);
+            // Lighter inner petticoat peeking out at the hem.
+            const innerColor = accent ?? new THREE.Color('#ffffff');
+            const petticoat = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.72, 0.92, 0.16, 28),
+              new THREE.MeshStandardMaterial({ color: innerColor, roughness: 0.7 })
+            );
+            petticoat.position.set(0, -0.58, 0);
+            g.add(petticoat);
+            // Gold-ish sash at the waist
+            const sash = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.44, 0.44, 0.08, 24),
+              new THREE.MeshStandardMaterial({
+                color: '#fde68a',
+                metalness: 0.5,
+                roughness: 0.3,
+              })
+            );
+            sash.position.set(0, 0.3, 0);
+            g.add(sash);
+            // Front center rose decoration
+            const rose = new THREE.Mesh(
+              new THREE.SphereGeometry(0.06, 14, 12),
+              new THREE.MeshStandardMaterial({ color: '#fbbf24', metalness: 0.4 })
+            );
+            rose.position.set(0, 0.3, 0.45);
+            g.add(rose);
+            break;
+          }
+
+          if (kind === 'tutu') {
+            // 3 thin stacked tulle disks for a fluffy short ballet tutu.
+            // Legs stay visible underneath since the tutu sits high.
+            for (let i = 0; i < 3; i++) {
+              const layer = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.5 + i * 0.04, 0.34, 0.07, 24),
+                new THREE.MeshStandardMaterial({
+                  color,
+                  transparent: true,
+                  opacity: 0.88,
+                  roughness: 0.8,
+                })
+              );
+              layer.position.set(0, 0.28 - i * 0.04, 0);
+              g.add(layer);
+            }
+            // Pink ribbon tied at the waist
+            const waist = new THREE.Mesh(
+              new THREE.TorusGeometry(0.36, 0.025, 8, 24),
+              new THREE.MeshStandardMaterial({ color: '#ec4899' })
+            );
+            waist.rotation.x = Math.PI / 2;
+            waist.position.set(0, 0.32, 0);
+            g.add(waist);
+            // Skin-toned legs below (so they don't read as covered by anything)
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W, LEG_H * 0.55, LEG_W),
+                new THREE.MeshStandardMaterial({ color: SKIN })
+              );
+              leg.position.set(sx * LEG_X, LEG_Y - LEG_H * 0.225, 0);
+              g.add(leg);
+            });
+            break;
+          }
+
           if (kind === 'skirt') {
             const skirt = new THREE.Mesh(
               new THREE.CylinderGeometry(0.5, 0.32, 0.55, 18),
@@ -1168,6 +1299,138 @@ export function Character3D({ equipped, jumping = false, className, name, gender
           const kind =
             item.kind ?? (item.shape === 'crown' ? 'crown' : 'cap');
           const hatBaseY = HEAD_Y + HEAD_SIZE / 2;
+
+          if (kind === 'tiara') {
+            // Thin gold band around the forehead with 3 small spires/gems
+            // along the front arc.
+            const goldMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.7,
+              roughness: 0.2,
+            });
+            const band = new THREE.Mesh(
+              new THREE.TorusGeometry(0.34, 0.025, 12, 32),
+              goldMat
+            );
+            band.rotation.x = Math.PI / 2;
+            band.position.set(0, hatBaseY + 0.04, 0);
+            g.add(band);
+            const gemColor = accent ?? new THREE.Color('#ec4899');
+            const gemMat = new THREE.MeshStandardMaterial({
+              color: gemColor,
+              emissive: gemColor,
+              emissiveIntensity: 0.4,
+              metalness: 0.4,
+              roughness: 0.3,
+            });
+            [-0.13, 0, 0.13].forEach((dx, i) => {
+              const h = i === 1 ? 0.14 : 0.1;
+              const spire = new THREE.Mesh(
+                new THREE.ConeGeometry(0.04, h, 6),
+                goldMat.clone()
+              );
+              spire.position.set(dx, hatBaseY + 0.04 + h / 2, 0.31);
+              g.add(spire);
+              const gem = new THREE.Mesh(
+                new THREE.OctahedronGeometry(0.045),
+                gemMat.clone()
+              );
+              gem.position.set(dx, hatBaseY + 0.04 + h + 0.03, 0.31);
+              g.add(gem);
+            });
+            break;
+          }
+
+          if (kind === 'flower_crown') {
+            // Green vine wreath ringed with alternating small flowers.
+            const vineMat = new THREE.MeshStandardMaterial({ color: '#16a34a' });
+            const vine = new THREE.Mesh(
+              new THREE.TorusGeometry(0.36, 0.028, 12, 28),
+              vineMat
+            );
+            vine.rotation.x = Math.PI / 2;
+            vine.position.set(0, hatBaseY + 0.02, 0);
+            g.add(vine);
+            const palette = [
+              color,
+              accent ?? new THREE.Color('#ffffff'),
+              new THREE.Color('#fde047'),
+            ];
+            const N = 8;
+            for (let i = 0; i < N; i++) {
+              const a = (i / N) * Math.PI * 2;
+              const px = Math.cos(a) * 0.36;
+              const pz = Math.sin(a) * 0.36;
+              const pc = palette[i % palette.length];
+              const flower = new THREE.Mesh(
+                new THREE.SphereGeometry(0.07, 12, 10),
+                new THREE.MeshStandardMaterial({ color: pc, roughness: 0.7 })
+              );
+              flower.scale.set(1, 0.55, 1);
+              flower.position.set(px, hatBaseY + 0.06, pz);
+              g.add(flower);
+              const center = new THREE.Mesh(
+                new THREE.SphereGeometry(0.025, 8, 8),
+                new THREE.MeshStandardMaterial({ color: '#fde047' })
+              );
+              center.position.set(px, hatBaseY + 0.1, pz);
+              g.add(center);
+            }
+            break;
+          }
+
+          if (kind === 'princess_crown') {
+            // Tall jeweled gold crown with 5 spires arched across the front
+            // of the head — center spire tallest for a fairy-tale silhouette.
+            const goldMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.6,
+              roughness: 0.3,
+            });
+            const band = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.36, 0.38, 0.16, 24, 1, true),
+              goldMat
+            );
+            band.position.set(0, hatBaseY + 0.09, 0);
+            g.add(band);
+            // Decorative gem strip on band front
+            const gemColor = accent ?? new THREE.Color('#ec4899');
+            const gemMat = new THREE.MeshStandardMaterial({
+              color: gemColor,
+              emissive: gemColor,
+              emissiveIntensity: 0.45,
+              metalness: 0.4,
+              roughness: 0.3,
+            });
+            const bandGem = new THREE.Mesh(
+              new THREE.OctahedronGeometry(0.05),
+              gemMat.clone()
+            );
+            bandGem.position.set(0, hatBaseY + 0.09, 0.37);
+            g.add(bandGem);
+            // Spires arched along the front 180° of the band
+            const N = 5;
+            for (let i = 0; i < N; i++) {
+              const t = i / (N - 1) - 0.5;
+              const a = Math.PI / 2 + t * (Math.PI * 0.9);
+              const px = Math.cos(a) * 0.37;
+              const pz = Math.sin(a) * 0.37;
+              const h = i === Math.floor(N / 2) ? 0.32 : 0.22;
+              const spire = new THREE.Mesh(
+                new THREE.ConeGeometry(0.05, h, 5),
+                goldMat.clone()
+              );
+              spire.position.set(px, hatBaseY + 0.17 + h / 2, pz);
+              g.add(spire);
+              const tipGem = new THREE.Mesh(
+                new THREE.OctahedronGeometry(0.045),
+                gemMat.clone()
+              );
+              tipGem.position.set(px, hatBaseY + 0.17 + h + 0.02, pz);
+              g.add(tipGem);
+            }
+            break;
+          }
 
           if (kind === 'crown') {
             const mat = new THREE.MeshStandardMaterial({
@@ -1603,6 +1866,155 @@ export function Character3D({ equipped, jumping = false, className, name, gender
         case 'back': {
           const kind =
             item.kind ?? (item.shape === 'wing' ? 'wing_feather' : 'pack');
+
+          if (kind === 'fairy_wings') {
+            // 4 translucent oval petals — large upper, smaller lower —
+            // ringed by small sparkle dots so they read as pixie-style.
+            const wingMat = new THREE.MeshStandardMaterial({
+              color,
+              transparent: true,
+              opacity: 0.65,
+              side: THREE.DoubleSide,
+              roughness: 0.4,
+              metalness: 0.1,
+            });
+            [-1, 1].forEach((sx) => {
+              const upper = new THREE.Mesh(
+                new THREE.SphereGeometry(0.34, 18, 14),
+                wingMat.clone()
+              );
+              upper.scale.set(0.6, 1.05, 0.08);
+              upper.position.set(sx * 0.32, TORSO_Y + 0.18, -TORSO_D / 2 - 0.06);
+              upper.rotation.z = sx * -0.4;
+              g.add(upper);
+              const lower = new THREE.Mesh(
+                new THREE.SphereGeometry(0.24, 18, 14),
+                wingMat.clone()
+              );
+              lower.scale.set(0.55, 1.0, 0.08);
+              lower.position.set(sx * 0.28, TORSO_Y - 0.18, -TORSO_D / 2 - 0.06);
+              lower.rotation.z = sx * -0.25;
+              g.add(lower);
+            });
+            const sparkleMat = new THREE.MeshStandardMaterial({
+              color: '#ffffff',
+              emissive: '#ffffff',
+              emissiveIntensity: 0.95,
+            });
+            for (let i = 0; i < 8; i++) {
+              const a = (i / 8) * Math.PI * 2;
+              const s = new THREE.Mesh(
+                new THREE.SphereGeometry(0.022, 8, 8),
+                sparkleMat.clone()
+              );
+              s.position.set(
+                Math.cos(a) * 0.38,
+                TORSO_Y + Math.sin(a) * 0.32,
+                -TORSO_D / 2 - 0.09
+              );
+              g.add(s);
+            }
+            break;
+          }
+
+          if (kind === 'butterfly') {
+            // Two rounded upper wings and two teardrop lower wings, each
+            // with a contrast spot for the butterfly pattern.
+            const wingMat = new THREE.MeshStandardMaterial({
+              color,
+              side: THREE.DoubleSide,
+              roughness: 0.5,
+            });
+            const spotMat = accent
+              ? new THREE.MeshStandardMaterial({ color: accent })
+              : null;
+            [-1, 1].forEach((sx) => {
+              const upper = new THREE.Mesh(
+                new THREE.SphereGeometry(0.32, 18, 14),
+                wingMat.clone()
+              );
+              upper.scale.set(0.65, 0.95, 0.08);
+              upper.position.set(sx * 0.3, TORSO_Y + 0.2, -TORSO_D / 2 - 0.05);
+              upper.rotation.z = sx * -0.2;
+              g.add(upper);
+              const lower = new THREE.Mesh(
+                new THREE.SphereGeometry(0.24, 18, 14),
+                wingMat.clone()
+              );
+              lower.scale.set(0.6, 1.15, 0.08);
+              lower.position.set(sx * 0.26, TORSO_Y - 0.2, -TORSO_D / 2 - 0.05);
+              lower.rotation.z = sx * 0.1;
+              g.add(lower);
+              if (spotMat) {
+                const s1 = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.055, 10, 8),
+                  spotMat.clone()
+                );
+                s1.scale.set(1, 1, 0.1);
+                s1.position.set(sx * 0.3, TORSO_Y + 0.2, -TORSO_D / 2 - 0.08);
+                g.add(s1);
+                const s2 = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.035, 10, 8),
+                  spotMat.clone()
+                );
+                s2.scale.set(1, 1, 0.1);
+                s2.position.set(sx * 0.24, TORSO_Y - 0.24, -TORSO_D / 2 - 0.08);
+                g.add(s2);
+              }
+            });
+            break;
+          }
+
+          if (kind === 'princess_cape') {
+            // Long flowing cape from shoulders to past the knees, with a
+            // white fur collar at the top.
+            const capeMat = new THREE.MeshStandardMaterial({
+              color,
+              side: THREE.DoubleSide,
+              roughness: 0.6,
+            });
+            const cape = new THREE.Mesh(
+              new THREE.CylinderGeometry(
+                0.5,
+                0.85,
+                1.5,
+                20,
+                1,
+                true,
+                -Math.PI * 0.65,
+                Math.PI * 1.3
+              ),
+              capeMat
+            );
+            cape.position.set(0, TORSO_Y - 0.4, -TORSO_D / 2 - 0.04);
+            g.add(cape);
+            const furColor = accent ?? new THREE.Color('#ffffff');
+            const furMat = new THREE.MeshStandardMaterial({
+              color: furColor,
+              roughness: 0.95,
+            });
+            const fur = new THREE.Mesh(
+              new THREE.TorusGeometry(0.34, 0.08, 14, 24, Math.PI),
+              furMat
+            );
+            fur.rotation.x = Math.PI / 2;
+            fur.rotation.z = Math.PI;
+            fur.position.set(0, TORSO_Y + 0.35, -TORSO_D / 2 - 0.04);
+            g.add(fur);
+            // Gold clasp at the collar front
+            const clasp = new THREE.Mesh(
+              new THREE.SphereGeometry(0.05, 12, 10),
+              new THREE.MeshStandardMaterial({
+                color: '#fbbf24',
+                metalness: 0.6,
+                roughness: 0.3,
+              })
+            );
+            clasp.position.set(0, TORSO_Y + 0.32, TORSO_D / 2 + 0.06);
+            g.add(clasp);
+            break;
+          }
+
           const isWing =
             kind === 'wing_feather' ||
             kind === 'wing_angel' ||
@@ -2011,6 +2423,123 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             ? new THREE.MeshStandardMaterial({ color: accent })
             : null;
           const footY = LEG_Y - LEG_H / 2 - 0.02;
+
+          if (kind === 'glass_slipper') {
+            // Translucent shiny heels with a tiny sparkle on each toe.
+            const glassMat = new THREE.MeshStandardMaterial({
+              color,
+              transparent: true,
+              opacity: 0.55,
+              metalness: 0.6,
+              roughness: 0.05,
+            });
+            const sparkleMat = new THREE.MeshStandardMaterial({
+              color: '#ffffff',
+              emissive: '#ffffff',
+              emissiveIntensity: 1.0,
+            });
+            [-1, 1].forEach((sx) => {
+              const sole = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.07, 0.36),
+                glassMat.clone()
+              );
+              sole.position.set(sx * LEG_X, footY - 0.04, 0.06);
+              g.add(sole);
+              const heel = new THREE.Mesh(
+                new THREE.BoxGeometry(0.07, 0.13, 0.07),
+                glassMat.clone()
+              );
+              heel.position.set(sx * LEG_X, footY - 0.13, -0.07);
+              g.add(heel);
+              const sparkle = new THREE.Mesh(
+                new THREE.SphereGeometry(0.02, 10, 10),
+                sparkleMat.clone()
+              );
+              sparkle.position.set(sx * LEG_X + 0.03, footY - 0.01, 0.18);
+              g.add(sparkle);
+            });
+            break;
+          }
+
+          if (kind === 'ballet') {
+            // Soft pink flats with crossed ribbons up the ankle and a bow.
+            const ribbonMat = accent
+              ? new THREE.MeshStandardMaterial({ color: accent })
+              : new THREE.MeshStandardMaterial({ color });
+            [-1, 1].forEach((sx) => {
+              const sole = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.09, 0.34),
+                mat.clone()
+              );
+              sole.position.set(sx * LEG_X, footY - 0.02, 0.06);
+              g.add(sole);
+              const r1 = new THREE.Mesh(
+                new THREE.BoxGeometry(0.022, 0.2, 0.022),
+                ribbonMat.clone()
+              );
+              r1.rotation.z = sx * 0.45;
+              r1.position.set(sx * LEG_X, footY + 0.08, 0.08);
+              g.add(r1);
+              const r2 = new THREE.Mesh(
+                new THREE.BoxGeometry(0.022, 0.2, 0.022),
+                ribbonMat.clone()
+              );
+              r2.rotation.z = -sx * 0.45;
+              r2.position.set(sx * LEG_X, footY + 0.08, 0.08);
+              g.add(r2);
+              const bowCenter = new THREE.Mesh(
+                new THREE.BoxGeometry(0.04, 0.04, 0.04),
+                ribbonMat.clone()
+              );
+              bowCenter.position.set(sx * LEG_X, footY + 0.18, 0.08);
+              g.add(bowCenter);
+              [-1, 1].forEach((sy) => {
+                const petal = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.07, 0.05, 0.025),
+                  ribbonMat.clone()
+                );
+                petal.position.set(sx * LEG_X + sy * 0.05, footY + 0.18, 0.08);
+                g.add(petal);
+              });
+            });
+            break;
+          }
+
+          if (kind === 'ribbon_heel') {
+            // Small heels with a contrasting bow on the toe.
+            const bowMat = accent
+              ? new THREE.MeshStandardMaterial({ color: accent })
+              : new THREE.MeshStandardMaterial({ color });
+            [-1, 1].forEach((sx) => {
+              const sole = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.06, 0.34),
+                mat.clone()
+              );
+              sole.position.set(sx * LEG_X, footY - 0.03, 0.06);
+              g.add(sole);
+              const heel = new THREE.Mesh(
+                new THREE.BoxGeometry(0.06, 0.1, 0.08),
+                mat.clone()
+              );
+              heel.position.set(sx * LEG_X, footY - 0.11, -0.06);
+              g.add(heel);
+              const bowCenter = new THREE.Mesh(
+                new THREE.BoxGeometry(0.045, 0.045, 0.045),
+                bowMat.clone()
+              );
+              bowCenter.position.set(sx * LEG_X, footY + 0.04, 0.18);
+              g.add(bowCenter);
+              [-1, 1].forEach((sy) => {
+                const petal = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.08, 0.06, 0.03),
+                  bowMat.clone()
+                );
+                petal.position.set(sx * LEG_X + sy * 0.06, footY + 0.04, 0.18);
+                g.add(petal);
+              });
+            });
+            break;
+          }
 
           [-1, 1].forEach((sx) => {
             if (
@@ -2559,6 +3088,83 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             point.rotation.y = Math.PI / 4;
             point.position.set(cx, cy - 0.1, cz);
             g.add(point);
+          } else if (kind === 'wand') {
+            // Gold handle with a glowing star tip — a fairy magic wand.
+            const handleMat = new THREE.MeshStandardMaterial({
+              color: '#fde68a',
+              metalness: 0.5,
+              roughness: 0.3,
+            });
+            const handle = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.015, 0.015, 0.24, 8),
+              handleMat
+            );
+            handle.position.set(cx, cy - 0.06, cz);
+            g.add(handle);
+            const wandShape = new THREE.Shape();
+            const outerR = 0.085;
+            const innerR = 0.036;
+            for (let i = 0; i < 10; i++) {
+              const r = i % 2 === 0 ? outerR : innerR;
+              const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+              const px = Math.cos(a) * r;
+              const py = Math.sin(a) * r;
+              if (i === 0) wandShape.moveTo(px, py);
+              else wandShape.lineTo(px, py);
+            }
+            wandShape.closePath();
+            const wandGeo = new THREE.ExtrudeGeometry(wandShape, {
+              depth: 0.025,
+              bevelEnabled: false,
+            });
+            const tip = new THREE.Mesh(wandGeo, shinyMat);
+            tip.position.set(cx, cy + 0.1, cz);
+            g.add(tip);
+          } else if (kind === 'ribbon_bow') {
+            // Classic ribbon bow: center knot, two side loops, two tails.
+            const center = new THREE.Mesh(
+              new THREE.BoxGeometry(0.06, 0.06, 0.05),
+              shinyMat
+            );
+            center.position.set(cx, cy + 0.02, cz);
+            g.add(center);
+            [-1, 1].forEach((sx) => {
+              const loop = new THREE.Mesh(
+                new THREE.BoxGeometry(0.1, 0.08, 0.04),
+                shinyMat.clone()
+              );
+              loop.position.set(cx + sx * 0.08, cy + 0.02, cz);
+              g.add(loop);
+              const tail = new THREE.Mesh(
+                new THREE.BoxGeometry(0.04, 0.13, 0.03),
+                shinyMat.clone()
+              );
+              tail.rotation.z = sx * 0.3;
+              tail.position.set(cx + sx * 0.04, cy - 0.1, cz);
+              g.add(tail);
+            });
+          } else if (kind === 'rose') {
+            // Layered rose: 3 stacked half-spheres + a green leaf below.
+            const petalMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.5,
+            });
+            [0.1, 0.075, 0.05].forEach((r, i) => {
+              const petal = new THREE.Mesh(
+                new THREE.SphereGeometry(r, 14, 12),
+                petalMat.clone()
+              );
+              petal.scale.set(1, 0.7, 1);
+              petal.position.set(cx, cy + i * 0.028, cz + i * 0.012);
+              g.add(petal);
+            });
+            const leaf = new THREE.Mesh(
+              new THREE.BoxGeometry(0.09, 0.04, 0.02),
+              new THREE.MeshStandardMaterial({ color: '#22c55e' })
+            );
+            leaf.rotation.z = 0.5;
+            leaf.position.set(cx - 0.07, cy - 0.06, cz);
+            g.add(leaf);
           } else {
             // star
             const shape = new THREE.Shape();
