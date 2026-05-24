@@ -7,10 +7,13 @@ type Props = {
   jumping?: boolean;
   className?: string;
   name?: string;
+  gender?: 'boy' | 'girl';
 };
 
 const SKIN = '#ffe1c6';
 const HAIR = '#5b3a1f';
+const HAIR_GIRL = '#6b3f1c';
+const BOW = '#ec4899';
 const EYE_WHITE = '#ffffff';
 const EYE_DARK = '#1f2937';
 const CHEEK = '#fca5a5';
@@ -37,12 +40,13 @@ const LEG_Y = 0.0;
 
 const FACE_Z = HEAD_SIZE / 2 + 0.001;
 
-export function Character3D({ equipped, jumping = false, className, name }: Props) {
+export function Character3D({ equipped, jumping = false, className, name, gender = 'boy' }: Props) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const charRef = useRef<THREE.Group | null>(null);
   const slotGroupsRef = useRef<Record<Slot, THREE.Group>>({} as any);
   const limbPivotsRef = useRef<{ arms: [THREE.Group, THREE.Group]; legs: [THREE.Group, THREE.Group] } | null>(null);
   const faceFeaturesRef = useRef<THREE.Object3D[]>([]);
+  const hairGroupRef = useRef<THREE.Group | null>(null);
   const jumpRef = useRef(false);
   const [failed, setFailed] = useState<string | null>(null);
 
@@ -124,29 +128,11 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
     head.position.set(0, HEAD_Y, 0);
     char.add(head);
 
-    // Hair: rounded cap + bangs that hang lower over forehead
-    const hairMat = new THREE.MeshStandardMaterial({ color: HAIR, roughness: 0.95 });
-    const hairTop = new THREE.Mesh(
-      new THREE.BoxGeometry(HEAD_SIZE + 0.06, 0.28, HEAD_SIZE + 0.06),
-      hairMat
-    );
-    hairTop.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.04, 0);
-    char.add(hairTop);
-    const bangs = new THREE.Mesh(
-      new THREE.BoxGeometry(HEAD_SIZE + 0.07, 0.18, 0.12),
-      hairMat
-    );
-    bangs.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.18, FACE_Z + 0.04);
-    char.add(bangs);
-    // Side hair tufts on each side of the head
-    [-1, 1].forEach((sx) => {
-      const tuft = new THREE.Mesh(
-        new THREE.BoxGeometry(0.08, 0.32, HEAD_SIZE * 0.85),
-        hairMat
-      );
-      tuft.position.set(sx * (HEAD_SIZE / 2 + 0.02), HEAD_Y + 0.05, 0);
-      char.add(tuft);
-    });
+    // Hair: container group — gender-specific meshes are built in a
+    // separate effect so switching gender doesn't need a full WebGL reinit.
+    const hairGroup = new THREE.Group();
+    hairGroupRef.current = hairGroup;
+    char.add(hairGroup);
 
     // ---- Eyes: BIG round eyes (kid-like) ----
     // Every face feature is collected so the mask slot can hide them all
@@ -2661,6 +2647,94 @@ export function Character3D({ equipped, jumping = false, className, name }: Prop
       });
     }
   }, [equipped]);
+
+  useEffect(() => {
+    const hairGroup = hairGroupRef.current;
+    if (!hairGroup) return;
+    while (hairGroup.children.length) {
+      const c = hairGroup.children.pop()!;
+      (c as any).geometry?.dispose?.();
+      (c as any).material?.dispose?.();
+    }
+
+    const hairColor = gender === 'girl' ? HAIR_GIRL : HAIR;
+    const hairMat = new THREE.MeshStandardMaterial({ color: hairColor, roughness: 0.95 });
+
+    const hairTop = new THREE.Mesh(
+      new THREE.BoxGeometry(HEAD_SIZE + 0.06, 0.28, HEAD_SIZE + 0.06),
+      hairMat
+    );
+    hairTop.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.04, 0);
+    hairGroup.add(hairTop);
+
+    const bangs = new THREE.Mesh(
+      new THREE.BoxGeometry(HEAD_SIZE + 0.07, 0.18, 0.12),
+      hairMat.clone()
+    );
+    bangs.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.18, FACE_Z + 0.04);
+    hairGroup.add(bangs);
+
+    if (gender === 'girl') {
+      // Long hair down the back of the head + twin pigtails on the sides,
+      // tied with a pink bow on top to read clearly as a girl character.
+      const backHair = new THREE.Mesh(
+        new THREE.BoxGeometry(HEAD_SIZE + 0.08, HEAD_SIZE * 0.95, 0.16),
+        hairMat.clone()
+      );
+      backHair.position.set(0, HEAD_Y - 0.12, -HEAD_SIZE / 2 - 0.04);
+      hairGroup.add(backHair);
+
+      [-1, 1].forEach((sx) => {
+        const sideStrand = new THREE.Mesh(
+          new THREE.BoxGeometry(0.14, HEAD_SIZE * 1.05, HEAD_SIZE * 0.85),
+          hairMat.clone()
+        );
+        sideStrand.position.set(sx * (HEAD_SIZE / 2 + 0.05), HEAD_Y - 0.18, 0);
+        hairGroup.add(sideStrand);
+
+        const pigtail = new THREE.Mesh(
+          new THREE.SphereGeometry(0.13, 16, 16),
+          hairMat.clone()
+        );
+        pigtail.position.set(sx * (HEAD_SIZE / 2 + 0.22), HEAD_Y - 0.42, 0);
+        pigtail.scale.set(1, 1.6, 1);
+        hairGroup.add(pigtail);
+
+        const tie = new THREE.Mesh(
+          new THREE.BoxGeometry(0.08, 0.06, 0.16),
+          new THREE.MeshStandardMaterial({ color: BOW })
+        );
+        tie.position.set(sx * (HEAD_SIZE / 2 + 0.18), HEAD_Y - 0.22, 0);
+        hairGroup.add(tie);
+      });
+
+      const bowMat = new THREE.MeshStandardMaterial({ color: BOW });
+      const bowCenter = new THREE.Mesh(
+        new THREE.BoxGeometry(0.08, 0.08, 0.08),
+        bowMat
+      );
+      bowCenter.position.set(0, HEAD_Y + HEAD_SIZE / 2 + 0.14, 0.04);
+      hairGroup.add(bowCenter);
+      [-1, 1].forEach((sx) => {
+        const petal = new THREE.Mesh(
+          new THREE.BoxGeometry(0.16, 0.12, 0.06),
+          bowMat.clone()
+        );
+        petal.position.set(sx * 0.12, HEAD_Y + HEAD_SIZE / 2 + 0.14, 0.04);
+        hairGroup.add(petal);
+      });
+    } else {
+      // Boy: short side tufts on each side of the head (original look).
+      [-1, 1].forEach((sx) => {
+        const tuft = new THREE.Mesh(
+          new THREE.BoxGeometry(0.08, 0.32, HEAD_SIZE * 0.85),
+          hairMat.clone()
+        );
+        tuft.position.set(sx * (HEAD_SIZE / 2 + 0.02), HEAD_Y + 0.05, 0);
+        hairGroup.add(tuft);
+      });
+    }
+  }, [gender]);
 
   useEffect(() => {
     if (jumping) jumpRef.current = true;

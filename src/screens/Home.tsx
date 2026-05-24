@@ -1,8 +1,39 @@
 import { useState } from 'react';
 import { Character3D } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
-import { useCharName, useInventory, useProgress, useSuperMode, useWallet } from '../lib/state';
+import {
+  useCharGender,
+  useCharName,
+  useInventory,
+  useProgress,
+  useSuperMode,
+  useWallet,
+} from '../lib/state';
 import { getWeek, LIST_LABEL } from '../data/words';
+import type { Slot } from '../data/items';
+import type { CharGender } from '../lib/storage';
+
+// Curated 3-per-slot bundles applied when the user picks a gender so the
+// character immediately reads as that gender. Items are added to inventory
+// (kept forever) and the first id in each slot is equipped.
+const GENDER_BUNDLES: Record<CharGender, Partial<Record<Slot, string[]>>> = {
+  girl: {
+    top: ['top.pink_tee', 'top.purple_star', 'top.basic_white'],
+    bottom: ['bottom.pink_skirt', 'bottom.shorts', 'bottom.plaid'],
+    hat: ['hat.beanie_pink', 'hat.crown', 'hat.sun'],
+    back: ['back.kinder', 'back.angel_wings', 'back.star_wings'],
+    shoes: ['shoes.pink', 'shoes.sandals', 'shoes.snow'],
+    charm: ['charm.heart', 'charm.star', 'charm.cherry'],
+  },
+  boy: {
+    top: ['top.red_hoodie', 'top.blue_stripe', 'top.basic_white'],
+    bottom: ['bottom.jeans', 'bottom.shorts', 'bottom.green_track'],
+    hat: ['hat.cap', 'hat.cap_blue', 'hat.cowboy'],
+    back: ['back.backpack', 'back.jet_pack', 'back.cape_red'],
+    shoes: ['shoes.sneakers', 'shoes.boots', 'shoes.red_sport'],
+    charm: ['charm.star', 'charm.lightning', 'charm.coin'],
+  },
+};
 
 type Props = {
   onLearn: () => void;
@@ -14,11 +45,13 @@ type Props = {
 export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
   const { progress, dayDone } = useProgress();
   const { wallet } = useWallet();
-  const { inventory } = useInventory();
+  const { inventory, addItem, equip } = useInventory();
   const { name, setName } = useCharName();
+  const { gender, setGender } = useCharGender();
   const { superMode, toggleSuperMode } = useSuperMode();
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState(name);
+  const [editingGender, setEditingGender] = useState(false);
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
@@ -32,6 +65,17 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
   const saveName = () => {
     setName(draftName.trim().slice(0, 16));
     setEditingName(false);
+  };
+
+  const pickGender = (g: CharGender) => {
+    setGender(g);
+    const bundle = GENDER_BUNDLES[g];
+    (Object.keys(bundle) as Slot[]).forEach((slot) => {
+      const ids = bundle[slot] ?? [];
+      ids.forEach((id) => addItem(id));
+      if (ids[0]) equip(slot, ids[0]);
+    });
+    setEditingGender(false);
   };
 
   return (
@@ -54,13 +98,20 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
           >
             ✏️ 캐릭터 이름 입력
           </button>
+          <button
+            onClick={() => setEditingGender(true)}
+            className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700 active:scale-95 hover:bg-blue-50 transition"
+            title="캐릭터 성별"
+          >
+            {gender === 'girl' ? '👧' : '🧒'} 캐릭터 성별
+          </button>
         </div>
       </header>
 
       <main className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 px-6 pb-6">
         <section className="bg-white/70 backdrop-blur rounded-3xl shadow-lg p-4 flex flex-col items-center justify-center min-h-[340px] relative">
           <div className="w-full max-w-[420px] aspect-square mx-auto">
-            <Character3D equipped={inventory.equipped} name={name} />
+            <Character3D equipped={inventory.equipped} name={name} gender={gender} />
           </div>
           <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-500 bg-white/80 rounded-full px-3 py-1 shadow pointer-events-none">
             👆 캐릭터를 끌어서 돌려보세요
@@ -132,6 +183,49 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
           </div>
         </section>
       </main>
+
+      {editingGender && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm">
+            <div className="text-xl font-extrabold text-slate-800 mb-1">
+              캐릭터 성별
+            </div>
+            <div className="text-sm text-slate-500 mb-4">
+              선택하면 어울리는 아이템이 자동으로 옷장에 추가돼요.
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={() => pickGender('girl')}
+                className={`rounded-2xl py-5 font-extrabold text-lg active:scale-95 border-4 transition ${
+                  gender === 'girl'
+                    ? 'bg-pink-200 border-pink-400 text-pink-900'
+                    : 'bg-pink-50 border-transparent text-pink-700 hover:bg-pink-100'
+                }`}
+              >
+                <div className="text-3xl">👧</div>
+                여자
+              </button>
+              <button
+                onClick={() => pickGender('boy')}
+                className={`rounded-2xl py-5 font-extrabold text-lg active:scale-95 border-4 transition ${
+                  gender === 'boy'
+                    ? 'bg-sky-200 border-sky-400 text-sky-900'
+                    : 'bg-sky-50 border-transparent text-sky-700 hover:bg-sky-100'
+                }`}
+              >
+                <div className="text-3xl">🧒</div>
+                남자
+              </button>
+            </div>
+            <button
+              onClick={() => setEditingGender(false)}
+              className="mt-4 w-full bg-slate-200 hover:bg-slate-300 active:scale-95 rounded-xl py-2 font-bold text-slate-700"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
 
       {editingName && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">

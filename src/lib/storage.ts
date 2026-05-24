@@ -22,7 +22,10 @@ const KEYS = {
   parentPin: 'sw.parentPin.v1',
   charName: 'sw.charName.v1',
   superMode: 'sw.superMode.v1',
+  charGender: 'sw.charGender.v1',
 };
+
+export type CharGender = 'boy' | 'girl';
 
 const DEFAULT_PROGRESS: Progress = {
   currentWeek: 'L1-1',
@@ -107,6 +110,22 @@ export const storage = {
   setCharName: (name: string) => {
     try {
       localStorage.setItem(KEYS.charName, name);
+    } catch {
+      /* ignore */
+    }
+  },
+
+  getCharGender: (): CharGender => {
+    try {
+      const v = localStorage.getItem(KEYS.charGender);
+      return v === 'girl' ? 'girl' : 'boy';
+    } catch {
+      return 'boy';
+    }
+  },
+  setCharGender: (g: CharGender) => {
+    try {
+      localStorage.setItem(KEYS.charGender, g);
     } catch {
       /* ignore */
     }

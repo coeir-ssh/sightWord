@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { storage, dayDoneArray, markDayDone, type Progress, type Wallet, type Inventory } from './storage';
+import { storage, dayDoneArray, markDayDone, type Progress, type Wallet, type Inventory, type CharGender } from './storage';
 import type { WeekId } from '../data/words';
 import type { Slot } from '../data/items';
 
@@ -69,6 +69,15 @@ export function useCharName() {
     storage.setCharName(next);
   }, []);
   return { name, setName: update };
+}
+
+export function useCharGender() {
+  const [gender, setGender] = useState<CharGender>(() => storage.getCharGender());
+  const update = useCallback((next: CharGender) => {
+    setGender(next);
+    storage.setCharGender(next);
+  }, []);
+  return { gender, setGender: update };
 }
 
 export function useSuperMode() {
