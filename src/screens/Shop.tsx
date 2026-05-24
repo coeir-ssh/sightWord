@@ -22,7 +22,7 @@ export function Shop({ onBack }: Props) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-yellow-200 flex flex-col">
-      <header className="flex items-center justify-between p-4">
+      <header className="sticky top-0 z-30 flex items-center justify-between p-4 bg-gradient-to-b from-yellow-100 to-yellow-100/95 backdrop-blur shadow-sm">
         <button
           onClick={onBack}
           className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700"
