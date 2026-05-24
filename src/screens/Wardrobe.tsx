@@ -2,13 +2,14 @@ import { Character3D } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
 import { ItemTile } from '../components/ItemTile';
 import { getItem, ITEMS, SLOT_LABEL, SLOT_ORDER, type Slot } from '../data/items';
-import { useCharName, useInventory, useWallet } from '../lib/state';
+import { useCharGender, useCharName, useInventory, useWallet } from '../lib/state';
 
 type Props = { onBack: () => void };
 
 export function Wardrobe({ onBack }: Props) {
   const { wallet } = useWallet();
-  const { inventory, equip, unequip } = useInventory();
+  const { gender } = useCharGender();
+  const { inventory, equip, unequip } = useInventory(gender);
   const { name: charName } = useCharName();
 
   const toggle = (slot: Slot, id: string) => {
@@ -28,7 +29,12 @@ export function Wardrobe({ onBack }: Props) {
         >
           ← 홈
         </button>
-        <div className="text-pink-900 font-extrabold text-3xl">🎒 옷장</div>
+        <div className="text-pink-900 font-extrabold text-3xl">
+          🎒 옷장
+          <span className="ml-2 align-middle text-base font-bold bg-white/80 text-slate-700 rounded-full px-2 py-0.5">
+            {gender === 'girl' ? '👧 여자' : '🧒 남자'}
+          </span>
+        </div>
         <CoinHUD coins={wallet.coins} />
       </header>
 
@@ -38,7 +44,7 @@ export function Wardrobe({ onBack }: Props) {
             👀 미리보기
           </div>
           <div className="bg-white rounded-2xl border-2 border-slate-100 w-[180px] aspect-square mx-auto overflow-hidden">
-            <Character3D equipped={inventory.equipped} name={charName} />
+            <Character3D equipped={inventory.equipped} name={charName} gender={gender} />
           </div>
           <div className="hidden lg:block text-center text-xs text-slate-500 mt-2">
             아이템을 누르면 바로 반영돼요

@@ -1,13 +1,15 @@
 import { CoinHUD } from '../components/CoinHUD';
 import { ItemTile } from '../components/ItemTile';
-import { ITEMS, SLOT_LABEL, SLOT_ORDER, type Slot } from '../data/items';
-import { useInventory, useWallet } from '../lib/state';
+import { itemsForGender, SLOT_LABEL, SLOT_ORDER, type Slot } from '../data/items';
+import { useCharGender, useInventory, useWallet } from '../lib/state';
 
 type Props = { onBack: () => void };
 
 export function Shop({ onBack }: Props) {
   const { wallet, spendCoins } = useWallet();
-  const { inventory, addItem } = useInventory();
+  const { gender } = useCharGender();
+  const { inventory, addItem } = useInventory(gender);
+  const visibleItems = itemsForGender(gender);
 
   const buy = (id: string, price: number) => {
     if (inventory.owned.includes(id)) return;
@@ -29,7 +31,12 @@ export function Shop({ onBack }: Props) {
         >
           ← 홈
         </button>
-        <div className="text-yellow-900 font-extrabold text-3xl">🛒 상점</div>
+        <div className="text-yellow-900 font-extrabold text-3xl">
+          🛒 상점
+          <span className="ml-2 align-middle text-base font-bold bg-white/80 text-slate-700 rounded-full px-2 py-0.5">
+            {gender === 'girl' ? '👧 여자' : '🧒 남자'}
+          </span>
+        </div>
         <CoinHUD coins={wallet.coins} />
       </header>
 
@@ -38,7 +45,7 @@ export function Shop({ onBack }: Props) {
           <section key={slot} className="bg-white/70 backdrop-blur rounded-3xl shadow p-4">
             <div className="text-xl font-extrabold text-slate-700 mb-3">{SLOT_LABEL[slot]}</div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {ITEMS.filter((i) => i.slot === slot).map((item) => (
+              {visibleItems.filter((i) => i.slot === slot).map((item) => (
                 <ItemTile
                   key={item.id}
                   item={item}

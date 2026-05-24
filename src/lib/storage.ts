@@ -1,5 +1,7 @@
-import { DEFAULT_ITEMS, DEFAULT_OWNED, type Slot } from '../data/items';
+import { DEFAULT_ITEMS, DEFAULT_OWNED, type CharGender, type Slot } from '../data/items';
 import { WEEK_IDS, type WeekId } from '../data/words';
+
+export type { CharGender } from '../data/items';
 
 export type Progress = {
   currentWeek: WeekId;
@@ -15,17 +17,21 @@ export type Inventory = {
   equipped: Record<Slot, string>;
 };
 
+// Per-gender inventories — items bought as the boy never appear in the
+// girl's wardrobe and vice-versa.
+export type Inventories = Record<CharGender, Inventory>;
+
 const KEYS = {
   progress: 'sw.progress.v2',
   wallet: 'sw.wallet.v6',
-  inventory: 'sw.inventory.v2',
+  // Legacy single-inventory key. Read once for migration, then ignored.
+  inventoryLegacy: 'sw.inventory.v2',
+  inventories: 'sw.inventories.v1',
   parentPin: 'sw.parentPin.v1',
   charName: 'sw.charName.v1',
   superMode: 'sw.superMode.v1',
   charGender: 'sw.charGender.v1',
 };
-
-export type CharGender = 'boy' | 'girl';
 
 const DEFAULT_PROGRESS: Progress = {
   currentWeek: 'L1-1',
@@ -35,20 +41,15 @@ const DEFAULT_PROGRESS: Progress = {
 
 const DEFAULT_WALLET: Wallet = { coins: 1000 };
 
-const DEFAULT_INVENTORY: Inventory = {
+const makeDefaultInventory = (): Inventory => ({
   owned: [...DEFAULT_OWNED],
   equipped: { ...DEFAULT_ITEMS },
-};
+});
 
-function read<T>(key: string, fallback: T): T {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    return { ...fallback, ...JSON.parse(raw) } as T;
-  } catch {
-    return fallback;
-  }
-}
+const makeDefaultInventories = (): Inventories => ({
+  boy: makeDefaultInventory(),
+  girl: makeDefaultInventory(),
+});
 
 function write<T>(key: string, value: T) {
   try {
@@ -60,30 +61,57 @@ function write<T>(key: string, value: T) {
 
 export const storage = {
   loadProgress: (): Progress => {
-    const p = read<Progress>(KEYS.progress, DEFAULT_PROGRESS);
-    if (!WEEK_IDS.includes(p.currentWeek as WeekId)) {
-      p.currentWeek = 'L1-1';
+    try {
+      const raw = localStorage.getItem(KEYS.progress);
+      const p = raw
+        ? ({ ...DEFAULT_PROGRESS, ...JSON.parse(raw) } as Progress)
+        : DEFAULT_PROGRESS;
+      if (!WEEK_IDS.includes(p.currentWeek as WeekId)) {
+        p.currentWeek = 'L1-1';
+      }
+      return p;
+    } catch {
+      return DEFAULT_PROGRESS;
     }
-    return p;
   },
   saveProgress: (p: Progress) => write(KEYS.progress, p),
 
-  loadWallet: (): Wallet => read(KEYS.wallet, DEFAULT_WALLET),
+  loadWallet: (): Wallet => {
+    try {
+      const raw = localStorage.getItem(KEYS.wallet);
+      return raw ? ({ ...DEFAULT_WALLET, ...JSON.parse(raw) } as Wallet) : DEFAULT_WALLET;
+    } catch {
+      return DEFAULT_WALLET;
+    }
+  },
   saveWallet: (w: Wallet) => write(KEYS.wallet, w),
 
-  loadInventory: (): Inventory => {
-    const inv = read<Inventory>(KEYS.inventory, DEFAULT_INVENTORY);
-    let changed = false;
-    for (const id of DEFAULT_OWNED) {
-      if (!inv.owned.includes(id)) {
-        inv.owned.push(id);
-        changed = true;
+  loadInventories: (): Inventories => {
+    try {
+      const raw = localStorage.getItem(KEYS.inventories);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<Inventories>;
+        return {
+          boy: { ...makeDefaultInventory(), ...(parsed.boy ?? {}) },
+          girl: { ...makeDefaultInventory(), ...(parsed.girl ?? {}) },
+        };
       }
+      // Migrate from the old single-inventory format → put it under boy
+      // (the boy was the implicit default before the gender feature).
+      const legacy = localStorage.getItem(KEYS.inventoryLegacy);
+      if (legacy) {
+        const old = JSON.parse(legacy) as Partial<Inventory>;
+        return {
+          boy: { ...makeDefaultInventory(), ...old },
+          girl: makeDefaultInventory(),
+        };
+      }
+    } catch {
+      /* fall through */
     }
-    if (changed) write(KEYS.inventory, inv);
-    return inv;
+    return makeDefaultInventories();
   },
-  saveInventory: (i: Inventory) => write(KEYS.inventory, i),
+  saveInventories: (i: Inventories) => write(KEYS.inventories, i),
 
   getParentPin: (): string => {
     try {

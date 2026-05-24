@@ -10,8 +10,8 @@ import {
   useWallet,
 } from '../lib/state';
 import { getWeek, LIST_LABEL } from '../data/words';
-import type { Slot } from '../data/items';
-import type { CharGender } from '../lib/storage';
+import type { CharGender, Slot } from '../data/items';
+import { storage } from '../lib/storage';
 
 // Curated 3-per-slot bundles applied when the user picks a gender so the
 // character immediately reads as that gender. Items are added to inventory
@@ -89,9 +89,9 @@ type Props = {
 export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
   const { progress, dayDone } = useProgress();
   const { wallet } = useWallet();
-  const { inventory, addItem, equip } = useInventory();
   const { name, setName } = useCharName();
   const { gender, setGender } = useCharGender();
+  const { inventory, addItem, equip } = useInventory(gender);
   const { superMode, toggleSuperMode } = useSuperMode();
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState(name);
@@ -113,12 +113,18 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
 
   const pickGender = (g: CharGender) => {
     setGender(g);
-    const bundle = GENDER_BUNDLES[g];
-    (Object.keys(bundle) as Slot[]).forEach((slot) => {
-      const ids = bundle[slot] ?? [];
-      ids.forEach((id) => addItem(id));
-      if (ids[0]) equip(slot, ids[0]);
-    });
+    // Seed the bundle only on the first pick for this gender. Re-picking
+    // later just switches the active character without overwriting items
+    // they've equipped or items they bought in the shop afterwards.
+    const targetInv = storage.loadInventories()[g];
+    if (targetInv.owned.length === 0) {
+      const bundle = GENDER_BUNDLES[g];
+      (Object.keys(bundle) as Slot[]).forEach((slot) => {
+        const ids = bundle[slot] ?? [];
+        ids.forEach((id) => addItem(id, g));
+        if (ids[0]) equip(slot, ids[0], g);
+      });
+    }
     setEditingGender(false);
   };
 

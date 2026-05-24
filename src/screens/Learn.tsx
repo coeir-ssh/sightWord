@@ -4,7 +4,7 @@ import { CoinFly } from '../components/CoinFly';
 import { WordStage, type Stage } from '../components/WordStage';
 import { Character3D } from '../components/Character3D';
 import { Coin } from '../components/Coin';
-import { useCharName, useInventory, useProgress, useSuperMode, useWallet } from '../lib/state';
+import { useCharGender, useCharName, useInventory, useProgress, useSuperMode, useWallet } from '../lib/state';
 import { getWeek, WEEK_IDS } from '../data/words';
 import { shuffle } from '../lib/shuffle';
 
@@ -36,7 +36,8 @@ const PER_WORD_COINS = 5;
 export function Learn({ onBack }: Props) {
   const { progress, dayDone, completeDay, setWeekAndDay } = useProgress();
   const { wallet, addCoins } = useWallet();
-  const { inventory } = useInventory();
+  const { gender } = useCharGender();
+  const { inventory } = useInventory(gender);
   const { name: charName } = useCharName();
   const { superMode } = useSuperMode();
   const multiplier = superMode ? 2 : 1;
@@ -143,7 +144,7 @@ export function Learn({ onBack }: Props) {
         </div>
 
         <div className="w-64 h-64">
-          <Character3D equipped={inventory.equipped} jumping name={charName} />
+          <Character3D equipped={inventory.equipped} jumping name={charName} gender={gender} />
         </div>
         <button
           onClick={onBack}

@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
-import { storage, dayDoneArray, markDayDone, type Progress, type Wallet, type Inventory, type CharGender } from './storage';
+import { storage, dayDoneArray, markDayDone, type Progress, type Wallet, type Inventories } from './storage';
 import type { WeekId } from '../data/words';
-import type { Slot } from '../data/items';
+import { itemAllowedFor, type CharGender, type Slot } from '../data/items';
 
 export function useProgress() {
   const [progress, setProgress] = useState<Progress>(() => storage.loadProgress());
@@ -45,21 +45,59 @@ export function useWallet() {
   return { wallet, addCoins, spendCoins };
 }
 
-export function useInventory() {
-  const [inv, setInv] = useState<Inventory>(() => storage.loadInventory());
-  useEffect(() => storage.saveInventory(inv), [inv]);
+// The active gender selects which sub-inventory to expose; mutating helpers
+// accept an optional `g` override so a single render can seed the *other*
+// gender's wardrobe (used by the gender-pick flow that runs setGender(g)
+// before this hook re-reads the active gender on the next render).
+export function useInventory(gender: CharGender) {
+  const [all, setAll] = useState<Inventories>(() => storage.loadInventories());
+  useEffect(() => storage.saveInventories(all), [all]);
 
-  const addItem = useCallback((id: string) => {
-    setInv((i) => (i.owned.includes(id) ? i : { ...i, owned: [...i.owned, id] }));
-  }, []);
-  const equip = useCallback((slot: Slot, id: string) => {
-    setInv((i) => ({ ...i, equipped: { ...i.equipped, [slot]: id } }));
-  }, []);
-  const unequip = useCallback((slot: Slot) => {
-    setInv((i) => ({ ...i, equipped: { ...i.equipped, [slot]: '' } }));
-  }, []);
+  // Hide cross-gender items even if they ended up in this gender's bag
+  // (e.g. via the one-time legacy-inventory migration that lumped every
+  // pre-feature purchase under 'boy'). The raw stored data is preserved.
+  const raw = all[gender];
+  const filteredOwned = raw.owned.filter((id) => itemAllowedFor(id, gender));
+  const filteredEquipped = (Object.keys(raw.equipped) as Slot[]).reduce(
+    (acc, slot) => {
+      const id = raw.equipped[slot];
+      acc[slot] = id && itemAllowedFor(id, gender) ? id : '';
+      return acc;
+    },
+    {} as Record<Slot, string>
+  );
+  const inventory = { owned: filteredOwned, equipped: filteredEquipped };
 
-  return { inventory: inv, addItem, equip, unequip };
+  const addItem = useCallback(
+    (id: string, g: CharGender = gender) => {
+      setAll((cur) => {
+        const inv = cur[g];
+        if (inv.owned.includes(id)) return cur;
+        return { ...cur, [g]: { ...inv, owned: [...inv.owned, id] } };
+      });
+    },
+    [gender]
+  );
+  const equip = useCallback(
+    (slot: Slot, id: string, g: CharGender = gender) => {
+      setAll((cur) => ({
+        ...cur,
+        [g]: { ...cur[g], equipped: { ...cur[g].equipped, [slot]: id } },
+      }));
+    },
+    [gender]
+  );
+  const unequip = useCallback(
+    (slot: Slot, g: CharGender = gender) => {
+      setAll((cur) => ({
+        ...cur,
+        [g]: { ...cur[g], equipped: { ...cur[g].equipped, [slot]: '' } },
+      }));
+    },
+    [gender]
+  );
+
+  return { inventory, addItem, equip, unequip };
 }
 
 export function useCharName() {
