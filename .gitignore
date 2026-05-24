@@ -10,3 +10,7 @@ dist-ssr
 
 # Audio is generated in GitHub Actions during deploy; not committed.
 public/audio/
+
+# Python bytecode cache (created when scripts/generate-audio.py is imported
+# locally for verification).
+__pycache__/
