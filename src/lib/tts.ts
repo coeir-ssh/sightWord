@@ -133,6 +133,18 @@ function getPooledAudio(): HTMLAudioElement {
 let audioCtx: AudioContext | null = null;
 const letterBufferCache = new Map<string, AudioBuffer>();
 const letterBufferPending = new Map<string, Promise<AudioBuffer | null>>();
+// Letters whose MP3 decoded to something unusable (empty buffer, sub-100ms
+// — typical of an over-trimmed generation step that ate the letter name).
+// Once a letter lands here we stop trying the MP3 pipeline for that letter
+// and go straight to the synth fallback; otherwise both the WebAudio and
+// pooled-element paths would silently "succeed" on a file that is actually
+// silent, and the user hears nothing on every subsequent green-letter cue.
+const knownBadLetters = new Set<string>();
+// Minimum buffer length that still plausibly contains a letter name. Even
+// the shortest English letter sound (/eɪ/, /iː/, ...) is well over 150ms at
+// rate=-15%; anything below 100ms is almost certainly a truncated/empty
+// file from a broken trim step.
+const MIN_LETTER_BUFFER_DURATION = 0.1;
 
 function getAudioContext(): AudioContext | null {
   if (audioCtx) return audioCtx;
@@ -178,7 +190,23 @@ async function loadLetterBuffer(key: string): Promise<AudioBuffer | null> {
           resolve(null);
         }
       });
-      if (buf) letterBufferCache.set(key, buf);
+      if (buf) {
+        // Guard against silently-truncated letter MP3s. A trim step in the
+        // generator that ate the letter name leaves a sub-100ms buffer that
+        // would still decode + play "successfully" — onended fires after a
+        // few ms and no fallback runs. Flag the letter as bad so subsequent
+        // cues skip the MP3 pipeline entirely.
+        if (buf.duration < MIN_LETTER_BUFFER_DURATION) {
+          console.warn(
+            '[tts] letter buffer too short — falling back to synth:',
+            key,
+            buf.duration
+          );
+          knownBadLetters.add(key);
+          return null;
+        }
+        letterBufferCache.set(key, buf);
+      }
       return buf;
     } catch {
       return null;
@@ -317,18 +345,44 @@ export async function speak(text: string, opts?: { rate?: number }): Promise<voi
   await speakViaSynth(text, opts);
 }
 
+// Phonetic spelling for each letter, used by the synth fallback when the
+// pre-recorded MP3 path fails. Browser SpeechSynthesis voices read a bare
+// "A" as the article /ə/ ("uh") rather than the letter name — feeding the
+// spelling instead gets the canonical /eɪ/ on Chrome, Safari, and Edge.
+// Some letters (a, i) are ambiguous as English words ("aye"/"eye") but
+// the synth path is a last-resort fallback; the SSML-generated MP3s ship
+// the correct sound and run first.
+const LETTER_PHONETIC: Record<string, string> = {
+  a: 'ay', b: 'bee', c: 'see', d: 'dee', e: 'ee', f: 'eff',
+  g: 'gee', h: 'aitch', i: 'eye', j: 'jay', k: 'kay', l: 'el',
+  m: 'em', n: 'en', o: 'oh', p: 'pee', q: 'cue', r: 'are',
+  s: 'ess', t: 'tee', u: 'you', v: 'vee', w: 'double you',
+  x: 'ex', y: 'why', z: 'zee',
+};
+
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
-  // Stage 1: Web Audio path. iPad WebKit silently drops the per-letter cue
-  // when the pooled HTMLAudioElement gets a fresh src right after a previous
-  // play ended; AudioBufferSourceNode replays the same decoded MP3 without
-  // touching the element-reuse code path that bug lives in.
-  if (await playLetterViaWebAudio(key)) return;
-  // Stage 2: pooled element fallback (works on PC + iOS for the first cue).
-  const ok = await playFile(`letter-${key}`, opts);
-  if (ok) return;
-  // Stage 3: synth fallback. Prefix with "letter" so the voice doesn't read
-  // a bare phonetic name like "ay" / "eye" as the English words "aye"/"I".
-  const upper = key.toUpperCase();
-  await speakViaSynth(`letter ${upper}`, { rate: opts?.rate ?? 0.85 });
+  // If a previous attempt already proved the letter MP3 is silent/empty,
+  // skip the MP3 pipeline entirely — both the WebAudio and pool paths use
+  // the same file and would "succeed" while playing nothing. Go to synth.
+  if (!knownBadLetters.has(key)) {
+    // Stage 1: Web Audio path. iPad WebKit silently drops the per-letter cue
+    // when the pooled HTMLAudioElement gets a fresh src right after a previous
+    // play ended; AudioBufferSourceNode replays the same decoded MP3 without
+    // touching the element-reuse code path that bug lives in.
+    if (await playLetterViaWebAudio(key)) return;
+    // playLetterViaWebAudio may have just flagged the file as bad (too-short
+    // buffer) — re-check before falling through to the pool path, which would
+    // play the same silent MP3 with a "success" event.
+    if (!knownBadLetters.has(key)) {
+      // Stage 2: pooled element fallback (works on PC + iOS for the first cue).
+      const ok = await playFile(`letter-${key}`, opts);
+      if (ok) return;
+    }
+  }
+  // Stage 3: synth fallback. Use the phonetic spelling rather than "letter X"
+  // so the user just hears the letter name (no "레터" prefix bleeding through
+  // when the MP3 pipeline misses).
+  const spoken = LETTER_PHONETIC[key] ?? key;
+  await speakViaSynth(spoken, { rate: opts?.rate ?? 0.85 });
 }

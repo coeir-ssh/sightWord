@@ -39,7 +39,15 @@ jobs:
           ffmpeg -version | head -1
 
       - name: Install edge-tts
-        run: pip install edge-tts
+        # Pin a version known to expose `Communicate.texts` — the letter-MP3
+        # generator overrides that attribute to inject SSML <say-as> markup
+        # directly into edge-tts's wrapped envelope. A future edge-tts
+        # release could rename or remove `texts` and silently break the
+        # letter audio (the rest still works, so the deploy stays "green"
+        # while the letter cues degrade). The script also asserts that the
+        # attribute exists and errors out if not, but pinning prevents the
+        # accidental upgrade.
+        run: pip install 'edge-tts==7.2.8'
 
       - name: Generate audio + manifest
         run: python scripts/generate-audio.py
