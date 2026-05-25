@@ -29,15 +29,10 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
   const [coverage, setCoverage] = useState(variant === 'shown' ? 1 : 0);
 
   const passed = coverage >= PASS_RATIO || variant === 'shown';
-  const prevPassedRef = useRef(false);
-
-  useEffect(() => {
-    const interactive = variant !== 'shown';
-    if (interactive && passed && !prevPassedRef.current) {
-      void speakLetter(letter);
-    }
-    prevPassedRef.current = passed;
-  }, [passed, variant, letter]);
+  // Whether we've already spoken the letter name for the current pass.
+  // Reset on letter/variant change and on an explicit retry so re-passing
+  // announces again, but a second stroke on an already-green slot doesn't.
+  const announcedRef = useRef(false);
 
   useImperativeHandle(ref, () => ({
     reset: () => {
@@ -45,6 +40,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       if (variant !== 'shown') {
         setCoverage(0);
         onCoverageChange?.(0);
+        announcedRef.current = false;
       }
     },
     isInteractive: () => variant !== 'shown',
@@ -53,6 +49,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
 
   // Reset coverage when letter/variant changes
   useEffect(() => {
+    announcedRef.current = false;
     if (variant === 'shown') {
       setCoverage(1);
       onCoverageChange?.(1);
@@ -106,6 +103,14 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       return;
     }
     const result = scoreLetterSlot(cv, letter);
+    // Announce the instant the slot crosses the pass mark — call it right
+    // here in the pointer-up handler (still inside the user gesture, lowest
+    // latency) instead of waiting for the state update + a render-cycle
+    // effect. Web Audio buffer playback then fires with no perceptible lag.
+    if (variant !== 'shown' && result.ratio >= PASS_RATIO && !announcedRef.current) {
+      announcedRef.current = true;
+      void speakLetter(letter);
+    }
     setCoverage(result.ratio);
     onCoverageChange?.(result.ratio);
   };

@@ -87,6 +87,18 @@ export function unlockTts(): void {
   } catch {
     /* ignore */
   }
+  // Spin up + resume the AudioContext inside the gesture (iOS leaves new
+  // contexts 'suspended') and start decoding the letter buffers so the
+  // first green-slot cue plays with zero latency.
+  try {
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === 'suspended') {
+      void ctx.resume().catch(() => {});
+    }
+    preloadLetterBuffers();
+  } catch {
+    /* ignore */
+  }
   if (ttsAvailable()) {
     try {
       window.speechSynthesis.getVoices();
@@ -118,6 +130,95 @@ function getPooledAudio(): HTMLAudioElement {
     pooledAudio.preload = 'auto';
   }
   return pooledAudio;
+}
+
+// Per-letter cues fire the instant a slot turns green, so they need to be
+// latency-free. An HTMLAudioElement src-swap reloads/redecodes on every
+// play (tens of ms even when the file is cached); decoding each letter MP3
+// once into an AudioBuffer and replaying it via an AudioBufferSourceNode is
+// effectively instant. Buffers are decoded eagerly at unlockTts() time so
+// they're ready before the first letter passes.
+let audioCtx: AudioContext | null = null;
+const letterBuffers = new Map<string, AudioBuffer>();
+const letterDecoding = new Map<string, Promise<AudioBuffer | null>>();
+
+function getAudioContext(): AudioContext | null {
+  if (audioCtx) return audioCtx;
+  if (typeof window === 'undefined') return null;
+  const Ctor =
+    (window as unknown as { AudioContext?: typeof AudioContext }).AudioContext ??
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctor) return null;
+  try {
+    audioCtx = new Ctor();
+  } catch {
+    audioCtx = null;
+  }
+  return audioCtx;
+}
+
+function decodeLetterBuffer(key: string): Promise<AudioBuffer | null> {
+  const cached = letterBuffers.get(key);
+  if (cached) return Promise.resolve(cached);
+  const inflight = letterDecoding.get(key);
+  if (inflight) return inflight;
+  const ctx = getAudioContext();
+  if (!ctx) return Promise.resolve(null);
+  const task = (async () => {
+    try {
+      const res = await fetch(`${LETTER_AUDIO_BASE}letter-${key}.mp3`);
+      if (!res.ok) return null;
+      const ab = await res.arrayBuffer();
+      const buf = await new Promise<AudioBuffer | null>((resolve) => {
+        // Dual promise/callback form: Safari < 14.1 only supports the
+        // callback signature, newer engines resolve the returned promise.
+        try {
+          const p = ctx.decodeAudioData(
+            ab,
+            (b) => resolve(b),
+            () => resolve(null)
+          );
+          if (p && typeof (p as Promise<AudioBuffer>).then === 'function') {
+            (p as Promise<AudioBuffer>).then((b) => resolve(b)).catch(() => resolve(null));
+          }
+        } catch {
+          resolve(null);
+        }
+      });
+      if (buf) letterBuffers.set(key, buf);
+      return buf;
+    } catch {
+      return null;
+    } finally {
+      letterDecoding.delete(key);
+    }
+  })();
+  letterDecoding.set(key, task);
+  return task;
+}
+
+/** Warm the AudioBuffer cache for every letter. Safe to call repeatedly. */
+function preloadLetterBuffers(): void {
+  for (const ch of 'abcdefghijklmnopqrstuvwxyz') void decodeLetterBuffer(ch);
+}
+
+/** Play a pre-decoded letter buffer instantly. Returns false if not ready. */
+function playLetterBuffer(key: string): boolean {
+  const ctx = getAudioContext();
+  const buf = letterBuffers.get(key);
+  if (!ctx || !buf) return false;
+  if (ctx.state === 'suspended') {
+    void ctx.resume().catch(() => {});
+  }
+  try {
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function playAudioFile(url: string, opts?: { rate?: number }): Promise<boolean> {
@@ -231,9 +332,13 @@ const LETTER_PHONETIC: Record<string, string> = {
 
 export async function speakLetter(letter: string, opts?: { rate?: number }): Promise<void> {
   const key = letter.trim().toLowerCase();
-  // Only a–z have a bundled MP3. Anything else (digit, punctuation) goes
-  // straight to the synth fallback.
   if (/^[a-z]$/.test(key)) {
+    // Instant path: pre-decoded Web Audio buffer. No fetch, no decode, no
+    // element reload — fires the moment the slot turns green.
+    if (playLetterBuffer(key)) return;
+    // Buffer not ready yet (cue beat the preload). Kick off the decode for
+    // next time and play the file directly this once.
+    void decodeLetterBuffer(key);
     const ok = await playAudioFile(`${LETTER_AUDIO_BASE}letter-${key}.mp3`, opts);
     if (ok) return;
   }
