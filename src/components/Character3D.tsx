@@ -47,6 +47,7 @@ export function Character3D({ equipped, jumping = false, className, name, gender
   const limbPivotsRef = useRef<{ arms: [THREE.Group, THREE.Group]; legs: [THREE.Group, THREE.Group] } | null>(null);
   const faceFeaturesRef = useRef<THREE.Object3D[]>([]);
   const hairGroupRef = useRef<THREE.Group | null>(null);
+  const maskOnRef = useRef(false);
   const jumpRef = useRef(false);
   const [failed, setFailed] = useState<string | null>(null);
 
@@ -565,13 +566,16 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             kind === 'spacesuit' ||
             kind === 'sweater' ||
             kind === 'raincoat' ||
-            kind === 'ironman';
+            kind === 'ironman' ||
+            kind === 'hulk';
           const fullSleeve =
             kind === 'hoodie' ||
             kind === 'sweater' ||
             kind === 'raincoat' ||
             kind === 'spacesuit' ||
-            kind === 'ironman';
+            kind === 'ironman' ||
+            kind === 'spiderman' ||
+            kind === 'hulk';
           const padW = isPuffy ? 0.12 : 0.06;
           const padH = isPuffy ? 0.08 : 0.05;
           const padD = isPuffy ? 0.10 : 0.05;
@@ -958,6 +962,106 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               v.position.set(0, TORSO_Y - 0.2 - i * 0.06, frontZ + 0.025);
               g.add(v);
             }
+          } else if (kind === 'spiderman') {
+            // Red suit torso (base color) + black spider emblem + web lines
+            // + a blue waist band. Sleeves stay red from the base loop.
+            const webMat = new THREE.MeshStandardMaterial({ color: '#10101e' });
+            // Spider body on chest
+            const body = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 10), webMat);
+            body.scale.set(1, 1.5, 0.5);
+            body.position.set(0, TORSO_Y + 0.08, frontZ + 0.02);
+            g.add(body);
+            // 8 spider legs (4 per side, thin angled boxes)
+            [-1, 1].forEach((sx) => {
+              [0.06, -0.02, -0.1, -0.18].forEach((dy, i) => {
+                const legSp = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.13, 0.012, 0.012),
+                  webMat.clone()
+                );
+                legSp.position.set(sx * 0.08, TORSO_Y + 0.08 + dy, frontZ + 0.02);
+                legSp.rotation.z = sx * (0.5 - i * 0.18);
+                g.add(legSp);
+              });
+            });
+            // Vertical web lines on the torso
+            [-0.22, -0.075, 0.075, 0.22].forEach((x) => {
+              const line = new THREE.Mesh(
+                new THREE.BoxGeometry(0.01, TORSO_H + padH - 0.04, 0.01),
+                webMat.clone()
+              );
+              line.position.set(x, TORSO_Y, frontZ + 0.005);
+              g.add(line);
+            });
+            // Horizontal web lines
+            [0.2, 0.06, -0.08, -0.22].forEach((y) => {
+              const line = new THREE.Mesh(
+                new THREE.BoxGeometry(TORSO_W + padW - 0.04, 0.01, 0.01),
+                webMat.clone()
+              );
+              line.position.set(0, TORSO_Y + y, frontZ + 0.005);
+              g.add(line);
+            });
+            // Blue waist band
+            const blueMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1e3a8a'),
+            });
+            const band = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.01, 0.12, TORSO_D + padD + 0.01),
+              blueMat
+            );
+            band.position.set(0, TORSO_Y - TORSO_H / 2 + 0.02, 0);
+            g.add(band);
+          } else if (kind === 'hulk') {
+            // Bare muscular green chest: recolor the torso green and add
+            // pecs, ab lines and bicep bulges. Sleeves are green from the
+            // base loop; big fists cap the arms.
+            const skinMat = new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
+            torsoMesh.material = skinMat;
+            const shadeMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#3f6212'),
+            });
+            // Pecs
+            [-1, 1].forEach((sx) => {
+              const pec = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2, 14, 12),
+                skinMat.clone()
+              );
+              pec.scale.set(1, 0.65, 0.5);
+              pec.position.set(sx * 0.16, TORSO_Y + 0.16, frontZ - 0.02);
+              g.add(pec);
+            });
+            // Center chest/ab line
+            const midLine = new THREE.Mesh(
+              new THREE.BoxGeometry(0.02, TORSO_H * 0.7, 0.02),
+              shadeMat.clone()
+            );
+            midLine.position.set(0, TORSO_Y - 0.02, frontZ + 0.005);
+            g.add(midLine);
+            // Ab cross lines
+            [-0.05, -0.16].forEach((y) => {
+              const ab = new THREE.Mesh(
+                new THREE.BoxGeometry(0.3, 0.02, 0.02),
+                shadeMat.clone()
+              );
+              ab.position.set(0, TORSO_Y + y, frontZ + 0.005);
+              g.add(ab);
+            });
+            // Bicep bulges + fists on each arm
+            [-1, 1].forEach((sx) => {
+              const bicep = new THREE.Mesh(
+                new THREE.SphereGeometry(0.17, 12, 10),
+                skinMat.clone()
+              );
+              bicep.scale.set(1, 1.1, 1);
+              bicep.position.set(sx * ARM_X, ARM_Y + 0.06, 0);
+              g.add(bicep);
+              const fist = new THREE.Mesh(
+                new THREE.BoxGeometry(ARM_W * 1.5, ARM_W * 1.5, ARM_W * 1.5),
+                skinMat.clone()
+              );
+              fist.position.set(sx * ARM_X, ARM_Y - ARM_H / 2 - 0.05, 0);
+              g.add(fist);
+            });
           } else if (accent) {
             // plain tee with accent hem
             const stripe = new THREE.Mesh(
@@ -972,6 +1076,94 @@ export function Character3D({ equipped, jumping = false, className, name, gender
         case 'bottom': {
           const kind = item.kind ?? 'pants';
           const matB = new THREE.MeshStandardMaterial({ color });
+
+          if (kind === 'spiderman') {
+            // Blue legs with web lines + a red hip belt.
+            const webMat = new THREE.MeshStandardMaterial({ color: '#10101e' });
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.05, LEG_H + 0.02, LEG_W + 0.05),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+              // 2 vertical web lines per leg (front + side)
+              const lineF = new THREE.Mesh(
+                new THREE.BoxGeometry(0.01, LEG_H, 0.01),
+                webMat.clone()
+              );
+              lineF.position.set(sx * LEG_X, LEG_Y, LEG_W / 2 + 0.03);
+              g.add(lineF);
+              const lineS = new THREE.Mesh(
+                new THREE.BoxGeometry(0.01, LEG_H, 0.01),
+                webMat.clone()
+              );
+              lineS.position.set(sx * (LEG_X + LEG_W / 2 + 0.02), LEG_Y, 0);
+              g.add(lineS);
+              // horizontal web rings
+              [0.16, 0, -0.16].forEach((y) => {
+                const ring = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.07, 0.01, LEG_W + 0.07),
+                  webMat.clone()
+                );
+                ring.position.set(sx * LEG_X, LEG_Y + y, 0);
+                g.add(ring);
+              });
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#c81e1e'),
+            });
+            const hip = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.08, 0.16, TORSO_D + 0.08),
+              redMat
+            );
+            hip.position.set(0, LEG_Y + LEG_H / 2 + 0.02, 0);
+            g.add(hip);
+            break;
+          }
+
+          if (kind === 'hulk') {
+            // Torn gray pants over the thighs with ragged hem, green shins
+            // showing below.
+            const greenMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#73b339'),
+              roughness: 0.7,
+            });
+            [-1, 1].forEach((sx) => {
+              // Green lower leg (full leg base in green)
+              const shin = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, LEG_H + 0.02, LEG_W + 0.06),
+                greenMat.clone()
+              );
+              shin.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(shin);
+              // Gray pants covering the upper ~60%
+              const pant = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.14, LEG_H * 0.62, LEG_W + 0.14),
+                matB.clone()
+              );
+              pant.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.2, 0);
+              g.add(pant);
+              // Ragged torn hem (downward cones) around the pant bottom
+              [-0.09, -0.03, 0.03, 0.09].forEach((dx) => {
+                const tear = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.045, 0.12, 4),
+                  matB.clone()
+                );
+                tear.rotation.x = Math.PI;
+                tear.position.set(sx * LEG_X + dx, LEG_Y - 0.04, LEG_W / 2 + 0.06);
+                g.add(tear);
+              });
+            });
+            // Waistband
+            const band = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.12, 0.16, TORSO_D + 0.12),
+              matB.clone()
+            );
+            band.position.set(0, LEG_Y + LEG_H / 2 + 0.02, 0);
+            g.add(band);
+            break;
+          }
 
           if (kind === 'princess_skirt') {
             // Long flowing ball-gown cone covering legs from waist to floor.
@@ -1860,12 +2052,191 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               cheek.position.set(sx * (HEAD_SIZE / 2 + 0.02), HEAD_Y - 0.04, FACE_Z + 0.09);
               g.add(cheek);
             });
+          } else if (kind === 'spiderman') {
+            // Full red head cover + big white tilted eyes + black web grid.
+            const redMat = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
+            const webMat = new THREE.MeshStandardMaterial({ color: '#10101e' });
+            const cover = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.05, HEAD_SIZE + 0.05, HEAD_SIZE + 0.05),
+              redMat
+            );
+            cover.position.set(0, HEAD_Y, 0);
+            g.add(cover);
+            // Web grid lines on the front face
+            [-0.3, -0.15, 0, 0.15, 0.3].forEach((x) => {
+              const v = new THREE.Mesh(
+                new THREE.BoxGeometry(0.01, HEAD_SIZE + 0.04, 0.01),
+                webMat.clone()
+              );
+              v.position.set(x, HEAD_Y, FACE_Z + 0.03);
+              g.add(v);
+            });
+            [-0.3, -0.15, 0, 0.15, 0.3].forEach((y) => {
+              const h = new THREE.Mesh(
+                new THREE.BoxGeometry(HEAD_SIZE + 0.04, 0.01, 0.01),
+                webMat.clone()
+              );
+              h.position.set(0, HEAD_Y + y, FACE_Z + 0.03);
+              g.add(h);
+            });
+            // Big white eyes (tilted almonds) with thin black rim, on top
+            [-1, 1].forEach((sx) => {
+              const rim = new THREE.Mesh(
+                new THREE.BoxGeometry(0.3, 0.2, 0.03),
+                webMat.clone()
+              );
+              rim.position.set(sx * 0.19, HEAD_Y + 0.07, FACE_Z + 0.05);
+              rim.rotation.z = sx * -0.32;
+              g.add(rim);
+              const white = new THREE.Mesh(
+                new THREE.BoxGeometry(0.24, 0.14, 0.03),
+                new THREE.MeshStandardMaterial({
+                  color: '#f8fafc',
+                  emissive: '#cbd5e1',
+                  emissiveIntensity: 0.4,
+                })
+              );
+              white.position.set(sx * 0.19, HEAD_Y + 0.07, FACE_Z + 0.07);
+              white.rotation.z = sx * -0.32;
+              g.add(white);
+            });
+          } else if (kind === 'hulk') {
+            // Green head + angry brows/eyes/teeth + messy dark hair.
+            const skinMat = new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1f2937'),
+            });
+            const whiteMat = new THREE.MeshStandardMaterial({ color: '#f8fafc' });
+            const cover = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.06, HEAD_SIZE + 0.04, HEAD_SIZE + 0.06),
+              skinMat
+            );
+            cover.position.set(0, HEAD_Y, 0);
+            g.add(cover);
+            // Messy dark hair cap + clumps
+            const hairCap = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.1, 0.26, HEAD_SIZE + 0.1),
+              darkMat.clone()
+            );
+            hairCap.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.02, 0);
+            g.add(hairCap);
+            [-0.3, -0.1, 0.1, 0.3].forEach((x) => {
+              const clump = new THREE.Mesh(
+                new THREE.ConeGeometry(0.08, 0.2, 5),
+                darkMat.clone()
+              );
+              clump.position.set(x, HEAD_Y + HEAD_SIZE / 2 + 0.12, 0.1);
+              g.add(clump);
+            });
+            // Angry eyebrows (inner ends down)
+            [-1, 1].forEach((sx) => {
+              const brow = new THREE.Mesh(
+                new THREE.BoxGeometry(0.2, 0.05, 0.03),
+                darkMat.clone()
+              );
+              brow.position.set(sx * 0.18, HEAD_Y + 0.18, FACE_Z + 0.04);
+              brow.rotation.z = sx * 0.4;
+              g.add(brow);
+            });
+            // Narrow white eyes + dark pupils
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.BoxGeometry(0.14, 0.08, 0.02),
+                whiteMat.clone()
+              );
+              eye.position.set(sx * 0.18, HEAD_Y + 0.08, FACE_Z + 0.04);
+              g.add(eye);
+              const pupil = new THREE.Mesh(
+                new THREE.BoxGeometry(0.05, 0.07, 0.02),
+                darkMat.clone()
+              );
+              pupil.position.set(sx * 0.15, HEAD_Y + 0.08, FACE_Z + 0.05);
+              g.add(pupil);
+            });
+            // Gritted-teeth mouth
+            const mouth = new THREE.Mesh(
+              new THREE.BoxGeometry(0.36, 0.12, 0.02),
+              darkMat.clone()
+            );
+            mouth.position.set(0, HEAD_Y - 0.24, FACE_Z + 0.04);
+            g.add(mouth);
+            const teeth = new THREE.Mesh(
+              new THREE.BoxGeometry(0.32, 0.06, 0.02),
+              whiteMat.clone()
+            );
+            teeth.position.set(0, HEAD_Y - 0.22, FACE_Z + 0.05);
+            g.add(teeth);
+            for (let i = -2; i <= 2; i++) {
+              const gap = new THREE.Mesh(
+                new THREE.BoxGeometry(0.015, 0.06, 0.02),
+                darkMat.clone()
+              );
+              gap.position.set(i * 0.07, HEAD_Y - 0.22, FACE_Z + 0.06);
+              g.add(gap);
+            }
           }
           break;
         }
         case 'back': {
           const kind =
             item.kind ?? (item.shape === 'wing' ? 'wing_feather' : 'pack');
+
+          if (kind === 'spiderman') {
+            // Red backplate with a black spider symbol between the shoulders.
+            const spiderMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#10101e'),
+            });
+            const body = new THREE.Mesh(
+              new THREE.SphereGeometry(0.05, 12, 10),
+              spiderMat
+            );
+            body.scale.set(1, 1.5, 0.5);
+            body.position.set(0, TORSO_Y + 0.05, -TORSO_D / 2 - 0.04);
+            g.add(body);
+            [-1, 1].forEach((sx) => {
+              [0.05, -0.02, -0.09, -0.16].forEach((dy, i) => {
+                const legSp = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.12, 0.012, 0.012),
+                  spiderMat.clone()
+                );
+                legSp.position.set(sx * 0.07, TORSO_Y + 0.05 + dy, -TORSO_D / 2 - 0.04);
+                legSp.rotation.z = sx * (0.5 - i * 0.18);
+                g.add(legSp);
+              });
+            });
+            break;
+          }
+
+          if (kind === 'hulk') {
+            // Tattered purple shirt remnants clinging to the back/shoulders.
+            const shirtMat = new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
+            const panel = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.7, TORSO_H * 0.5, 0.05),
+              shirtMat
+            );
+            panel.position.set(0, TORSO_Y + 0.05, -TORSO_D / 2 - 0.03);
+            g.add(panel);
+            [-1, 1].forEach((sx) => {
+              const strap = new THREE.Mesh(
+                new THREE.BoxGeometry(0.16, 0.3, 0.05),
+                shirtMat.clone()
+              );
+              strap.position.set(sx * 0.24, TORSO_Y + 0.14, -TORSO_D / 2 - 0.03);
+              strap.rotation.z = sx * 0.25;
+              g.add(strap);
+            });
+            // Ragged torn bottom hem
+            [-0.18, -0.06, 0.06, 0.18].forEach((x) => {
+              const tear = new THREE.Mesh(
+                new THREE.ConeGeometry(0.05, 0.13, 4),
+                shirtMat.clone()
+              );
+              tear.rotation.x = Math.PI;
+              tear.position.set(x, TORSO_Y - 0.18, -TORSO_D / 2 - 0.03);
+              g.add(tear);
+            });
+            break;
+          }
 
           if (kind === 'fairy_wings') {
             // 4 translucent oval petals — large upper, smaller lower —
@@ -2423,6 +2794,71 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             ? new THREE.MeshStandardMaterial({ color: accent })
             : null;
           const footY = LEG_Y - LEG_H / 2 - 0.02;
+
+          if (kind === 'spiderman') {
+            // Red boots with a black sole and a web line up the front.
+            const soleMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#10101e'),
+            });
+            [-1, 1].forEach((sx) => {
+              const boot = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.24, 0.36),
+                mat.clone()
+              );
+              boot.position.set(sx * LEG_X, footY + 0.05, 0.06);
+              g.add(boot);
+              const sole = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.08, 0.05, 0.4),
+                soleMat.clone()
+              );
+              sole.position.set(sx * LEG_X, footY - 0.08, 0.06);
+              g.add(sole);
+              const web = new THREE.Mesh(
+                new THREE.BoxGeometry(0.012, 0.22, 0.3),
+                soleMat.clone()
+              );
+              web.position.set(sx * LEG_X, footY + 0.05, 0.06);
+              g.add(web);
+            });
+            break;
+          }
+
+          if (kind === 'hulk') {
+            // Bare green feet with chunky toes (no shoes).
+            const shadeMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#3f6212'),
+            });
+            [-1, 1].forEach((sx) => {
+              const foot = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.07, 0.15, 0.42),
+                mat.clone()
+              );
+              foot.position.set(sx * LEG_X, footY, 0.08);
+              g.add(foot);
+              const heel = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.07, 0.15, 0.16),
+                mat.clone()
+              );
+              heel.position.set(sx * LEG_X, footY, -0.12);
+              g.add(heel);
+              [-0.1, -0.035, 0.035, 0.1].forEach((dx) => {
+                const toe = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.04, 8, 8),
+                  mat.clone()
+                );
+                toe.position.set(sx * LEG_X + dx, footY - 0.02, 0.3);
+                g.add(toe);
+              });
+              // toe-crease shading
+              const crease = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.05, 0.01, 0.02),
+                shadeMat.clone()
+              );
+              crease.position.set(sx * LEG_X, footY + 0.04, 0.26);
+              g.add(crease);
+            });
+            break;
+          }
 
           if (kind === 'glass_slipper') {
             // Translucent shiny heels with a tiny sparkle on each toe.
@@ -3202,12 +3638,15 @@ export function Character3D({ equipped, jumping = false, className, name, gender
     });
 
     // Hide the base face features (eyes, glasses, cheeks, mouth, tongue)
-    // when a mask is equipped — otherwise the kid's glasses and smile
-    // would show on top of the Iron Man faceplate.
+    // and the hair when a full-head mask is equipped — otherwise the kid's
+    // glasses, smile and hair would poke through the Iron Man / Spider-Man /
+    // Hulk head cover.
     const maskOn = !!equipped.mask;
+    maskOnRef.current = maskOn;
     faceFeaturesRef.current.forEach((m) => {
       m.visible = !maskOn;
     });
+    if (hairGroupRef.current) hairGroupRef.current.visible = !maskOn;
 
     // Undershirt (런닝) when nothing in 'top' slot
     if (!equipped.top) {
@@ -3340,6 +3779,9 @@ export function Character3D({ equipped, jumping = false, className, name, gender
         hairGroup.add(tuft);
       });
     }
+
+    // A full-head mask (Iron Man / Spider-Man / Hulk) hides the hair.
+    hairGroup.visible = !maskOnRef.current;
   }, [gender]);
 
   useEffect(() => {

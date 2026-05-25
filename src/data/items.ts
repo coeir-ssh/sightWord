@@ -11,7 +11,9 @@ export type TopKind =
   | 'star'
   | 'robot'
   | 'ironman'
-  | 'princess_dress';
+  | 'princess_dress'
+  | 'spiderman'
+  | 'hulk';
 
 export type BottomKind =
   | 'pants'
@@ -25,7 +27,9 @@ export type BottomKind =
   | 'robot'
   | 'ironman'
   | 'princess_skirt'
-  | 'tutu';
+  | 'tutu'
+  | 'spiderman'
+  | 'hulk';
 
 export type HatKind =
   | 'cap'
@@ -42,7 +46,7 @@ export type HatKind =
   | 'flower_crown'
   | 'princess_crown';
 
-export type MaskKind = 'ironman';
+export type MaskKind = 'ironman' | 'spiderman' | 'hulk';
 
 export type BackKind =
   | 'kinder'
@@ -58,7 +62,9 @@ export type BackKind =
   | 'ironman'
   | 'fairy_wings'
   | 'butterfly'
-  | 'princess_cape';
+  | 'princess_cape'
+  | 'spiderman'
+  | 'hulk';
 
 export type ShoeKind =
   | 'sneakers'
@@ -74,7 +80,9 @@ export type ShoeKind =
   | 'ironman'
   | 'glass_slipper'
   | 'ballet'
-  | 'ribbon_heel';
+  | 'ribbon_heel'
+  | 'spiderman'
+  | 'hulk';
 
 export type CharmKind =
   | 'star'
@@ -215,6 +223,20 @@ export const ITEMS: Item[] = [
   { id: 'back.ironman', name: '아이언맨 윙', slot: 'back', price: 220, color: '#dc2626', accent: '#fbbf24', kind: 'ironman', genders: ['boy'] },
   { id: 'shoes.ironman', name: '아이언맨 부츠', slot: 'shoes', price: 150, color: '#fbbf24', accent: '#dc2626', kind: 'ironman', genders: ['boy'] },
   { id: 'charm.ironman', name: '아크 리액터 키링', slot: 'charm', price: 100, color: '#22d3ee', accent: '#fbbf24', kind: 'ironman', genders: ['boy'] },
+
+  // ───────── Spider-Man set (boy only) ─────────
+  { id: 'mask.spiderman', name: '스파이더맨 마스크', slot: 'mask', price: 200, color: '#c81e1e', accent: '#1e3a8a', kind: 'spiderman', genders: ['boy'] },
+  { id: 'top.spiderman', name: '스파이더맨 상의', slot: 'top', price: 200, color: '#c81e1e', accent: '#1e3a8a', kind: 'spiderman', genders: ['boy'] },
+  { id: 'bottom.spiderman', name: '스파이더맨 하의', slot: 'bottom', price: 180, color: '#1e3a8a', accent: '#c81e1e', kind: 'spiderman', genders: ['boy'] },
+  { id: 'back.spiderman', name: '스파이더맨 엠블럼', slot: 'back', price: 150, color: '#c81e1e', accent: '#10101e', kind: 'spiderman', genders: ['boy'] },
+  { id: 'shoes.spiderman', name: '스파이더맨 부츠', slot: 'shoes', price: 150, color: '#c81e1e', accent: '#10101e', kind: 'spiderman', genders: ['boy'] },
+
+  // ───────── Hulk set (boy only) ─────────
+  { id: 'mask.hulk', name: '헐크 얼굴', slot: 'mask', price: 200, color: '#73b339', accent: '#1f2937', kind: 'hulk', genders: ['boy'] },
+  { id: 'top.hulk', name: '헐크 근육 상의', slot: 'top', price: 200, color: '#73b339', accent: '#3f6212', kind: 'hulk', genders: ['boy'] },
+  { id: 'bottom.hulk', name: '헐크 찢어진 바지', slot: 'bottom', price: 180, color: '#475569', accent: '#73b339', kind: 'hulk', genders: ['boy'] },
+  { id: 'back.hulk', name: '헐크 찢어진 셔츠', slot: 'back', price: 120, color: '#6d28d9', accent: '#4c1d95', kind: 'hulk', genders: ['boy'] },
+  { id: 'shoes.hulk', name: '헐크 맨발', slot: 'shoes', price: 100, color: '#73b339', accent: '#3f6212', kind: 'hulk', genders: ['boy'] },
 
   // ───────── Princess set (girl only) ─────────
   { id: 'top.princess_pink', name: '핑크 공주 드레스', slot: 'top', price: 220, color: '#f9a8d4', accent: '#fde68a', kind: 'princess_dress', genders: ['girl'] },
