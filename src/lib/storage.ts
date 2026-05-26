@@ -23,7 +23,7 @@ export type Inventories = Record<CharGender, Inventory>;
 
 const KEYS = {
   progress: 'sw.progress.v2',
-  wallet: 'sw.wallet.v6',
+  wallet: 'sw.wallet.v7',
   // Legacy single-inventory key. Read once for migration, then ignored.
   inventoryLegacy: 'sw.inventory.v2',
   inventories: 'sw.inventories.v1',
