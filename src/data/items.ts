@@ -23,7 +23,8 @@ export type TopKind =
   | 'elsa_top'
   | 'ariel_top'
   | 'rapunzel_top'
-  | 'slp';
+  | 'slp'
+  | 'slp_girl';
 
 export type BottomKind =
   | 'pants'
@@ -49,7 +50,8 @@ export type BottomKind =
   | 'elsa_skirt'
   | 'ariel_tail'
   | 'rapunzel_skirt'
-  | 'slp';
+  | 'slp'
+  | 'slp_skirt';
 
 export type HatKind =
   | 'cap'
@@ -130,7 +132,8 @@ export type ShoeKind =
   | 'superman'
   | 'flash'
   | 'panther'
-  | 'slp';
+  | 'slp'
+  | 'slp_girl';
 
 export type CharmKind =
   | 'star'
@@ -337,6 +340,13 @@ export const ITEMS: Item[] = [
   { id: 'shoes.slp', name: 'SLP 구두', slot: 'shoes', price: 140, color: '#0a0a0a', accent: '#475569', kind: 'slp', genders: ['boy'] },
   { id: 'back.slp', name: 'SLP 가방', slot: 'back', price: 130, color: '#dc2626', accent: '#f8fafc', kind: 'slp_backpack', genders: ['boy'] },
   { id: 'charm.slp', name: 'SLP 명찰', slot: 'charm', price: 80, color: '#f8fafc', accent: '#1e3a8a', kind: 'slp_badge', genders: ['boy'] },
+
+  // ───────── SLP 원복 — 여자 ─────────
+  { id: 'top.slp_girl', name: 'SLP 원복 자켓 (여)', slot: 'top', price: 220, color: '#475569', accent: '#dc2626', kind: 'slp_girl', genders: ['girl'] },
+  { id: 'bottom.slp_girl', name: 'SLP 원복 치마', slot: 'bottom', price: 160, color: '#1e3a8a', accent: '#0c1a47', kind: 'slp_skirt', genders: ['girl'] },
+  { id: 'shoes.slp_girl', name: 'SLP 메리제인', slot: 'shoes', price: 140, color: '#0a0a0a', accent: '#475569', kind: 'slp_girl', genders: ['girl'] },
+  { id: 'back.slp_girl', name: 'SLP 가방', slot: 'back', price: 130, color: '#dc2626', accent: '#f8fafc', kind: 'slp_backpack', genders: ['girl'] },
+  { id: 'charm.slp_girl', name: 'SLP 명찰', slot: 'charm', price: 80, color: '#f8fafc', accent: '#1e3a8a', kind: 'slp_badge', genders: ['girl'] },
 
   // ───────── Princess set (girl only) ─────────
   { id: 'top.princess_pink', name: '핑크 공주 드레스', slot: 'top', price: 220, color: '#f9a8d4', accent: '#fde68a', kind: 'princess_dress', genders: ['girl'] },

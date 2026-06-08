@@ -742,7 +742,8 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             kind === 'superman' ||
             kind === 'flash' ||
             kind === 'panther' ||
-            kind === 'slp';
+            kind === 'slp' ||
+            kind === 'slp_girl';
           const padW = isPuffy ? 0.12 : 0.06;
           const padH = isPuffy ? 0.08 : 0.05;
           const padD = isPuffy ? 0.10 : 0.05;
@@ -1548,6 +1549,69 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               btn.position.set(0.14, TORSO_Y + y, frontZ + 0.005);
               g.add(btn);
             });
+          } else if (kind === 'slp_girl') {
+            // Same gray blazer + white shirt as the boy version, but with a
+            // red bow ribbon at the collar instead of a striped tie.
+            const whiteMatG = new THREE.MeshStandardMaterial({ color: '#f8fafc' });
+            const ribbonMatG = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#dc2626'),
+              roughness: 0.5,
+            });
+            const buttonMatG = new THREE.MeshStandardMaterial({
+              color: '#fbbf24',
+              metalness: 0.6,
+              roughness: 0.3,
+            });
+            // White shirt panel
+            const shirtG = new THREE.Mesh(
+              new THREE.BoxGeometry(0.2, TORSO_H * 0.72, 0.04),
+              whiteMatG
+            );
+            shirtG.position.set(0, TORSO_Y - 0.02, frontZ + 0.005);
+            g.add(shirtG);
+            // Collar wings
+            [-1, 1].forEach((sx) => {
+              const wing = new THREE.Mesh(
+                new THREE.BoxGeometry(0.12, 0.08, 0.04),
+                whiteMatG.clone()
+              );
+              wing.rotation.z = sx * 0.4;
+              wing.position.set(sx * 0.06, TORSO_Y + 0.3, frontZ + 0.012);
+              g.add(wing);
+            });
+            // Red bow ribbon at the collar (center knot + 2 side loops +
+            // 2 dangling tails)
+            const bowCenter = new THREE.Mesh(
+              new THREE.BoxGeometry(0.06, 0.06, 0.04),
+              ribbonMatG
+            );
+            bowCenter.position.set(0, TORSO_Y + 0.24, frontZ + 0.03);
+            g.add(bowCenter);
+            [-1, 1].forEach((sx) => {
+              const loop = new THREE.Mesh(
+                new THREE.BoxGeometry(0.1, 0.08, 0.04),
+                ribbonMatG.clone()
+              );
+              loop.position.set(sx * 0.08, TORSO_Y + 0.24, frontZ + 0.03);
+              g.add(loop);
+              const tail = new THREE.Mesh(
+                new THREE.BoxGeometry(0.04, 0.14, 0.03),
+                ribbonMatG.clone()
+              );
+              tail.rotation.z = sx * 0.3;
+              tail.position.set(sx * 0.04, TORSO_Y + 0.12, frontZ + 0.025);
+              g.add(tail);
+            });
+            // Two gold buttons (same as boy version)
+            [-0.08, -0.18].forEach((y) => {
+              const btn = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.025, 0.025, 0.022, 14),
+                buttonMatG.clone()
+              );
+              btn.rotation.x = Math.PI / 2;
+              btn.position.set(0.14, TORSO_Y + y, frontZ + 0.005);
+              g.add(btn);
+            });
           } else if (accent) {
             // plain tee with accent hem
             const stripe = new THREE.Mesh(
@@ -1663,6 +1727,52 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 g.add(stripe);
               });
             }
+            break;
+          }
+
+          if (kind === 'slp_skirt') {
+            // Navy pleated school skirt with a darker waistband and
+            // visible vertical pleat lines around the cone.
+            const pleatMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0c1a47'),
+            });
+            const skirt = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.42, 0.6, 0.55, 24),
+              matB.clone()
+            );
+            skirt.position.set(0, LEG_Y + LEG_H / 2 - 0.05, 0);
+            g.add(skirt);
+            // Vertical pleat lines around the skirt
+            for (let i = 0; i < 16; i++) {
+              const a = (i / 16) * Math.PI * 2;
+              const r = 0.5;
+              const pleat = new THREE.Mesh(
+                new THREE.BoxGeometry(0.012, 0.55, 0.012),
+                pleatMat.clone()
+              );
+              pleat.position.set(
+                Math.cos(a) * r,
+                LEG_Y + LEG_H / 2 - 0.05,
+                Math.sin(a) * r
+              );
+              g.add(pleat);
+            }
+            // Waistband at the top of the skirt
+            const band = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.43, 0.43, 0.06, 24),
+              pleatMat.clone()
+            );
+            band.position.set(0, LEG_Y + LEG_H / 2 + 0.2, 0);
+            g.add(band);
+            // Skin-coloured legs below the skirt hem
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W, LEG_H * 0.5, LEG_W),
+                new THREE.MeshStandardMaterial({ color: SKIN })
+              );
+              leg.position.set(sx * LEG_X, LEG_Y - LEG_H * 0.25, 0);
+              g.add(leg);
+            });
             break;
           }
 
@@ -4384,6 +4494,54 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 trimY.position.set(sx * LEG_X, footY + 0.2, 0.06);
                 g.add(trimY);
               }
+            });
+            break;
+          }
+
+          if (kind === 'slp_girl') {
+            // Black Mary Janes: rounded flat shoes + an ankle strap with
+            // a small gold buckle.
+            const shoeMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.3,
+              roughness: 0.25,
+            });
+            const soleMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#475569'),
+              roughness: 0.6,
+            });
+            const buckleMat = new THREE.MeshStandardMaterial({
+              color: '#fbbf24',
+              metalness: 0.6,
+              roughness: 0.3,
+            });
+            [-1, 1].forEach((sx) => {
+              const shoe = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, 0.11, 0.36),
+                shoeMat.clone()
+              );
+              shoe.position.set(sx * LEG_X, footY, 0.06);
+              g.add(shoe);
+              const sole = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.08, 0.04, 0.4),
+                soleMat.clone()
+              );
+              sole.position.set(sx * LEG_X, footY - 0.07, 0.06);
+              g.add(sole);
+              // Ankle strap across the top of the foot
+              const strap = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.07, 0.035, 0.06),
+                shoeMat.clone()
+              );
+              strap.position.set(sx * LEG_X, footY + 0.08, 0.14);
+              g.add(strap);
+              // Tiny gold buckle on the strap
+              const buckle = new THREE.Mesh(
+                new THREE.BoxGeometry(0.04, 0.03, 0.035),
+                buckleMat.clone()
+              );
+              buckle.position.set(sx * LEG_X, footY + 0.08, 0.18);
+              g.add(buckle);
             });
             break;
           }
