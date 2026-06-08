@@ -741,7 +741,8 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             kind === 'thor' ||
             kind === 'superman' ||
             kind === 'flash' ||
-            kind === 'panther';
+            kind === 'panther' ||
+            kind === 'slp';
           const padW = isPuffy ? 0.12 : 0.06;
           const padH = isPuffy ? 0.08 : 0.05;
           const padD = isPuffy ? 0.10 : 0.05;
@@ -1470,6 +1471,83 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               );
               g.add(fang);
             }
+          } else if (kind === 'slp') {
+            // Gray school blazer (base torso) + white dress shirt strip
+            // + red striped tie + gold buttons.
+            const whiteMat = new THREE.MeshStandardMaterial({ color: '#f8fafc' });
+            const tieMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#dc2626'),
+              roughness: 0.5,
+            });
+            const navyMat = new THREE.MeshStandardMaterial({ color: '#1e3a8a' });
+            const buttonMat = new THREE.MeshStandardMaterial({
+              color: '#fbbf24',
+              metalness: 0.6,
+              roughness: 0.3,
+            });
+
+            // White shirt panel down the chest
+            const shirt = new THREE.Mesh(
+              new THREE.BoxGeometry(0.2, TORSO_H * 0.72, 0.04),
+              whiteMat
+            );
+            shirt.position.set(0, TORSO_Y - 0.02, frontZ + 0.005);
+            g.add(shirt);
+            // Collar — angled wings at the top of the shirt
+            [-1, 1].forEach((sx) => {
+              const wing = new THREE.Mesh(
+                new THREE.BoxGeometry(0.12, 0.08, 0.04),
+                whiteMat.clone()
+              );
+              wing.rotation.z = sx * 0.4;
+              wing.position.set(sx * 0.06, TORSO_Y + 0.3, frontZ + 0.012);
+              g.add(wing);
+            });
+
+            // Tie knot
+            const tieKnot = new THREE.Mesh(
+              new THREE.BoxGeometry(0.085, 0.07, 0.04),
+              tieMat
+            );
+            tieKnot.position.set(0, TORSO_Y + 0.25, frontZ + 0.025);
+            g.add(tieKnot);
+            // Tie body
+            const tieBody = new THREE.Mesh(
+              new THREE.BoxGeometry(0.09, 0.32, 0.035),
+              tieMat.clone()
+            );
+            tieBody.position.set(0, TORSO_Y + 0.06, frontZ + 0.025);
+            g.add(tieBody);
+            // Pointed tie tip
+            const tieTip = new THREE.Mesh(
+              new THREE.ConeGeometry(0.06, 0.1, 4),
+              tieMat.clone()
+            );
+            tieTip.rotation.x = Math.PI;
+            tieTip.rotation.y = Math.PI / 4;
+            tieTip.position.set(0, TORSO_Y - 0.14, frontZ + 0.025);
+            g.add(tieTip);
+            // Diagonal navy stripes on tie
+            for (let i = 0; i < 4; i++) {
+              const stripe = new THREE.Mesh(
+                new THREE.BoxGeometry(0.115, 0.015, 0.015),
+                navyMat.clone()
+              );
+              stripe.rotation.z = 0.5;
+              stripe.position.set(0, TORSO_Y + 0.16 - i * 0.08, frontZ + 0.04);
+              g.add(stripe);
+            }
+
+            // Two gold buttons on the right side of the jacket
+            [-0.08, -0.18].forEach((y) => {
+              const btn = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.025, 0.025, 0.022, 14),
+                buttonMat.clone()
+              );
+              btn.rotation.x = Math.PI / 2;
+              btn.position.set(0.14, TORSO_Y + y, frontZ + 0.005);
+              g.add(btn);
+            });
           } else if (accent) {
             // plain tee with accent hem
             const stripe = new THREE.Mesh(
@@ -1585,6 +1663,34 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 g.add(stripe);
               });
             }
+            break;
+          }
+
+          if (kind === 'slp') {
+            // Navy dress pants with a center crease + cuffed hem.
+            const creaseMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0c1a47'),
+            });
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.06, LEG_H + 0.02, LEG_W + 0.06),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+              const crease = new THREE.Mesh(
+                new THREE.BoxGeometry(0.012, LEG_H, 0.012),
+                creaseMat.clone()
+              );
+              crease.position.set(sx * LEG_X, LEG_Y, LEG_W / 2 + 0.035);
+              g.add(crease);
+              const cuff = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.08, 0.05, LEG_W + 0.08),
+                matB.clone()
+              );
+              cuff.position.set(sx * LEG_X, LEG_Y - LEG_H / 2 + 0.02, 0);
+              g.add(cuff);
+            });
             break;
           }
 
@@ -3528,6 +3634,63 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             break;
           }
 
+          if (kind === 'slp_backpack') {
+            // Kid school backpack: red body + white SLP square + shoulder
+            // straps + top loop handle.
+            const bagMat = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
+            const trimMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#ffffff'),
+            });
+            const inkMat = new THREE.MeshStandardMaterial({ color: '#1e3a8a' });
+            // Main body
+            const body = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.9, TORSO_H * 0.85, 0.18),
+              bagMat
+            );
+            body.position.set(0, TORSO_Y - 0.04, -TORSO_D / 2 - 0.14);
+            g.add(body);
+            // Lower pocket
+            const pocket = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.7, 0.22, 0.04),
+              bagMat.clone()
+            );
+            pocket.position.set(0, TORSO_Y - 0.18, -TORSO_D / 2 - 0.24);
+            g.add(pocket);
+            // White SLP logo square
+            const logo = new THREE.Mesh(
+              new THREE.BoxGeometry(0.18, 0.12, 0.03),
+              trimMat
+            );
+            logo.position.set(0, TORSO_Y + 0.08, -TORSO_D / 2 - 0.24);
+            g.add(logo);
+            // 3 small navy ticks suggesting S L P letters
+            for (let i = -1; i <= 1; i++) {
+              const tick = new THREE.Mesh(
+                new THREE.BoxGeometry(0.025, 0.06, 0.01),
+                inkMat.clone()
+              );
+              tick.position.set(i * 0.05, TORSO_Y + 0.08, -TORSO_D / 2 - 0.255);
+              g.add(tick);
+            }
+            // Shoulder straps over the front
+            [-1, 1].forEach((sx) => {
+              const strap = new THREE.Mesh(
+                new THREE.BoxGeometry(0.08, TORSO_H * 0.95, 0.05),
+                bagMat.clone()
+              );
+              strap.position.set(sx * 0.22, TORSO_Y, -TORSO_D / 2 + 0.02);
+              g.add(strap);
+            });
+            // Top loop handle
+            const handle = new THREE.Mesh(
+              new THREE.TorusGeometry(0.06, 0.018, 6, 14, Math.PI),
+              bagMat.clone()
+            );
+            handle.position.set(0, TORSO_Y + 0.38, -TORSO_D / 2 - 0.14);
+            g.add(handle);
+            break;
+          }
+
           if (kind === 'spiderman') {
             // Red backplate with a black spider symbol between the shoulders.
             const spiderMat = new THREE.MeshStandardMaterial({
@@ -4221,6 +4384,45 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 trimY.position.set(sx * LEG_X, footY + 0.2, 0.06);
                 g.add(trimY);
               }
+            });
+            break;
+          }
+
+          if (kind === 'slp') {
+            // Polished black school dress shoes with a contrasting sole.
+            const shoeMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.4,
+              roughness: 0.2,
+            });
+            const soleMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#475569'),
+              roughness: 0.6,
+            });
+            [-1, 1].forEach((sx) => {
+              const shoe = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.07, 0.13, 0.42),
+                shoeMat.clone()
+              );
+              shoe.position.set(sx * LEG_X, footY, 0.08);
+              g.add(shoe);
+              const sole = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.09, 0.04, 0.44),
+                soleMat.clone()
+              );
+              sole.position.set(sx * LEG_X, footY - 0.08, 0.08);
+              g.add(sole);
+              // Toe cap (glossy raised band at the toe)
+              const toeCap = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.07, 0.13, 0.1),
+                new THREE.MeshStandardMaterial({
+                  color,
+                  metalness: 0.55,
+                  roughness: 0.12,
+                })
+              );
+              toeCap.position.set(sx * LEG_X, footY, 0.24);
+              g.add(toeCap);
             });
             break;
           }
@@ -5105,6 +5307,44 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               ridge.position.set(cx + Math.sin(ang) * 0.04, cy + 0.02, cz + 0.04);
               g.add(ridge);
             }
+          } else if (kind === 'slp_badge') {
+            // White rectangular school name tag with a navy header strip
+            // and faint "SLP" letter ticks.
+            const badgeMat = new THREE.MeshStandardMaterial({ color });
+            const inkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1e3a8a'),
+            });
+            const badge = new THREE.Mesh(
+              new THREE.BoxGeometry(0.17, 0.13, 0.025),
+              badgeMat
+            );
+            badge.position.set(cx, cy, cz);
+            g.add(badge);
+            // Navy header band
+            const header = new THREE.Mesh(
+              new THREE.BoxGeometry(0.17, 0.045, 0.028),
+              inkMat
+            );
+            header.position.set(cx, cy + 0.04, cz);
+            g.add(header);
+            // White "SLP" ticks on the header
+            for (let i = -1; i <= 1; i++) {
+              const tick = new THREE.Mesh(
+                new THREE.BoxGeometry(0.025, 0.025, 0.006),
+                badgeMat.clone()
+              );
+              tick.position.set(cx + i * 0.045, cy + 0.04, cz + 0.018);
+              g.add(tick);
+            }
+            // 2 faint name lines underneath
+            [-0.02, -0.05].forEach((dy) => {
+              const line = new THREE.Mesh(
+                new THREE.BoxGeometry(0.12, 0.008, 0.006),
+                inkMat.clone()
+              );
+              line.position.set(cx, cy + dy, cz + 0.016);
+              g.add(line);
+            });
           } else if (kind === 'rose') {
             // Layered rose: 3 stacked half-spheres + a green leaf below.
             const petalMat = new THREE.MeshStandardMaterial({

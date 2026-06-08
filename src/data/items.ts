@@ -22,7 +22,8 @@ export type TopKind =
   | 'panther'
   | 'elsa_top'
   | 'ariel_top'
-  | 'rapunzel_top';
+  | 'rapunzel_top'
+  | 'slp';
 
 export type BottomKind =
   | 'pants'
@@ -47,7 +48,8 @@ export type BottomKind =
   | 'panther'
   | 'elsa_skirt'
   | 'ariel_tail'
-  | 'rapunzel_skirt';
+  | 'rapunzel_skirt'
+  | 'slp';
 
 export type HatKind =
   | 'cap'
@@ -102,7 +104,8 @@ export type BackKind =
   | 'panther_cape'
   | 'elsa_cape'
   | 'ariel_wave'
-  | 'rapunzel_hair';
+  | 'rapunzel_hair'
+  | 'slp_backpack';
 
 export type ShoeKind =
   | 'sneakers'
@@ -126,7 +129,8 @@ export type ShoeKind =
   | 'thor'
   | 'superman'
   | 'flash'
-  | 'panther';
+  | 'panther'
+  | 'slp';
 
 export type CharmKind =
   | 'star'
@@ -146,7 +150,8 @@ export type CharmKind =
   | 'rose'
   | 'snowflake'
   | 'pumpkin_carriage'
-  | 'seashell';
+  | 'seashell'
+  | 'slp_badge';
 
 export type ItemKind =
   | TopKind
@@ -325,6 +330,13 @@ export const ITEMS: Item[] = [
   { id: 'bottom.panther', name: '블랙 팬서 하의', slot: 'bottom', price: 200, color: '#0a0a0a', accent: '#cbd5e1', kind: 'panther', genders: ['boy'] },
   { id: 'back.panther', name: '블랙 팬서 망토', slot: 'back', price: 200, color: '#0a0a0a', accent: '#cbd5e1', kind: 'panther_cape', genders: ['boy'] },
   { id: 'shoes.panther', name: '블랙 팬서 부츠', slot: 'shoes', price: 170, color: '#0a0a0a', accent: '#cbd5e1', kind: 'panther', genders: ['boy'] },
+
+  // ───────── SLP 원복 (boy only) ─────────
+  { id: 'top.slp', name: 'SLP 원복 자켓', slot: 'top', price: 220, color: '#475569', accent: '#dc2626', kind: 'slp', genders: ['boy'] },
+  { id: 'bottom.slp', name: 'SLP 원복 바지', slot: 'bottom', price: 160, color: '#1e3a8a', accent: '#0c1a47', kind: 'slp', genders: ['boy'] },
+  { id: 'shoes.slp', name: 'SLP 구두', slot: 'shoes', price: 140, color: '#0a0a0a', accent: '#475569', kind: 'slp', genders: ['boy'] },
+  { id: 'back.slp', name: 'SLP 가방', slot: 'back', price: 130, color: '#dc2626', accent: '#f8fafc', kind: 'slp_backpack', genders: ['boy'] },
+  { id: 'charm.slp', name: 'SLP 명찰', slot: 'charm', price: 80, color: '#f8fafc', accent: '#1e3a8a', kind: 'slp_badge', genders: ['boy'] },
 
   // ───────── Princess set (girl only) ─────────
   { id: 'top.princess_pink', name: '핑크 공주 드레스', slot: 'top', price: 220, color: '#f9a8d4', accent: '#fde68a', kind: 'princess_dress', genders: ['girl'] },
