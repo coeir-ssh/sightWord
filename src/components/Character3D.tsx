@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { PLYExporter } from 'three/examples/jsm/exporters/PLYExporter.js';
 import { getItem, type Slot } from '../data/items';
+
+export type CharacterExporter = {
+  /** Download the current character as a coloured PLY (3D-printer friendly). */
+  exportPLY: (filename?: string) => void;
+};
 
 type Props = {
   equipped: Record<Slot, string>;
@@ -8,6 +14,8 @@ type Props = {
   className?: string;
   name?: string;
   gender?: 'boy' | 'girl';
+  /** Populated by the component so a parent button can trigger an export. */
+  exporterRef?: React.MutableRefObject<CharacterExporter | null>;
 };
 
 const SKIN = '#ffe1c6';
@@ -40,7 +48,7 @@ const LEG_Y = 0.0;
 
 const FACE_Z = HEAD_SIZE / 2 + 0.001;
 
-export function Character3D({ equipped, jumping = false, className, name, gender = 'boy' }: Props) {
+export function Character3D({ equipped, jumping = false, className, name, gender = 'boy', exporterRef }: Props) {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const charRef = useRef<THREE.Group | null>(null);
   const slotGroupsRef = useRef<Record<Slot, THREE.Group>>({} as any);
@@ -123,6 +131,85 @@ export function Character3D({ equipped, jumping = false, className, name, gender
     const char = new THREE.Group();
     charRef.current = char;
     scene.add(char);
+
+    // ---- 3D-print export -------------------------------------------------
+    // Walks every visible mesh under `char`, bakes the material's flat color
+    // into a per-vertex `color` attribute, freezes the world transform into
+    // the geometry, and emits a single binary PLY. PLY is the most common
+    // single-file, full-colour format slicers (Bambu Studio, PrusaSlicer,
+    // Cura, ChiTuBox) accept for AMS / multicolor printing. STL has no
+    // colour, OBJ needs a sidecar MTL file, 3MF has no first-party
+    // three.js exporter — PLY hits the sweet spot.
+    const exportPLY = (filename = 'character.ply') => {
+      const geometries: THREE.BufferGeometry[] = [];
+      char.updateMatrixWorld(true);
+      char.traverse((obj) => {
+        if (!(obj as THREE.Mesh).isMesh) return;
+        const m = obj as THREE.Mesh;
+        if (!m.visible) return;
+        // Walk up to find any hidden ancestor (e.g. mask-hidden face features).
+        let cur: THREE.Object3D | null = m;
+        while (cur) {
+          if (!cur.visible) return;
+          cur = cur.parent;
+        }
+        const srcGeo = m.geometry as THREE.BufferGeometry;
+        if (!srcGeo.attributes.position) return;
+        const geo = srcGeo.clone();
+        geo.applyMatrix4(m.matrixWorld);
+        if (!geo.attributes.normal) geo.computeVertexNormals();
+
+        // Bake material colour as per-vertex colour. Works for the diffuse
+        // colour on every Standard / Lambert / Phong material we use.
+        const mat = m.material as THREE.Material & { color?: THREE.Color };
+        const col = mat?.color ? mat.color.clone() : new THREE.Color(0xffffff);
+        const count = geo.attributes.position.count;
+        const colors = new Float32Array(count * 3);
+        for (let i = 0; i < count; i++) {
+          colors[i * 3] = col.r;
+          colors[i * 3 + 1] = col.g;
+          colors[i * 3 + 2] = col.b;
+        }
+        geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        // PLYExporter only writes position / normal / color / uv. Drop
+        // anything else so the file stays clean.
+        for (const k of Object.keys(geo.attributes)) {
+          if (k !== 'position' && k !== 'normal' && k !== 'color') geo.deleteAttribute(k);
+        }
+        geometries.push(geo);
+      });
+      if (!geometries.length) return;
+      const group = new THREE.Group();
+      geometries.forEach((g) => {
+        const mesh = new THREE.Mesh(
+          g,
+          new THREE.MeshBasicMaterial({ vertexColors: true })
+        );
+        group.add(mesh);
+      });
+      const exporter = new PLYExporter();
+      exporter.parse(
+        group,
+        (result) => {
+          const blob =
+            result instanceof ArrayBuffer
+              ? new Blob([result], { type: 'application/octet-stream' })
+              : new Blob([result as string], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        },
+        { binary: true }
+      );
+    };
+    if (exporterRef) {
+      exporterRef.current = { exportPLY };
+    }
 
     // ---- Head (big chibi cube with rounded look via slight bevel) ----
     const head = new THREE.Mesh(
@@ -413,6 +500,7 @@ export function Character3D({ equipped, jumping = false, className, name, gender
       renderer.domElement.removeEventListener('pointercancel', onPointerUp);
       renderer.dispose();
       el.removeChild(renderer.domElement);
+      if (exporterRef) exporterRef.current = null;
     };
   }, []);
 

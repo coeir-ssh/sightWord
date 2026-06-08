@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Character3D } from '../components/Character3D';
+import { useRef, useState } from 'react';
+import { Character3D, type CharacterExporter } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
 import {
   useCharGender,
@@ -94,6 +94,8 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState(name);
   const [editingGender, setEditingGender] = useState(false);
+  const exporterRef = useRef<CharacterExporter | null>(null);
+  const exportFilename = `character-${(name || 'unnamed').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 24)}.ply`;
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
@@ -159,9 +161,21 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
       <main className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 px-6 pb-6">
         <section className="bg-white/70 backdrop-blur rounded-3xl shadow-lg p-4 flex flex-col items-center justify-center min-h-[340px]">
           <div className="w-full max-w-[420px] aspect-square mx-auto">
-            <Character3D equipped={inventory.equipped} name={name} gender={gender} />
+            <Character3D
+              equipped={inventory.equipped}
+              name={name}
+              gender={gender}
+              exporterRef={exporterRef}
+            />
           </div>
-          <div className="mt-3 text-xs font-bold text-slate-500 bg-white/80 rounded-full px-3 py-1 shadow pointer-events-none">
+          <button
+            onClick={() => exporterRef.current?.exportPLY(exportFilename)}
+            className="mt-3 bg-white hover:bg-emerald-50 active:scale-95 rounded-2xl px-4 py-2 shadow font-bold text-emerald-700 border-2 border-emerald-300 transition flex items-center gap-2"
+            title="현재 캐릭터를 3D 프린팅용 PLY 파일로 저장"
+          >
+            📦 파일 출력 (.ply)
+          </button>
+          <div className="mt-2 text-xs font-bold text-slate-500 bg-white/80 rounded-full px-3 py-1 shadow pointer-events-none">
             👆 캐릭터를 끌어서 돌려보세요
           </div>
         </section>
