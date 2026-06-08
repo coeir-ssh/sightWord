@@ -4,7 +4,7 @@ import { CoinFly } from '../components/CoinFly';
 import { WordStage, type Stage } from '../components/WordStage';
 import { Character3D } from '../components/Character3D';
 import { Coin } from '../components/Coin';
-import { useCharGender, useCharName, useInventory, useProgress, useSuperMode, useWallet } from '../lib/state';
+import { useCharGender, useCharName, useInventory, useProgress, useWallet } from '../lib/state';
 import { getWeek, WEEK_IDS } from '../data/words';
 import { shuffle } from '../lib/shuffle';
 
@@ -39,8 +39,7 @@ export function Learn({ onBack }: Props) {
   const { gender } = useCharGender();
   const { inventory } = useInventory(gender);
   const { name: charName } = useCharName();
-  const { superMode } = useSuperMode();
-  const multiplier = superMode ? 2 : 1;
+  const multiplier = 1;
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
@@ -168,14 +167,7 @@ export function Learn({ onBack }: Props) {
         >
           ← 홈
         </button>
-        <div className="flex flex-col items-center">
-          <div className="text-blue-700 font-extrabold text-xl">{planLabel}</div>
-          {superMode && (
-            <div className="mt-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-gradient-to-r from-fuchsia-500 to-indigo-500 text-white shadow">
-              🦸‍♂️ SUPER MODE · 코인 2배
-            </div>
-          )}
-        </div>
+        <div className="text-blue-700 font-extrabold text-xl">{planLabel}</div>
         <CoinHUD coins={wallet.coins} />
       </header>
 
