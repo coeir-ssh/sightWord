@@ -48,6 +48,9 @@ export function Character3D({ equipped, jumping = false, className, name, gender
   const faceFeaturesRef = useRef<THREE.Object3D[]>([]);
   const hairGroupRef = useRef<THREE.Group | null>(null);
   const maskOnRef = useRef(false);
+  // Some back items (e.g. ariel_wave, rapunzel_hair) draw their own long
+  // hair down the body, so the base hair must hide too even with no mask.
+  const backHidesHairRef = useRef(false);
   const jumpRef = useRef(false);
   const [failed, setFailed] = useState<string | null>(null);
 
@@ -504,6 +507,162 @@ export function Character3D({ equipped, jumping = false, className, name, gender
       switch (slot) {
         case 'top': {
           const kind = item.kind ?? 'tee';
+
+          if (kind === 'elsa_top') {
+            // Icy fitted bodice with a snowflake emblem on the chest and
+            // shimmering puffy cap sleeves.
+            const fabricMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.45,
+              metalness: 0.15,
+            });
+            const trimColor = accent ?? new THREE.Color('#ffffff');
+            const trimMat = new THREE.MeshStandardMaterial({
+              color: trimColor,
+              emissive: trimColor,
+              emissiveIntensity: 0.25,
+              metalness: 0.4,
+              roughness: 0.2,
+            });
+            const bodice = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.04, TORSO_H + 0.04, TORSO_D + 0.04),
+              fabricMat
+            );
+            bodice.position.set(0, TORSO_Y, 0);
+            g.add(bodice);
+            // Snowflake on chest (3 crossed lines + gem)
+            const frontZE = (TORSO_D + 0.04) / 2;
+            for (let i = 0; i < 3; i++) {
+              const line = new THREE.Mesh(
+                new THREE.BoxGeometry(0.18, 0.018, 0.02),
+                trimMat.clone()
+              );
+              line.rotation.z = (i * Math.PI) / 3;
+              line.position.set(0, TORSO_Y + 0.04, frontZE + 0.005);
+              g.add(line);
+            }
+            const gemSnow = new THREE.Mesh(
+              new THREE.OctahedronGeometry(0.04),
+              trimMat.clone()
+            );
+            gemSnow.position.set(0, TORSO_Y + 0.04, frontZE + 0.025);
+            g.add(gemSnow);
+            // Sweetheart neckline trim + waist trim
+            const neckE = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.06, 0.04, TORSO_D + 0.05),
+              trimMat.clone()
+            );
+            neckE.position.set(0, TORSO_Y + TORSO_H / 2 - 0.02, 0);
+            g.add(neckE);
+            const waistE = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.06, 0.05, TORSO_D + 0.05),
+              trimMat.clone()
+            );
+            waistE.position.set(0, TORSO_Y - TORSO_H / 2 + 0.04, 0);
+            g.add(waistE);
+            // Puffy sleeves
+            [-1, 1].forEach((sx) => {
+              const puff = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2, 18, 14),
+                fabricMat.clone()
+              );
+              puff.scale.set(1, 0.75, 1);
+              puff.position.set(sx * ARM_X, ARM_Y + ARM_H / 2 - 0.04, 0);
+              g.add(puff);
+            });
+            break;
+          }
+
+          if (kind === 'ariel_top') {
+            // Two purple seashell cups on the bare chest — no torso cover.
+            const shellMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.4,
+              metalness: 0.2,
+            });
+            const ridgeMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fbcfe8'),
+            });
+            [-1, 1].forEach((sx) => {
+              const shell = new THREE.Mesh(
+                new THREE.SphereGeometry(
+                  0.14, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2
+                ),
+                shellMat.clone()
+              );
+              shell.scale.set(1, 0.75, 1);
+              shell.position.set(sx * 0.16, TORSO_Y + 0.16, TORSO_D / 2 + 0.04);
+              shell.rotation.x = -Math.PI / 3;
+              g.add(shell);
+              for (let i = -2; i <= 2; i++) {
+                const ang = i * 0.25;
+                const ridge = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.008, 0.13, 0.008),
+                  ridgeMat.clone()
+                );
+                ridge.rotation.z = ang;
+                ridge.position.set(
+                  sx * 0.16 + Math.sin(ang) * 0.04,
+                  TORSO_Y + 0.18,
+                  TORSO_D / 2 + 0.08
+                );
+                g.add(ridge);
+              }
+            });
+            break;
+          }
+
+          if (kind === 'rapunzel_top') {
+            // Purple corset bodice with white blouse panel and criss-cross
+            // lacing on the chest, puffy white shoulders.
+            const fabricMat = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
+            const trimColor = accent ?? new THREE.Color('#f9a8d4');
+            const trimMat = new THREE.MeshStandardMaterial({ color: trimColor });
+            const laceMat = new THREE.MeshStandardMaterial({ color: '#ffffff' });
+            const bodice = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.04, TORSO_H + 0.04, TORSO_D + 0.04),
+              fabricMat
+            );
+            bodice.position.set(0, TORSO_Y, 0);
+            g.add(bodice);
+            const frontZR = (TORSO_D + 0.04) / 2;
+            // White blouse panel under the corset front
+            const blouse = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.55, TORSO_H * 0.45, 0.03),
+              laceMat
+            );
+            blouse.position.set(0, TORSO_Y + 0.1, frontZR + 0.005);
+            g.add(blouse);
+            // Criss-cross lacing
+            for (let i = 0; i < 4; i++) {
+              const y = TORSO_Y + 0.18 - i * 0.08;
+              const l1 = new THREE.Mesh(
+                new THREE.BoxGeometry(0.16, 0.015, 0.02),
+                trimMat.clone()
+              );
+              l1.rotation.z = 0.4;
+              l1.position.set(0, y, frontZR + 0.025);
+              g.add(l1);
+              const l2 = new THREE.Mesh(
+                new THREE.BoxGeometry(0.16, 0.015, 0.02),
+                trimMat.clone()
+              );
+              l2.rotation.z = -0.4;
+              l2.position.set(0, y, frontZR + 0.025);
+              g.add(l2);
+            }
+            // Puffy white shoulders
+            [-1, 1].forEach((sx) => {
+              const puff = new THREE.Mesh(
+                new THREE.SphereGeometry(0.16, 14, 10),
+                laceMat.clone()
+              );
+              puff.scale.set(1, 0.55, 1);
+              puff.position.set(sx * ARM_X, ARM_Y + ARM_H / 2 - 0.02, 0);
+              g.add(puff);
+            });
+            break;
+          }
 
           if (kind === 'princess_dress') {
             // Fitted gown bodice with metallic trim along neckline and
@@ -1517,6 +1676,119 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             break;
           }
 
+          if (kind === 'elsa_skirt') {
+            // Long icy gown with sparkles and a metallic waist sash.
+            const gownMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.4,
+              metalness: 0.15,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.08),
+            });
+            const gown = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.42, 0.85, 1.0, 28),
+              gownMat
+            );
+            gown.position.set(0, -0.15, 0);
+            g.add(gown);
+            const sparkleMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#ffffff'),
+              emissive: accent ?? new THREE.Color('#ffffff'),
+              emissiveIntensity: 0.9,
+            });
+            for (let i = 0; i < 14; i++) {
+              const col = i % 4 - 1.5;
+              const row = Math.floor(i / 4);
+              const sp = new THREE.Mesh(
+                new THREE.SphereGeometry(0.025, 8, 8),
+                sparkleMat.clone()
+              );
+              sp.position.set(col * 0.22, 0.1 - row * 0.22, 0.42 + col * col * 0.04);
+              g.add(sp);
+            }
+            const sash = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.44, 0.44, 0.08, 24),
+              sparkleMat.clone()
+            );
+            sash.position.set(0, 0.3, 0);
+            g.add(sash);
+            break;
+          }
+
+          if (kind === 'ariel_tail') {
+            // Green mermaid tail — solid cone covering both legs + ringed
+            // scale rows + a wide fluke fin at the bottom.
+            const scaleMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.4,
+              metalness: 0.3,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
+            });
+            const finMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#15803d'),
+              roughness: 0.5,
+            });
+            const tail = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.32, 0.18, 1.0, 24),
+              scaleMat
+            );
+            tail.position.set(0, -0.15, 0);
+            g.add(tail);
+            // Scale rings
+            for (let i = 0; i < 6; i++) {
+              const ring = new THREE.Mesh(
+                new THREE.TorusGeometry(0.28 - i * 0.02, 0.015, 8, 24),
+                finMat.clone()
+              );
+              ring.rotation.x = Math.PI / 2;
+              ring.position.set(0, 0.2 - i * 0.16, 0);
+              g.add(ring);
+            }
+            // Fluke fin — built inside a Group whose origin sits at x=0 so
+            // the per-leg `redistribute` doesn't split it onto one leg
+            // pivot (only direct slot-group children get redistributed).
+            const flukeGroup = new THREE.Group();
+            flukeGroup.position.set(0, -0.7, 0);
+            [-1, 1].forEach((sx) => {
+              const fluke = new THREE.Mesh(
+                new THREE.BoxGeometry(0.34, 0.06, 0.2),
+                finMat.clone()
+              );
+              fluke.rotation.z = sx * 0.45;
+              fluke.position.set(sx * 0.16, 0, 0);
+              flukeGroup.add(fluke);
+            });
+            g.add(flukeGroup);
+            break;
+          }
+
+          if (kind === 'rapunzel_skirt') {
+            // Lavender knee-length skirt with a white apron front and a
+            // pink waist sash. Base legs/feet stay visible beneath.
+            const fabricMat = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
+            const apronMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#ffffff'),
+            });
+            const skirt = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.42, 0.7, 0.7, 24),
+              fabricMat
+            );
+            skirt.position.set(0, 0, 0);
+            g.add(skirt);
+            const apron = new THREE.Mesh(
+              new THREE.BoxGeometry(0.45, 0.55, 0.04),
+              apronMat
+            );
+            apron.position.set(0, 0, 0.34);
+            g.add(apron);
+            const sashR = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.44, 0.44, 0.07, 24),
+              new THREE.MeshStandardMaterial({ color: '#f9a8d4' })
+            );
+            sashR.position.set(0, 0.33, 0);
+            g.add(sashR);
+            break;
+          }
+
           if (kind === 'princess_skirt') {
             // Long flowing ball-gown cone covering legs from waist to floor.
             const gown = new THREE.Mesh(
@@ -1972,6 +2244,114 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               );
               tipGem.position.set(px, hatBaseY + 0.17 + h + 0.02, pz);
               g.add(tipGem);
+            }
+            break;
+          }
+
+          if (kind === 'elsa_crown') {
+            // Angular icy crystal spires + cyan gems on a thin band.
+            const iceMat = new THREE.MeshStandardMaterial({
+              color,
+              metalness: 0.5,
+              roughness: 0.2,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.15),
+            });
+            const gemMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#38bdf8'),
+              emissive: accent ?? new THREE.Color('#0ea5e9'),
+              emissiveIntensity: 0.5,
+              metalness: 0.6,
+              roughness: 0.15,
+            });
+            const band = new THREE.Mesh(
+              new THREE.TorusGeometry(0.36, 0.02, 12, 32),
+              iceMat
+            );
+            band.rotation.x = Math.PI / 2;
+            band.position.set(0, hatBaseY + 0.04, 0);
+            g.add(band);
+            const N = 5;
+            for (let i = 0; i < N; i++) {
+              const t = i / (N - 1) - 0.5;
+              const a = Math.PI / 2 + t * (Math.PI * 0.85);
+              const px = Math.cos(a) * 0.36;
+              const pz = Math.sin(a) * 0.36;
+              const h = i === Math.floor(N / 2) ? 0.3 : 0.2;
+              const spire = new THREE.Mesh(
+                new THREE.OctahedronGeometry(0.05),
+                iceMat.clone()
+              );
+              spire.scale.set(0.6, h * 4, 0.6);
+              spire.position.set(px, hatBaseY + 0.04 + h / 2, pz);
+              g.add(spire);
+              const gem = new THREE.Mesh(
+                new THREE.OctahedronGeometry(0.04),
+                gemMat.clone()
+              );
+              gem.position.set(px, hatBaseY + 0.04 + h + 0.04, pz);
+              g.add(gem);
+            }
+            break;
+          }
+
+          if (kind === 'belle_bow') {
+            // Layered red rose with green leaves pinned to the side of head.
+            const roseMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
+            const leafMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#16a34a'),
+            });
+            const side = 1;
+            const baseX = side * (HEAD_SIZE / 2 + 0.02);
+            const baseY = hatBaseY - 0.05;
+            const baseZ = 0.08;
+            [0.1, 0.075, 0.05].forEach((r, i) => {
+              const petal = new THREE.Mesh(
+                new THREE.SphereGeometry(r, 12, 10),
+                roseMat.clone()
+              );
+              petal.scale.set(1, 0.7, 1);
+              petal.position.set(baseX + i * 0.01, baseY + i * 0.025, baseZ + i * 0.01);
+              g.add(petal);
+            });
+            [-1, 1].forEach((dy) => {
+              const leaf = new THREE.Mesh(
+                new THREE.BoxGeometry(0.1, 0.04, 0.02),
+                leafMat.clone()
+              );
+              leaf.rotation.z = dy * 0.5;
+              leaf.position.set(baseX - 0.08, baseY + dy * 0.05, baseZ);
+              g.add(leaf);
+            });
+            break;
+          }
+
+          if (kind === 'ariel_shell') {
+            // Small pink seashell hair clip on top of the head.
+            const shellMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.4,
+              metalness: 0.2,
+            });
+            const ridgeMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#f472b6'),
+            });
+            const shell = new THREE.Mesh(
+              new THREE.SphereGeometry(0.13, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2),
+              shellMat
+            );
+            shell.scale.set(1, 0.7, 1);
+            shell.position.set(0, hatBaseY + 0.08, 0.22);
+            shell.rotation.x = -Math.PI / 3;
+            g.add(shell);
+            for (let i = -2; i <= 2; i++) {
+              const ang = i * 0.25;
+              const ridge = new THREE.Mesh(
+                new THREE.BoxGeometry(0.01, 0.13, 0.01),
+                ridgeMat.clone()
+              );
+              ridge.rotation.z = ang;
+              ridge.position.set(Math.sin(ang) * 0.05, hatBaseY + 0.1, 0.25);
+              g.add(ridge);
             }
             break;
           }
@@ -2986,6 +3366,165 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             disc.rotation.x = Math.PI / 2;
             disc.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.06);
             g.add(disc);
+            break;
+          }
+
+          if (kind === 'elsa_cape') {
+            // Translucent shimmering icy cape sprinkled with snowflake dots.
+            const capeMat = new THREE.MeshStandardMaterial({
+              color,
+              side: THREE.DoubleSide,
+              roughness: 0.35,
+              metalness: 0.25,
+              transparent: true,
+              opacity: 0.85,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.08),
+            });
+            const cape = new THREE.Mesh(
+              new THREE.CylinderGeometry(
+                0.5, 0.85, 1.5, 22, 1, true,
+                -Math.PI * 0.65, Math.PI * 1.3
+              ),
+              capeMat
+            );
+            cape.position.set(0, TORSO_Y - 0.4, -TORSO_D / 2 - 0.04);
+            g.add(cape);
+            const sparkleMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#ffffff'),
+              emissive: accent ?? new THREE.Color('#ffffff'),
+              emissiveIntensity: 1.0,
+            });
+            for (let i = 0; i < 12; i++) {
+              const col = (i % 4) - 1.5;
+              const row = Math.floor(i / 4);
+              const sp = new THREE.Mesh(
+                new THREE.SphereGeometry(0.025, 8, 8),
+                sparkleMat.clone()
+              );
+              sp.position.set(col * 0.22, TORSO_Y - 0.1 - row * 0.35, -TORSO_D / 2 - 0.08);
+              g.add(sp);
+            }
+            break;
+          }
+
+          if (kind === 'ariel_wave') {
+            // Iconic flowing red hair: long back panel + curls + two front
+            // strands flowing over the shoulders.
+            const hairMat = new THREE.MeshStandardMaterial({ color, roughness: 0.9 });
+            const tipMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#7f1d1d'),
+            });
+            // Top hair cap covering the head
+            const topHairA = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.08, 0.3, HEAD_SIZE + 0.06),
+              hairMat.clone()
+            );
+            topHairA.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.02, 0);
+            g.add(topHairA);
+            // Side hair tufts (replacing the boy's brown tufts)
+            [-1, 1].forEach((sx) => {
+              const tuft = new THREE.Mesh(
+                new THREE.BoxGeometry(0.12, 0.35, HEAD_SIZE * 0.85),
+                hairMat.clone()
+              );
+              tuft.position.set(sx * (HEAD_SIZE / 2 + 0.04), HEAD_Y + 0.04, 0);
+              g.add(tuft);
+            });
+            // Long flowing back panel
+            const back = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.12, 1.2, 0.14),
+              hairMat.clone()
+            );
+            back.position.set(0, TORSO_Y - 0.1, -TORSO_D / 2 - 0.08);
+            g.add(back);
+            // Curl tips at the bottom
+            [-0.24, -0.08, 0.08, 0.24].forEach((dx) => {
+              const curl = new THREE.Mesh(
+                new THREE.SphereGeometry(0.09, 12, 10),
+                tipMat.clone()
+              );
+              curl.scale.set(1, 1.3, 1);
+              curl.position.set(dx, TORSO_Y - 0.85, -TORSO_D / 2 - 0.1);
+              g.add(curl);
+            });
+            // Front strands over the shoulders
+            [-1, 1].forEach((sx) => {
+              const strand = new THREE.Mesh(
+                new THREE.BoxGeometry(0.1, 0.5, 0.06),
+                hairMat.clone()
+              );
+              strand.position.set(sx * 0.32, TORSO_Y + 0.1, TORSO_D / 2 + 0.05);
+              g.add(strand);
+            });
+            break;
+          }
+
+          if (kind === 'rapunzel_hair') {
+            // Extremely long golden hair: top wrap + heavy braid down the
+            // back past the body, with little pink flowers tucked in.
+            const hairMat = new THREE.MeshStandardMaterial({ color, roughness: 0.85 });
+            const flowerMat = new THREE.MeshStandardMaterial({
+              color: '#f472b6',
+            });
+            // Top hair covering the head
+            const topHairR = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE + 0.1, 0.3, HEAD_SIZE + 0.08),
+              hairMat.clone()
+            );
+            topHairR.position.set(0, HEAD_Y + HEAD_SIZE / 2 - 0.02, 0);
+            g.add(topHairR);
+            // Side tufts
+            [-1, 1].forEach((sx) => {
+              const tuft = new THREE.Mesh(
+                new THREE.BoxGeometry(0.12, 0.32, HEAD_SIZE * 0.85),
+                hairMat.clone()
+              );
+              tuft.position.set(sx * (HEAD_SIZE / 2 + 0.04), HEAD_Y + 0.04, 0);
+              g.add(tuft);
+            });
+            // Long braid sections (5 stacked rounded boxes)
+            for (let i = 0; i < 6; i++) {
+              const section = new THREE.Mesh(
+                new THREE.SphereGeometry(0.16 - i * 0.01, 14, 10),
+                hairMat.clone()
+              );
+              section.scale.set(1, 0.55, 0.6);
+              section.position.set(0, TORSO_Y - 0.05 - i * 0.28, -TORSO_D / 2 - 0.1);
+              g.add(section);
+            }
+            // Pink flowers tucked along the braid
+            [-0.25, 0.05, 0.35].forEach((y, i) => {
+              const flower = new THREE.Mesh(
+                new THREE.SphereGeometry(0.045, 12, 10),
+                flowerMat.clone()
+              );
+              flower.scale.set(1.2, 1.2, 0.5);
+              flower.position.set(
+                (i % 2 === 0 ? -1 : 1) * 0.12,
+                TORSO_Y + y,
+                -TORSO_D / 2 - 0.06
+              );
+              g.add(flower);
+              const center = new THREE.Mesh(
+                new THREE.SphereGeometry(0.018, 8, 8),
+                new THREE.MeshStandardMaterial({ color: '#fde047' })
+              );
+              center.position.set(
+                (i % 2 === 0 ? -1 : 1) * 0.12,
+                TORSO_Y + y,
+                -TORSO_D / 2 - 0.03
+              );
+              g.add(center);
+            });
+            // Front strands
+            [-1, 1].forEach((sx) => {
+              const strand = new THREE.Mesh(
+                new THREE.BoxGeometry(0.08, 0.45, 0.06),
+                hairMat.clone()
+              );
+              strand.position.set(sx * 0.3, TORSO_Y + 0.1, TORSO_D / 2 + 0.05);
+              g.add(strand);
+            });
             break;
           }
 
@@ -4470,6 +5009,102 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               tail.position.set(cx + sx * 0.04, cy - 0.1, cz);
               g.add(tail);
             });
+          } else if (kind === 'snowflake') {
+            // 6-arm snowflake from 3 crossed bars + a center gem.
+            const iceMat = new THREE.MeshStandardMaterial({
+              color,
+              emissive: color,
+              emissiveIntensity: 0.55,
+              metalness: 0.5,
+              roughness: 0.2,
+            });
+            for (let i = 0; i < 3; i++) {
+              const line = new THREE.Mesh(
+                new THREE.BoxGeometry(0.16, 0.02, 0.02),
+                iceMat.clone()
+              );
+              line.rotation.z = (i * Math.PI) / 3;
+              line.position.set(cx, cy, cz);
+              g.add(line);
+            }
+            const center = new THREE.Mesh(
+              new THREE.OctahedronGeometry(0.04),
+              new THREE.MeshStandardMaterial({
+                color: accent ?? new THREE.Color('#0ea5e9'),
+                emissive: accent ?? new THREE.Color('#0ea5e9'),
+                emissiveIntensity: 0.6,
+              })
+            );
+            center.position.set(cx, cy, cz + 0.01);
+            g.add(center);
+          } else if (kind === 'pumpkin_carriage') {
+            // Ridged orange pumpkin body + golden wheels + green stem.
+            const pumpMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
+            const wheelMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fde047'),
+              metalness: 0.6,
+              roughness: 0.3,
+            });
+            const body = new THREE.Mesh(
+              new THREE.SphereGeometry(0.1, 14, 12),
+              pumpMat
+            );
+            body.scale.set(1, 0.85, 1);
+            body.position.set(cx, cy, cz);
+            g.add(body);
+            for (let i = 0; i < 3; i++) {
+              const ridge = new THREE.Mesh(
+                new THREE.TorusGeometry(0.1, 0.012, 6, 16, Math.PI),
+                pumpMat.clone()
+              );
+              ridge.rotation.x = Math.PI / 2;
+              ridge.rotation.z = (i - 1) * 0.5;
+              ridge.position.set(cx, cy, cz + 0.015);
+              g.add(ridge);
+            }
+            [-1, 1].forEach((sx) => {
+              const wheel = new THREE.Mesh(
+                new THREE.TorusGeometry(0.04, 0.012, 6, 12),
+                wheelMat.clone()
+              );
+              wheel.rotation.y = Math.PI / 2;
+              wheel.position.set(cx + sx * 0.08, cy - 0.09, cz);
+              g.add(wheel);
+            });
+            const stem = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.014, 0.014, 0.05, 6),
+              new THREE.MeshStandardMaterial({ color: '#15803d' })
+            );
+            stem.position.set(cx, cy + 0.1, cz);
+            g.add(stem);
+          } else if (kind === 'seashell') {
+            // Small pink half-dome shell with radial ridge lines.
+            const shellMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.4,
+              metalness: 0.2,
+            });
+            const ridgeMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#f472b6'),
+            });
+            const shell = new THREE.Mesh(
+              new THREE.SphereGeometry(0.11, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2),
+              shellMat
+            );
+            shell.scale.set(1, 0.7, 1);
+            shell.position.set(cx, cy, cz);
+            shell.rotation.x = -Math.PI / 4;
+            g.add(shell);
+            for (let i = -2; i <= 2; i++) {
+              const ang = i * 0.25;
+              const ridge = new THREE.Mesh(
+                new THREE.BoxGeometry(0.008, 0.1, 0.008),
+                ridgeMat.clone()
+              );
+              ridge.rotation.z = ang;
+              ridge.position.set(cx + Math.sin(ang) * 0.04, cy + 0.02, cz + 0.04);
+              g.add(ridge);
+            }
           } else if (kind === 'rose') {
             // Layered rose: 3 stacked half-spheres + a green leaf below.
             const petalMat = new THREE.MeshStandardMaterial({
@@ -4534,10 +5169,15 @@ export function Character3D({ equipped, jumping = false, className, name, gender
     // Hulk head cover.
     const maskOn = !!equipped.mask;
     maskOnRef.current = maskOn;
+    const backKind = equipped.back ? getItem(equipped.back)?.kind : undefined;
+    const backHidesHair =
+      backKind === 'ariel_wave' || backKind === 'rapunzel_hair';
+    backHidesHairRef.current = backHidesHair;
     faceFeaturesRef.current.forEach((m) => {
       m.visible = !maskOn;
     });
-    if (hairGroupRef.current) hairGroupRef.current.visible = !maskOn;
+    if (hairGroupRef.current)
+      hairGroupRef.current.visible = !maskOn && !backHidesHair;
 
     // Undershirt (런닝) when nothing in 'top' slot
     if (!equipped.top) {
@@ -4672,7 +5312,7 @@ export function Character3D({ equipped, jumping = false, className, name, gender
     }
 
     // A full-head mask (Iron Man / Spider-Man / Hulk) hides the hair.
-    hairGroup.visible = !maskOnRef.current;
+    hairGroup.visible = !maskOnRef.current && !backHidesHairRef.current;
   }, [gender]);
 
   useEffect(() => {

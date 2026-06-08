@@ -19,7 +19,10 @@ export type TopKind =
   | 'thor'
   | 'superman'
   | 'flash'
-  | 'panther';
+  | 'panther'
+  | 'elsa_top'
+  | 'ariel_top'
+  | 'rapunzel_top';
 
 export type BottomKind =
   | 'pants'
@@ -41,7 +44,10 @@ export type BottomKind =
   | 'thor'
   | 'superman'
   | 'flash'
-  | 'panther';
+  | 'panther'
+  | 'elsa_skirt'
+  | 'ariel_tail'
+  | 'rapunzel_skirt';
 
 export type HatKind =
   | 'cap'
@@ -56,7 +62,10 @@ export type HatKind =
   | 'robot'
   | 'tiara'
   | 'flower_crown'
-  | 'princess_crown';
+  | 'princess_crown'
+  | 'elsa_crown'
+  | 'belle_bow'
+  | 'ariel_shell';
 
 export type MaskKind =
   | 'ironman'
@@ -90,7 +99,10 @@ export type BackKind =
   | 'thor_cape'
   | 'superman_cape'
   | 'flash_bolt'
-  | 'panther_cape';
+  | 'panther_cape'
+  | 'elsa_cape'
+  | 'ariel_wave'
+  | 'rapunzel_hair';
 
 export type ShoeKind =
   | 'sneakers'
@@ -131,7 +143,10 @@ export type CharmKind =
   | 'ironman'
   | 'wand'
   | 'ribbon_bow'
-  | 'rose';
+  | 'rose'
+  | 'snowflake'
+  | 'pumpkin_carriage'
+  | 'seashell';
 
 export type ItemKind =
   | TopKind
@@ -335,6 +350,47 @@ export const ITEMS: Item[] = [
   { id: 'charm.wand', name: '요술봉', slot: 'charm', price: 120, color: '#fde047', kind: 'wand', genders: ['girl'] },
   { id: 'charm.ribbon', name: '리본', slot: 'charm', price: 70, color: '#ec4899', kind: 'ribbon_bow', genders: ['girl'] },
   { id: 'charm.rose', name: '장미', slot: 'charm', price: 90, color: '#ef4444', kind: 'rose', genders: ['girl'] },
+
+  // ───────── Disney Princess full sets (girl only) ─────────
+  // Elsa (Frozen) — icy blues + snowflakes
+  { id: 'hat.elsa', name: '엘사 크라운', slot: 'hat', price: 220, color: '#bae6fd', accent: '#38bdf8', kind: 'elsa_crown', genders: ['girl'] },
+  { id: 'top.elsa', name: '엘사 드레스', slot: 'top', price: 260, color: '#7dd3fc', accent: '#ffffff', kind: 'elsa_top', genders: ['girl'] },
+  { id: 'bottom.elsa', name: '엘사 스커트', slot: 'bottom', price: 240, color: '#7dd3fc', accent: '#ffffff', kind: 'elsa_skirt', genders: ['girl'] },
+  { id: 'back.elsa', name: '엘사 망토', slot: 'back', price: 240, color: '#bae6fd', accent: '#ffffff', kind: 'elsa_cape', genders: ['girl'] },
+  { id: 'shoes.elsa', name: '엘사 유리 구두', slot: 'shoes', price: 240, color: '#bae6fd', accent: '#0ea5e9', kind: 'glass_slipper', genders: ['girl'] },
+  { id: 'charm.elsa', name: '엘사 눈송이', slot: 'charm', price: 110, color: '#bae6fd', accent: '#0ea5e9', kind: 'snowflake', genders: ['girl'] },
+
+  // Cinderella — pale blue ball gown
+  { id: 'hat.cinderella', name: '신데렐라 티아라', slot: 'hat', price: 200, color: '#cbd5e1', accent: '#0ea5e9', kind: 'tiara', genders: ['girl'] },
+  { id: 'top.cinderella', name: '신데렐라 드레스', slot: 'top', price: 240, color: '#a5d8ff', accent: '#f1f5f9', kind: 'princess_dress', genders: ['girl'] },
+  { id: 'bottom.cinderella', name: '신데렐라 스커트', slot: 'bottom', price: 220, color: '#a5d8ff', accent: '#ffffff', kind: 'princess_skirt', genders: ['girl'] },
+  { id: 'back.cinderella', name: '신데렐라 망토', slot: 'back', price: 220, color: '#a5d8ff', accent: '#ffffff', kind: 'princess_cape', genders: ['girl'] },
+  { id: 'shoes.cinderella', name: '신데렐라 유리 구두', slot: 'shoes', price: 260, color: '#e0f2fe', accent: '#0ea5e9', kind: 'glass_slipper', genders: ['girl'] },
+  { id: 'charm.cinderella', name: '신데렐라 호박 마차', slot: 'charm', price: 140, color: '#fb923c', accent: '#fde047', kind: 'pumpkin_carriage', genders: ['girl'] },
+
+  // Belle (Beauty & the Beast) — golden yellow gown
+  { id: 'hat.belle', name: '벨 장미 핀', slot: 'hat', price: 150, color: '#dc2626', accent: '#16a34a', kind: 'belle_bow', genders: ['girl'] },
+  { id: 'top.belle', name: '벨 드레스', slot: 'top', price: 240, color: '#fde047', accent: '#fbbf24', kind: 'princess_dress', genders: ['girl'] },
+  { id: 'bottom.belle', name: '벨 스커트', slot: 'bottom', price: 220, color: '#fde047', accent: '#fef3c7', kind: 'princess_skirt', genders: ['girl'] },
+  { id: 'back.belle', name: '벨 망토', slot: 'back', price: 220, color: '#fde047', accent: '#dc2626', kind: 'princess_cape', genders: ['girl'] },
+  { id: 'shoes.belle', name: '벨 슈즈', slot: 'shoes', price: 150, color: '#fde047', accent: '#fbbf24', kind: 'ballet', genders: ['girl'] },
+  { id: 'charm.belle', name: '벨 장미', slot: 'charm', price: 110, color: '#dc2626', accent: '#16a34a', kind: 'rose', genders: ['girl'] },
+
+  // Ariel (Little Mermaid) — purple shell + green tail
+  { id: 'hat.ariel', name: '아리엘 조개 핀', slot: 'hat', price: 140, color: '#fbcfe8', accent: '#f472b6', kind: 'ariel_shell', genders: ['girl'] },
+  { id: 'top.ariel', name: '아리엘 조개 상의', slot: 'top', price: 220, color: '#c084fc', accent: '#fbcfe8', kind: 'ariel_top', genders: ['girl'] },
+  { id: 'bottom.ariel', name: '아리엘 인어 꼬리', slot: 'bottom', price: 260, color: '#22c55e', accent: '#15803d', kind: 'ariel_tail', genders: ['girl'] },
+  { id: 'back.ariel', name: '아리엘 빨간 머리', slot: 'back', price: 200, color: '#ef4444', accent: '#7f1d1d', kind: 'ariel_wave', genders: ['girl'] },
+  { id: 'shoes.ariel', name: '아리엘 진주 슈즈', slot: 'shoes', price: 160, color: '#fce7f3', accent: '#f472b6', kind: 'ballet', genders: ['girl'] },
+  { id: 'charm.ariel', name: '아리엘 조개', slot: 'charm', price: 110, color: '#fbcfe8', accent: '#f472b6', kind: 'seashell', genders: ['girl'] },
+
+  // Rapunzel (Tangled) — lavender corset + long blonde hair
+  { id: 'hat.rapunzel', name: '라푼젤 꽃 화관', slot: 'hat', price: 150, color: '#fde047', accent: '#f472b6', kind: 'flower_crown', genders: ['girl'] },
+  { id: 'top.rapunzel', name: '라푼젤 상의', slot: 'top', price: 220, color: '#c084fc', accent: '#f9a8d4', kind: 'rapunzel_top', genders: ['girl'] },
+  { id: 'bottom.rapunzel', name: '라푼젤 스커트', slot: 'bottom', price: 220, color: '#a78bfa', accent: '#ffffff', kind: 'rapunzel_skirt', genders: ['girl'] },
+  { id: 'back.rapunzel', name: '라푼젤 황금 머리', slot: 'back', price: 240, color: '#fde047', accent: '#fbbf24', kind: 'rapunzel_hair', genders: ['girl'] },
+  { id: 'shoes.rapunzel', name: '라푼젤 샌들', slot: 'shoes', price: 130, color: '#92400e', accent: '#fbbf24', kind: 'sandals', genders: ['girl'] },
+  { id: 'charm.rapunzel', name: '라푼젤 태양', slot: 'charm', price: 110, color: '#fde047', accent: '#fbbf24', kind: 'sun', genders: ['girl'] },
 ];
 
 export function itemsForGender(g: CharGender): Item[] {
