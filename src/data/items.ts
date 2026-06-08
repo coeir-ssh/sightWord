@@ -13,7 +13,13 @@ export type TopKind =
   | 'ironman'
   | 'princess_dress'
   | 'spiderman'
-  | 'hulk';
+  | 'hulk'
+  | 'batman'
+  | 'captain_america'
+  | 'thor'
+  | 'superman'
+  | 'flash'
+  | 'panther';
 
 export type BottomKind =
   | 'pants'
@@ -29,7 +35,13 @@ export type BottomKind =
   | 'princess_skirt'
   | 'tutu'
   | 'spiderman'
-  | 'hulk';
+  | 'hulk'
+  | 'batman'
+  | 'captain_america'
+  | 'thor'
+  | 'superman'
+  | 'flash'
+  | 'panther';
 
 export type HatKind =
   | 'cap'
@@ -46,7 +58,15 @@ export type HatKind =
   | 'flower_crown'
   | 'princess_crown';
 
-export type MaskKind = 'ironman' | 'spiderman' | 'hulk';
+export type MaskKind =
+  | 'ironman'
+  | 'spiderman'
+  | 'hulk'
+  | 'batman'
+  | 'captain_america'
+  | 'thor'
+  | 'flash'
+  | 'panther';
 
 export type BackKind =
   | 'kinder'
@@ -64,7 +84,13 @@ export type BackKind =
   | 'butterfly'
   | 'princess_cape'
   | 'spiderman'
-  | 'hulk';
+  | 'hulk'
+  | 'batman_cape'
+  | 'cap_shield'
+  | 'thor_cape'
+  | 'superman_cape'
+  | 'flash_bolt'
+  | 'panther_cape';
 
 export type ShoeKind =
   | 'sneakers'
@@ -82,7 +108,13 @@ export type ShoeKind =
   | 'ballet'
   | 'ribbon_heel'
   | 'spiderman'
-  | 'hulk';
+  | 'hulk'
+  | 'batman'
+  | 'captain_america'
+  | 'thor'
+  | 'superman'
+  | 'flash'
+  | 'panther';
 
 export type CharmKind =
   | 'star'
@@ -237,6 +269,47 @@ export const ITEMS: Item[] = [
   { id: 'bottom.hulk', name: '헐크 찢어진 바지', slot: 'bottom', price: 180, color: '#475569', accent: '#73b339', kind: 'hulk', genders: ['boy'] },
   { id: 'back.hulk', name: '헐크 찢어진 셔츠', slot: 'back', price: 120, color: '#6d28d9', accent: '#4c1d95', kind: 'hulk', genders: ['boy'] },
   { id: 'shoes.hulk', name: '헐크 맨발', slot: 'shoes', price: 100, color: '#73b339', accent: '#3f6212', kind: 'hulk', genders: ['boy'] },
+
+  // ───────── Batman set (boy only) ─────────
+  { id: 'mask.batman', name: '배트맨 카울', slot: 'mask', price: 200, color: '#0f172a', accent: '#cbd5e1', kind: 'batman', genders: ['boy'] },
+  { id: 'top.batman', name: '배트맨 갑옷', slot: 'top', price: 200, color: '#0f172a', accent: '#fbbf24', kind: 'batman', genders: ['boy'] },
+  { id: 'bottom.batman', name: '배트맨 바지', slot: 'bottom', price: 170, color: '#1f2937', accent: '#fbbf24', kind: 'batman', genders: ['boy'] },
+  { id: 'back.batman', name: '배트맨 망토', slot: 'back', price: 200, color: '#0f172a', accent: '#1e293b', kind: 'batman_cape', genders: ['boy'] },
+  { id: 'shoes.batman', name: '배트맨 부츠', slot: 'shoes', price: 150, color: '#0f172a', accent: '#475569', kind: 'batman', genders: ['boy'] },
+
+  // ───────── Captain America set (boy only) ─────────
+  { id: 'mask.captain_america', name: '캡틴 카울', slot: 'mask', price: 200, color: '#1e40af', accent: '#f8fafc', kind: 'captain_america', genders: ['boy'] },
+  { id: 'top.captain_america', name: '캡틴 상의', slot: 'top', price: 200, color: '#1e40af', accent: '#dc2626', kind: 'captain_america', genders: ['boy'] },
+  { id: 'bottom.captain_america', name: '캡틴 하의', slot: 'bottom', price: 170, color: '#1e40af', accent: '#dc2626', kind: 'captain_america', genders: ['boy'] },
+  { id: 'back.captain_america', name: '캡틴 방패', slot: 'back', price: 220, color: '#1e40af', accent: '#dc2626', kind: 'cap_shield', genders: ['boy'] },
+  { id: 'shoes.captain_america', name: '캡틴 부츠', slot: 'shoes', price: 150, color: '#7c2d12', accent: '#dc2626', kind: 'captain_america', genders: ['boy'] },
+
+  // ───────── Thor set (boy only) ─────────
+  { id: 'mask.thor', name: '토르 헬멧', slot: 'mask', price: 220, color: '#94a3b8', accent: '#fde047', kind: 'thor', genders: ['boy'] },
+  { id: 'top.thor', name: '토르 갑옷', slot: 'top', price: 220, color: '#475569', accent: '#cbd5e1', kind: 'thor', genders: ['boy'] },
+  { id: 'bottom.thor', name: '토르 바지', slot: 'bottom', price: 190, color: '#1f2937', accent: '#cbd5e1', kind: 'thor', genders: ['boy'] },
+  { id: 'back.thor', name: '토르 망토', slot: 'back', price: 200, color: '#dc2626', accent: '#fbbf24', kind: 'thor_cape', genders: ['boy'] },
+  { id: 'shoes.thor', name: '토르 부츠', slot: 'shoes', price: 160, color: '#3f3f46', accent: '#cbd5e1', kind: 'thor', genders: ['boy'] },
+
+  // ───────── Superman set (boy only, no mask) ─────────
+  { id: 'top.superman', name: '슈퍼맨 상의', slot: 'top', price: 200, color: '#1e3a8a', accent: '#dc2626', kind: 'superman', genders: ['boy'] },
+  { id: 'bottom.superman', name: '슈퍼맨 하의', slot: 'bottom', price: 170, color: '#1e3a8a', accent: '#dc2626', kind: 'superman', genders: ['boy'] },
+  { id: 'back.superman', name: '슈퍼맨 망토', slot: 'back', price: 200, color: '#dc2626', accent: '#fbbf24', kind: 'superman_cape', genders: ['boy'] },
+  { id: 'shoes.superman', name: '슈퍼맨 부츠', slot: 'shoes', price: 150, color: '#dc2626', accent: '#fbbf24', kind: 'superman', genders: ['boy'] },
+
+  // ───────── Flash set (boy only) ─────────
+  { id: 'mask.flash', name: '플래시 마스크', slot: 'mask', price: 200, color: '#dc2626', accent: '#fde047', kind: 'flash', genders: ['boy'] },
+  { id: 'top.flash', name: '플래시 상의', slot: 'top', price: 200, color: '#dc2626', accent: '#fde047', kind: 'flash', genders: ['boy'] },
+  { id: 'bottom.flash', name: '플래시 하의', slot: 'bottom', price: 170, color: '#dc2626', accent: '#fde047', kind: 'flash', genders: ['boy'] },
+  { id: 'back.flash', name: '플래시 번개', slot: 'back', price: 130, color: '#fde047', accent: '#dc2626', kind: 'flash_bolt', genders: ['boy'] },
+  { id: 'shoes.flash', name: '플래시 부츠', slot: 'shoes', price: 150, color: '#fde047', accent: '#dc2626', kind: 'flash', genders: ['boy'] },
+
+  // ───────── Black Panther set (boy only) ─────────
+  { id: 'mask.panther', name: '블랙 팬서 마스크', slot: 'mask', price: 220, color: '#0a0a0a', accent: '#cbd5e1', kind: 'panther', genders: ['boy'] },
+  { id: 'top.panther', name: '블랙 팬서 상의', slot: 'top', price: 220, color: '#0a0a0a', accent: '#cbd5e1', kind: 'panther', genders: ['boy'] },
+  { id: 'bottom.panther', name: '블랙 팬서 하의', slot: 'bottom', price: 200, color: '#0a0a0a', accent: '#cbd5e1', kind: 'panther', genders: ['boy'] },
+  { id: 'back.panther', name: '블랙 팬서 망토', slot: 'back', price: 200, color: '#0a0a0a', accent: '#cbd5e1', kind: 'panther_cape', genders: ['boy'] },
+  { id: 'shoes.panther', name: '블랙 팬서 부츠', slot: 'shoes', price: 170, color: '#0a0a0a', accent: '#cbd5e1', kind: 'panther', genders: ['boy'] },
 
   // ───────── Princess set (girl only) ─────────
   { id: 'top.princess_pink', name: '핑크 공주 드레스', slot: 'top', price: 220, color: '#f9a8d4', accent: '#fde68a', kind: 'princess_dress', genders: ['girl'] },
