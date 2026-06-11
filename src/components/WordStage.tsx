@@ -162,8 +162,16 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
           </div>
         </div>
         {!passed && (
-          <p className="text-center text-xs font-bold text-amber-600 mt-2">
+          <p className="text-center text-xs font-bold text-amber-600 mt-2 leading-relaxed">
             ▶ 모든 글자를 {passThresholdPct}% 이상 따라 쓰면 자동으로 다음으로!
+            <br />
+            <span className="text-slate-500">
+              · 글자 모양의 50% 이상 채우기
+              <br />
+              · 그은 선의 40% 이상이 글자 위에 있어야 통과
+              <br />
+              · 슬롯 전체의 22% 이하로만 칠하기 (낙서 방지)
+            </span>
           </p>
         )}
       </div>
