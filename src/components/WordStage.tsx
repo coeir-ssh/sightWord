@@ -168,7 +168,9 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
             <span className="text-slate-500">
               · Cover at least {passThresholdPct}% of the letter shape
               <br />
-              · Follow the letter's centerline closely (no blobs or scribbles)
+              · Follow the letter's centerline (no off-letter scribbles)
+              <br />
+              · Draw thin like a pen (no solid blob fills)
             </span>
           </p>
         )}

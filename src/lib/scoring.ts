@@ -6,13 +6,18 @@ export type ScoreResult = {
 export const PASS_RATIO = 0.5;
 const MIN_INK_RATIO = 0.015;
 // Skeleton-distance ceiling. The user's ink must, on average, sit within
-// this many pixels of the letter's centerline (the 1-pixel-wide skeleton
-// extracted from the raw glyph). A real pen trace of width ~13-20px (pen
-// + shadow halo) averages 3-5 pixels from the centerline. A thick blob
-// (~30px from multiple overlaid strokes) averages 7-8; a rough zigzag
-// that traces the letter shape only loosely averages 6-7. 6 is the
-// cleanest cut while still letting a slightly shaky child trace pass.
-const MAX_MEAN_DIST_TO_CENTERLINE = 6;
+// this many pixels of the letter's centerline. A real pen trace averages
+// 3-7 pixels (some slop from shaky hands); an off-letter scribble or
+// rough zigzag averages 10+. 10 catches the off-letter cheats while
+// leaving plenty of headroom for an imperfect child trace. Solid blobs
+// that fill the letter interior would fool this gate alone — that's
+// what the compactness gate below is for.
+const MAX_MEAN_DIST_TO_CENTERLINE = 10;
+// Compactness floor — perimeter² / area of the inked region. A real
+// pen-stroke trace has a long perimeter relative to its area (~25-50);
+// a solid blob is short-perimetered for its area (~12-18). Catches the
+// fill-the-letter-with-a-blob cheat that fools the skeleton check.
+const MIN_COMPACTNESS = 22;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
@@ -277,20 +282,39 @@ export function scoreLetterSlot(
   const inkRatio = strokeCount / slotArea;
   if (inkRatio < MIN_INK_RATIO) return { ratio: 0, pass: false };
 
+  // Stroke perimeter (4-neighbour boundary count) for compactness.
+  let perimeter = 0;
+  let pIdx = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++, pIdx++) {
+      if (!stroke[pIdx]) continue;
+      const left = x > 0 ? stroke[pIdx - 1] : 0;
+      const right = x < w - 1 ? stroke[pIdx + 1] : 0;
+      const up = y > 0 ? stroke[pIdx - w] : 0;
+      const down = y < h - 1 ? stroke[pIdx + w] : 0;
+      if (!left || !right || !up || !down) perimeter++;
+    }
+  }
+  const compactness = strokeCount > 0 ? (perimeter * perimeter) / strokeCount : 0;
+
   const coverage = templateCount > 0 ? overlap / templateCount : 0;
   const meanDist = strokeCount > 0 ? sumDist / strokeCount : Infinity;
 
   const passCoverage = coverage >= PASS_RATIO;
   const passCenterline = meanDist <= MAX_MEAN_DIST_TO_CENTERLINE;
+  const passCompactness = compactness >= MIN_COMPACTNESS;
 
-  // Honest visible ratio: penalise the bar when either gate fails so the
+  // Honest visible ratio: penalise the bar when any gate fails so the
   // child can see whether they're on track instead of seeing a full bar
   // on a wrong attempt.
   let ratio = coverage;
   if (!passCenterline) {
     ratio *= MAX_MEAN_DIST_TO_CENTERLINE / Math.max(meanDist, MAX_MEAN_DIST_TO_CENTERLINE);
   }
+  if (!passCompactness) {
+    ratio *= compactness / MIN_COMPACTNESS;
+  }
 
-  const pass = passCoverage && passCenterline;
+  const pass = passCoverage && passCenterline && passCompactness;
   return { ratio, pass };
 }
