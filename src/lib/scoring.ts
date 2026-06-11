@@ -5,6 +5,15 @@ export type ScoreResult = {
 
 export const PASS_RATIO = 0.5;
 const MIN_INK_RATIO = 0.015;
+// Precision floor: of all the ink the child laid down, at least this
+// fraction has to land inside the dilated letter template. A wholesale
+// scribble that fills the slot scores ~0.10 here (template is ~10-15%
+// of the canvas), so 0.30 catches it. A real-but-imperfect trace
+// usually lands at 0.50-0.80.
+const MIN_PRECISION = 0.30;
+// Hard ceiling on total ink. A normal letter occupies ~10-25% of the
+// canvas; coloring the whole slot is well above this.
+const MAX_INK_RATIO = 0.35;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
@@ -144,5 +153,19 @@ export function scoreLetterSlot(
   if (inkRatio < MIN_INK_RATIO) return { ratio: 0, pass: false };
 
   const coverage = templateCount > 0 ? overlap / templateCount : 0;
-  return { ratio: coverage, pass: coverage >= PASS_RATIO };
+  const precision = strokeCount > 0 ? overlap / strokeCount : 0;
+
+  const passPrecision = precision >= MIN_PRECISION;
+  const passInk = inkRatio <= MAX_INK_RATIO;
+
+  // Penalise the visible ratio when either gate fails so the progress
+  // bar honestly reflects "this is not going to pass" — without this,
+  // a child who scribbled the whole slot would still see the bar at
+  // 100% because the template ends up fully covered.
+  let ratio = coverage;
+  if (!passPrecision) ratio *= precision / MIN_PRECISION;
+  if (!passInk) ratio *= MAX_INK_RATIO / inkRatio;
+
+  const pass = passPrecision && passInk && ratio >= PASS_RATIO;
+  return { ratio, pass };
 }
