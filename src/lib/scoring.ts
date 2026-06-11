@@ -21,6 +21,12 @@ const MAX_INK_RATIO = 0.22;
 // the bbox down) reaches ~0.62. 0.75 puts the cutoff above the blob
 // band while leaving room for a slightly hesitant real trace.
 const MIN_EXTENT = 0.75;
+// Compactness floor — perimeter² / area of the inked region. A thin
+// pen-stroke trace has a long perimeter relative to its area; a
+// dense blob (round / oval / square) is short-perimetered for its
+// area. Pen tracing on this app comes in around 25-50; solid blobs
+// land at 12-18, scribbled fills at ~14-20. 22 sits inside the gap.
+const MIN_COMPACTNESS = 22;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
@@ -197,9 +203,29 @@ export function scoreLetterSlot(
   const extentW = oW / tW;
   const extentH = oH / tH;
 
+  // Compactness — perimeter² / area. Distinguishes a pen-thin trace
+  // (long perimeter, small area → high compactness) from a solid blob
+  // that fills part of the letter shape (short perimeter for its area
+  // → low compactness). Even a blob that's bbox-spread can't fake this
+  // because filling vs tracing shows in the edge-to-area ratio.
+  let perimeter = 0;
+  let pIdx = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++, pIdx++) {
+      if (!stroke[pIdx]) continue;
+      const left = x > 0 ? stroke[pIdx - 1] : 0;
+      const right = x < w - 1 ? stroke[pIdx + 1] : 0;
+      const up = y > 0 ? stroke[pIdx - w] : 0;
+      const down = y < h - 1 ? stroke[pIdx + w] : 0;
+      if (!left || !right || !up || !down) perimeter++;
+    }
+  }
+  const compactness = strokeCount > 0 ? (perimeter * perimeter) / strokeCount : 0;
+
   const passPrecision = precision >= MIN_PRECISION;
   const passInk = inkRatio <= MAX_INK_RATIO;
   const passExtent = extentW >= MIN_EXTENT && extentH >= MIN_EXTENT;
+  const passCompactness = compactness >= MIN_COMPACTNESS;
 
   // Penalise the visible ratio when any gate fails so the progress bar
   // honestly reflects "this is not going to pass" — without this, a
@@ -209,8 +235,10 @@ export function scoreLetterSlot(
   if (!passPrecision) ratio *= precision / MIN_PRECISION;
   if (!passInk) ratio *= MAX_INK_RATIO / inkRatio;
   if (!passExtent) ratio *= Math.min(extentW, extentH) / MIN_EXTENT;
+  if (!passCompactness) ratio *= compactness / MIN_COMPACTNESS;
 
   const pass =
-    passPrecision && passInk && passExtent && ratio >= PASS_RATIO;
+    passPrecision && passInk && passExtent && passCompactness &&
+    ratio >= PASS_RATIO;
   return { ratio, pass };
 }
