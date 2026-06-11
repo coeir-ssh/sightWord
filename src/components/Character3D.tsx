@@ -3833,48 +3833,72 @@ export function Character3D({ equipped, jumping = false, className, name, gender
           }
 
           if (kind === 'slp_backpack') {
-            // Kid school backpack: red body + white SLP square + shoulder
-            // straps + top loop handle.
-            const bagMat = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
-            const trimMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#ffffff'),
+            // Two-tone SLP kid backpack matching the real one: mustard
+            // yellow upper body + navy lower body + small red SLP patch
+            // with white letters + shoulder straps + top loop handle.
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.7,
             });
-            const inkMat = new THREE.MeshStandardMaterial({ color: '#1e3a8a' });
-            // Main body
-            const body = new THREE.Mesh(
-              new THREE.BoxGeometry(TORSO_W * 0.9, TORSO_H * 0.85, 0.18),
-              bagMat
+            const navyMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1e3a8a'),
+              roughness: 0.7,
+            });
+            const patchMat = new THREE.MeshStandardMaterial({
+              color: '#dc2626',
+              roughness: 0.5,
+            });
+            const whiteMat = new THREE.MeshStandardMaterial({ color: '#f8fafc' });
+
+            // Yellow upper body (~upper 60%)
+            const upper = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.95, TORSO_H * 0.55, 0.2),
+              yellowMat
             );
-            body.position.set(0, TORSO_Y - 0.04, -TORSO_D / 2 - 0.14);
-            g.add(body);
-            // Lower pocket
+            upper.position.set(0, TORSO_Y + 0.08, -TORSO_D / 2 - 0.16);
+            g.add(upper);
+            // Navy lower body
+            const lower = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.95, TORSO_H * 0.38, 0.2),
+              navyMat
+            );
+            lower.position.set(0, TORSO_Y - 0.22, -TORSO_D / 2 - 0.16);
+            g.add(lower);
+            // Front pocket on the navy section
             const pocket = new THREE.Mesh(
-              new THREE.BoxGeometry(TORSO_W * 0.7, 0.22, 0.04),
-              bagMat.clone()
+              new THREE.BoxGeometry(TORSO_W * 0.75, 0.2, 0.04),
+              navyMat.clone()
             );
-            pocket.position.set(0, TORSO_Y - 0.18, -TORSO_D / 2 - 0.24);
+            pocket.position.set(0, TORSO_Y - 0.22, -TORSO_D / 2 - 0.26);
             g.add(pocket);
-            // White SLP logo square
-            const logo = new THREE.Mesh(
-              new THREE.BoxGeometry(0.18, 0.12, 0.03),
-              trimMat
+            // Stitched seam between yellow and navy halves
+            const seam = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.96, 0.025, 0.21),
+              new THREE.MeshStandardMaterial({ color: '#a16207' })
             );
-            logo.position.set(0, TORSO_Y + 0.08, -TORSO_D / 2 - 0.24);
-            g.add(logo);
-            // 3 small navy ticks suggesting S L P letters
+            seam.position.set(0, TORSO_Y - 0.07, -TORSO_D / 2 - 0.16);
+            g.add(seam);
+            // Red SLP patch on the upper-right of the yellow panel
+            const patch = new THREE.Mesh(
+              new THREE.BoxGeometry(0.16, 0.1, 0.025),
+              patchMat
+            );
+            patch.position.set(0.18, TORSO_Y + 0.12, -TORSO_D / 2 - 0.265);
+            g.add(patch);
+            // Tiny white "SLP" letter ticks on the patch
             for (let i = -1; i <= 1; i++) {
               const tick = new THREE.Mesh(
-                new THREE.BoxGeometry(0.025, 0.06, 0.01),
-                inkMat.clone()
+                new THREE.BoxGeometry(0.022, 0.05, 0.008),
+                whiteMat.clone()
               );
-              tick.position.set(i * 0.05, TORSO_Y + 0.08, -TORSO_D / 2 - 0.255);
+              tick.position.set(0.18 + i * 0.045, TORSO_Y + 0.12, -TORSO_D / 2 - 0.28);
               g.add(tick);
             }
-            // Shoulder straps over the front
+            // Shoulder straps in yellow over the front
             [-1, 1].forEach((sx) => {
               const strap = new THREE.Mesh(
                 new THREE.BoxGeometry(0.08, TORSO_H * 0.95, 0.05),
-                bagMat.clone()
+                yellowMat.clone()
               );
               strap.position.set(sx * 0.22, TORSO_Y, -TORSO_D / 2 + 0.02);
               g.add(strap);
@@ -3882,9 +3906,9 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             // Top loop handle
             const handle = new THREE.Mesh(
               new THREE.TorusGeometry(0.06, 0.018, 6, 14, Math.PI),
-              bagMat.clone()
+              yellowMat.clone()
             );
-            handle.position.set(0, TORSO_Y + 0.38, -TORSO_D / 2 - 0.14);
+            handle.position.set(0, TORSO_Y + 0.38, -TORSO_D / 2 - 0.16);
             g.add(handle);
             break;
           }

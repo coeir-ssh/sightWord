@@ -1626,18 +1626,32 @@ function Back({ item }: { item: Item }) {
   if (kind === 'slp_backpack') {
     return (
       <g>
-        {/* Backpack body */}
-        <rect x="24" y="22" width="52" height="56" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
-        {/* White SLP logo square */}
-        <rect x="38" y="32" width="24" height="14" fill={a} stroke={STROKE} strokeWidth={0.8} />
-        <text x="50" y="43" textAnchor="middle" fontSize="8" fontWeight="900" fill="#1e3a8a">SLP</text>
-        {/* Lower pocket */}
-        <rect x="32" y="52" width="36" height="20" fill={c} stroke={STROKE} strokeWidth={0.8} />
+        {/* Yellow upper body */}
+        <path d="M24,28 L76,28 L76,56 L24,56 Z" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Navy lower body */}
+        <path d="M24,56 L76,56 L76,80 L24,80 Z" fill={a} stroke={STROKE} strokeWidth={SW} />
+        {/* Seam between sections */}
+        <line x1="24" y1="56" x2="76" y2="56" stroke="#a16207" strokeWidth={1.5} />
+        {/* Red SLP patch on the upper-right */}
+        <rect x="50" y="34" width="22" height="12" fill="#dc2626" stroke={STROKE} strokeWidth={0.6} />
+        <text
+          x="61"
+          y="44"
+          textAnchor="middle"
+          fontSize="8"
+          fontWeight="900"
+          fill="#f8fafc"
+          fontFamily="ui-sans-serif, system-ui, sans-serif"
+        >
+          SLP
+        </text>
+        {/* Front pocket on the navy section */}
+        <rect x="30" y="60" width="40" height="14" fill={a} stroke={STROKE} strokeWidth={0.6} />
         {/* Shoulder straps */}
-        <rect x="22" y="22" width="6" height="40" fill={c} stroke={STROKE} strokeWidth={SW} />
-        <rect x="72" y="22" width="6" height="40" fill={c} stroke={STROKE} strokeWidth={SW} />
-        {/* Top handle */}
-        <path d="M40,22 Q50,12 60,22" stroke={c} fill="none" strokeWidth={3} />
+        <rect x="22" y="28" width="6" height="40" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <rect x="72" y="28" width="6" height="40" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Top loop handle */}
+        <path d="M40,28 Q50,18 60,28" stroke={c} fill="none" strokeWidth={3} />
       </g>
     );
   }
