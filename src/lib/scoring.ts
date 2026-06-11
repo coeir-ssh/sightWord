@@ -8,11 +8,12 @@ const MIN_INK_RATIO = 0.015;
 // Skeleton-distance ceiling. The user's ink must, on average, sit within
 // this many pixels of the letter's centerline (the 1-pixel-wide skeleton
 // extracted from the raw glyph). A real pen trace of width ~13-20px (pen
-// + shadow halo) lives 0-10 pixels from the centerline and averages 5-8.
-// A solid blob filling part of the letter has plenty of pixels 15-25 px
-// from the centerline, so it averages well above this. 12 is the
-// sweet-spot that lets a slightly imprecise child tracing through.
-const MAX_MEAN_DIST_TO_CENTERLINE = 12;
+// + shadow halo) lives 0-10 pixels from the centerline and averages 3-6.
+// A 30-40px thick blob filling part of the letter averages ~8-12; a
+// fatter blob (multiple overlaid strokes) goes even higher. 8 is tight
+// enough to catch the chunky blobs that slipped through at 12 while
+// still leaving headroom for a slightly imprecise child trace.
+const MAX_MEAN_DIST_TO_CENTERLINE = 8;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
