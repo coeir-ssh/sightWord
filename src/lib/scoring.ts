@@ -14,6 +14,12 @@ const MIN_PRECISION = 0.40;
 // tracing can hit ~0.20. Scribbling starts at 0.25+. 0.22 lets a thick
 // trace through and stops the scribble band.
 const MAX_INK_RATIO = 0.22;
+// Spatial-spread floor. The inked-on-template region's bounding box
+// must span at least this fraction of the template's bounding box in
+// both width and height. Catches the "blob in one corner of the
+// letter" cheat where a single dense fill covers >=50% of the template
+// pixels without ever following the letter's shape.
+const MIN_EXTENT = 0.6;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
@@ -140,12 +146,37 @@ export function scoreLetterSlot(
   let strokeCount = 0;
   let templateCount = 0;
   let overlap = 0;
-  for (let i = 0; i < stroke.length; i++) {
-    const s = stroke[i];
-    const t = tmpl[i];
-    if (s) strokeCount++;
-    if (t) templateCount++;
-    if (s && t) overlap++;
+  // Bounding-box trackers for the template pixels and the overlap region
+  // (stroke ∩ template). Used by the spread gate below.
+  let tMinX = w;
+  let tMaxX = -1;
+  let tMinY = h;
+  let tMaxY = -1;
+  let oMinX = w;
+  let oMaxX = -1;
+  let oMinY = h;
+  let oMaxY = -1;
+  let i = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++, i++) {
+      const s = stroke[i];
+      const t = tmpl[i];
+      if (s) strokeCount++;
+      if (t) {
+        templateCount++;
+        if (x < tMinX) tMinX = x;
+        if (x > tMaxX) tMaxX = x;
+        if (y < tMinY) tMinY = y;
+        if (y > tMaxY) tMaxY = y;
+        if (s) {
+          overlap++;
+          if (x < oMinX) oMinX = x;
+          if (x > oMaxX) oMaxX = x;
+          if (y < oMinY) oMinY = y;
+          if (y > oMaxY) oMaxY = y;
+        }
+      }
+    }
   }
 
   const slotArea = w * h;
@@ -155,17 +186,30 @@ export function scoreLetterSlot(
   const coverage = templateCount > 0 ? overlap / templateCount : 0;
   const precision = strokeCount > 0 ? overlap / strokeCount : 0;
 
+  // Spread of the inked-on-template region vs the template itself. A
+  // dense blob over only the top of the letter still scores high
+  // coverage + precision; here it falls because oH << tH.
+  const tW = Math.max(1, tMaxX - tMinX + 1);
+  const tH = Math.max(1, tMaxY - tMinY + 1);
+  const oW = oMaxX >= 0 ? oMaxX - oMinX + 1 : 0;
+  const oH = oMaxY >= 0 ? oMaxY - oMinY + 1 : 0;
+  const extentW = oW / tW;
+  const extentH = oH / tH;
+
   const passPrecision = precision >= MIN_PRECISION;
   const passInk = inkRatio <= MAX_INK_RATIO;
+  const passExtent = extentW >= MIN_EXTENT && extentH >= MIN_EXTENT;
 
-  // Penalise the visible ratio when either gate fails so the progress
-  // bar honestly reflects "this is not going to pass" — without this,
-  // a child who scribbled the whole slot would still see the bar at
+  // Penalise the visible ratio when any gate fails so the progress bar
+  // honestly reflects "this is not going to pass" — without this, a
+  // child who scribbled or made a blob would still see the bar near
   // 100% because the template ends up fully covered.
   let ratio = coverage;
   if (!passPrecision) ratio *= precision / MIN_PRECISION;
   if (!passInk) ratio *= MAX_INK_RATIO / inkRatio;
+  if (!passExtent) ratio *= Math.min(extentW, extentH) / MIN_EXTENT;
 
-  const pass = passPrecision && passInk && ratio >= PASS_RATIO;
+  const pass =
+    passPrecision && passInk && passExtent && ratio >= PASS_RATIO;
   return { ratio, pass };
 }
