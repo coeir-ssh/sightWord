@@ -159,7 +159,7 @@ export function Learn({ onBack }: Props) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-soft to-blue-100 flex flex-col">
-      <CoinFly triggerKey={coinTrigger} />
+      <CoinFly triggerKey={coinTrigger} amount={PER_WORD_COINS * multiplier} />
       <header className="sticky top-0 z-30 flex items-center justify-between p-4 bg-gradient-to-b from-sky-soft to-sky-soft/95 backdrop-blur shadow-sm">
         <button
           onClick={onBack}
