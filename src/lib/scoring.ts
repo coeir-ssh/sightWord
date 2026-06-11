@@ -6,16 +6,14 @@ export type ScoreResult = {
 export const PASS_RATIO = 0.5;
 const MIN_INK_RATIO = 0.015;
 // Precision floor: of all the ink the child laid down, at least this
-// fraction has to land inside the dilated letter template. A wholesale
-// scribble lands at ~10-15% precision; a real-but-imperfect trace
-// lands at 60-85%. 0.45 sits cleanly between the two.
-const MIN_PRECISION = 0.45;
-// Hard ceiling on total ink. Means: the child's strokes can fill at most
-// 20% of the slot's pixels. A normal traced letter sits around 10-15%;
-// scribbling the slot lands at 25-40%. 0.20 is right above the real-
-// letter band, so legit tracing still has room while a fill-the-box
-// cheat is blocked.
-const MAX_INK_RATIO = 0.20;
+// fraction has to land inside the dilated letter template. Real traces
+// land at 0.60-0.85; scribbles at 0.10-0.30. 0.40 leaves headroom for
+// a slightly off tracing while still blocking obvious scribbles.
+const MIN_PRECISION = 0.40;
+// Hard ceiling on total ink. Real tracings sit at 0.10-0.18; bold/slow
+// tracing can hit ~0.20. Scribbling starts at 0.25+. 0.22 lets a thick
+// trace through and stops the scribble band.
+const MAX_INK_RATIO = 0.22;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
