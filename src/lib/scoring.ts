@@ -7,13 +7,14 @@ export const PASS_RATIO = 0.5;
 const MIN_INK_RATIO = 0.015;
 // Precision floor: of all the ink the child laid down, at least this
 // fraction has to land inside the dilated letter template. A wholesale
-// scribble that fills the slot scores ~0.10 here (template is ~10-15%
-// of the canvas), so 0.30 catches it. A real-but-imperfect trace
-// usually lands at 0.50-0.80.
-const MIN_PRECISION = 0.30;
-// Hard ceiling on total ink. A normal letter occupies ~10-25% of the
-// canvas; coloring the whole slot is well above this.
-const MAX_INK_RATIO = 0.35;
+// scribble lands at ~10-15% precision; a real-but-imperfect trace
+// lands at 60-85%. 0.45 sits cleanly between the two.
+const MIN_PRECISION = 0.45;
+// Hard ceiling on total ink. A normal letter occupies ~10-18% of the
+// canvas; horizontal-scribble cheats start at 25%+, so 0.22 catches
+// them. If a child's legitimately bold tracing trips this we can ease
+// it back up.
+const MAX_INK_RATIO = 0.22;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
