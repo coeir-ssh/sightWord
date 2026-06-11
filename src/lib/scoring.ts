@@ -5,28 +5,14 @@ export type ScoreResult = {
 
 export const PASS_RATIO = 0.5;
 const MIN_INK_RATIO = 0.015;
-// Precision floor: of all the ink the child laid down, at least this
-// fraction has to land inside the dilated letter template. Real traces
-// land at 0.60-0.85; scribbles at 0.10-0.30. 0.40 leaves headroom for
-// a slightly off tracing while still blocking obvious scribbles.
-const MIN_PRECISION = 0.40;
-// Hard ceiling on total ink. Real tracings sit at 0.10-0.18; bold/slow
-// tracing can hit ~0.20. Scribbling starts at 0.25+. 0.22 lets a thick
-// trace through and stops the scribble band.
-const MAX_INK_RATIO = 0.22;
-// Spatial-spread floor. The inked-on-template region's bounding box
-// must span at least this fraction of the template's bounding box in
-// both width and height. A real trace spans ~95% in both; an upper-
-// half blob on a letter like 'e' (whose horizontal mid-bar stretches
-// the bbox down) reaches ~0.62. 0.75 puts the cutoff above the blob
-// band while leaving room for a slightly hesitant real trace.
-const MIN_EXTENT = 0.75;
-// Compactness floor — perimeter² / area of the inked region. A thin
-// pen-stroke trace has a long perimeter relative to its area; a
-// dense blob (round / oval / square) is short-perimetered for its
-// area. Pen tracing on this app comes in around 25-50; solid blobs
-// land at 12-18, scribbled fills at ~14-20. 22 sits inside the gap.
-const MIN_COMPACTNESS = 22;
+// Skeleton-distance ceiling. The user's ink must, on average, sit within
+// this many pixels of the letter's centerline (the 1-pixel-wide skeleton
+// extracted from the raw glyph). A real pen trace of width ~13-20px (pen
+// + shadow halo) lives 0-10 pixels from the centerline and averages 5-8.
+// A solid blob filling part of the letter has plenty of pixels 15-25 px
+// from the centerline, so it averages well above this. 12 is the
+// sweet-spot that lets a slightly imprecise child tracing through.
+const MAX_MEAN_DIST_TO_CENTERLINE = 12;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
@@ -83,7 +69,7 @@ export function drawTemplate(
   ctx.fillText(text, width / 2, height / 2);
 }
 
-function templateMaskFor(text: string, width: number, height: number): Uint8Array {
+function templateMaskRaw(text: string, width: number, height: number): Uint8Array {
   const cv = document.createElement('canvas');
   cv.width = width;
   cv.height = height;
@@ -92,10 +78,13 @@ function templateMaskFor(text: string, width: number, height: number): Uint8Arra
   const data = ctx.getImageData(0, 0, width, height).data;
   const mask = new Uint8Array(width * height);
   for (let i = 0, p = 0; i < data.length; i += 4, p++) {
-    // Letter pixels are the ones the glyph actually painted (alpha > 0).
     if (data[i + 3] >= 32) mask[p] = 1;
   }
-  return dilate(mask, width, height, 6); // small forgiveness margin
+  return mask;
+}
+
+function templateMaskDilated(text: string, width: number, height: number): Uint8Array {
+  return dilate(templateMaskRaw(text, width, height), width, height, 6);
 }
 
 /** Dilate a binary mask by `r` pixels (separable: horizontal + vertical). */
@@ -105,7 +94,6 @@ function dilate(mask: Uint8Array, w: number, h: number, r: number): Uint8Array {
   const tmp = new Uint8Array(mask.length);
   for (let y = 0; y < h; y++) {
     let count = 0;
-    // Initial window
     for (let x = 0; x <= r && x < w; x++) if (mask[y * w + x]) count++;
     for (let x = 0; x < w; x++) {
       tmp[y * w + x] = count > 0 ? 1 : 0;
@@ -131,6 +119,125 @@ function dilate(mask: Uint8Array, w: number, h: number, r: number): Uint8Array {
   return out;
 }
 
+/**
+ * Zhang-Suen thinning. Iteratively peels boundary pixels from a binary
+ * mask until every connected component is one pixel wide — the
+ * "skeleton" or centerline of the letter. Used to score how closely the
+ * user's pen stroke follows the letter's intended path.
+ */
+function skeletonize(input: Uint8Array, w: number, h: number): Uint8Array {
+  const img = new Uint8Array(input); // copy
+  const at = (x: number, y: number) => img[y * w + x];
+  const neighbours = (x: number, y: number) => [
+    at(x, y - 1),     // P2 N
+    at(x + 1, y - 1), // P3 NE
+    at(x + 1, y),     // P4 E
+    at(x + 1, y + 1), // P5 SE
+    at(x, y + 1),     // P6 S
+    at(x - 1, y + 1), // P7 SW
+    at(x - 1, y),     // P8 W
+    at(x - 1, y - 1), // P9 NW
+  ];
+  const transitions = (p: number[]) => {
+    let n = 0;
+    for (let i = 0; i < 8; i++) {
+      if (p[i] === 0 && p[(i + 1) % 8] === 1) n++;
+    }
+    return n;
+  };
+  const pass = (subiter: 0 | 1) => {
+    const toClear: number[] = [];
+    for (let y = 1; y < h - 1; y++) {
+      for (let x = 1; x < w - 1; x++) {
+        if (!at(x, y)) continue;
+        const p = neighbours(x, y);
+        const B = p[0] + p[1] + p[2] + p[3] + p[4] + p[5] + p[6] + p[7];
+        if (B < 2 || B > 6) continue;
+        if (transitions(p) !== 1) continue;
+        // P2*P4*P6 = 0 (subiter 0) / P2*P4*P8 = 0 (subiter 1)
+        if (subiter === 0) {
+          if (p[0] * p[2] * p[4] !== 0) continue;
+          if (p[2] * p[4] * p[6] !== 0) continue;
+        } else {
+          if (p[0] * p[2] * p[6] !== 0) continue;
+          if (p[0] * p[4] * p[6] !== 0) continue;
+        }
+        toClear.push(y * w + x);
+      }
+    }
+    if (toClear.length === 0) return false;
+    for (const i of toClear) img[i] = 0;
+    return true;
+  };
+  let changed = true;
+  while (changed) {
+    const c1 = pass(0);
+    const c2 = pass(1);
+    changed = c1 || c2;
+  }
+  return img;
+}
+
+/**
+ * 2-pass Chamfer (3,4) distance transform. For each pixel, computes a
+ * distance to the nearest "seed" pixel (i.e., a 1 in `seedMask`). After
+ * the final divide-by-3 the value is in pixel units. Pixels with no
+ * seed reachable get a large finite number.
+ */
+function distanceTransform(seedMask: Uint8Array, w: number, h: number): Float32Array {
+  const INF = w * h * 4; // > any reachable chamfer distance
+  const dist = new Float32Array(w * h);
+  for (let i = 0; i < dist.length; i++) {
+    dist[i] = seedMask[i] ? 0 : INF;
+  }
+  // Forward pass
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      let d = dist[i];
+      if (y > 0) {
+        if (x > 0) d = Math.min(d, dist[i - w - 1] + 4);
+        d = Math.min(d, dist[i - w] + 3);
+        if (x < w - 1) d = Math.min(d, dist[i - w + 1] + 4);
+      }
+      if (x > 0) d = Math.min(d, dist[i - 1] + 3);
+      dist[i] = d;
+    }
+  }
+  // Backward pass
+  for (let y = h - 1; y >= 0; y--) {
+    for (let x = w - 1; x >= 0; x--) {
+      const i = y * w + x;
+      let d = dist[i];
+      if (y < h - 1) {
+        if (x > 0) d = Math.min(d, dist[i + w - 1] + 4);
+        d = Math.min(d, dist[i + w] + 3);
+        if (x < w - 1) d = Math.min(d, dist[i + w + 1] + 4);
+      }
+      if (x < w - 1) d = Math.min(d, dist[i + 1] + 3);
+      dist[i] = d;
+    }
+  }
+  // Chamfer (3,4) is 3x the pixel distance — normalise.
+  for (let i = 0; i < dist.length; i++) dist[i] /= 3;
+  return dist;
+}
+
+// Cache the per-letter distance map so we only pay the skeleton +
+// distance-transform cost once per (letter, slot-size) pair.
+const distMapCache = new Map<string, Float32Array>();
+
+function distanceFromCenterline(text: string, w: number, h: number): Float32Array {
+  const key = `${text}|${w}x${h}`;
+  const cached = distMapCache.get(key);
+  if (cached) return cached;
+  const raw = templateMaskRaw(text, w, h);
+  const skel = skeletonize(raw, w, h);
+  const dist = distanceTransform(skel, w, h);
+  distMapCache.set(key, dist);
+  return dist;
+}
+
 function userStrokeMask(canvas: HTMLCanvasElement): Uint8Array {
   const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
@@ -147,42 +254,22 @@ export function scoreLetterSlot(
 ): ScoreResult {
   const w = slotCanvas.width;
   const h = slotCanvas.height;
-  const tmpl = templateMaskFor(letter, w, h);
+  const tmpl = templateMaskDilated(letter, w, h);
   const stroke = userStrokeMask(slotCanvas);
+  const distMap = distanceFromCenterline(letter, w, h);
 
   let strokeCount = 0;
   let templateCount = 0;
   let overlap = 0;
-  // Bounding-box trackers for the template pixels and the overlap region
-  // (stroke ∩ template). Used by the spread gate below.
-  let tMinX = w;
-  let tMaxX = -1;
-  let tMinY = h;
-  let tMaxY = -1;
-  let oMinX = w;
-  let oMaxX = -1;
-  let oMinY = h;
-  let oMaxY = -1;
-  let i = 0;
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++, i++) {
-      const s = stroke[i];
-      const t = tmpl[i];
-      if (s) strokeCount++;
-      if (t) {
-        templateCount++;
-        if (x < tMinX) tMinX = x;
-        if (x > tMaxX) tMaxX = x;
-        if (y < tMinY) tMinY = y;
-        if (y > tMaxY) tMaxY = y;
-        if (s) {
-          overlap++;
-          if (x < oMinX) oMinX = x;
-          if (x > oMaxX) oMaxX = x;
-          if (y < oMinY) oMinY = y;
-          if (y > oMaxY) oMaxY = y;
-        }
-      }
+  let sumDist = 0;
+  for (let i = 0; i < stroke.length; i++) {
+    const s = stroke[i];
+    const t = tmpl[i];
+    if (t) templateCount++;
+    if (s) {
+      strokeCount++;
+      sumDist += distMap[i];
+      if (t) overlap++;
     }
   }
 
@@ -191,54 +278,19 @@ export function scoreLetterSlot(
   if (inkRatio < MIN_INK_RATIO) return { ratio: 0, pass: false };
 
   const coverage = templateCount > 0 ? overlap / templateCount : 0;
-  const precision = strokeCount > 0 ? overlap / strokeCount : 0;
+  const meanDist = strokeCount > 0 ? sumDist / strokeCount : Infinity;
 
-  // Spread of the inked-on-template region vs the template itself. A
-  // dense blob over only the top of the letter still scores high
-  // coverage + precision; here it falls because oH << tH.
-  const tW = Math.max(1, tMaxX - tMinX + 1);
-  const tH = Math.max(1, tMaxY - tMinY + 1);
-  const oW = oMaxX >= 0 ? oMaxX - oMinX + 1 : 0;
-  const oH = oMaxY >= 0 ? oMaxY - oMinY + 1 : 0;
-  const extentW = oW / tW;
-  const extentH = oH / tH;
+  const passCoverage = coverage >= PASS_RATIO;
+  const passCenterline = meanDist <= MAX_MEAN_DIST_TO_CENTERLINE;
 
-  // Compactness — perimeter² / area. Distinguishes a pen-thin trace
-  // (long perimeter, small area → high compactness) from a solid blob
-  // that fills part of the letter shape (short perimeter for its area
-  // → low compactness). Even a blob that's bbox-spread can't fake this
-  // because filling vs tracing shows in the edge-to-area ratio.
-  let perimeter = 0;
-  let pIdx = 0;
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++, pIdx++) {
-      if (!stroke[pIdx]) continue;
-      const left = x > 0 ? stroke[pIdx - 1] : 0;
-      const right = x < w - 1 ? stroke[pIdx + 1] : 0;
-      const up = y > 0 ? stroke[pIdx - w] : 0;
-      const down = y < h - 1 ? stroke[pIdx + w] : 0;
-      if (!left || !right || !up || !down) perimeter++;
-    }
-  }
-  const compactness = strokeCount > 0 ? (perimeter * perimeter) / strokeCount : 0;
-
-  const passPrecision = precision >= MIN_PRECISION;
-  const passInk = inkRatio <= MAX_INK_RATIO;
-  const passExtent = extentW >= MIN_EXTENT && extentH >= MIN_EXTENT;
-  const passCompactness = compactness >= MIN_COMPACTNESS;
-
-  // Penalise the visible ratio when any gate fails so the progress bar
-  // honestly reflects "this is not going to pass" — without this, a
-  // child who scribbled or made a blob would still see the bar near
-  // 100% because the template ends up fully covered.
+  // Honest visible ratio: penalise the bar when either gate fails so the
+  // child can see whether they're on track instead of seeing a full bar
+  // on a wrong attempt.
   let ratio = coverage;
-  if (!passPrecision) ratio *= precision / MIN_PRECISION;
-  if (!passInk) ratio *= MAX_INK_RATIO / inkRatio;
-  if (!passExtent) ratio *= Math.min(extentW, extentH) / MIN_EXTENT;
-  if (!passCompactness) ratio *= compactness / MIN_COMPACTNESS;
+  if (!passCenterline) {
+    ratio *= MAX_MEAN_DIST_TO_CENTERLINE / Math.max(meanDist, MAX_MEAN_DIST_TO_CENTERLINE);
+  }
 
-  const pass =
-    passPrecision && passInk && passExtent && passCompactness &&
-    ratio >= PASS_RATIO;
+  const pass = passCoverage && passCenterline;
   return { ratio, pass };
 }

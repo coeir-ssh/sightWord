@@ -166,15 +166,9 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
             ▶ Trace every letter at {passThresholdPct}%+ to auto-advance!
             <br />
             <span className="text-slate-500">
-              · Fill at least 50% of the letter shape
+              · Cover at least {passThresholdPct}% of the letter shape
               <br />
-              · At least 40% of your ink must land on the letter
-              <br />
-              · No more than 22% of the slot can be inked (no scribbles)
-              <br />
-              · Ink must span 75%+ of the letter horizontally & vertically
-              <br />
-              · Draw thin like a pen — no solid fills
+              · Follow the letter's centerline closely (no blobs or scribbles)
             </span>
           </p>
         )}
