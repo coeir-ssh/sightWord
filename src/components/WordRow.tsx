@@ -114,7 +114,7 @@ export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow(
               <button
                 type="button"
                 onClick={() => resetSlot(i)}
-                className="text-[11px] font-bold text-rose-600 bg-rose-100 hover:bg-rose-200 active:scale-95 rounded-full px-2 py-0.5 shadow-sm transition"
+                className="text-sm font-extrabold text-white bg-rose-500 hover:bg-rose-600 active:scale-95 rounded-full px-4 py-1.5 shadow-md transition"
               >
                 ↻ Retry
               </button>
