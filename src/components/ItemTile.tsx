@@ -22,7 +22,7 @@ export function ItemTile({ item, state, owned, equipped, canAfford, onAction }: 
       : 'bg-white border-slate-200';
 
   const renderShopLabel = () => {
-    if (owned) return <span>보유 중</span>;
+    if (owned) return <span>Owned</span>;
     return (
       <span className="flex items-center gap-1">
         <Coin size={20} />
@@ -56,8 +56,8 @@ export function ItemTile({ item, state, owned, equipped, canAfford, onAction }: 
         {state === 'shop'
           ? renderShopLabel()
           : equipped
-            ? '장착 중'
-            : '장착하기'}
+            ? 'Equipped'
+            : 'Equip'}
       </button>
     </div>
   );

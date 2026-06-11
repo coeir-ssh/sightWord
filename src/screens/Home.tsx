@@ -144,16 +144,16 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
           <button
             onClick={openNameModal}
             className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700 active:scale-95 hover:bg-blue-50 transition"
-            title="캐릭터 이름 입력"
+            title="Set Character Name"
           >
-            ✏️ 캐릭터 이름 입력
+            ✏️ Set Character Name
           </button>
           <button
             onClick={() => setEditingGender(true)}
             className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700 active:scale-95 hover:bg-blue-50 transition"
-            title="캐릭터 성별"
+            title="Character Gender"
           >
-            {gender === 'girl' ? '👧' : '🧒'} 캐릭터 성별
+            {gender === 'girl' ? '👧' : '🧒'} Character Gender
           </button>
         </div>
       </header>
@@ -171,22 +171,22 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
           <button
             onClick={() => exporterRef.current?.exportPLY(exportFilename)}
             className="mt-3 bg-white hover:bg-emerald-50 active:scale-95 rounded-2xl px-4 py-2 shadow font-bold text-emerald-700 border-2 border-emerald-300 transition flex items-center gap-2"
-            title="현재 캐릭터를 3D 프린팅용 PLY 파일로 저장"
+            title="Save current character as a PLY file for 3D printing"
           >
-            📦 파일 출력 (.ply)
+            📦 Export File (.ply)
           </button>
           <div className="mt-2 text-xs font-bold text-slate-500 bg-white/80 rounded-full px-3 py-1 shadow pointer-events-none">
-            👆 캐릭터를 끌어서 돌려보세요
+            👆 Drag the character to spin
           </div>
         </section>
 
         <section className="flex flex-col gap-4">
           <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-5">
             <div className="text-slate-600 font-bold text-sm">
-              현재 선택: {currentLabel} - {currentDay + 1}단계
+              Current: {currentLabel} - Step {currentDay + 1}
             </div>
             <div className="text-2xl font-extrabold text-blue-700 my-2">
-              어떤 LIST를 공부할까요?
+              Which LIST shall we study?
             </div>
             <div className="flex gap-2 my-3">
               {done.map((d, i) => (
@@ -197,13 +197,13 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
               ))}
             </div>
             <div className="text-slate-700 text-sm">
-              {currentLabel} 단어: {week.words.map((w) => w.text).join(', ')}
+              {currentLabel} words: {week.words.map((w) => w.text).join(', ')}
             </div>
             <button
               onClick={onLearn}
               className="mt-4 w-full text-2xl font-extrabold bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl py-4 shadow-lg"
             >
-              ▶ {currentLabel} {currentDay + 1}단계 이어서 하기
+              ▶ Continue {currentLabel} Step {currentDay + 1}
             </button>
           </div>
 
@@ -212,13 +212,13 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
               onClick={onShop}
               className="bg-yellow-300 hover:bg-yellow-400 active:scale-95 rounded-3xl py-6 shadow-lg text-2xl font-extrabold text-yellow-900"
             >
-              🛒 상점
+              🛒 Shop
             </button>
             <button
               onClick={onWardrobe}
               className="bg-pink-300 hover:bg-pink-400 active:scale-95 rounded-3xl py-6 shadow-lg text-2xl font-extrabold text-pink-900"
             >
-              🎒 옷장
+              🎒 Wardrobe
             </button>
           </div>
         </section>
@@ -228,10 +228,10 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm">
             <div className="text-xl font-extrabold text-slate-800 mb-1">
-              캐릭터 성별
+              Character Gender
             </div>
             <div className="text-sm text-slate-500 mb-4">
-              선택하면 어울리는 아이템이 자동으로 옷장에 추가돼요.
+              Picking one will auto-add matching items to your wardrobe.
             </div>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -243,7 +243,7 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
                 }`}
               >
                 <div className="text-3xl">👧</div>
-                여자
+                Girl
               </button>
               <button
                 onClick={() => pickGender('boy')}
@@ -254,14 +254,14 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
                 }`}
               >
                 <div className="text-3xl">🧒</div>
-                남자
+                Boy
               </button>
             </div>
             <button
               onClick={() => setEditingGender(false)}
               className="mt-4 w-full bg-slate-200 hover:bg-slate-300 active:scale-95 rounded-xl py-2 font-bold text-slate-700"
             >
-              닫기
+              Close
             </button>
           </div>
         </div>
@@ -271,7 +271,7 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
           <div className="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm">
             <div className="text-xl font-extrabold text-slate-800 mb-3">
-              ✏️ 캐릭터 이름 입력
+              ✏️ Set Character Name
             </div>
             <input
               autoFocus
@@ -282,7 +282,7 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
                 if (e.key === 'Escape') setEditingName(false);
               }}
               maxLength={16}
-              placeholder="캐릭터 이름 (최대 16자)"
+              placeholder="Character name (up to 16 chars)"
               className="w-full border-2 border-slate-300 rounded-xl px-3 py-2 text-lg font-bold focus:outline-none focus:border-blue-500"
             />
             <div className="flex gap-2 mt-4">
@@ -290,13 +290,13 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
                 onClick={() => setEditingName(false)}
                 className="flex-1 bg-slate-200 hover:bg-slate-300 active:scale-95 rounded-xl py-2 font-bold text-slate-700"
               >
-                취소
+                Cancel
               </button>
               <button
                 onClick={saveName}
                 className="flex-1 bg-blue-500 hover:bg-blue-600 active:scale-95 rounded-xl py-2 font-bold text-white"
               >
-                저장
+                Save
               </button>
             </div>
           </div>

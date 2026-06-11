@@ -5835,12 +5835,12 @@ export function Character3D({ equipped, jumping = false, className, name, gender
           <div style={{ fontWeight: 800, fontSize: 16 }}>{name}</div>
         )}
         <div style={{ fontSize: 12, fontWeight: 600, opacity: 0.85 }}>
-          지금은 3D 캐릭터를 표시할 수 없어요
+          Can't show the 3D character right now
         </div>
         <div style={{ fontSize: 11, fontWeight: 500, opacity: 0.75, lineHeight: 1.4, maxWidth: 280 }}>
           {isIOSChrome
-            ? 'iPad의 Chrome 앱은 3D를 제대로 표시하지 못해요. 같은 주소를 Safari로 열면 정상으로 나와요.'
-            : 'iPad가 저전력 모드이거나 배터리가 부족하면 발생할 수 있어요. 충전 후 다시 열어 보세요.'}
+            ? "Chrome on iPad can't display 3D properly. Open the same address in Safari and it should work."
+            : 'This can happen if your iPad is in Low Power Mode or low on battery. Try charging and reopening.'}
         </div>
         <div
           style={{

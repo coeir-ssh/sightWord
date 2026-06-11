@@ -89,10 +89,10 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
 
   const stageHint =
     stage === 'S1'
-      ? '🖍 점선을 따라 글자를 써 보세요!'
+      ? '🖍 Trace the dotted letters!'
       : stage === 'S2'
-        ? '🔤 빈칸에 알맞은 글자를 써 보세요!'
-        : '👂 듣고 단어 전체를 써 보세요!';
+        ? '🔤 Fill in the missing letters!'
+        : '👂 Listen and write the whole word!';
 
   const showWord = stage === 'S1';
   // Bar reflects how many letters have individually passed (the new gate).
@@ -108,7 +108,7 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
         <button
           onClick={handleListen}
           className="bg-gradient-to-b from-blue-400 to-blue-600 hover:from-blue-500 hover:to-blue-700 active:scale-95 rounded-full w-20 h-20 shadow-lg transition flex items-center justify-center text-white ring-4 ring-blue-200"
-          aria-label="단어 듣기"
+          aria-label="Listen to word"
         >
           <svg
             viewBox="0 0 24 24"
@@ -163,18 +163,18 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
         </div>
         {!passed && (
           <p className="text-center text-xs font-bold text-amber-600 mt-2 leading-relaxed">
-            ▶ 모든 글자를 {passThresholdPct}% 이상 따라 쓰면 자동으로 다음으로!
+            ▶ Trace every letter at {passThresholdPct}%+ to auto-advance!
             <br />
             <span className="text-slate-500">
-              · 글자 모양의 50% 이상 채우기
+              · Fill at least 50% of the letter shape
               <br />
-              · 그은 선의 40% 이상이 글자 위에 있어야 통과
+              · At least 40% of your ink must land on the letter
               <br />
-              · 슬롯 전체의 22% 이하로만 칠하기 (낙서 방지)
+              · No more than 22% of the slot can be inked (no scribbles)
               <br />
-              · 글자의 가로·세로 75% 이상에 걸쳐 칠하기 (한쪽 뭉침 방지)
+              · Ink must span 75%+ of the letter horizontally & vertically
               <br />
-              · 펜처럼 얇게 따라 그리기 (덩어리 칠 방지)
+              · Draw thin like a pen — no solid fills
             </span>
           </p>
         )}
@@ -185,7 +185,7 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
           onClick={handleRetry}
           className="px-6 py-3 rounded-2xl bg-rose-500 text-white text-lg font-bold shadow active:scale-95"
         >
-          ▶ 다시 쓰기
+          ↻ Reset All
         </button>
         <div
           className={`px-8 py-3 rounded-2xl text-lg font-bold shadow-lg transition ${
@@ -194,7 +194,7 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
               : 'bg-slate-200 text-slate-400'
           }`}
         >
-          {passed ? '⭐ 통과!' : '다음 →'}
+          {passed ? '⭐ Passed!' : 'Next →'}
         </div>
       </div>
     </div>

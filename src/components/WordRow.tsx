@@ -86,21 +86,42 @@ export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow(
   const { width, height } = slotSizeFor(letters.length);
   const gap = letters.length >= 7 ? 'gap-2' : 'gap-3';
 
+  const resetSlot = (i: number) => {
+    slotRefs.current[i]?.reset();
+    delete coveragesRef.current[i];
+    reportAggregate();
+    force((n) => n + 1);
+  };
+
   return (
-    <div className={`flex items-center justify-center ${gap} flex-nowrap`}>
-      {letters.map((ch, i) => (
-        <LetterSlot
-          key={`${ch}-${i}`}
-          letter={ch}
-          variant={variants[i] ?? 'hidden'}
-          width={width}
-          height={height}
-          onCoverageChange={handleCoverage(i)}
-          ref={(el) => {
-            slotRefs.current[i] = el;
-          }}
-        />
-      ))}
+    <div className={`flex items-start justify-center ${gap} flex-nowrap`}>
+      {letters.map((ch, i) => {
+        const variant = variants[i] ?? 'hidden';
+        const interactive = variant !== 'shown';
+        return (
+          <div key={`${ch}-${i}`} className="flex flex-col items-center gap-1">
+            <LetterSlot
+              letter={ch}
+              variant={variant}
+              width={width}
+              height={height}
+              onCoverageChange={handleCoverage(i)}
+              ref={(el) => {
+                slotRefs.current[i] = el;
+              }}
+            />
+            {interactive && (
+              <button
+                type="button"
+                onClick={() => resetSlot(i)}
+                className="text-[11px] font-bold text-rose-600 bg-rose-100 hover:bg-rose-200 active:scale-95 rounded-full px-2 py-0.5 shadow-sm transition"
+              >
+                ↻ Retry
+              </button>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 });
