@@ -172,7 +172,7 @@ export function WordStage({ word, stage, s2Difficulty = 0, onPass }: Props) {
               <br />
               · 슬롯 전체의 22% 이하로만 칠하기 (낙서 방지)
               <br />
-              · 글자의 가로·세로 60% 이상에 걸쳐 칠하기 (한쪽 뭉침 방지)
+              · 글자의 가로·세로 75% 이상에 걸쳐 칠하기 (한쪽 뭉침 방지)
             </span>
           </p>
         )}

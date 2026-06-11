@@ -16,10 +16,11 @@ const MIN_PRECISION = 0.40;
 const MAX_INK_RATIO = 0.22;
 // Spatial-spread floor. The inked-on-template region's bounding box
 // must span at least this fraction of the template's bounding box in
-// both width and height. Catches the "blob in one corner of the
-// letter" cheat where a single dense fill covers >=50% of the template
-// pixels without ever following the letter's shape.
-const MIN_EXTENT = 0.6;
+// both width and height. A real trace spans ~95% in both; an upper-
+// half blob on a letter like 'e' (whose horizontal mid-bar stretches
+// the bbox down) reaches ~0.62. 0.75 puts the cutoff above the blob
+// band while leaving room for a slightly hesitant real trace.
+const MIN_EXTENT = 0.75;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
