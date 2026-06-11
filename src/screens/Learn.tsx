@@ -30,8 +30,8 @@ const DAY_PLANS: DayPlan[] = [
   { day: 4, kind: '모의 시험', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true, isMockTest: true },
 ];
 
-const WEEKLY_BONUS = 20;
-const PER_WORD_COINS = 5;
+const WEEKLY_BONUS = 100;
+const PER_WORD_COINS = 20;
 
 export function Learn({ onBack }: Props) {
   const { progress, dayDone, completeDay, setWeekAndDay } = useProgress();
