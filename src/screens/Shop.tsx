@@ -29,12 +29,12 @@ export function Shop({ onBack }: Props) {
           onClick={onBack}
           className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700"
         >
-          ← 홈
+          ← Home
         </button>
         <div className="text-yellow-900 font-extrabold text-3xl">
-          🛒 상점
+          🛒 Shop
           <span className="ml-2 align-middle text-base font-bold bg-white/80 text-slate-700 rounded-full px-2 py-0.5">
-            {gender === 'girl' ? '👧 여자' : '🧒 남자'}
+            {gender === 'girl' ? '👧 Girl' : '🧒 Boy'}
           </span>
         </div>
         <CoinHUD coins={wallet.coins} />

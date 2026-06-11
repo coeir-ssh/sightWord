@@ -111,14 +111,14 @@ export function Learn({ onBack }: Props) {
 
         <div className="bg-white rounded-3xl px-8 py-5 shadow-lg space-y-2 min-w-[280px]">
           <div className="flex items-center justify-between gap-6">
-            <span className="font-bold text-slate-700">단어 미션</span>
+            <span className="font-bold text-slate-700">Word Mission</span>
             <div className="flex items-center gap-1">
               <Coin size={26} />
               <span className="font-extrabold text-yellow-800">+{completedScreen.coins}</span>
             </div>
           </div>
           <div className="flex items-center justify-between gap-6">
-            <span className="font-bold text-slate-700">데이 보너스</span>
+            <span className="font-bold text-slate-700">Daily Bonus</span>
             <div className="flex items-center gap-1">
               <Coin size={26} />
               <span className="font-extrabold text-yellow-800">+{completedScreen.bonus}</span>
@@ -126,7 +126,7 @@ export function Learn({ onBack }: Props) {
           </div>
           {completedScreen.weekly > 0 && (
             <div className="flex items-center justify-between gap-6 border-t pt-2 border-yellow-200">
-              <span className="font-bold text-amber-700">🏆 주간 완성 보너스</span>
+              <span className="font-bold text-amber-700">🏆 Weekly Complete Bonus</span>
               <div className="flex items-center gap-1">
                 <Coin size={26} />
                 <span className="font-extrabold text-yellow-800">+{completedScreen.weekly}</span>
@@ -134,7 +134,7 @@ export function Learn({ onBack }: Props) {
             </div>
           )}
           <div className="flex items-center justify-between gap-6 pt-2 border-t-2 border-slate-300">
-            <span className="font-extrabold text-slate-800 text-lg">합계</span>
+            <span className="font-extrabold text-slate-800 text-lg">Total</span>
             <div className="flex items-center gap-1">
               <Coin size={32} />
               <span className="font-extrabold text-yellow-700 text-2xl">+{total}</span>
@@ -149,7 +149,7 @@ export function Learn({ onBack }: Props) {
           onClick={onBack}
           className="px-8 py-4 bg-blue-500 hover:bg-blue-600 active:scale-95 text-white text-2xl font-extrabold rounded-2xl shadow-lg"
         >
-          🏠 홈으로
+          🏠 Home
         </button>
       </div>
     );
@@ -165,7 +165,7 @@ export function Learn({ onBack }: Props) {
           onClick={onBack}
           className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700"
         >
-          ← 홈
+          ← Home
         </button>
         <div className="text-blue-700 font-extrabold text-xl">{planLabel}</div>
         <CoinHUD coins={wallet.coins} />

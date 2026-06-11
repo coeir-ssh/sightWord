@@ -25,8 +25,8 @@ export function ParentGate({ onBack }: Props) {
   if (!unlocked) {
     return (
       <div className="min-h-screen bg-slate-200 flex flex-col items-center justify-center p-6 gap-6">
-        <div className="text-3xl font-extrabold text-slate-700">🔒 부모용</div>
-        <div className="text-slate-600">PIN을 입력하세요 (기본 1004)</div>
+        <div className="text-3xl font-extrabold text-slate-700">🔒 Parents Only</div>
+        <div className="text-slate-600">Enter your PIN (default 1004)</div>
         <input
           type="password"
           inputMode="numeric"
@@ -36,19 +36,19 @@ export function ParentGate({ onBack }: Props) {
           className="bg-white rounded-2xl px-6 py-4 text-3xl font-bold shadow text-center w-48"
           maxLength={6}
         />
-        {error && <div className="text-red-500 font-bold">PIN이 맞지 않아요</div>}
+        {error && <div className="text-red-500 font-bold">Incorrect PIN</div>}
         <div className="flex gap-3">
           <button
             onClick={onBack}
             className="px-6 py-3 bg-white rounded-2xl shadow font-bold text-slate-700"
           >
-            취소
+            Cancel
           </button>
           <button
             onClick={submit}
             className="px-6 py-3 bg-blue-500 rounded-2xl shadow font-bold text-white"
           >
-            확인
+            OK
           </button>
         </div>
       </div>
@@ -62,14 +62,14 @@ export function ParentGate({ onBack }: Props) {
           onClick={onBack}
           className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700"
         >
-          ← 홈
+          ← Home
         </button>
-        <div className="text-2xl font-extrabold text-slate-700">부모 설정</div>
+        <div className="text-2xl font-extrabold text-slate-700">Parent Settings</div>
         <div className="w-20" />
       </header>
 
       <section className="bg-white rounded-3xl shadow p-5">
-        <div className="text-lg font-bold text-slate-700 mb-3">이번 주 List 선택</div>
+        <div className="text-lg font-bold text-slate-700 mb-3">This Week's List</div>
         <div className="grid grid-cols-4 gap-3">
           {WEEK_IDS.map((id: WeekId) => (
             <button
@@ -88,17 +88,17 @@ export function ParentGate({ onBack }: Props) {
       </section>
 
       <section className="bg-white rounded-3xl shadow p-5">
-        <div className="text-lg font-bold text-slate-700 mb-3">데이터 관리</div>
+        <div className="text-lg font-bold text-slate-700 mb-3">Data Management</div>
         <button
           onClick={() => {
-            if (confirm('진행도, 코인, 인벤토리를 모두 초기화할까요?')) {
+            if (confirm('Reset all progress, coins, and inventory?')) {
               storage.reset();
               location.reload();
             }
           }}
           className="px-6 py-3 bg-red-500 text-white rounded-2xl shadow font-bold"
         >
-          모두 초기화
+          Reset Everything
         </button>
       </section>
     </div>

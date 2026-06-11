@@ -4,7 +4,7 @@ import { WEEKS, LIST_LABEL, type WeekId } from '../data/words';
 
 type Props = { onBack: () => void; onStart: () => void };
 
-const DAY_KIND = ['따라쓰기', '따라쓰기 복습', '빈칸 채우기', '자유 쓰기', '모의 시험'];
+const DAY_KIND = ['Tracing', 'Tracing Review', 'Fill in the Blanks', 'Free Writing', 'Mock Test'];
 
 export function ListPicker({ onBack, onStart }: Props) {
   const { progress, setWeekAndDay, dayDone } = useProgress();
@@ -22,14 +22,14 @@ export function ListPicker({ onBack, onStart }: Props) {
           onClick={onBack}
           className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700"
         >
-          ← 홈
+          ← Home
         </button>
-        <div className="text-blue-700 font-extrabold text-2xl">📖 공부할 LIST 고르기</div>
+        <div className="text-blue-700 font-extrabold text-2xl">📖 Choose a LIST to Study</div>
         <CoinHUD coins={wallet.coins} />
       </header>
 
       <div className="px-4 pb-2 text-center text-sm font-bold text-slate-600">
-        LIST를 누르면 바로 학습이 시작돼요
+        Tap a LIST to start learning right away
       </div>
 
       <main className="flex-1 p-4 space-y-4">
@@ -46,11 +46,11 @@ export function ListPicker({ onBack, onStart }: Props) {
                   {LIST_LABEL[wk.id]}
                 </div>
                 <div className="text-xs font-bold text-slate-500">
-                  {completedDays}/5 완료
+                  {completedDays}/5 Complete
                 </div>
               </div>
               <div className="text-sm text-slate-600 mb-3">
-                단어: {wk.words.map((w) => w.text).join(', ')}
+                Words: {wk.words.map((w) => w.text).join(', ')}
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
                 {DAY_KIND.map((kind, day) => {
@@ -70,7 +70,7 @@ export function ListPicker({ onBack, onStart }: Props) {
                       }`}
                     >
                       <div className="font-extrabold text-base flex items-center gap-1">
-                        {day + 1}단계
+                        Step {day + 1}
                         {isDone && <span className="text-base">⭐</span>}
                       </div>
                       <div
