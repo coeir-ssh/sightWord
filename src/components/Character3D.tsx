@@ -1637,6 +1637,134 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               btn.position.set(0.14, TORSO_Y + y, frontZ + 0.005);
               g.add(btn);
             });
+          } else if (kind === 'joon_cardigan') {
+            // Cream knit cardigan over a bright yellow undershirt, with
+            // marine patches (yellow starfish, red starfish, blue palm,
+            // blue shell) on the chest, plus a brown rope belt.
+            const knitMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.95,
+            });
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fde047'),
+              roughness: 0.6,
+            });
+
+            // Yellow undershirt strip down the chest center
+            const undershirt = new THREE.Mesh(
+              new THREE.BoxGeometry(0.28, TORSO_H + 0.02, 0.03),
+              yellowMat
+            );
+            undershirt.position.set(0, TORSO_Y, frontZ + 0.005);
+            g.add(undershirt);
+
+            // Two cardigan front halves slightly opened to reveal the
+            // yellow shirt down the middle.
+            [-1, 1].forEach((sx) => {
+              const half = new THREE.Mesh(
+                new THREE.BoxGeometry(
+                  (TORSO_W + 0.04) / 2,
+                  TORSO_H + 0.04,
+                  0.05
+                ),
+                knitMat.clone()
+              );
+              half.position.set(sx * 0.13, TORSO_Y, frontZ + 0.02);
+              g.add(half);
+              // Three small wooden buttons down each half (offset toward center)
+              for (let i = 0; i < 3; i++) {
+                const btn = new THREE.Mesh(
+                  new THREE.CylinderGeometry(0.018, 0.018, 0.018, 10),
+                  new THREE.MeshStandardMaterial({
+                    color: '#8b5a2b',
+                    roughness: 0.6,
+                  })
+                );
+                btn.rotation.x = Math.PI / 2;
+                btn.position.set(
+                  sx * 0.075,
+                  TORSO_Y + 0.18 - i * 0.16,
+                  frontZ + 0.045
+                );
+                g.add(btn);
+              }
+            });
+
+            // Marine motif patches on the front of the cardigan.
+            const starMat = (col: string) =>
+              new THREE.MeshStandardMaterial({ color: col, roughness: 0.5 });
+            // Yellow starfish (upper-left chest)
+            const star1Shape = new THREE.Shape();
+            for (let i = 0; i < 10; i++) {
+              const r = i % 2 === 0 ? 0.06 : 0.025;
+              const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
+              const px = Math.cos(a) * r;
+              const py = Math.sin(a) * r;
+              if (i === 0) star1Shape.moveTo(px, py);
+              else star1Shape.lineTo(px, py);
+            }
+            star1Shape.closePath();
+            const star1 = new THREE.Mesh(
+              new THREE.ExtrudeGeometry(star1Shape, { depth: 0.012, bevelEnabled: false }),
+              starMat('#fbbf24')
+            );
+            star1.position.set(-0.18, TORSO_Y + 0.12, frontZ + 0.06);
+            g.add(star1);
+
+            // Red starfish (lower-left)
+            const star2 = new THREE.Mesh(
+              new THREE.ExtrudeGeometry(star1Shape, { depth: 0.012, bevelEnabled: false }),
+              starMat('#dc2626')
+            );
+            star2.position.set(-0.18, TORSO_Y - 0.12, frontZ + 0.06);
+            g.add(star2);
+
+            // Blue palm leaf (right chest) — teardrop with central vein
+            const palmMat = starMat('#1d4ed8');
+            const palm = new THREE.Mesh(
+              new THREE.SphereGeometry(0.06, 14, 10),
+              palmMat
+            );
+            palm.scale.set(0.7, 1.4, 0.2);
+            palm.rotation.z = 0.35;
+            palm.position.set(0.18, TORSO_Y + 0.12, frontZ + 0.06);
+            g.add(palm);
+            const palmVein = new THREE.Mesh(
+              new THREE.BoxGeometry(0.012, 0.13, 0.015),
+              starMat('#1e3a8a')
+            );
+            palmVein.rotation.z = 0.35;
+            palmVein.position.set(0.18, TORSO_Y + 0.12, frontZ + 0.075);
+            g.add(palmVein);
+
+            // Blue shell (lower-right) — half-sphere with radial ridges
+            const shell = new THREE.Mesh(
+              new THREE.SphereGeometry(0.07, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+              palmMat.clone()
+            );
+            shell.scale.set(1, 0.6, 0.3);
+            shell.rotation.x = -Math.PI / 3;
+            shell.position.set(0.18, TORSO_Y - 0.12, frontZ + 0.06);
+            g.add(shell);
+            for (let i = -2; i <= 2; i++) {
+              const ridge = new THREE.Mesh(
+                new THREE.BoxGeometry(0.005, 0.065, 0.005),
+                starMat('#1e3a8a')
+              );
+              ridge.rotation.z = i * 0.22;
+              ridge.position.set(0.18, TORSO_Y - 0.11, frontZ + 0.075);
+              g.add(ridge);
+            }
+
+            // Sleeve overlays in cream knit (short sleeves capping arms)
+            [-1, 1].forEach((sx) => {
+              const sleeve = new THREE.Mesh(
+                new THREE.BoxGeometry(ARM_W + 0.08, ARM_H * 0.55, ARM_W + 0.08),
+                knitMat.clone()
+              );
+              sleeve.position.set(sx * ARM_X, ARM_Y + ARM_H * 0.2, 0);
+              g.add(sleeve);
+            });
           } else if (kind === 'slp_girl') {
             // Same gray blazer + white shirt as the boy version, but with a
             // red bow ribbon at the collar instead of a striped tie.
@@ -5577,6 +5705,33 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               ridge.position.set(cx + Math.sin(ang) * 0.04, cy + 0.02, cz + 0.04);
               g.add(ridge);
             }
+          } else if (kind === 'joon_band') {
+            // Yellow wristband — a thin silicone-style ring with a small
+            // tag bead, hanging from the bag strap.
+            const bandMat = new THREE.MeshStandardMaterial({
+              color,
+              roughness: 0.6,
+              metalness: 0.05,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
+            });
+            const ring = new THREE.Mesh(
+              new THREE.TorusGeometry(0.08, 0.022, 12, 24),
+              bandMat
+            );
+            ring.rotation.x = Math.PI / 2;
+            ring.position.set(cx, cy, cz);
+            g.add(ring);
+            // Small darker tag bead on the ring (front side)
+            const tag = new THREE.Mesh(
+              new THREE.BoxGeometry(0.04, 0.03, 0.02),
+              new THREE.MeshStandardMaterial({
+                color: accent ?? new THREE.Color('#ca8a04'),
+                metalness: 0.4,
+                roughness: 0.3,
+              })
+            );
+            tag.position.set(cx, cy - 0.085, cz);
+            g.add(tag);
           } else if (kind === 'slp_badge') {
             // White rectangular school name tag with a navy header strip
             // and faint "SLP" letter ticks.

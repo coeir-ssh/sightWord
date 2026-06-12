@@ -331,6 +331,52 @@ function Top({ item }: { item: Item }) {
     );
   }
 
+  if (kind === 'joon_cardigan') {
+    return (
+      <g>
+        {/* Yellow undershirt strip down the middle */}
+        <rect x="42" y="28" width="16" height="50" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Cream cardigan halves (parted in the middle) */}
+        <path d="M28,30 L40,22 L48,28 L42,28 L42,78 L34,78 L34,42 L30,46 L22,40 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <path d="M72,30 L60,22 L52,28 L58,28 L58,78 L66,78 L66,42 L70,46 L78,40 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Knit dotted texture on cardigan halves */}
+        {[[30, 50], [38, 56], [30, 62], [38, 68], [62, 50], [70, 56], [62, 62], [70, 68]].map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r="0.9" fill={darken(c)} />
+        ))}
+        {/* Wooden buttons */}
+        {[42, 56, 70].map((y) => (
+          <circle key={`bl-${y}`} cx="40" cy={y} r="1.4" fill="#8b5a2b" stroke={STROKE} strokeWidth={0.5} />
+        ))}
+        {[42, 56, 70].map((y) => (
+          <circle key={`br-${y}`} cx="60" cy={y} r="1.4" fill="#8b5a2b" stroke={STROKE} strokeWidth={0.5} />
+        ))}
+        {/* Marine patches */}
+        {/* Yellow starfish (upper-left) */}
+        <polygon
+          points="28,42 31,48 37,48 32,52 34,58 28,54 22,58 24,52 19,48 25,48"
+          fill="#fbbf24"
+          stroke={STROKE}
+          strokeWidth={0.5}
+        />
+        {/* Red starfish (lower-left) */}
+        <polygon
+          points="28,68 31,73 37,73 32,76 34,80 28,76 22,80 24,76 19,73 25,73"
+          fill="#dc2626"
+          stroke={STROKE}
+          strokeWidth={0.5}
+        />
+        {/* Blue palm leaf (upper-right) */}
+        <ellipse cx="72" cy="46" rx="4" ry="8" fill="#1d4ed8" stroke={STROKE} strokeWidth={0.5} transform="rotate(20 72 46)" />
+        <line x1="72" y1="40" x2="72" y2="52" stroke="#1e3a8a" strokeWidth={0.8} transform="rotate(20 72 46)" />
+        {/* Blue shell (lower-right) */}
+        <path d="M64,74 Q72,62 80,74 Z" fill="#1d4ed8" stroke={STROKE} strokeWidth={0.5} />
+        {[-1, 0, 1].map((i) => (
+          <line key={i} x1={72 + i * 3} y1="74" x2={72 + i * 1.6} y2={66 - Math.abs(i) * 1} stroke="#1e3a8a" strokeWidth={0.6} />
+        ))}
+      </g>
+    );
+  }
+
   if (kind === 'princess_dress') {
     return (
       <g>
@@ -2187,6 +2233,18 @@ function Charm({ item }: { item: Item }) {
               strokeWidth={1.4}
             />
           ))}
+        </g>
+      );
+    case 'joon_band':
+      return (
+        <g>
+          {/* Lanyard line + key ring */}
+          <line x1="50" y1="14" x2="50" y2="26" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="12" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Yellow wristband (thick ring shown side-on) */}
+          <ellipse cx="50" cy="56" rx="26" ry="22" fill="none" stroke={c} strokeWidth={9} />
+          {/* Small darker tag bead at the bottom */}
+          <rect x="44" y="74" width="12" height="8" rx="1" fill={item.accent ?? '#ca8a04'} stroke={STROKE} strokeWidth={0.6} />
         </g>
       );
     case 'slp_badge':

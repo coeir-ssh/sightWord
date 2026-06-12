@@ -24,7 +24,8 @@ export type TopKind =
   | 'ariel_top'
   | 'rapunzel_top'
   | 'slp'
-  | 'slp_girl';
+  | 'slp_girl'
+  | 'joon_cardigan';
 
 export type BottomKind =
   | 'pants'
@@ -154,7 +155,8 @@ export type CharmKind =
   | 'snowflake'
   | 'pumpkin_carriage'
   | 'seashell'
-  | 'slp_badge';
+  | 'slp_badge'
+  | 'joon_band';
 
 export type ItemKind =
   | TopKind
@@ -347,6 +349,12 @@ export const ITEMS: Item[] = [
   { id: 'shoes.slp_girl', name: 'SLP Mary Janes', slot: 'shoes', price: 140, color: '#0a0a0a', accent: '#475569', kind: 'slp_girl', genders: ['girl'] },
   { id: 'back.slp_girl', name: 'SLP Bag', slot: 'back', price: 130, color: '#dc2626', accent: '#f8fafc', kind: 'slp_backpack', genders: ['girl'] },
   { id: 'charm.slp_girl', name: 'SLP Name Tag', slot: 'charm', price: 80, color: '#f8fafc', accent: '#1e3a8a', kind: 'slp_badge', genders: ['girl'] },
+
+  // ───────── Joon's birthday set (boy only) ─────────
+  { id: 'top.joon_birthday', name: "Joon's birthday 가디건", slot: 'top', price: 220, color: '#f5ede0', accent: '#fde047', kind: 'joon_cardigan', genders: ['boy'] },
+  { id: 'bottom.joon_birthday', name: "Joon's birthday 반바지", slot: 'bottom', price: 140, color: '#d4c5a0', accent: '#8b7355', kind: 'shorts', genders: ['boy'] },
+  { id: 'shoes.joon_birthday', name: "Joon's birthday 운동화", slot: 'shoes', price: 150, color: '#cbd5e1', accent: '#475569', kind: 'sneakers', genders: ['boy'] },
+  { id: 'charm.joon_birthday', name: "Joon's birthday 손목밴드", slot: 'charm', price: 80, color: '#facc15', accent: '#ca8a04', kind: 'joon_band', genders: ['boy'] },
 
   // ───────── Princess set (girl only) ─────────
   { id: 'top.princess_pink', name: 'Pink Princess Dress', slot: 'top', price: 220, color: '#f9a8d4', accent: '#fde68a', kind: 'princess_dress', genders: ['girl'] },
