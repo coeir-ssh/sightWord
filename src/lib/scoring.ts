@@ -7,19 +7,17 @@ export type ScoreResult = {
   coverage: number;
 };
 
-export const PASS_RATIO = 0.5;
+export const PASS_RATIO = 0.3;
 const MIN_INK_RATIO = 0.015;
 // Skeleton-distance ceiling. The user's ink must, on average, sit within
-// this many pixels of the letter's centerline. A real pen trace averages
-// 3-7 pixels; a slightly off-letter trace with shaky hands averages
-// 9-12. 14 leaves real headroom for kids while still flagging clearly
-// off-letter scribbles (mean 20+).
-const MAX_MEAN_DIST_TO_CENTERLINE = 14;
+// this many pixels of the letter's centerline. Real traces sit at 3-7;
+// shaky child traces at 10-15; clearly off-letter scribbles at 20+. 18
+// leaves wide headroom for a kid's imperfect tracing.
+const MAX_MEAN_DIST_TO_CENTERLINE = 18;
 // Compactness floor — perimeter² / area of the inked region. Real pen
-// traces land at 25-50; slow chunky traces at 18-25; solid blobs at
-// 12-18. 10 only blocks the most extreme circular fills so chunky
-// child traces always pass; lighter blobs may slip through.
-const MIN_COMPACTNESS = 10;
+// traces land at 25-50; solid blobs at 12-18. 7 only blocks the most
+// extreme uniformly-filled circles so almost any child stroke passes.
+const MIN_COMPACTNESS = 7;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
