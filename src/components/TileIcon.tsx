@@ -477,6 +477,229 @@ function Top({ item }: { item: Item }) {
     );
   }
 
+  if (kind === 'wolverine') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Blue V chest */}
+        <polygon points="34,30 50,52 66,30 60,30 50,46 40,30" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        {/* Brown belt + gold X buckle */}
+        <rect x="32" y="72" width="36" height="6" fill="#7c2d12" stroke={STROKE} strokeWidth={0.6} />
+        <rect x="46" y="71" width="8" height="8" fill="#fbbf24" stroke={STROKE} strokeWidth={0.6} />
+        {/* Silver claws from each fist */}
+        {[-1, 1].map((sx) =>
+          [-1, 0, 1].map((j) => (
+            <polygon
+              key={`${sx}-${j}`}
+              points={`${sx > 0 ? 78 + j * 2 : 22 + j * 2},82 ${sx > 0 ? 76 + j * 2 : 24 + j * 2},96 ${sx > 0 ? 80 + j * 2 : 20 + j * 2},96`}
+              fill="#e2e8f0"
+              stroke={STROKE}
+              strokeWidth={0.4}
+            />
+          ))
+        )}
+      </g>
+    );
+  }
+
+  if (kind === 'dr_strange') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* High collar */}
+        <rect x="40" y="24" width="20" height="10" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Gold V sash */}
+        <line x1="34" y1="32" x2="50" y2="50" stroke={a} strokeWidth={4} />
+        <line x1="66" y1="32" x2="50" y2="50" stroke={a} strokeWidth={4} />
+        {/* Gold belt */}
+        <rect x="32" y="72" width="36" height="4" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Eye of Agamotto pendant */}
+        <circle cx="50" cy="62" r="5" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        <ellipse cx="50" cy="62" rx="3" ry="1.5" fill="#22c55e" />
+      </g>
+    );
+  }
+
+  if (kind === 'starlord') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Brown shoulder pads */}
+        <rect x="22" y="28" width="14" height="10" fill="#3f3f1a" stroke={STROKE} strokeWidth={0.6} />
+        <rect x="64" y="28" width="14" height="10" fill="#3f3f1a" stroke={STROKE} strokeWidth={0.6} />
+        {/* Central zipper */}
+        <line x1="50" y1="32" x2="50" y2="76" stroke={a} strokeWidth={1.5} />
+        {/* Guardians round badge */}
+        <circle cx="36" cy="48" r="4" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <text x="36" y="50" textAnchor="middle" fontSize="5" fontWeight="900" fill={c}>G</text>
+        {/* Stitching */}
+        <line x1="36" y1="34" x2="36" y2="76" stroke={a} strokeWidth={0.6} strokeDasharray="2 1" />
+        <line x1="64" y1="34" x2="64" y2="76" stroke={a} strokeWidth={0.6} strokeDasharray="2 1" />
+      </g>
+    );
+  }
+
+  if (kind === 'antman') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Black horizontal segments */}
+        <rect x="32" y="42" width="36" height="4" fill={a} />
+        <rect x="32" y="54" width="36" height="4" fill={a} />
+        <rect x="32" y="66" width="36" height="4" fill={a} />
+        {/* Black shoulder caps */}
+        <ellipse cx="28" cy="32" rx="6" ry="4" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <ellipse cx="72" cy="32" rx="6" ry="4" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Silver center emblem */}
+        <circle cx="50" cy="48" r="3" fill="#cbd5e1" stroke={STROKE} strokeWidth={0.5} />
+      </g>
+    );
+  }
+
+  if (kind === 'war_machine') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Bulky shoulder plates */}
+        <rect x="20" y="28" width="14" height="14" rx="2" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <rect x="66" y="28" width="14" height="14" rx="2" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Dark chest panel */}
+        <rect x="36" y="42" width="28" height="20" rx="2" fill={a} stroke={STROKE} strokeWidth={1} />
+        {/* Yellow LED arc reactor */}
+        <circle cx="50" cy="52" r="6" fill="#fde047" stroke={STROKE} strokeWidth={0.8} />
+        <circle cx="50" cy="52" r="3" fill="#fef3c7" />
+        {/* Gunmetal belt */}
+        <rect x="32" y="72" width="36" height="5" fill={a} />
+      </g>
+    );
+  }
+
+  if (kind === 'vision') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Yellow oval collar */}
+        <ellipse cx="50" cy="32" rx="14" ry="4" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Yellow V harness */}
+        <line x1="34" y1="36" x2="50" y2="58" stroke={a} strokeWidth={3} />
+        <line x1="66" y1="36" x2="50" y2="58" stroke={a} strokeWidth={3} />
+        {/* Yellow belt */}
+        <rect x="32" y="72" width="36" height="4" fill={a} />
+      </g>
+    );
+  }
+
+  if (kind === 'daredevil') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Black shoulder pads */}
+        <rect x="20" y="28" width="14" height="12" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <rect x="66" y="28" width="14" height="12" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* DD emblem */}
+        <text x="50" y="56" textAnchor="middle" fontSize="14" fontWeight="900" fill={a}>DD</text>
+        {/* Black belt */}
+        <rect x="32" y="72" width="36" height="5" fill={a} />
+      </g>
+    );
+  }
+
+  if (kind === 'hawkeye') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Diagonal leather strap (quiver) */}
+        <line x1="30" y1="68" x2="70" y2="32" stroke="#7c2d12" strokeWidth={4} />
+        {/* Arrow emblem on chest */}
+        <line x1="50" y1="46" x2="50" y2="60" stroke="#cbd5e1" strokeWidth={2} />
+        <polygon points="46,42 54,42 50,52" fill="#cbd5e1" stroke={STROKE} strokeWidth={0.4} />
+        {/* Dark vest sides */}
+        <rect x="28" y="38" width="6" height="38" fill={a} />
+        <rect x="66" y="38" width="6" height="38" fill={a} />
+      </g>
+    );
+  }
+
+  if (kind === 'falcon') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Dark tactical band */}
+        <rect x="28" y="40" width="44" height="8" fill="#1f2937" />
+        {/* Falcon bird emblem (wing curves) */}
+        <path d="M40,58 L50,52 L60,58" stroke={a} fill="none" strokeWidth={3} strokeLinecap="round" />
+        {/* Belt */}
+        <rect x="32" y="72" width="36" height="5" fill="#1f2937" />
+      </g>
+    );
+  }
+
+  if (kind === 'venom') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* White slime ridges on shoulders */}
+        <rect x="20" y="30" width="14" height="6" fill={a} />
+        <rect x="66" y="30" width="14" height="6" fill={a} />
+        {/* White spider symbol on chest */}
+        <ellipse cx="50" cy="48" rx="3" ry="6" fill={a} />
+        {[-1, 1].map((sx) =>
+          [0, 1, 2, 3].map((i) => (
+            <line
+              key={`${sx}-${i}`}
+              x1="50"
+              y1="48"
+              x2={50 + sx * (10 + i * 1.5)}
+              y2={42 + i * 4}
+              stroke={a}
+              strokeWidth={1}
+            />
+          ))
+        )}
+      </g>
+    );
+  }
+
+  if (kind === 'ghost_rider') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Silver chains in an X */}
+        <line x1="28" y1="36" x2="72" y2="68" stroke={a} strokeWidth={3} strokeLinecap="round" />
+        <line x1="72" y1="36" x2="28" y2="68" stroke={a} strokeWidth={3} strokeLinecap="round" />
+        {/* Leather collar */}
+        <ellipse cx="50" cy="30" rx="14" ry="3" fill="#0a0a0a" stroke={STROKE} strokeWidth={0.6} />
+        {/* Skull buckle */}
+        <ellipse cx="50" cy="72" rx="4" ry="3" fill="#f8fafc" stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+
+  if (kind === 'silver_surfer') {
+    return (
+      <g>
+        {/* Chrome body with reflection */}
+        <path
+          d="M28,30 L40,22 L48,28 L52,28 L60,22 L72,30 L78,40 L70,46 L66,42 L66,78 L34,78 L34,42 L30,46 L22,40 Z"
+          fill="url(#chromeGrad)"
+          stroke={STROKE}
+          strokeWidth={SW}
+          strokeLinejoin="round"
+        />
+        <defs>
+          <linearGradient id="chromeGrad" x1="0" y1="0" x2="100%" y2="0">
+            <stop offset="0%" stopColor={a} />
+            <stop offset="50%" stopColor="#f8fafc" />
+            <stop offset="100%" stopColor={a} />
+          </linearGradient>
+        </defs>
+        {/* Abdomen lines */}
+        <line x1="40" y1="58" x2="60" y2="58" stroke={a} strokeWidth={0.8} />
+        <line x1="40" y1="66" x2="60" y2="66" stroke={a} strokeWidth={0.8} />
+      </g>
+    );
+  }
+
   // Base T-shirt silhouette
   const body = (
     <path
@@ -713,6 +936,97 @@ function Bottom({ item }: { item: Item }) {
         {/* Silver vibranium stripe down each leg */}
         <line x1="38" y1="30" x2="40" y2="78" stroke={a} strokeWidth={2} />
         <line x1="62" y1="30" x2="60" y2="78" stroke={a} strokeWidth={2} />
+      </g>
+    );
+  }
+
+  if (
+    kind === 'wolverine' ||
+    kind === 'dr_strange' ||
+    kind === 'starlord' ||
+    kind === 'antman' ||
+    kind === 'war_machine' ||
+    kind === 'vision' ||
+    kind === 'daredevil' ||
+    kind === 'hawkeye' ||
+    kind === 'falcon' ||
+    kind === 'venom' ||
+    kind === 'ghost_rider' ||
+    kind === 'silver_surfer'
+  ) {
+    return (
+      <g>
+        {heroLegs(c)}
+        {kind === 'wolverine' && (
+          <>
+            <rect x="32" y="32" width="3" height="44" fill={a} />
+            <rect x="65" y="32" width="3" height="44" fill={a} />
+          </>
+        )}
+        {kind === 'dr_strange' && (
+          <rect x="20" y="78" width="60" height="4" fill={a} />
+        )}
+        {kind === 'starlord' && (
+          <>
+            <rect x="30" y="24" width="40" height="6" fill="#7c2d12" />
+            <rect x="22" y="42" width="6" height="14" fill={a} />
+            <rect x="72" y="42" width="6" height="14" fill={a} />
+          </>
+        )}
+        {kind === 'antman' && (
+          <>
+            <rect x="32" y="38" width="36" height="3" fill={a} />
+            <rect x="32" y="54" width="36" height="3" fill={a} />
+            <rect x="32" y="70" width="36" height="3" fill={a} />
+          </>
+        )}
+        {kind === 'war_machine' && (
+          <>
+            <rect x="28" y="50" width="18" height="10" rx="1" fill={a} stroke={STROKE} strokeWidth={0.6} />
+            <rect x="54" y="50" width="18" height="10" rx="1" fill={a} stroke={STROKE} strokeWidth={0.6} />
+          </>
+        )}
+        {kind === 'vision' && (
+          <>
+            <ellipse cx="38" cy="50" rx="9" ry="3" fill="none" stroke={a} strokeWidth={2.5} />
+            <ellipse cx="62" cy="50" rx="9" ry="3" fill="none" stroke={a} strokeWidth={2.5} />
+          </>
+        )}
+        {kind === 'daredevil' && (
+          <>
+            <rect x="30" y="50" width="16" height="8" fill={a} />
+            <rect x="54" y="50" width="16" height="8" fill={a} />
+          </>
+        )}
+        {kind === 'hawkeye' && (
+          <>
+            <rect x="32" y="32" width="3" height="44" fill={a} />
+            <rect x="65" y="32" width="3" height="44" fill={a} />
+          </>
+        )}
+        {kind === 'falcon' && (
+          <>
+            <rect x="33" y="46" width="10" height="12" rx="1" fill={a} />
+            <rect x="57" y="46" width="10" height="12" rx="1" fill={a} />
+          </>
+        )}
+        {kind === 'venom' && (
+          <>
+            <line x1="38" y1="32" x2="40" y2="78" stroke={a} strokeWidth={1.5} />
+            <line x1="62" y1="32" x2="60" y2="78" stroke={a} strokeWidth={1.5} />
+          </>
+        )}
+        {kind === 'ghost_rider' && (
+          <>
+            <ellipse cx="38" cy="48" rx="9" ry="3" fill="none" stroke={a} strokeWidth={2} />
+            <ellipse cx="62" cy="48" rx="9" ry="3" fill="none" stroke={a} strokeWidth={2} />
+          </>
+        )}
+        {kind === 'silver_surfer' && (
+          <>
+            <rect x="30" y="74" width="40" height="3" fill={a} />
+          </>
+        )}
       </g>
     );
   }
@@ -1302,6 +1616,158 @@ function Mask({ item }: { item: Item }) {
     );
   }
 
+  if (kind === 'wolverine') {
+    return (
+      <g>
+        <rect x="22" y="28" width="56" height="54" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Tall black pointy ears */}
+        <polygon points="22,28 18,4 38,28" fill={a} stroke={STROKE} strokeWidth={1} />
+        <polygon points="78,28 82,4 62,28" fill={a} stroke={STROKE} strokeWidth={1} />
+        {/* Black eye mask band */}
+        <rect x="20" y="42" width="60" height="14" fill={a} />
+        {/* White slit eyes */}
+        <polygon points="28,46 44,42 40,52 26,50" fill="#f8fafc" />
+        <polygon points="72,46 56,42 60,52 74,50" fill="#f8fafc" />
+        {/* Skin lower face */}
+        <rect x="34" y="64" width="32" height="18" fill="#ffe1c6" />
+      </g>
+    );
+  }
+  if (kind === 'starlord') {
+    return (
+      <g>
+        <rect x="22" y="22" width="56" height="60" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Glowing red horizontal eye slits */}
+        <rect x="28" y="44" width="18" height="6" fill="#fee2e2" stroke="#dc2626" strokeWidth={0.8} />
+        <rect x="54" y="44" width="18" height="6" fill="#fee2e2" stroke="#dc2626" strokeWidth={0.8} />
+        {/* Gold mouth plate */}
+        <rect x="32" y="60" width="36" height="18" fill={a} stroke={STROKE} strokeWidth={1} />
+        {[64, 68, 72, 76].map((y) => (
+          <line key={y} x1="32" y1={y} x2="68" y2={y} stroke="#1f2937" strokeWidth={0.8} />
+        ))}
+      </g>
+    );
+  }
+  if (kind === 'antman') {
+    return (
+      <g>
+        <rect x="22" y="22" width="56" height="60" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* 2 antennae sticking up */}
+        <path d="M36,22 Q30,8 26,4" stroke={a} fill="none" strokeWidth={2} />
+        <path d="M64,22 Q70,8 74,4" stroke={a} fill="none" strokeWidth={2} />
+        <circle cx="26" cy="4" r="3" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <circle cx="74" cy="4" r="3" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Black lens eyes */}
+        <rect x="28" y="42" width="18" height="14" rx="2" fill={a} />
+        <rect x="54" y="42" width="18" height="14" rx="2" fill={a} />
+        {/* Mouth slit */}
+        <rect x="34" y="68" width="32" height="4" fill={a} />
+      </g>
+    );
+  }
+  if (kind === 'war_machine') {
+    return (
+      <g>
+        {/* Gray faceplate */}
+        <path d="M28,18 L72,18 L78,54 L70,76 L60,86 L40,86 L30,76 L22,54 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Top crest */}
+        <rect x="46" y="6" width="8" height="14" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Red eye slits */}
+        <rect x="30" y="42" width="14" height="5" fill="#fee2e2" stroke={a} strokeWidth={0.8} />
+        <rect x="56" y="42" width="14" height="5" fill="#fee2e2" stroke={a} strokeWidth={0.8} />
+        {/* Mouth vents */}
+        {[40, 45, 50, 55, 60].map((x) => (
+          <rect key={x} x={x} y="62" width="2" height="12" fill="#1e293b" />
+        ))}
+      </g>
+    );
+  }
+  if (kind === 'vision') {
+    return (
+      <g>
+        <rect x="22" y="18" width="56" height="64" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Yellow Mind Stone on forehead */}
+        <polygon points="50,22 58,30 50,38 42,30" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        {/* Yellow glowing eyes */}
+        <rect x="30" y="46" width="14" height="6" fill="#fef3c7" />
+        <rect x="56" y="46" width="14" height="6" fill="#fef3c7" />
+        {/* Mouth line */}
+        <line x1="40" y1="72" x2="60" y2="72" stroke="#7f1d1d" strokeWidth={1.5} />
+      </g>
+    );
+  }
+  if (kind === 'daredevil') {
+    return (
+      <g>
+        <rect x="22" y="28" width="56" height="54" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Two short horns */}
+        <polygon points="36,28 32,12 42,28" fill={c} stroke={STROKE} strokeWidth={1} />
+        <polygon points="64,28 68,12 58,28" fill={c} stroke={STROKE} strokeWidth={1} />
+        {/* Dark eye mask area */}
+        <rect x="20" y="42" width="60" height="14" fill={a} />
+        {/* Red glowing eye slits */}
+        <rect x="30" y="46" width="14" height="6" fill="#fee2e2" stroke={c} strokeWidth={0.6} />
+        <rect x="56" y="46" width="14" height="6" fill="#fee2e2" stroke={c} strokeWidth={0.6} />
+        {/* Frown */}
+        <line x1="40" y1="72" x2="60" y2="72" stroke={a} strokeWidth={1.5} />
+      </g>
+    );
+  }
+  if (kind === 'falcon') {
+    return (
+      <g>
+        <rect x="22" y="20" width="56" height="62" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Large dark goggles */}
+        <rect x="20" y="40" width="60" height="16" rx="3" fill="#1f2937" stroke={STROKE} strokeWidth={1} />
+        {/* Gold accent line */}
+        <rect x="22" y="38" width="56" height="3" fill={a} />
+        {/* Reflective lenses */}
+        <rect x="28" y="44" width="14" height="8" fill="#f8fafc" />
+        <rect x="58" y="44" width="14" height="8" fill="#f8fafc" />
+        {/* Skin lower face */}
+        <rect x="34" y="64" width="32" height="14" fill="#ffe1c6" />
+      </g>
+    );
+  }
+  if (kind === 'venom') {
+    return (
+      <g>
+        <rect x="22" y="20" width="56" height="62" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Big tilted slit eyes */}
+        <path d="M26,38 L46,32 L42,50 L26,46 Z" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <path d="M74,38 L54,32 L58,50 L74,46 Z" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* White toothy grin */}
+        <rect x="22" y="58" width="56" height="18" fill={a} />
+        {[28, 36, 44, 50, 56, 64, 72].map((x) => (
+          <rect key={x} x={x} y="58" width="2" height="18" fill={c} />
+        ))}
+        {/* Red tongue */}
+        <rect x="42" y="74" width="16" height="6" fill="#dc2626" />
+      </g>
+    );
+  }
+  if (kind === 'ghost_rider') {
+    return (
+      <g>
+        {/* White skull */}
+        <path d="M24,32 Q24,16 50,14 Q76,16 76,32 L74,66 L60,80 L40,80 L26,66 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Hollow black eye sockets */}
+        <ellipse cx="38" cy="44" rx="8" ry="6" fill="#0a0a0a" />
+        <ellipse cx="62" cy="44" rx="8" ry="6" fill="#0a0a0a" />
+        {/* Toothy grin */}
+        <rect x="30" y="62" width="40" height="10" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {[34, 40, 46, 50, 54, 60, 66].map((x) => (
+          <line key={x} x1={x} y1="62" x2={x} y2="72" stroke="#0a0a0a" strokeWidth={0.8} />
+        ))}
+        {/* Orange flames around top */}
+        {[-0.4, -0.2, 0, 0.2, 0.4].map((t, i) => {
+          const x = 50 + t * 60;
+          return <polygon key={i} points={`${x - 6},14 ${x + 6},14 ${x},${i % 2 === 0 ? -4 : 0}`} fill={a} />;
+        })}
+      </g>
+    );
+  }
+
   // Default: Iron Man face plate.
   return (
     <g>
@@ -1669,6 +2135,210 @@ function Back({ item }: { item: Item }) {
     );
   }
 
+  if (kind === 'wolverine_claws') {
+    return (
+      <g>
+        <rect x="28" y="20" width="44" height="60" rx="3" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Silver claws sticking out either side */}
+        {[-1, 1].map((sx) =>
+          [-1, 0, 1].map((j) => (
+            <polygon
+              key={`${sx}-${j}`}
+              points={sx < 0 ? `28,${36 + j * 14} 6,${30 + j * 14} 28,${42 + j * 14}` : `72,${36 + j * 14} 94,${30 + j * 14} 72,${42 + j * 14}`}
+              fill={a}
+              stroke={STROKE}
+              strokeWidth={0.6}
+            />
+          ))
+        )}
+      </g>
+    );
+  }
+  if (kind === 'dr_strange_cape') {
+    return (
+      <g>
+        {/* Tall collar wings flaring up */}
+        <polygon points="22,18 32,2 36,18" fill={c} stroke={STROKE} strokeWidth={1} />
+        <polygon points="78,18 68,2 64,18" fill={c} stroke={STROKE} strokeWidth={1} />
+        {/* Main cloak */}
+        <path d="M28,18 L72,18 L84,82 L16,82 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Gold collar trim */}
+        <path d="M28,18 Q50,30 72,18" stroke={a} fill="none" strokeWidth={4} />
+        {/* Gold patterns on the cape */}
+        <line x1="34" y1="40" x2="40" y2="76" stroke={a} strokeWidth={1} />
+        <line x1="66" y1="40" x2="60" y2="76" stroke={a} strokeWidth={1} />
+      </g>
+    );
+  }
+  if (kind === 'starlord_pack') {
+    return (
+      <g>
+        {/* Twin rocket pods */}
+        <rect x="26" y="20" width="18" height="48" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <rect x="56" y="20" width="18" height="48" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Gold rings */}
+        <ellipse cx="35" cy="68" rx="9" ry="3" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <ellipse cx="65" cy="68" rx="9" ry="3" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Thruster glow */}
+        <polygon points="28,68 35,90 42,68" fill="#fef3c7" />
+        <polygon points="58,68 65,90 72,68" fill="#fef3c7" />
+      </g>
+    );
+  }
+  if (kind === 'antman_pack') {
+    return (
+      <g>
+        <rect x="24" y="22" width="52" height="56" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <rect x="32" y="46" width="36" height="10" fill={a} />
+        <text x="50" y="38" textAnchor="middle" fontSize="14" fontWeight="900" fill={a}>A</text>
+      </g>
+    );
+  }
+  if (kind === 'war_machine_back') {
+    return (
+      <g>
+        <rect x="22" y="22" width="56" height="56" rx="3" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Gatling barrel */}
+        <rect x="62" y="14" width="32" height="10" rx="2" fill={a} stroke={STROKE} strokeWidth={1} transform="rotate(-15 78 19)" />
+        {/* Ammo box */}
+        <rect x="58" y="28" width="14" height="14" fill={a} stroke={STROKE} strokeWidth={1} />
+        {/* Missile on left shoulder */}
+        <polygon points="8,30 24,26 8,38" fill={a} stroke={STROKE} strokeWidth={0.8} />
+      </g>
+    );
+  }
+  if (kind === 'vision_cape') {
+    return (
+      <g>
+        {/* Yellow cape */}
+        <path d="M28,20 L72,20 L82,82 L18,82 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Red trim along top */}
+        <path d="M28,20 Q50,30 72,20" stroke={a} fill="none" strokeWidth={3} />
+        {/* Diamond emblem */}
+        <polygon points="50,40 56,52 50,64 44,52" fill={a} stroke={STROKE} strokeWidth={0.8} />
+      </g>
+    );
+  }
+  if (kind === 'daredevil_back') {
+    return (
+      <g>
+        {/* Two batons crossed in X */}
+        <rect x="20" y="48" width="60" height="5" rx="2" fill={c} stroke={STROKE} strokeWidth={1} transform="rotate(30 50 50)" />
+        <rect x="20" y="48" width="60" height="5" rx="2" fill={c} stroke={STROKE} strokeWidth={1} transform="rotate(-30 50 50)" />
+        {/* Red grips */}
+        <rect x="14" y="40" width="14" height="6" fill={a} stroke={STROKE} strokeWidth={0.8} transform="rotate(30 21 43)" />
+        <rect x="72" y="40" width="14" height="6" fill={a} stroke={STROKE} strokeWidth={0.8} transform="rotate(-30 79 43)" />
+        <rect x="14" y="54" width="14" height="6" fill={a} stroke={STROKE} strokeWidth={0.8} transform="rotate(-30 21 57)" />
+        <rect x="72" y="54" width="14" height="6" fill={a} stroke={STROKE} strokeWidth={0.8} transform="rotate(30 79 57)" />
+      </g>
+    );
+  }
+  if (kind === 'hawkeye_quiver') {
+    return (
+      <g>
+        {/* Quiver cylinder */}
+        <rect x="30" y="22" width="20" height="58" rx="3" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Arrows sticking up */}
+        {[-1, 0, 1].map((i) => (
+          <g key={i}>
+            <line x1={36 + i * 4} y1="22" x2={36 + i * 4} y2="8" stroke="#a16207" strokeWidth={1.5} />
+            <polygon points={`${33 + i * 4},6 ${39 + i * 4},6 ${36 + i * 4},0`} fill={a} />
+          </g>
+        ))}
+        {/* Diagonal leather strap */}
+        <line x1="20" y1="76" x2="80" y2="40" stroke="#7c2d12" strokeWidth={4} />
+      </g>
+    );
+  }
+  if (kind === 'falcon_wings') {
+    return (
+      <g>
+        {/* Large silver wings */}
+        <polygon points="50,40 8,20 12,52 36,46 28,72 50,56" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <polygon points="50,40 92,20 88,52 64,46 72,72 50,56" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Red feather details */}
+        {[12, 20, 28, 36].map((dx) => (
+          <line key={dx} x1={dx} y1={28 + dx * 0.3} x2={dx + 20} y2={32 + dx * 0.3} stroke={a} strokeWidth={1} />
+        ))}
+        {[64, 72, 80, 88].map((dx) => (
+          <line key={dx} x1={dx} y1={28 + (100 - dx) * 0.3} x2={dx - 20} y2={32 + (100 - dx) * 0.3} stroke={a} strokeWidth={1} />
+        ))}
+      </g>
+    );
+  }
+  if (kind === 'venom_back') {
+    return (
+      <g>
+        {/* Black symbiote back panel */}
+        <rect x="22" y="32" width="56" height="48" rx="4" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Spike tendrils splaying out */}
+        {[-2, -1, 0, 1, 2].map((s) => (
+          <polygon
+            key={s}
+            points={`${50 + s * 12},32 ${44 + s * 12},2 ${56 + s * 12},2`}
+            fill={c}
+            stroke={STROKE}
+            strokeWidth={0.8}
+          />
+        ))}
+        {/* White spider emblem */}
+        <ellipse cx="50" cy="56" rx="4" ry="8" fill={a} />
+        {[-1, 1].map((sx) =>
+          [0, 1, 2].map((i) => (
+            <line
+              key={`${sx}-${i}`}
+              x1="50"
+              y1="56"
+              x2={50 + sx * (10 + i * 2)}
+              y2={50 + i * 3}
+              stroke={a}
+              strokeWidth={1}
+            />
+          ))
+        )}
+      </g>
+    );
+  }
+  if (kind === 'ghost_rider_back') {
+    return (
+      <g>
+        {/* Silver chain column */}
+        {[20, 32, 44, 56, 68].map((y, i) => (
+          <ellipse
+            key={y}
+            cx="50"
+            cy={y}
+            rx={i % 2 === 0 ? 10 : 6}
+            ry={i % 2 === 0 ? 6 : 10}
+            fill="none"
+            stroke={c}
+            strokeWidth={4}
+          />
+        ))}
+        {/* Orange flame outlines */}
+        {[-1, 1].map((sx) =>
+          [20, 40, 60].map((y) => (
+            <polygon
+              key={`${sx}-${y}`}
+              points={`${sx > 0 ? 78 : 22},${y} ${sx > 0 ? 86 : 14},${y - 8} ${sx > 0 ? 86 : 14},${y + 8}`}
+              fill={a}
+            />
+          ))
+        )}
+      </g>
+    );
+  }
+  if (kind === 'silver_surfer_board') {
+    return (
+      <g>
+        {/* Long silver surfboard */}
+        <path d="M50,2 L62,18 L62,76 L50,98 L38,76 L38,18 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Center stripe */}
+        <line x1="50" y1="14" x2="50" y2="86" stroke={a} strokeWidth={2} />
+      </g>
+    );
+  }
+
   if (kind === 'slp_backpack') {
     return (
       <g>
@@ -1784,6 +2454,53 @@ function Shoes({ item }: { item: Item }) {
       strokeLinejoin="round"
     />
   );
+
+  if (
+    kind === 'wolverine' ||
+    kind === 'dr_strange' ||
+    kind === 'starlord' ||
+    kind === 'antman' ||
+    kind === 'war_machine' ||
+    kind === 'vision' ||
+    kind === 'daredevil' ||
+    kind === 'hawkeye' ||
+    kind === 'falcon' ||
+    kind === 'venom' ||
+    kind === 'ghost_rider' ||
+    kind === 'silver_surfer'
+  ) {
+    return (
+      <g>
+        {heroBoot(c)}
+        <rect x="30" y="72" width="44" height="6" fill={a} />
+        {kind === 'wolverine' && <rect x="30" y="46" width="44" height="4" fill={a} />}
+        {kind === 'war_machine' && <rect x="22" y="36" width="58" height="10" rx="2" fill={a} stroke={STROKE} strokeWidth={0.6} />}
+        {kind === 'vision' && <ellipse cx="50" cy="38" rx="22" ry="3" fill="none" stroke={a} strokeWidth={2.5} />}
+        {kind === 'falcon' && (
+          <>
+            <rect x="30" y="36" width="44" height="5" fill={a} />
+            <polygon points="74,52 80,52 76,60" fill={a} />
+          </>
+        )}
+        {kind === 'venom' && (
+          <>
+            {[-1, 0, 1].map((i) => (
+              <polygon key={i} points={`${72 + i * 4},58 ${68 + i * 4},58 ${70 + i * 4},66`} fill={a} />
+            ))}
+          </>
+        )}
+        {kind === 'ghost_rider' && <ellipse cx="50" cy="38" rx="22" ry="3" fill="none" stroke={a} strokeWidth={2} />}
+        {(kind === 'starlord' || kind === 'hawkeye') && (
+          <rect x="30" y="36" width="44" height="5" fill={a} stroke={STROKE} strokeWidth={0.4} />
+        )}
+        {kind === 'antman' && <rect x="30" y="36" width="44" height="4" fill={a} />}
+        {(kind === 'dr_strange' || kind === 'daredevil') && (
+          <polygon points="74,30 80,28 78,40" fill={a} />
+        )}
+        {kind === 'silver_surfer' && <rect x="30" y="36" width="44" height="3" fill={a} />}
+      </g>
+    );
+  }
 
   if (kind === 'spiderman') {
     return (

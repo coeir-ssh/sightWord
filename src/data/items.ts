@@ -25,7 +25,19 @@ export type TopKind =
   | 'rapunzel_top'
   | 'slp'
   | 'slp_girl'
-  | 'joon_cardigan';
+  | 'joon_cardigan'
+  | 'wolverine'
+  | 'dr_strange'
+  | 'starlord'
+  | 'antman'
+  | 'war_machine'
+  | 'vision'
+  | 'daredevil'
+  | 'hawkeye'
+  | 'falcon'
+  | 'venom'
+  | 'ghost_rider'
+  | 'silver_surfer';
 
 export type BottomKind =
   | 'pants'
@@ -52,7 +64,19 @@ export type BottomKind =
   | 'ariel_tail'
   | 'rapunzel_skirt'
   | 'slp'
-  | 'slp_skirt';
+  | 'slp_skirt'
+  | 'wolverine'
+  | 'dr_strange'
+  | 'starlord'
+  | 'antman'
+  | 'war_machine'
+  | 'vision'
+  | 'daredevil'
+  | 'hawkeye'
+  | 'falcon'
+  | 'venom'
+  | 'ghost_rider'
+  | 'silver_surfer';
 
 export type HatKind =
   | 'cap'
@@ -80,7 +104,16 @@ export type MaskKind =
   | 'captain_america'
   | 'thor'
   | 'flash'
-  | 'panther';
+  | 'panther'
+  | 'wolverine'
+  | 'starlord'
+  | 'antman'
+  | 'war_machine'
+  | 'vision'
+  | 'daredevil'
+  | 'falcon'
+  | 'venom'
+  | 'ghost_rider';
 
 export type BackKind =
   | 'kinder'
@@ -108,7 +141,19 @@ export type BackKind =
   | 'elsa_cape'
   | 'ariel_wave'
   | 'rapunzel_hair'
-  | 'slp_backpack';
+  | 'slp_backpack'
+  | 'wolverine_claws'
+  | 'dr_strange_cape'
+  | 'starlord_pack'
+  | 'antman_pack'
+  | 'war_machine_back'
+  | 'vision_cape'
+  | 'daredevil_back'
+  | 'hawkeye_quiver'
+  | 'falcon_wings'
+  | 'venom_back'
+  | 'ghost_rider_back'
+  | 'silver_surfer_board';
 
 export type ShoeKind =
   | 'sneakers'
@@ -134,7 +179,19 @@ export type ShoeKind =
   | 'flash'
   | 'panther'
   | 'slp'
-  | 'slp_girl';
+  | 'slp_girl'
+  | 'wolverine'
+  | 'dr_strange'
+  | 'starlord'
+  | 'antman'
+  | 'war_machine'
+  | 'vision'
+  | 'daredevil'
+  | 'hawkeye'
+  | 'falcon'
+  | 'venom'
+  | 'ghost_rider'
+  | 'silver_surfer';
 
 export type CharmKind =
   | 'star'
@@ -421,6 +478,88 @@ export const ITEMS: Item[] = [
   { id: 'back.rapunzel', name: 'Rapunzel Golden Hair', slot: 'back', price: 240, color: '#fde047', accent: '#fbbf24', kind: 'rapunzel_hair', genders: ['girl'] },
   { id: 'shoes.rapunzel', name: 'Rapunzel Sandals', slot: 'shoes', price: 130, color: '#92400e', accent: '#fbbf24', kind: 'sandals', genders: ['girl'] },
   { id: 'charm.rapunzel', name: 'Rapunzel Sun', slot: 'charm', price: 110, color: '#fde047', accent: '#fbbf24', kind: 'sun', genders: ['girl'] },
+
+  // ───────── Marvel heroes — extra set (boy only) ─────────
+  // Wolverine
+  { id: 'mask.wolverine', name: 'Wolverine Mask', slot: 'mask', price: 200, color: '#fbbf24', accent: '#0a0a0a', kind: 'wolverine', genders: ['boy'] },
+  { id: 'top.wolverine', name: 'Wolverine Suit', slot: 'top', price: 200, color: '#fbbf24', accent: '#1e3a8a', kind: 'wolverine', genders: ['boy'] },
+  { id: 'bottom.wolverine', name: 'Wolverine Pants', slot: 'bottom', price: 180, color: '#1e3a8a', accent: '#fbbf24', kind: 'wolverine', genders: ['boy'] },
+  { id: 'back.wolverine', name: 'Wolverine Claws Pack', slot: 'back', price: 180, color: '#fbbf24', accent: '#cbd5e1', kind: 'wolverine_claws', genders: ['boy'] },
+  { id: 'shoes.wolverine', name: 'Wolverine Boots', slot: 'shoes', price: 150, color: '#1e3a8a', accent: '#fbbf24', kind: 'wolverine', genders: ['boy'] },
+
+  // Doctor Strange (no mask)
+  { id: 'top.dr_strange', name: 'Dr. Strange Robe', slot: 'top', price: 220, color: '#1e40af', accent: '#fbbf24', kind: 'dr_strange', genders: ['boy'] },
+  { id: 'bottom.dr_strange', name: 'Dr. Strange Robe Bottom', slot: 'bottom', price: 200, color: '#1e40af', accent: '#fbbf24', kind: 'dr_strange', genders: ['boy'] },
+  { id: 'back.dr_strange', name: 'Cloak of Levitation', slot: 'back', price: 240, color: '#dc2626', accent: '#fbbf24', kind: 'dr_strange_cape', genders: ['boy'] },
+  { id: 'shoes.dr_strange', name: 'Dr. Strange Boots', slot: 'shoes', price: 150, color: '#7c2d12', accent: '#fbbf24', kind: 'dr_strange', genders: ['boy'] },
+
+  // Star-Lord
+  { id: 'mask.starlord', name: 'Star-Lord Helmet', slot: 'mask', price: 200, color: '#7f1d1d', accent: '#fbbf24', kind: 'starlord', genders: ['boy'] },
+  { id: 'top.starlord', name: 'Star-Lord Jacket', slot: 'top', price: 200, color: '#7f1d1d', accent: '#fbbf24', kind: 'starlord', genders: ['boy'] },
+  { id: 'bottom.starlord', name: 'Star-Lord Pants', slot: 'bottom', price: 180, color: '#3f3f1a', accent: '#7f1d1d', kind: 'starlord', genders: ['boy'] },
+  { id: 'back.starlord', name: 'Star-Lord Pack', slot: 'back', price: 220, color: '#7f1d1d', accent: '#fbbf24', kind: 'starlord_pack', genders: ['boy'] },
+  { id: 'shoes.starlord', name: 'Star-Lord Boots', slot: 'shoes', price: 150, color: '#3f3f1a', accent: '#7f1d1d', kind: 'starlord', genders: ['boy'] },
+
+  // Ant-Man
+  { id: 'mask.antman', name: 'Ant-Man Helmet', slot: 'mask', price: 200, color: '#dc2626', accent: '#0a0a0a', kind: 'antman', genders: ['boy'] },
+  { id: 'top.antman', name: 'Ant-Man Suit', slot: 'top', price: 200, color: '#dc2626', accent: '#0a0a0a', kind: 'antman', genders: ['boy'] },
+  { id: 'bottom.antman', name: 'Ant-Man Pants', slot: 'bottom', price: 180, color: '#dc2626', accent: '#0a0a0a', kind: 'antman', genders: ['boy'] },
+  { id: 'back.antman', name: 'Ant-Man Pack', slot: 'back', price: 180, color: '#dc2626', accent: '#0a0a0a', kind: 'antman_pack', genders: ['boy'] },
+  { id: 'shoes.antman', name: 'Ant-Man Boots', slot: 'shoes', price: 150, color: '#0a0a0a', accent: '#dc2626', kind: 'antman', genders: ['boy'] },
+
+  // War Machine
+  { id: 'mask.war_machine', name: 'War Machine Helmet', slot: 'mask', price: 220, color: '#475569', accent: '#dc2626', kind: 'war_machine', genders: ['boy'] },
+  { id: 'top.war_machine', name: 'War Machine Armor', slot: 'top', price: 220, color: '#475569', accent: '#1e293b', kind: 'war_machine', genders: ['boy'] },
+  { id: 'bottom.war_machine', name: 'War Machine Legs', slot: 'bottom', price: 200, color: '#475569', accent: '#1e293b', kind: 'war_machine', genders: ['boy'] },
+  { id: 'back.war_machine', name: 'War Machine Cannon', slot: 'back', price: 240, color: '#475569', accent: '#1e293b', kind: 'war_machine_back', genders: ['boy'] },
+  { id: 'shoes.war_machine', name: 'War Machine Boots', slot: 'shoes', price: 160, color: '#475569', accent: '#1e293b', kind: 'war_machine', genders: ['boy'] },
+
+  // Vision
+  { id: 'mask.vision', name: 'Vision Face', slot: 'mask', price: 220, color: '#dc2626', accent: '#fde047', kind: 'vision', genders: ['boy'] },
+  { id: 'top.vision', name: 'Vision Suit', slot: 'top', price: 220, color: '#16a34a', accent: '#fde047', kind: 'vision', genders: ['boy'] },
+  { id: 'bottom.vision', name: 'Vision Pants', slot: 'bottom', price: 200, color: '#16a34a', accent: '#fde047', kind: 'vision', genders: ['boy'] },
+  { id: 'back.vision', name: 'Vision Cape', slot: 'back', price: 220, color: '#fde047', accent: '#dc2626', kind: 'vision_cape', genders: ['boy'] },
+  { id: 'shoes.vision', name: 'Vision Boots', slot: 'shoes', price: 160, color: '#16a34a', accent: '#fde047', kind: 'vision', genders: ['boy'] },
+
+  // Daredevil
+  { id: 'mask.daredevil', name: 'Daredevil Cowl', slot: 'mask', price: 200, color: '#7f1d1d', accent: '#0a0a0a', kind: 'daredevil', genders: ['boy'] },
+  { id: 'top.daredevil', name: 'Daredevil Suit', slot: 'top', price: 200, color: '#7f1d1d', accent: '#0a0a0a', kind: 'daredevil', genders: ['boy'] },
+  { id: 'bottom.daredevil', name: 'Daredevil Pants', slot: 'bottom', price: 180, color: '#7f1d1d', accent: '#0a0a0a', kind: 'daredevil', genders: ['boy'] },
+  { id: 'back.daredevil', name: 'Daredevil Batons', slot: 'back', price: 160, color: '#0a0a0a', accent: '#7f1d1d', kind: 'daredevil_back', genders: ['boy'] },
+  { id: 'shoes.daredevil', name: 'Daredevil Boots', slot: 'shoes', price: 150, color: '#7f1d1d', accent: '#0a0a0a', kind: 'daredevil', genders: ['boy'] },
+
+  // Hawkeye (no mask)
+  { id: 'top.hawkeye', name: 'Hawkeye Vest', slot: 'top', price: 200, color: '#6d28d9', accent: '#1f2937', kind: 'hawkeye', genders: ['boy'] },
+  { id: 'bottom.hawkeye', name: 'Hawkeye Pants', slot: 'bottom', price: 180, color: '#1f2937', accent: '#6d28d9', kind: 'hawkeye', genders: ['boy'] },
+  { id: 'back.hawkeye', name: 'Hawkeye Quiver', slot: 'back', price: 200, color: '#6d28d9', accent: '#7c2d12', kind: 'hawkeye_quiver', genders: ['boy'] },
+  { id: 'shoes.hawkeye', name: 'Hawkeye Boots', slot: 'shoes', price: 150, color: '#1f2937', accent: '#6d28d9', kind: 'hawkeye', genders: ['boy'] },
+
+  // Falcon
+  { id: 'mask.falcon', name: 'Falcon Goggles', slot: 'mask', price: 200, color: '#7f1d1d', accent: '#fbbf24', kind: 'falcon', genders: ['boy'] },
+  { id: 'top.falcon', name: 'Falcon Suit', slot: 'top', price: 200, color: '#7f1d1d', accent: '#fbbf24', kind: 'falcon', genders: ['boy'] },
+  { id: 'bottom.falcon', name: 'Falcon Pants', slot: 'bottom', price: 180, color: '#7f1d1d', accent: '#1f2937', kind: 'falcon', genders: ['boy'] },
+  { id: 'back.falcon', name: 'Falcon Wings', slot: 'back', price: 240, color: '#cbd5e1', accent: '#7f1d1d', kind: 'falcon_wings', genders: ['boy'] },
+  { id: 'shoes.falcon', name: 'Falcon Boots', slot: 'shoes', price: 150, color: '#1f2937', accent: '#7f1d1d', kind: 'falcon', genders: ['boy'] },
+
+  // Venom
+  { id: 'mask.venom', name: 'Venom Head', slot: 'mask', price: 220, color: '#0a0a0a', accent: '#f8fafc', kind: 'venom', genders: ['boy'] },
+  { id: 'top.venom', name: 'Venom Body', slot: 'top', price: 220, color: '#0a0a0a', accent: '#f8fafc', kind: 'venom', genders: ['boy'] },
+  { id: 'bottom.venom', name: 'Venom Legs', slot: 'bottom', price: 200, color: '#0a0a0a', accent: '#f8fafc', kind: 'venom', genders: ['boy'] },
+  { id: 'back.venom', name: 'Venom Tendrils', slot: 'back', price: 200, color: '#0a0a0a', accent: '#f8fafc', kind: 'venom_back', genders: ['boy'] },
+  { id: 'shoes.venom', name: 'Venom Feet', slot: 'shoes', price: 160, color: '#0a0a0a', accent: '#f8fafc', kind: 'venom', genders: ['boy'] },
+
+  // Ghost Rider
+  { id: 'mask.ghost_rider', name: 'Ghost Rider Skull', slot: 'mask', price: 240, color: '#f8fafc', accent: '#fb923c', kind: 'ghost_rider', genders: ['boy'] },
+  { id: 'top.ghost_rider', name: 'Ghost Rider Jacket', slot: 'top', price: 220, color: '#1f2937', accent: '#cbd5e1', kind: 'ghost_rider', genders: ['boy'] },
+  { id: 'bottom.ghost_rider', name: 'Ghost Rider Pants', slot: 'bottom', price: 200, color: '#1f2937', accent: '#cbd5e1', kind: 'ghost_rider', genders: ['boy'] },
+  { id: 'back.ghost_rider', name: 'Ghost Rider Chains', slot: 'back', price: 200, color: '#cbd5e1', accent: '#fb923c', kind: 'ghost_rider_back', genders: ['boy'] },
+  { id: 'shoes.ghost_rider', name: 'Ghost Rider Boots', slot: 'shoes', price: 160, color: '#1f2937', accent: '#cbd5e1', kind: 'ghost_rider', genders: ['boy'] },
+
+  // Silver Surfer (no mask)
+  { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
+  { id: 'bottom.silver_surfer', name: 'Silver Surfer Legs', slot: 'bottom', price: 220, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
+  { id: 'back.silver_surfer', name: 'Cosmic Surfboard', slot: 'back', price: 260, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer_board', genders: ['boy'] },
+  { id: 'shoes.silver_surfer', name: 'Silver Feet', slot: 'shoes', price: 180, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
 ];
 
 export function itemsForGender(g: CharGender): Item[] {

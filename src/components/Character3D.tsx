@@ -815,7 +815,9 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             kind === 'raincoat' ||
             kind === 'ironman' ||
             kind === 'hulk' ||
-            kind === 'thor';
+            kind === 'thor' ||
+            kind === 'war_machine' ||
+            kind === 'venom';
           const fullSleeve =
             kind === 'hoodie' ||
             kind === 'sweater' ||
@@ -831,7 +833,19 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             kind === 'flash' ||
             kind === 'panther' ||
             kind === 'slp' ||
-            kind === 'slp_girl';
+            kind === 'slp_girl' ||
+            kind === 'wolverine' ||
+            kind === 'dr_strange' ||
+            kind === 'starlord' ||
+            kind === 'antman' ||
+            kind === 'war_machine' ||
+            kind === 'vision' ||
+            kind === 'daredevil' ||
+            kind === 'hawkeye' ||
+            kind === 'falcon' ||
+            kind === 'venom' ||
+            kind === 'ghost_rider' ||
+            kind === 'silver_surfer';
           const padW = isPuffy ? 0.12 : 0.06;
           const padH = isPuffy ? 0.08 : 0.05;
           const padD = isPuffy ? 0.10 : 0.05;
@@ -1828,6 +1842,440 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               btn.position.set(0.14, TORSO_Y + y, frontZ + 0.005);
               g.add(btn);
             });
+          } else if (kind === 'wolverine') {
+            // Yellow torso + blue V chest panel + brown belt
+            const blueMat = new THREE.MeshStandardMaterial({ color: accent ?? new THREE.Color('#1e3a8a') });
+            const vChest = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.6, TORSO_H * 0.5, 0.04),
+              blueMat
+            );
+            vChest.position.set(0, TORSO_Y + 0.08, frontZ + 0.005);
+            g.add(vChest);
+            // Brown belt
+            const belt = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.04, 0.08, TORSO_D + padD + 0.04),
+              new THREE.MeshStandardMaterial({ color: '#7c2d12' })
+            );
+            belt.position.set(0, TORSO_Y - TORSO_H / 2 + 0.06, 0);
+            g.add(belt);
+            // Gold belt buckle 'X'
+            const buckle = new THREE.Mesh(
+              new THREE.BoxGeometry(0.12, 0.08, 0.04),
+              new THREE.MeshStandardMaterial({ color: '#fbbf24', metalness: 0.6 })
+            );
+            buckle.position.set(0, TORSO_Y - TORSO_H / 2 + 0.06, frontZ + 0.02);
+            g.add(buckle);
+            // Silver claws from each fist (3 per hand)
+            const clawMat = new THREE.MeshStandardMaterial({
+              color: '#e2e8f0', metalness: 0.85, roughness: 0.15,
+            });
+            [-1, 1].forEach((sx) => {
+              [-0.06, 0, 0.06].forEach((dx) => {
+                const claw = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.02, 0.32, 4),
+                  clawMat.clone()
+                );
+                claw.position.set(sx * ARM_X + dx, ARM_Y - ARM_H / 2 - 0.22, 0.15);
+                g.add(claw);
+              });
+            });
+          } else if (kind === 'dr_strange') {
+            // Blue robe with gold trim + Eye of Agamotto pendant
+            const goldMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fbbf24'),
+              metalness: 0.5, roughness: 0.3,
+            });
+            // High collar
+            const collar = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.26, 0.26, 0.18, 18),
+              new THREE.MeshStandardMaterial({ color })
+            );
+            collar.position.set(0, topY + 0.06, 0);
+            g.add(collar);
+            // Gold sash V across chest
+            const sashL = new THREE.Mesh(
+              new THREE.BoxGeometry(0.34, 0.06, 0.04),
+              goldMat.clone()
+            );
+            sashL.rotation.z = 0.45;
+            sashL.position.set(-0.12, TORSO_Y + 0.08, frontZ + 0.015);
+            g.add(sashL);
+            const sashR = new THREE.Mesh(
+              new THREE.BoxGeometry(0.34, 0.06, 0.04),
+              goldMat.clone()
+            );
+            sashR.rotation.z = -0.45;
+            sashR.position.set(0.12, TORSO_Y + 0.08, frontZ + 0.015);
+            g.add(sashR);
+            // Gold belt
+            const drBelt = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.04, 0.06, TORSO_D + padD + 0.04),
+              goldMat.clone()
+            );
+            drBelt.position.set(0, TORSO_Y - TORSO_H / 2 + 0.04, 0);
+            g.add(drBelt);
+            // Eye of Agamotto pendant
+            const eyeCircle = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.07, 0.07, 0.025, 20),
+              goldMat.clone()
+            );
+            eyeCircle.rotation.x = Math.PI / 2;
+            eyeCircle.position.set(0, TORSO_Y - 0.1, frontZ + 0.025);
+            g.add(eyeCircle);
+            const eyeCore = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.04, 0.04, 0.026, 16),
+              new THREE.MeshStandardMaterial({
+                color: '#16a34a',
+                emissive: '#22c55e',
+                emissiveIntensity: 1.0,
+              })
+            );
+            eyeCore.rotation.x = Math.PI / 2;
+            eyeCore.position.set(0, TORSO_Y - 0.1, frontZ + 0.04);
+            g.add(eyeCore);
+          } else if (kind === 'starlord') {
+            // Red leather jacket + central zipper + Guardians badge
+            const trimMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fbbf24'),
+              metalness: 0.5,
+            });
+            // Central zipper line
+            const zipper = new THREE.Mesh(
+              new THREE.BoxGeometry(0.02, TORSO_H + 0.02, 0.03),
+              trimMat.clone()
+            );
+            zipper.position.set(0, TORSO_Y, frontZ + 0.02);
+            g.add(zipper);
+            // Two side jacket flaps with stitching
+            [-1, 1].forEach((sx) => {
+              const stitch = new THREE.Mesh(
+                new THREE.BoxGeometry(0.01, TORSO_H, 0.02),
+                trimMat.clone()
+              );
+              stitch.position.set(sx * 0.18, TORSO_Y, frontZ + 0.015);
+              g.add(stitch);
+            });
+            // Round Guardians badge
+            const badge = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.06, 0.06, 0.025, 16),
+              trimMat.clone()
+            );
+            badge.rotation.x = Math.PI / 2;
+            badge.position.set(-0.18, TORSO_Y + 0.1, frontZ + 0.02);
+            g.add(badge);
+            // Brown shoulder pads
+            [-1, 1].forEach((sx) => {
+              const pad = new THREE.Mesh(
+                new THREE.BoxGeometry(0.2, 0.1, 0.16),
+                new THREE.MeshStandardMaterial({ color: '#3f3f1a' })
+              );
+              pad.position.set(sx * ARM_X, ARM_Y + ARM_H / 2 - 0.04, 0);
+              g.add(pad);
+            });
+          } else if (kind === 'antman') {
+            // Red/black segmented suit (horizontal bands)
+            const blackMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0a0a0a'),
+            });
+            // 3 horizontal black bands across torso
+            [0.16, 0, -0.16].forEach((y) => {
+              const band = new THREE.Mesh(
+                new THREE.BoxGeometry(TORSO_W + padW + 0.02, 0.06, TORSO_D + padD + 0.02),
+                blackMat.clone()
+              );
+              band.position.set(0, TORSO_Y + y, 0);
+              g.add(band);
+            });
+            // Center silver Ant emblem dot
+            const emblem = new THREE.Mesh(
+              new THREE.SphereGeometry(0.05, 12, 10),
+              new THREE.MeshStandardMaterial({
+                color: '#cbd5e1', metalness: 0.7, roughness: 0.2,
+              })
+            );
+            emblem.position.set(0, TORSO_Y + 0.08, frontZ + 0.03);
+            g.add(emblem);
+            // Black shoulder caps
+            [-1, 1].forEach((sx) => {
+              const cap = new THREE.Mesh(
+                new THREE.SphereGeometry(0.13, 14, 10),
+                blackMat.clone()
+              );
+              cap.scale.set(1, 0.7, 1);
+              cap.position.set(sx * ARM_X, ARM_Y + ARM_H / 2 - 0.04, 0);
+              g.add(cap);
+            });
+          } else if (kind === 'war_machine') {
+            // Gray heavy armor + chest LED + shoulder armor
+            const armorMat = new THREE.MeshStandardMaterial({
+              color, metalness: 0.7, roughness: 0.3,
+            });
+            torsoMesh.material = armorMat;
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1e293b'),
+              metalness: 0.8, roughness: 0.25,
+            });
+            // Chest panel
+            const chestPanel = new THREE.Mesh(
+              new THREE.BoxGeometry(0.38, 0.22, 0.04),
+              darkMat.clone()
+            );
+            chestPanel.position.set(0, TORSO_Y + 0.06, frontZ + 0.015);
+            g.add(chestPanel);
+            // Red LED arc reactor center
+            const led = new THREE.Mesh(
+              new THREE.CircleGeometry(0.06, 18),
+              new THREE.MeshStandardMaterial({
+                color: '#fde047', emissive: '#facc15', emissiveIntensity: 1.5,
+              })
+            );
+            led.position.set(0, TORSO_Y + 0.06, frontZ + 0.04);
+            g.add(led);
+            // Bulky shoulder plates
+            [-1, 1].forEach((sx) => {
+              const shoulder = new THREE.Mesh(
+                new THREE.BoxGeometry(0.26, 0.16, 0.22),
+                armorMat.clone()
+              );
+              shoulder.position.set(sx * ARM_X, ARM_Y + ARM_H / 2 - 0.02, 0);
+              g.add(shoulder);
+            });
+            // Gunmetal belt
+            const wmBelt = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.04, 0.07, TORSO_D + padD + 0.04),
+              darkMat.clone()
+            );
+            wmBelt.position.set(0, TORSO_Y - TORSO_H / 2 + 0.04, 0);
+            g.add(wmBelt);
+          } else if (kind === 'vision') {
+            // Green torso + yellow V harness + yellow Mind Stone center
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fde047'),
+              metalness: 0.4, roughness: 0.3,
+              emissive: new THREE.Color('#facc15').multiplyScalar(0.15),
+            });
+            // Yellow V harness across chest
+            const harnessL = new THREE.Mesh(
+              new THREE.BoxGeometry(0.32, 0.06, 0.04),
+              yellowMat.clone()
+            );
+            harnessL.rotation.z = 0.5;
+            harnessL.position.set(-0.12, TORSO_Y + 0.12, frontZ + 0.015);
+            g.add(harnessL);
+            const harnessR = new THREE.Mesh(
+              new THREE.BoxGeometry(0.32, 0.06, 0.04),
+              yellowMat.clone()
+            );
+            harnessR.rotation.z = -0.5;
+            harnessR.position.set(0.12, TORSO_Y + 0.12, frontZ + 0.015);
+            g.add(harnessR);
+            // Yellow ovaal collar
+            const vCollar = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.22, 0.22, 0.06, 18),
+              yellowMat.clone()
+            );
+            vCollar.position.set(0, topY + 0.02, 0);
+            g.add(vCollar);
+            // Yellow belt
+            const vBelt = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.04, 0.06, TORSO_D + padD + 0.04),
+              yellowMat.clone()
+            );
+            vBelt.position.set(0, TORSO_Y - TORSO_H / 2 + 0.04, 0);
+            g.add(vBelt);
+          } else if (kind === 'daredevil') {
+            // Red suit + double-D emblem + black shoulder pads
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0a0a0a'),
+            });
+            // "DD" emblem — 2 round D shapes
+            [-0.06, 0.06].forEach((dx) => {
+              const d = new THREE.Mesh(
+                new THREE.TorusGeometry(0.05, 0.018, 8, 16, Math.PI),
+                darkMat.clone()
+              );
+              d.rotation.z = dx < 0 ? Math.PI : 0;
+              d.position.set(dx, TORSO_Y + 0.1, frontZ + 0.025);
+              g.add(d);
+            });
+            // Black shoulder pads
+            [-1, 1].forEach((sx) => {
+              const pad = new THREE.Mesh(
+                new THREE.BoxGeometry(0.22, 0.12, 0.18),
+                darkMat.clone()
+              );
+              pad.position.set(sx * ARM_X, ARM_Y + ARM_H / 2 - 0.02, 0);
+              g.add(pad);
+            });
+            // Black utility belt
+            const ddBelt = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.04, 0.07, TORSO_D + padD + 0.04),
+              darkMat.clone()
+            );
+            ddBelt.position.set(0, TORSO_Y - TORSO_H / 2 + 0.04, 0);
+            g.add(ddBelt);
+          } else if (kind === 'hawkeye') {
+            // Purple/dark vest + brown leather harness
+            const harnessMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1f2937'),
+            });
+            // Dark vest sides
+            [-1, 1].forEach((sx) => {
+              const panel = new THREE.Mesh(
+                new THREE.BoxGeometry(0.2, TORSO_H, 0.04),
+                harnessMat.clone()
+              );
+              panel.position.set(sx * 0.2, TORSO_Y, frontZ + 0.01);
+              g.add(panel);
+            });
+            // Diagonal leather strap (for quiver)
+            const strap = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 1.3, 0.06, 0.04),
+              new THREE.MeshStandardMaterial({ color: '#7c2d12' })
+            );
+            strap.rotation.z = -0.5;
+            strap.position.set(0, TORSO_Y + 0.06, frontZ + 0.025);
+            g.add(strap);
+            // Arrow emblem on chest
+            const arrowMat = new THREE.MeshStandardMaterial({ color: '#cbd5e1', metalness: 0.6 });
+            const arrowShaft = new THREE.Mesh(
+              new THREE.BoxGeometry(0.025, 0.16, 0.025),
+              arrowMat
+            );
+            arrowShaft.position.set(0, TORSO_Y + 0.04, frontZ + 0.025);
+            g.add(arrowShaft);
+            const arrowHead = new THREE.Mesh(
+              new THREE.ConeGeometry(0.04, 0.08, 4),
+              arrowMat.clone()
+            );
+            arrowHead.position.set(0, TORSO_Y + 0.16, frontZ + 0.025);
+            g.add(arrowHead);
+          } else if (kind === 'falcon') {
+            // Red tactical suit + tech harness + Falcon emblem
+            const techMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fbbf24'),
+              metalness: 0.5,
+            });
+            // Horizontal tactical band across chest
+            const tac = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.02, 0.08, TORSO_D + padD + 0.02),
+              new THREE.MeshStandardMaterial({ color: '#1f2937' })
+            );
+            tac.position.set(0, TORSO_Y + 0.1, 0);
+            g.add(tac);
+            // Falcon emblem (bird outline)
+            const birdL = new THREE.Mesh(
+              new THREE.BoxGeometry(0.12, 0.03, 0.03),
+              techMat.clone()
+            );
+            birdL.rotation.z = 0.6;
+            birdL.position.set(-0.06, TORSO_Y - 0.04, frontZ + 0.02);
+            g.add(birdL);
+            const birdR = new THREE.Mesh(
+              new THREE.BoxGeometry(0.12, 0.03, 0.03),
+              techMat.clone()
+            );
+            birdR.rotation.z = -0.6;
+            birdR.position.set(0.06, TORSO_Y - 0.04, frontZ + 0.02);
+            g.add(birdR);
+            // Tactical belt
+            const fBelt = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.04, 0.06, TORSO_D + padD + 0.04),
+              new THREE.MeshStandardMaterial({ color: '#1f2937' })
+            );
+            fBelt.position.set(0, TORSO_Y - TORSO_H / 2 + 0.04, 0);
+            g.add(fBelt);
+          } else if (kind === 'venom') {
+            // Black symbiote + white spider symbol (inverted Spider-Man)
+            const whiteMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#f8fafc'),
+              emissive: '#e2e8f0', emissiveIntensity: 0.15,
+            });
+            // Big white spider body on chest
+            const vBody = new THREE.Mesh(
+              new THREE.SphereGeometry(0.07, 12, 10),
+              whiteMat.clone()
+            );
+            vBody.scale.set(1, 1.5, 0.5);
+            vBody.position.set(0, TORSO_Y + 0.04, frontZ + 0.02);
+            g.add(vBody);
+            // 8 spider legs spreading down to belly
+            [-1, 1].forEach((sx) => {
+              [0.06, -0.04, -0.14, -0.24].forEach((dy, i) => {
+                const sLeg = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.18, 0.014, 0.014),
+                  whiteMat.clone()
+                );
+                sLeg.position.set(sx * 0.1, TORSO_Y + 0.04 + dy, frontZ + 0.02);
+                sLeg.rotation.z = sx * (0.45 - i * 0.18);
+                g.add(sLeg);
+              });
+            });
+            // Slime tendril ridges on shoulders
+            [-1, 1].forEach((sx) => {
+              const ridge = new THREE.Mesh(
+                new THREE.BoxGeometry(0.16, 0.04, 0.16),
+                new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.4 })
+              );
+              ridge.position.set(sx * ARM_X, ARM_Y + ARM_H / 2 - 0.02, 0);
+              g.add(ridge);
+            });
+          } else if (kind === 'ghost_rider') {
+            // Black leather jacket + silver chains
+            const chainMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#cbd5e1'),
+              metalness: 0.8, roughness: 0.2,
+            });
+            // Chest chain (X cross)
+            const ch1 = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 1.1, 0.03, 0.04),
+              chainMat.clone()
+            );
+            ch1.rotation.z = 0.5;
+            ch1.position.set(0, TORSO_Y, frontZ + 0.02);
+            g.add(ch1);
+            const ch2 = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 1.1, 0.03, 0.04),
+              chainMat.clone()
+            );
+            ch2.rotation.z = -0.5;
+            ch2.position.set(0, TORSO_Y, frontZ + 0.02);
+            g.add(ch2);
+            // Leather collar
+            const grCollar = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.24, 0.24, 0.1, 18),
+              new THREE.MeshStandardMaterial({ color })
+            );
+            grCollar.position.set(0, topY + 0.04, 0);
+            g.add(grCollar);
+            // Small skull buckle on belt
+            const skull = new THREE.Mesh(
+              new THREE.SphereGeometry(0.05, 12, 10),
+              new THREE.MeshStandardMaterial({ color: '#f8fafc' })
+            );
+            skull.scale.set(1, 0.85, 0.7);
+            skull.position.set(0, TORSO_Y - TORSO_H / 2 + 0.04, frontZ + 0.03);
+            g.add(skull);
+          } else if (kind === 'silver_surfer') {
+            // Smooth chrome body — recolor torso to silver
+            const chromeMat = new THREE.MeshStandardMaterial({
+              color, metalness: 0.95, roughness: 0.08,
+              emissive: new THREE.Color('#475569').multiplyScalar(0.1),
+            });
+            torsoMesh.material = chromeMat;
+            // Subtle abdomen lines
+            const abMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#94a3b8'),
+              metalness: 0.7,
+            });
+            [-0.1, -0.18].forEach((y) => {
+              const ab = new THREE.Mesh(
+                new THREE.BoxGeometry(0.22, 0.012, 0.02),
+                abMat.clone()
+              );
+              ab.position.set(0, TORSO_Y + y, frontZ + 0.005);
+              g.add(ab);
+            });
           } else if (accent) {
             // plain tee with accent hem
             const stripe = new THREE.Mesh(
@@ -1989,6 +2437,166 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               leg.position.set(sx * LEG_X, LEG_Y - LEG_H * 0.25, 0);
               g.add(leg);
             });
+            break;
+          }
+
+          if (
+            kind === 'wolverine' ||
+            kind === 'dr_strange' ||
+            kind === 'starlord' ||
+            kind === 'antman' ||
+            kind === 'war_machine' ||
+            kind === 'vision' ||
+            kind === 'daredevil' ||
+            kind === 'hawkeye' ||
+            kind === 'falcon' ||
+            kind === 'venom' ||
+            kind === 'ghost_rider' ||
+            kind === 'silver_surfer'
+          ) {
+            const trimMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fbbf24'),
+              metalness: kind === 'war_machine' || kind === 'silver_surfer' ? 0.6 : 0.3,
+            });
+            const baseW = kind === 'war_machine' ? 0.1 : 0.05;
+            // Base color legs
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + baseW, LEG_H + 0.02, LEG_W + baseW),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+            });
+            if (kind === 'wolverine') {
+              // Yellow side stripes
+              [-1, 1].forEach((sx) => {
+                const stripe = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.04, LEG_H, LEG_W + 0.06),
+                  trimMat.clone()
+                );
+                stripe.position.set(sx * (LEG_X + LEG_W / 2 + 0.01), LEG_Y, 0);
+                g.add(stripe);
+              });
+            } else if (kind === 'dr_strange') {
+              // Gold trim along the bottom (long robe hem)
+              const hem = new THREE.Mesh(
+                new THREE.BoxGeometry(TORSO_W + 0.16, 0.05, TORSO_D + 0.16),
+                trimMat.clone()
+              );
+              hem.position.set(0, LEG_Y - LEG_H / 2 - 0.02, 0);
+              g.add(hem);
+            } else if (kind === 'starlord') {
+              // Brown belt + side gun holsters
+              const beltSL = new THREE.Mesh(
+                new THREE.BoxGeometry(TORSO_W + 0.08, 0.08, TORSO_D + 0.08),
+                new THREE.MeshStandardMaterial({ color: '#7c2d12' })
+              );
+              beltSL.position.set(0, LEG_Y + LEG_H / 2 + 0.04, 0);
+              g.add(beltSL);
+              [-1, 1].forEach((sx) => {
+                const holster = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.1, 0.16, 0.08),
+                  trimMat.clone()
+                );
+                holster.position.set(sx * (LEG_X + 0.12), LEG_Y + LEG_H * 0.3, 0.08);
+                g.add(holster);
+              });
+            } else if (kind === 'antman') {
+              // Black horizontal segments
+              [0.14, 0, -0.14].forEach((y) => {
+                [-1, 1].forEach((sx) => {
+                  const seg = new THREE.Mesh(
+                    new THREE.BoxGeometry(LEG_W + 0.07, 0.04, LEG_W + 0.07),
+                    trimMat.clone()
+                  );
+                  seg.position.set(sx * LEG_X, LEG_Y + y, 0);
+                  g.add(seg);
+                });
+              });
+            } else if (kind === 'war_machine') {
+              // Dark gunmetal knee plates
+              [-1, 1].forEach((sx) => {
+                const knee = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.12, 0.1, LEG_W + 0.1),
+                  trimMat.clone()
+                );
+                knee.position.set(sx * LEG_X, LEG_Y - 0.02, 0.01);
+                g.add(knee);
+              });
+            } else if (kind === 'vision') {
+              // Yellow knee rings
+              [-1, 1].forEach((sx) => {
+                const ring = new THREE.Mesh(
+                  new THREE.TorusGeometry(0.18, 0.025, 8, 16),
+                  trimMat.clone()
+                );
+                ring.rotation.x = Math.PI / 2;
+                ring.position.set(sx * LEG_X, LEG_Y - 0.02, 0);
+                g.add(ring);
+              });
+            } else if (kind === 'daredevil') {
+              // Black knee pads
+              [-1, 1].forEach((sx) => {
+                const pad = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.08, 0.08, LEG_W + 0.04),
+                  trimMat.clone()
+                );
+                pad.position.set(sx * LEG_X, LEG_Y - 0.02, 0.02);
+                g.add(pad);
+              });
+            } else if (kind === 'hawkeye') {
+              // Purple stripe down each side
+              [-1, 1].forEach((sx) => {
+                const stripe = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.04, LEG_H, LEG_W + 0.06),
+                  trimMat.clone()
+                );
+                stripe.position.set(sx * (LEG_X + LEG_W / 2 + 0.01), LEG_Y, 0);
+                g.add(stripe);
+              });
+            } else if (kind === 'falcon') {
+              // Tactical pouches
+              [-1, 1].forEach((sx) => {
+                const pouch = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.1, 0.12, 0.06),
+                  trimMat.clone()
+                );
+                pouch.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.25, LEG_W / 2 + 0.05);
+                g.add(pouch);
+              });
+            } else if (kind === 'venom') {
+              // White slime tendril marks down each leg
+              [-1, 1].forEach((sx) => {
+                const tendril = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.02, LEG_H, 0.02),
+                  trimMat.clone()
+                );
+                tendril.position.set(sx * LEG_X, LEG_Y, LEG_W / 2 + 0.03);
+                g.add(tendril);
+              });
+            } else if (kind === 'ghost_rider') {
+              // Chains wrapped around each thigh
+              [-1, 1].forEach((sx) => {
+                const chain = new THREE.Mesh(
+                  new THREE.TorusGeometry(0.18, 0.022, 8, 16),
+                  trimMat.clone()
+                );
+                chain.rotation.x = Math.PI / 2;
+                chain.position.set(sx * LEG_X, LEG_Y + 0.12, 0);
+                g.add(chain);
+              });
+            } else if (kind === 'silver_surfer') {
+              // Slightly darker ankle line
+              [-1, 1].forEach((sx) => {
+                const ank = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.07, 0.02, LEG_W + 0.07),
+                  trimMat.clone()
+                );
+                ank.position.set(sx * LEG_X, LEG_Y - LEG_H / 2 + 0.02, 0);
+                g.add(ank);
+              });
+            }
             break;
           }
 
@@ -3221,7 +3829,16 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             kind === 'captain_america' ||
             kind === 'thor' ||
             kind === 'flash' ||
-            kind === 'panther'
+            kind === 'panther' ||
+            kind === 'wolverine' ||
+            kind === 'starlord' ||
+            kind === 'antman' ||
+            kind === 'war_machine' ||
+            kind === 'vision' ||
+            kind === 'daredevil' ||
+            kind === 'falcon' ||
+            kind === 'venom' ||
+            kind === 'ghost_rider'
           ) {
             const baseMat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
             const trimMat = new THREE.MeshStandardMaterial({
@@ -3494,6 +4111,343 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               );
               mouthP.position.set(0, HEAD_Y - 0.25, FACE_Z + 0.04);
               g.add(mouthP);
+            } else if (kind === 'wolverine') {
+              // Yellow cowl + 2 tall pointy black "ears" (Wolverine mask)
+              [-1, 1].forEach((sx) => {
+                const ear = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.1, 0.35, 4),
+                  new THREE.MeshStandardMaterial({ color: accent ?? '#0a0a0a' })
+                );
+                ear.rotation.z = sx * 0.4;
+                ear.position.set(sx * 0.28, HEAD_Y + HEAD_SIZE / 2 + 0.16, 0);
+                g.add(ear);
+              });
+              // Black eye mask shape around eye area
+              const mask = new THREE.Mesh(
+                new THREE.BoxGeometry(HEAD_SIZE + 0.04, 0.18, 0.04),
+                new THREE.MeshStandardMaterial({ color: accent ?? '#0a0a0a' })
+              );
+              mask.position.set(0, HEAD_Y + 0.06, FACE_Z + 0.03);
+              g.add(mask);
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.14, 0.07, 0.02),
+                  new THREE.MeshStandardMaterial({ color: '#f8fafc' })
+                );
+                eye.position.set(sx * 0.18, HEAD_Y + 0.06, FACE_Z + 0.06);
+                eye.rotation.z = sx * -0.2;
+                g.add(eye);
+              });
+              // Skin lower face
+              const jaw = new THREE.Mesh(
+                new THREE.BoxGeometry(HEAD_SIZE * 0.75, 0.24, 0.04),
+                new THREE.MeshStandardMaterial({ color: SKIN })
+              );
+              jaw.position.set(0, HEAD_Y - HEAD_SIZE * 0.28, FACE_Z + 0.05);
+              g.add(jaw);
+            } else if (kind === 'starlord') {
+              // Red metallic helmet + glowing red horizontal eye slits + mouthplate
+              const goldMat = new THREE.MeshStandardMaterial({
+                color: accent ?? '#fbbf24', metalness: 0.6, roughness: 0.3,
+              });
+              cover.material = new THREE.MeshStandardMaterial({
+                color, metalness: 0.7, roughness: 0.25,
+              });
+              // Glowing eye slits
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.18, 0.05, 0.02),
+                  new THREE.MeshStandardMaterial({
+                    color: '#fee2e2', emissive: '#dc2626', emissiveIntensity: 1.4,
+                  })
+                );
+                eye.position.set(sx * 0.18, HEAD_Y + 0.06, FACE_Z + 0.05);
+                g.add(eye);
+              });
+              // Mouth plate (gold)
+              const mouthPlate = new THREE.Mesh(
+                new THREE.BoxGeometry(HEAD_SIZE * 0.7, 0.18, 0.04),
+                goldMat
+              );
+              mouthPlate.position.set(0, HEAD_Y - HEAD_SIZE * 0.3, FACE_Z + 0.04);
+              g.add(mouthPlate);
+              // Horizontal mouth slits
+              for (let i = -2; i <= 2; i++) {
+                const slat = new THREE.Mesh(
+                  new THREE.BoxGeometry(HEAD_SIZE * 0.6, 0.012, 0.02),
+                  new THREE.MeshStandardMaterial({ color: '#1f2937' })
+                );
+                slat.position.set(0, HEAD_Y - HEAD_SIZE * 0.3 + i * 0.025, FACE_Z + 0.06);
+                g.add(slat);
+              }
+            } else if (kind === 'antman') {
+              // Red helmet + 2 antennae sticking up
+              const antMat = new THREE.MeshStandardMaterial({ color: accent ?? '#0a0a0a' });
+              // Two curved antennae
+              [-1, 1].forEach((sx) => {
+                const ant = new THREE.Mesh(
+                  new THREE.CylinderGeometry(0.012, 0.012, 0.3, 8),
+                  antMat.clone()
+                );
+                ant.rotation.z = sx * -0.3;
+                ant.position.set(sx * 0.16, HEAD_Y + HEAD_SIZE / 2 + 0.15, 0);
+                g.add(ant);
+                // Tiny bead at the tip
+                const bead = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.025, 10, 8),
+                  new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.6 })
+                );
+                bead.position.set(sx * 0.22, HEAD_Y + HEAD_SIZE / 2 + 0.3, 0);
+                g.add(bead);
+              });
+              // Black eye lenses
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.16, 0.1, 0.02),
+                  antMat.clone()
+                );
+                eye.position.set(sx * 0.18, HEAD_Y + 0.05, FACE_Z + 0.04);
+                g.add(eye);
+              });
+              // Bottom mouth slit
+              const mouth = new THREE.Mesh(
+                new THREE.BoxGeometry(0.36, 0.05, 0.04),
+                antMat.clone()
+              );
+              mouth.position.set(0, HEAD_Y - HEAD_SIZE * 0.3, FACE_Z + 0.04);
+              g.add(mouth);
+            } else if (kind === 'war_machine') {
+              // Gray faceplate + red eye slits + side details
+              cover.material = new THREE.MeshStandardMaterial({
+                color, metalness: 0.7, roughness: 0.25,
+              });
+              const darkMat = new THREE.MeshStandardMaterial({
+                color: '#1e293b', metalness: 0.85,
+              });
+              // Red glowing eye slits
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.17, 0.05, 0.02),
+                  new THREE.MeshStandardMaterial({
+                    color: '#fee2e2', emissive: accent ?? '#dc2626', emissiveIntensity: 1.4,
+                  })
+                );
+                eye.position.set(sx * 0.18, HEAD_Y + 0.04, FACE_Z + 0.05);
+                g.add(eye);
+              });
+              // Mouth grille
+              for (let i = -2; i <= 2; i++) {
+                const slat = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.02, 0.1, 0.02),
+                  darkMat.clone()
+                );
+                slat.position.set(i * 0.05, HEAD_Y - HEAD_SIZE * 0.3, FACE_Z + 0.05);
+                g.add(slat);
+              }
+              // Top crest
+              const crest = new THREE.Mesh(
+                new THREE.BoxGeometry(0.08, 0.16, HEAD_SIZE * 0.6),
+                cover.material
+              );
+              crest.position.set(0, HEAD_Y + HEAD_SIZE / 2 + 0.05, 0);
+              g.add(crest);
+            } else if (kind === 'vision') {
+              // Red face + yellow Mind Stone on forehead
+              cover.material = new THREE.MeshStandardMaterial({
+                color, metalness: 0.5, roughness: 0.4,
+                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.08),
+              });
+              // Yellow Mind Stone
+              const stone = new THREE.Mesh(
+                new THREE.OctahedronGeometry(0.08),
+                new THREE.MeshStandardMaterial({
+                  color: accent ?? '#fde047',
+                  emissive: accent ?? '#facc15', emissiveIntensity: 1.2,
+                  metalness: 0.4, roughness: 0.15,
+                })
+              );
+              stone.position.set(0, HEAD_Y + 0.22, FACE_Z + 0.05);
+              g.add(stone);
+              // Yellow eyes
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.12, 0.06, 0.02),
+                  new THREE.MeshStandardMaterial({
+                    color: '#fef3c7', emissive: '#fde047', emissiveIntensity: 0.6,
+                  })
+                );
+                eye.position.set(sx * 0.18, HEAD_Y + 0.04, FACE_Z + 0.04);
+                g.add(eye);
+              });
+              // Subtle mouth line
+              const mouthV = new THREE.Mesh(
+                new THREE.BoxGeometry(0.2, 0.02, 0.02),
+                new THREE.MeshStandardMaterial({ color: '#7f1d1d' })
+              );
+              mouthV.position.set(0, HEAD_Y - HEAD_SIZE * 0.28, FACE_Z + 0.04);
+              g.add(mouthV);
+            } else if (kind === 'daredevil') {
+              // Red cowl + 2 SHORT HORNS on top
+              const darkMat = new THREE.MeshStandardMaterial({ color: accent ?? '#0a0a0a' });
+              // Horns
+              [-1, 1].forEach((sx) => {
+                const horn = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.06, 0.18, 4),
+                  new THREE.MeshStandardMaterial({ color })
+                );
+                horn.position.set(sx * 0.16, HEAD_Y + HEAD_SIZE / 2 + 0.1, 0);
+                g.add(horn);
+              });
+              // Dark eye area (mask)
+              const eyeMask = new THREE.Mesh(
+                new THREE.BoxGeometry(HEAD_SIZE + 0.04, 0.16, 0.04),
+                darkMat.clone()
+              );
+              eyeMask.position.set(0, HEAD_Y + 0.06, FACE_Z + 0.03);
+              g.add(eyeMask);
+              // Red glowing eye slits in the dark mask
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.14, 0.04, 0.02),
+                  new THREE.MeshStandardMaterial({
+                    color: '#fee2e2', emissive: color, emissiveIntensity: 1.0,
+                  })
+                );
+                eye.position.set(sx * 0.18, HEAD_Y + 0.06, FACE_Z + 0.06);
+                g.add(eye);
+              });
+              // Frowning mouth
+              const dMouth = new THREE.Mesh(
+                new THREE.BoxGeometry(0.2, 0.02, 0.02),
+                darkMat.clone()
+              );
+              dMouth.position.set(0, HEAD_Y - 0.22, FACE_Z + 0.04);
+              g.add(dMouth);
+            } else if (kind === 'falcon') {
+              // Red tactical helmet + large dark goggles
+              const goggleMat = new THREE.MeshStandardMaterial({
+                color: '#1f2937', metalness: 0.6, roughness: 0.2,
+              });
+              const goldMat = new THREE.MeshStandardMaterial({
+                color: accent ?? '#fbbf24', metalness: 0.6,
+              });
+              // Large goggle band across eyes
+              const goggle = new THREE.Mesh(
+                new THREE.BoxGeometry(HEAD_SIZE + 0.06, 0.18, 0.06),
+                goggleMat
+              );
+              goggle.position.set(0, HEAD_Y + 0.06, FACE_Z + 0.04);
+              g.add(goggle);
+              // Gold accent line
+              const goldLine = new THREE.Mesh(
+                new THREE.BoxGeometry(HEAD_SIZE + 0.04, 0.02, 0.04),
+                goldMat
+              );
+              goldLine.position.set(0, HEAD_Y + 0.12, FACE_Z + 0.07);
+              g.add(goldLine);
+              // Reflective eyes inside goggles
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.12, 0.05, 0.02),
+                  new THREE.MeshStandardMaterial({
+                    color: '#f8fafc', emissive: '#cbd5e1', emissiveIntensity: 0.6,
+                  })
+                );
+                eye.position.set(sx * 0.18, HEAD_Y + 0.06, FACE_Z + 0.08);
+                g.add(eye);
+              });
+              // Lower face skin
+              const jawF = new THREE.Mesh(
+                new THREE.BoxGeometry(HEAD_SIZE * 0.7, 0.22, 0.04),
+                new THREE.MeshStandardMaterial({ color: SKIN })
+              );
+              jawF.position.set(0, HEAD_Y - HEAD_SIZE * 0.3, FACE_Z + 0.05);
+              g.add(jawF);
+            } else if (kind === 'venom') {
+              // Black symbiote head + huge white slit eyes + WHITE TEETH grin
+              const whiteMat = new THREE.MeshStandardMaterial({
+                color: accent ?? '#f8fafc',
+                emissive: '#e2e8f0', emissiveIntensity: 0.15,
+              });
+              // Big tilted white slit eyes
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.3, 0.16, 0.03),
+                  whiteMat.clone()
+                );
+                eye.position.set(sx * 0.18, HEAD_Y + 0.1, FACE_Z + 0.05);
+                eye.rotation.z = sx * -0.32;
+                g.add(eye);
+              });
+              // White teeth row (gritted grin)
+              const mouthV = new THREE.Mesh(
+                new THREE.BoxGeometry(HEAD_SIZE + 0.02, 0.2, 0.04),
+                whiteMat.clone()
+              );
+              mouthV.position.set(0, HEAD_Y - 0.18, FACE_Z + 0.04);
+              g.add(mouthV);
+              // Teeth dividers (vertical black lines)
+              for (let i = -4; i <= 4; i++) {
+                const div = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.018, 0.18, 0.02),
+                  new THREE.MeshStandardMaterial({ color })
+                );
+                div.position.set(i * 0.05, HEAD_Y - 0.18, FACE_Z + 0.06);
+                g.add(div);
+              }
+              // Tongue hint
+              const tongue = new THREE.Mesh(
+                new THREE.BoxGeometry(0.16, 0.04, 0.04),
+                new THREE.MeshStandardMaterial({ color: '#dc2626' })
+              );
+              tongue.position.set(0, HEAD_Y - 0.27, FACE_Z + 0.05);
+              g.add(tongue);
+            } else if (kind === 'ghost_rider') {
+              // White flaming skull + hollow eye sockets + flames
+              const skullMat = new THREE.MeshStandardMaterial({
+                color, metalness: 0.05, roughness: 0.7,
+                emissive: new THREE.Color('#f8fafc').multiplyScalar(0.05),
+              });
+              cover.material = skullMat;
+              // Hollow black eye sockets
+              [-1, 1].forEach((sx) => {
+                const socket = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.08, 12, 10),
+                  new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+                );
+                socket.scale.set(1, 1, 0.4);
+                socket.position.set(sx * 0.16, HEAD_Y + 0.06, FACE_Z + 0.02);
+                g.add(socket);
+              });
+              // Toothy grin
+              const teeth = new THREE.Mesh(
+                new THREE.BoxGeometry(0.3, 0.06, 0.04),
+                skullMat.clone()
+              );
+              teeth.position.set(0, HEAD_Y - 0.16, FACE_Z + 0.03);
+              g.add(teeth);
+              for (let i = -3; i <= 3; i++) {
+                const div = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.014, 0.06, 0.02),
+                  new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+                );
+                div.position.set(i * 0.046, HEAD_Y - 0.16, FACE_Z + 0.05);
+                g.add(div);
+              }
+              // Orange flames around skull (cones around the top/sides)
+              const flameMat = new THREE.MeshStandardMaterial({
+                color: accent ?? '#fb923c',
+                emissive: '#f97316', emissiveIntensity: 1.0,
+              });
+              [-0.3, -0.15, 0, 0.15, 0.3].forEach((dx, i) => {
+                const h = 0.18 + (i % 2) * 0.1;
+                const flame = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.07, h, 5),
+                  flameMat.clone()
+                );
+                flame.position.set(dx, HEAD_Y + HEAD_SIZE / 2 + h / 2, 0);
+                g.add(flame);
+              });
             }
           } else if (kind === 'spiderman') {
             // Full red head cover + big white tilted eyes + black web grid.
@@ -3960,6 +4914,375 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             break;
           }
 
+          if (kind === 'wolverine_claws') {
+            // Yellow backplate + 3 silver claws sticking out either side
+            const plateMat = new THREE.MeshStandardMaterial({ color });
+            const clawMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#cbd5e1', metalness: 0.85, roughness: 0.15,
+            });
+            const plate = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.7, TORSO_H * 0.7, 0.08),
+              plateMat
+            );
+            plate.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.08);
+            g.add(plate);
+            [-1, 1].forEach((sx) => {
+              [-0.12, 0, 0.12].forEach((dy) => {
+                const claw = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.025, 0.22, 4),
+                  clawMat.clone()
+                );
+                claw.rotation.z = sx * Math.PI / 2;
+                claw.position.set(sx * 0.32, TORSO_Y + dy, -TORSO_D / 2 - 0.06);
+                g.add(claw);
+              });
+            });
+            break;
+          }
+          if (kind === 'dr_strange_cape') {
+            // Iconic red Cloak of Levitation with gold trim
+            const capeMat = new THREE.MeshStandardMaterial({
+              color, side: THREE.DoubleSide, roughness: 0.6,
+            });
+            const cape = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.5, 0.95, 1.55, 22, 1, true, -Math.PI * 0.65, Math.PI * 1.3),
+              capeMat
+            );
+            cape.position.set(0, TORSO_Y - 0.4, -TORSO_D / 2 - 0.04);
+            g.add(cape);
+            // Gold trim along the top collar
+            const goldMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#fbbf24', metalness: 0.55, roughness: 0.3,
+            });
+            const collar = new THREE.Mesh(
+              new THREE.TorusGeometry(0.34, 0.06, 12, 24, Math.PI),
+              goldMat
+            );
+            collar.rotation.x = Math.PI / 2;
+            collar.rotation.z = Math.PI;
+            collar.position.set(0, TORSO_Y + 0.32, -TORSO_D / 2 - 0.04);
+            g.add(collar);
+            // Tall collar wings flaring up
+            [-1, 1].forEach((sx) => {
+              const wing = new THREE.Mesh(
+                new THREE.BoxGeometry(0.1, 0.3, 0.05),
+                capeMat.clone()
+              );
+              wing.rotation.z = sx * 0.5;
+              wing.position.set(sx * 0.24, TORSO_Y + 0.5, -TORSO_D / 2 - 0.02);
+              g.add(wing);
+            });
+            break;
+          }
+          if (kind === 'starlord_pack') {
+            // Twin red rocket pods on the back
+            const padMat = new THREE.MeshStandardMaterial({
+              color, metalness: 0.5, roughness: 0.3,
+            });
+            const goldMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#fbbf24', metalness: 0.6,
+            });
+            [-1, 1].forEach((sx) => {
+              const pod = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.1, 0.1, 0.5, 14),
+                padMat.clone()
+              );
+              pod.position.set(sx * 0.18, TORSO_Y - 0.08, -TORSO_D / 2 - 0.12);
+              g.add(pod);
+              const ring = new THREE.Mesh(
+                new THREE.TorusGeometry(0.1, 0.018, 8, 16),
+                goldMat.clone()
+              );
+              ring.rotation.x = Math.PI / 2;
+              ring.position.set(sx * 0.18, TORSO_Y - 0.32, -TORSO_D / 2 - 0.12);
+              g.add(ring);
+              // Thruster glow
+              const glow = new THREE.Mesh(
+                new THREE.CircleGeometry(0.08, 16),
+                new THREE.MeshStandardMaterial({
+                  color: '#fef3c7', emissive: '#facc15', emissiveIntensity: 1.0,
+                })
+              );
+              glow.rotation.x = -Math.PI / 2;
+              glow.position.set(sx * 0.18, TORSO_Y - 0.34, -TORSO_D / 2 - 0.12);
+              g.add(glow);
+            });
+            break;
+          }
+          if (kind === 'antman_pack') {
+            // Slim red backpack with central yellow ant emblem
+            const packMat = new THREE.MeshStandardMaterial({ color });
+            const pack = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.7, TORSO_H * 0.7, 0.12),
+              packMat
+            );
+            pack.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.1);
+            g.add(pack);
+            // Black accent panel
+            const panel = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.55, 0.1, 0.04),
+              new THREE.MeshStandardMaterial({ color: accent ?? '#0a0a0a' })
+            );
+            panel.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.17);
+            g.add(panel);
+            break;
+          }
+          if (kind === 'war_machine_back') {
+            // Shoulder-mounted gatling gun on the back
+            const armorMat = new THREE.MeshStandardMaterial({
+              color, metalness: 0.7, roughness: 0.3,
+            });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#1e293b', metalness: 0.85,
+            });
+            // Backplate
+            const plate = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 0.9, TORSO_H * 0.8, 0.1),
+              armorMat
+            );
+            plate.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.08);
+            g.add(plate);
+            // Gatling gun mounted on the right shoulder
+            const barrel = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.06, 0.06, 0.36, 14),
+              darkMat
+            );
+            barrel.rotation.x = Math.PI / 2;
+            barrel.rotation.y = -0.3;
+            barrel.position.set(0.32, TORSO_Y + 0.22, -TORSO_D / 2 - 0.05);
+            g.add(barrel);
+            // Ammo box
+            const ammo = new THREE.Mesh(
+              new THREE.BoxGeometry(0.12, 0.14, 0.16),
+              darkMat.clone()
+            );
+            ammo.position.set(0.24, TORSO_Y + 0.32, -TORSO_D / 2 - 0.12);
+            g.add(ammo);
+            // Mini missile on left shoulder
+            const missile = new THREE.Mesh(
+              new THREE.ConeGeometry(0.05, 0.18, 6),
+              darkMat.clone()
+            );
+            missile.rotation.x = Math.PI / 2;
+            missile.position.set(-0.26, TORSO_Y + 0.28, -TORSO_D / 2 - 0.04);
+            g.add(missile);
+            break;
+          }
+          if (kind === 'vision_cape') {
+            // Bright yellow cape (Vision's signature yellow cloak)
+            const capeMat = new THREE.MeshStandardMaterial({
+              color, side: THREE.DoubleSide, roughness: 0.5,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.05),
+            });
+            const cape = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.46, 0.78, 1.4, 20, 1, true, -Math.PI * 0.6, Math.PI * 1.2),
+              capeMat
+            );
+            cape.position.set(0, TORSO_Y - 0.36, -TORSO_D / 2 - 0.04);
+            g.add(cape);
+            // Red trim along edges
+            const trim = new THREE.Mesh(
+              new THREE.TorusGeometry(0.34, 0.04, 10, 18, Math.PI),
+              new THREE.MeshStandardMaterial({
+                color: accent ?? '#dc2626', metalness: 0.4,
+              })
+            );
+            trim.rotation.x = Math.PI / 2;
+            trim.rotation.z = Math.PI;
+            trim.position.set(0, TORSO_Y + 0.32, -TORSO_D / 2 - 0.04);
+            g.add(trim);
+            break;
+          }
+          if (kind === 'daredevil_back') {
+            // Two batons strapped to the back in an X
+            const batMat = new THREE.MeshStandardMaterial({
+              color, metalness: 0.5, roughness: 0.3,
+            });
+            [-1, 1].forEach((sx) => {
+              const baton = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.03, 0.03, 0.6, 10),
+                batMat.clone()
+              );
+              baton.rotation.z = sx * 0.5;
+              baton.position.set(0, TORSO_Y, -TORSO_D / 2 - 0.06);
+              g.add(baton);
+              const grip = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.035, 0.035, 0.16, 10),
+                new THREE.MeshStandardMaterial({ color: accent ?? '#7f1d1d' })
+              );
+              grip.rotation.z = sx * 0.5;
+              grip.position.set(sx * 0.12, TORSO_Y + 0.22, -TORSO_D / 2 - 0.06);
+              g.add(grip);
+            });
+            break;
+          }
+          if (kind === 'hawkeye_quiver') {
+            // Cylindrical quiver + 5 arrows with colored feathers
+            const quiverMat = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
+            const quiver = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.1, 0.1, 0.7, 14),
+              quiverMat
+            );
+            quiver.position.set(0.16, TORSO_Y, -TORSO_D / 2 - 0.1);
+            g.add(quiver);
+            // Arrow shafts + feathers sticking up
+            const shaftMat = new THREE.MeshStandardMaterial({ color: '#a16207' });
+            const featherMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#7c2d12',
+            });
+            [-0.04, 0, 0.04].forEach((dx) => {
+              const shaft = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.012, 0.012, 0.4, 8),
+                shaftMat.clone()
+              );
+              shaft.position.set(0.16 + dx, TORSO_Y + 0.45, -TORSO_D / 2 - 0.1);
+              g.add(shaft);
+              const feather = new THREE.Mesh(
+                new THREE.ConeGeometry(0.025, 0.08, 4),
+                featherMat.clone()
+              );
+              feather.position.set(0.16 + dx, TORSO_Y + 0.65, -TORSO_D / 2 - 0.1);
+              g.add(feather);
+            });
+            // Strap across the chest (visible from front)
+            const strap = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W * 1.3, 0.06, 0.04),
+              new THREE.MeshStandardMaterial({ color: '#7c2d12' })
+            );
+            strap.rotation.z = -0.5;
+            strap.position.set(0, TORSO_Y + 0.06, TORSO_D / 2 + 0.02);
+            g.add(strap);
+            break;
+          }
+          if (kind === 'falcon_wings') {
+            // Large silver mechanical wings extending wide
+            const wingMat = new THREE.MeshStandardMaterial({
+              color, metalness: 0.65, roughness: 0.25,
+            });
+            const accMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#7f1d1d',
+            });
+            [-1, 1].forEach((sx) => {
+              // Main wing (trapezoid box)
+              const wing = new THREE.Mesh(
+                new THREE.BoxGeometry(0.6, 0.4, 0.04),
+                wingMat.clone()
+              );
+              wing.rotation.z = sx * -0.18;
+              wing.position.set(sx * 0.42, TORSO_Y + 0.1, -TORSO_D / 2 - 0.06);
+              g.add(wing);
+              // Wing slat details (feathers as thin boxes)
+              [0, 0.08, 0.16, 0.24].forEach((dy) => {
+                const slat = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.55, 0.02, 0.05),
+                  accMat.clone()
+                );
+                slat.rotation.z = sx * -0.18;
+                slat.position.set(sx * 0.42, TORSO_Y + 0.1 - dy, -TORSO_D / 2 - 0.08);
+                g.add(slat);
+              });
+            });
+            break;
+          }
+          if (kind === 'venom_back') {
+            // Black tendrils/spikes splaying from the upper back
+            const tMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.4, metalness: 0.3,
+            });
+            const whiteMat = new THREE.MeshStandardMaterial({ color: accent ?? '#f8fafc' });
+            [-1, -0.5, 0, 0.5, 1].forEach((s) => {
+              const len = 0.5 - Math.abs(s) * 0.15;
+              const tendril = new THREE.Mesh(
+                new THREE.ConeGeometry(0.04, len, 5),
+                tMat.clone()
+              );
+              tendril.rotation.z = -s * 0.5;
+              tendril.rotation.x = -0.3;
+              tendril.position.set(s * 0.18, TORSO_Y + 0.3 + len / 2, -TORSO_D / 2 - 0.06);
+              g.add(tendril);
+            });
+            // White spider symbol back-emblem
+            const sym = new THREE.Mesh(
+              new THREE.SphereGeometry(0.05, 12, 10),
+              whiteMat.clone()
+            );
+            sym.scale.set(1, 1.4, 0.5);
+            sym.position.set(0, TORSO_Y + 0.05, -TORSO_D / 2 - 0.04);
+            g.add(sym);
+            break;
+          }
+          if (kind === 'ghost_rider_back') {
+            // Silver chain coiled across the back
+            const chainMat = new THREE.MeshStandardMaterial({
+              color, metalness: 0.8, roughness: 0.2,
+            });
+            // 5 chain rings forming a vertical column
+            [0.3, 0.15, 0, -0.15, -0.3].forEach((dy, i) => {
+              const ring = new THREE.Mesh(
+                new THREE.TorusGeometry(0.07, 0.018, 8, 14),
+                chainMat.clone()
+              );
+              ring.rotation.x = Math.PI / 2;
+              ring.rotation.y = i % 2 === 0 ? 0 : Math.PI / 2;
+              ring.position.set(0, TORSO_Y + dy, -TORSO_D / 2 - 0.05);
+              g.add(ring);
+            });
+            // Orange flame outlines around the chain (small glowing spikes)
+            const flameMat = new THREE.MeshStandardMaterial({
+              color: accent ?? '#fb923c',
+              emissive: '#f97316', emissiveIntensity: 0.9,
+            });
+            [-1, 1].forEach((sx) => {
+              [0.25, 0, -0.25].forEach((dy) => {
+                const flame = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.025, 0.12, 4),
+                  flameMat.clone()
+                );
+                flame.rotation.z = sx * 0.5;
+                flame.position.set(sx * 0.16, TORSO_Y + dy, -TORSO_D / 2 - 0.08);
+                g.add(flame);
+              });
+            });
+            break;
+          }
+          if (kind === 'silver_surfer_board') {
+            // Long silver surfboard mounted vertically on the back
+            const boardMat = new THREE.MeshStandardMaterial({
+              color, metalness: 0.95, roughness: 0.08,
+              emissive: new THREE.Color('#94a3b8').multiplyScalar(0.1),
+            });
+            const board = new THREE.Mesh(
+              new THREE.BoxGeometry(0.3, 1.4, 0.04),
+              boardMat
+            );
+            board.position.set(0, TORSO_Y - 0.1, -TORSO_D / 2 - 0.06);
+            g.add(board);
+            // Tapered nose top
+            const noseTop = new THREE.Mesh(
+              new THREE.ConeGeometry(0.15, 0.18, 6),
+              boardMat.clone()
+            );
+            noseTop.position.set(0, TORSO_Y + 0.69, -TORSO_D / 2 - 0.06);
+            g.add(noseTop);
+            // Tapered tail
+            const tail = new THREE.Mesh(
+              new THREE.ConeGeometry(0.15, 0.18, 6),
+              boardMat.clone()
+            );
+            tail.rotation.z = Math.PI;
+            tail.position.set(0, TORSO_Y - 0.89, -TORSO_D / 2 - 0.06);
+            g.add(tail);
+            // Center stripe
+            const stripe = new THREE.Mesh(
+              new THREE.BoxGeometry(0.04, 1.4, 0.05),
+              new THREE.MeshStandardMaterial({
+                color: accent ?? '#94a3b8', metalness: 0.85,
+              })
+            );
+            stripe.position.set(0, TORSO_Y - 0.1, -TORSO_D / 2 - 0.05);
+            g.add(stripe);
+            break;
+          }
           if (kind === 'slp_backpack') {
             // Two-tone SLP kid backpack matching the real one: mustard
             // yellow upper body + navy lower body + small red SLP patch
@@ -4733,6 +6056,133 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 );
                 trimY.position.set(sx * LEG_X, footY + 0.2, 0.06);
                 g.add(trimY);
+              }
+            });
+            break;
+          }
+
+          if (
+            kind === 'wolverine' ||
+            kind === 'dr_strange' ||
+            kind === 'starlord' ||
+            kind === 'antman' ||
+            kind === 'war_machine' ||
+            kind === 'vision' ||
+            kind === 'daredevil' ||
+            kind === 'hawkeye' ||
+            kind === 'falcon' ||
+            kind === 'venom' ||
+            kind === 'ghost_rider' ||
+            kind === 'silver_surfer'
+          ) {
+            const trimMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1f2937'),
+              metalness: kind === 'war_machine' || kind === 'silver_surfer' ? 0.6 : 0.2,
+            });
+            [-1, 1].forEach((sx) => {
+              const boot = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.07, 0.26, 0.38),
+                mat.clone()
+              );
+              boot.position.set(sx * LEG_X, footY + 0.06, 0.06);
+              g.add(boot);
+              const sole = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.09, 0.06, 0.42),
+                trimMat.clone()
+              );
+              sole.position.set(sx * LEG_X, footY - 0.08, 0.06);
+              g.add(sole);
+              if (kind === 'wolverine') {
+                // Yellow boot stripe
+                const stripe = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.09, 0.04, 0.4),
+                  trimMat.clone()
+                );
+                stripe.position.set(sx * LEG_X, footY + 0.18, 0.06);
+                g.add(stripe);
+              } else if (kind === 'starlord' || kind === 'hawkeye') {
+                // Strap across the boot top
+                const strap = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.1, 0.05, 0.06),
+                  trimMat.clone()
+                );
+                strap.position.set(sx * LEG_X, footY + 0.12, 0.16);
+                g.add(strap);
+              } else if (kind === 'war_machine') {
+                // Heavy armor plate
+                const plate = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.13, 0.12, 0.4),
+                  trimMat.clone()
+                );
+                plate.position.set(sx * LEG_X, footY + 0.04, 0.06);
+                g.add(plate);
+              } else if (kind === 'vision') {
+                // Yellow ankle ring
+                const ring = new THREE.Mesh(
+                  new THREE.TorusGeometry(0.14, 0.022, 8, 16),
+                  trimMat.clone()
+                );
+                ring.rotation.x = Math.PI / 2;
+                ring.position.set(sx * LEG_X, footY + 0.16, 0);
+                g.add(ring);
+              } else if (kind === 'falcon') {
+                // Gold strap + small fin on the back
+                const strap = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.1, 0.05, 0.06),
+                  trimMat.clone()
+                );
+                strap.position.set(sx * LEG_X, footY + 0.12, 0.12);
+                g.add(strap);
+                const fin = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.04, 0.1, 0.06),
+                  trimMat.clone()
+                );
+                fin.position.set(sx * LEG_X, footY + 0.18, -0.16);
+                g.add(fin);
+              } else if (kind === 'venom') {
+                // Sharp white claws at the toe
+                [-0.08, 0, 0.08].forEach((dx) => {
+                  const claw = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.025, 0.08, 4),
+                    trimMat.clone()
+                  );
+                  claw.rotation.x = -Math.PI / 2;
+                  claw.position.set(sx * LEG_X + dx, footY - 0.04, 0.26);
+                  g.add(claw);
+                });
+              } else if (kind === 'ghost_rider') {
+                // Chain wrapped around ankle
+                const chain = new THREE.Mesh(
+                  new THREE.TorusGeometry(0.14, 0.018, 8, 16),
+                  trimMat.clone()
+                );
+                chain.rotation.x = Math.PI / 2;
+                chain.position.set(sx * LEG_X, footY + 0.14, 0);
+                g.add(chain);
+              } else if (kind === 'silver_surfer') {
+                // Smooth metallic ankle band
+                const ank = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.08, 0.04, 0.4),
+                  trimMat.clone()
+                );
+                ank.position.set(sx * LEG_X, footY + 0.18, 0.06);
+                g.add(ank);
+              } else if (kind === 'antman') {
+                // Red knee band on top of black boot
+                const band = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.08, 0.04, 0.4),
+                  trimMat.clone()
+                );
+                band.position.set(sx * LEG_X, footY + 0.18, 0.06);
+                g.add(band);
+              } else if (kind === 'daredevil' || kind === 'dr_strange') {
+                // Black/brown sole trim already done; add knee fin
+                const fin = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.04, 0.12, 0.06),
+                  trimMat.clone()
+                );
+                fin.position.set(sx * (LEG_X + LEG_W / 2 + 0.03), footY + 0.18, 0);
+                g.add(fin);
               }
             });
             break;
