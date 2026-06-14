@@ -103,13 +103,11 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       return;
     }
     const result = scoreLetterSlot(cv, letter);
-    // Announce on RAW coverage, not the penalised ratio. Children write
-    // first, then we score — they should hear the letter the moment they
-    // covered the shape enough, even if the trace fails a stricter gate
-    // (a slightly off-centerline or chunky stroke still earned the cue).
+    // Announce only when the slot actually passes (all gates) — i.e. when
+    // it turns green. A yellow / partial state shouldn't fire the cue.
     // Fired inside the pointer-up handler — still inside the user gesture,
     // so Web Audio buffer playback fires with no perceptible lag.
-    if (variant !== 'shown' && result.coverage >= PASS_RATIO && !announcedRef.current) {
+    if (variant !== 'shown' && result.pass && !announcedRef.current) {
       announcedRef.current = true;
       void speakLetter(letter);
     }
