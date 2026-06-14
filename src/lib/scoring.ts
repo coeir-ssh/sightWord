@@ -282,7 +282,7 @@ export function scoreLetterSlot(
 
   const slotArea = w * h;
   const inkRatio = strokeCount / slotArea;
-  if (inkRatio < MIN_INK_RATIO) return { ratio: 0, pass: false };
+  if (inkRatio < MIN_INK_RATIO) return { ratio: 0, pass: false, coverage: 0 };
 
   // Stroke perimeter (4-neighbour boundary count) for compactness.
   let perimeter = 0;
