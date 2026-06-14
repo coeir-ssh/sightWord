@@ -7,17 +7,15 @@ export const PASS_RATIO = 0.5;
 const MIN_INK_RATIO = 0.015;
 // Skeleton-distance ceiling. The user's ink must, on average, sit within
 // this many pixels of the letter's centerline. A real pen trace averages
-// 3-7 pixels (some slop from shaky hands); an off-letter scribble or
-// rough zigzag averages 10+. 10 catches the off-letter cheats while
-// leaving plenty of headroom for an imperfect child trace. Solid blobs
-// that fill the letter interior would fool this gate alone — that's
-// what the compactness gate below is for.
-const MAX_MEAN_DIST_TO_CENTERLINE = 10;
-// Compactness floor — perimeter² / area of the inked region. A real
-// pen-stroke trace has a long perimeter relative to its area (~25-50);
-// a solid blob is short-perimetered for its area (~12-18). Catches the
-// fill-the-letter-with-a-blob cheat that fools the skeleton check.
-const MIN_COMPACTNESS = 22;
+// 3-7 pixels; a slightly off-letter trace with shaky hands averages
+// 9-12. 14 leaves real headroom for kids while still flagging clearly
+// off-letter scribbles (mean 20+).
+const MAX_MEAN_DIST_TO_CENTERLINE = 14;
+// Compactness floor — perimeter² / area of the inked region. Real pen
+// traces land at 25-50; solid blobs at 12-18; slow chunky traces
+// (overlapping strokes that thicken the line) at 18-25. 16 cuts the
+// solid-blob band off while letting chunky-but-legitimate traces pass.
+const MIN_COMPACTNESS = 16;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
