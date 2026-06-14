@@ -1,6 +1,10 @@
 export type ScoreResult = {
   ratio: number;
   pass: boolean;
+  /** Raw coverage (overlap / templatePixels) before any gate penalties.
+   *  Useful when a caller wants to react to "the user covered the letter
+   *  enough" independently of the stricter pass-all-gates flag. */
+  coverage: number;
 };
 
 export const PASS_RATIO = 0.5;
@@ -314,5 +318,5 @@ export function scoreLetterSlot(
   }
 
   const pass = passCoverage && passCenterline && passCompactness;
-  return { ratio, pass };
+  return { ratio, pass, coverage };
 }

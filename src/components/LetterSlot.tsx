@@ -103,11 +103,13 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       return;
     }
     const result = scoreLetterSlot(cv, letter);
-    // Announce the instant the slot crosses the pass mark — call it right
-    // here in the pointer-up handler (still inside the user gesture, lowest
-    // latency) instead of waiting for the state update + a render-cycle
-    // effect. Web Audio buffer playback then fires with no perceptible lag.
-    if (variant !== 'shown' && result.ratio >= PASS_RATIO && !announcedRef.current) {
+    // Announce on RAW coverage, not the penalised ratio. Children write
+    // first, then we score — they should hear the letter the moment they
+    // covered the shape enough, even if the trace fails a stricter gate
+    // (a slightly off-centerline or chunky stroke still earned the cue).
+    // Fired inside the pointer-up handler — still inside the user gesture,
+    // so Web Audio buffer playback fires with no perceptible lag.
+    if (variant !== 'shown' && result.coverage >= PASS_RATIO && !announcedRef.current) {
       announcedRef.current = true;
       void speakLetter(letter);
     }
