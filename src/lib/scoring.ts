@@ -12,10 +12,10 @@ const MIN_INK_RATIO = 0.015;
 // off-letter scribbles (mean 20+).
 const MAX_MEAN_DIST_TO_CENTERLINE = 14;
 // Compactness floor — perimeter² / area of the inked region. Real pen
-// traces land at 25-50; solid blobs at 12-18; slow chunky traces
-// (overlapping strokes that thicken the line) at 18-25. 16 cuts the
-// solid-blob band off while letting chunky-but-legitimate traces pass.
-const MIN_COMPACTNESS = 16;
+// traces land at 25-50; slow chunky traces at 18-25; solid blobs at
+// 12-18. 10 only blocks the most extreme circular fills so chunky
+// child traces always pass; lighter blobs may slip through.
+const MIN_COMPACTNESS = 10;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
