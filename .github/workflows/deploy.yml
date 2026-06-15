@@ -6,6 +6,7 @@ on:
       - main
       - claude/sight-word-learning-app-8SGGz
       - claude/fix-word-progress-auto-advance-jDLwi
+      - claude/restore-project-from-git-Uzk9q
   workflow_dispatch:
 
 permissions:
