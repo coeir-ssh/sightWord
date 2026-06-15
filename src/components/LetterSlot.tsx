@@ -112,7 +112,11 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
     }
     strokeCountRef.current += 1;
     const result = scoreLetterSlot(cv, letter);
-    const requiredStrokes = getRequiredStrokes(letter);
+    // Step 1 ('guide' variant) shows the full dotted shape, so a child
+    // who traces it in a single fluent motion still gets credit. Steps
+    // 2 and 3 ('hidden') hide the shape — they have to write it from
+    // memory, so the real per-letter pen-lift count is enforced.
+    const requiredStrokes = variant === 'guide' ? 1 : getRequiredStrokes(letter);
     const enoughStrokes = strokeCountRef.current >= requiredStrokes;
     // Cap the visible ratio just below PASS_RATIO until the user has lifted
     // the pen the required number of times — keeps the slot yellow even if
