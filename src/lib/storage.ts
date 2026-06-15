@@ -31,6 +31,8 @@ const KEYS = {
   charName: 'sw.charName.v1',
   superMode: 'sw.superMode.v1',
   charGender: 'sw.charGender.v1',
+  // One-time +300 coin top-up: granted once per browser, then flagged.
+  bonus300: 'sw.bonus.300.v1',
 };
 
 const DEFAULT_PROGRESS: Progress = {
@@ -79,7 +81,21 @@ export const storage = {
   loadWallet: (): Wallet => {
     try {
       const raw = localStorage.getItem(KEYS.wallet);
-      return raw ? ({ ...DEFAULT_WALLET, ...JSON.parse(raw) } as Wallet) : DEFAULT_WALLET;
+      let wallet: Wallet = raw
+        ? ({ ...DEFAULT_WALLET, ...JSON.parse(raw) } as Wallet)
+        : DEFAULT_WALLET;
+      // One-time +300 coin top-up. The flag persists so this never re-runs
+      // for the same browser even if the user reloads or comes back later.
+      if (!localStorage.getItem(KEYS.bonus300)) {
+        wallet = { coins: wallet.coins + 300 };
+        try {
+          localStorage.setItem(KEYS.bonus300, '1');
+          localStorage.setItem(KEYS.wallet, JSON.stringify(wallet));
+        } catch {
+          /* ignore */
+        }
+      }
+      return wallet;
     } catch {
       return DEFAULT_WALLET;
     }
