@@ -1,6 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { PenCanvas, type PenCanvasHandle } from './PenCanvas';
-import { drawTemplate, scoreLetterSlot, PASS_RATIO } from '../lib/scoring';
+import { drawTemplate, scoreLetterSlot, PASS_RATIO, getRequiredStrokes } from '../lib/scoring';
 import { speakLetter } from '../lib/tts';
 
 export type LetterSlotHandle = {
@@ -33,6 +33,12 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
   // Reset on letter/variant change and on an explicit retry so re-passing
   // announces again, but a second stroke on an already-green slot doesn't.
   const announcedRef = useRef(false);
+  // Count of completed pen strokes (pointer-down to pointer-up segments
+  // with actual ink). Multi-stroke letters (f, t, i, j, k, x, y) only
+  // pass after at least the required number of strokes — otherwise
+  // finishing just the vertical of 't' could auto-pass before the cross
+  // bar gets drawn.
+  const strokeCountRef = useRef(0);
 
   useImperativeHandle(ref, () => ({
     reset: () => {
@@ -41,6 +47,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
         setCoverage(0);
         onCoverageChange?.(0);
         announcedRef.current = false;
+        strokeCountRef.current = 0;
       }
     },
     isInteractive: () => variant !== 'shown',
@@ -50,6 +57,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
   // Reset coverage when letter/variant changes
   useEffect(() => {
     announcedRef.current = false;
+    strokeCountRef.current = 0;
     if (variant === 'shown') {
       setCoverage(1);
       onCoverageChange?.(1);
@@ -102,17 +110,26 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       onCoverageChange?.(0);
       return;
     }
+    strokeCountRef.current += 1;
     const result = scoreLetterSlot(cv, letter);
-    // Announce only when the slot actually passes (all gates) — i.e. when
-    // it turns green. A yellow / partial state shouldn't fire the cue.
-    // Fired inside the pointer-up handler — still inside the user gesture,
-    // so Web Audio buffer playback fires with no perceptible lag.
-    if (variant !== 'shown' && result.pass && !announcedRef.current) {
+    const requiredStrokes = getRequiredStrokes(letter);
+    const enoughStrokes = strokeCountRef.current >= requiredStrokes;
+    // Cap the visible ratio just below PASS_RATIO until the user has lifted
+    // the pen the required number of times — keeps the slot yellow even if
+    // the first stroke already covered the centerline well enough.
+    const effectiveRatio = enoughStrokes
+      ? result.ratio
+      : Math.min(result.ratio, PASS_RATIO - 0.01);
+    const effectivePass = result.pass && enoughStrokes;
+    // Announce only when the slot actually passes (all gates AND required
+    // strokes) — i.e. when it turns green. Fired inside the pointer-up
+    // handler so Web Audio buffer playback fires with no perceptible lag.
+    if (variant !== 'shown' && effectivePass && !announcedRef.current) {
       announcedRef.current = true;
       void speakLetter(letter);
     }
-    setCoverage(result.ratio);
-    onCoverageChange?.(result.ratio);
+    setCoverage(effectiveRatio);
+    onCoverageChange?.(effectiveRatio);
   };
 
   const interactive = variant !== 'shown';

@@ -9,6 +9,24 @@ export type ScoreResult = {
 
 export const PASS_RATIO = 0.3;
 const MIN_INK_RATIO = 0.015;
+
+// Letters that physically require more than one pen lift to write. The
+// slot won't turn green until the user has lifted-and-drawn at least this
+// many strokes, so finishing only the vertical of 't' or 'f' (which can
+// cover the centerline well enough on its own) no longer auto-passes.
+const REQUIRED_STROKES: Record<string, number> = {
+  f: 2,
+  i: 2,
+  j: 2,
+  k: 2,
+  t: 2,
+  x: 2,
+  y: 2,
+};
+
+export function getRequiredStrokes(letter: string): number {
+  return REQUIRED_STROKES[letter.toLowerCase()] ?? 1;
+}
 // Skeleton-distance ceiling. The user's ink must, on average, sit within
 // this many pixels of the letter's centerline. Real traces sit at 3-7;
 // shaky child traces at 10-15; clearly off-letter scribbles at 20+. 18
