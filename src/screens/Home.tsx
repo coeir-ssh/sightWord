@@ -2,13 +2,16 @@ import { useRef, useState } from 'react';
 import { Character3D, type CharacterExporter } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
 import {
+  useAppMode,
   useCharGender,
   useCharName,
   useInventory,
   useProgress,
+  useShowTellScript,
   useWallet,
 } from '../lib/state';
 import { getWeek, LIST_LABEL } from '../data/words';
+import { SHOW_TELL_SCRIPTS, getShowTellScript } from '../data/showTell';
 import type { CharGender, Slot } from '../data/items';
 import { storage } from '../lib/storage';
 
@@ -80,22 +83,29 @@ const GENDER_BUNDLES: Record<CharGender, Partial<Record<Slot, string[]>>> = {
 
 type Props = {
   onLearn: () => void;
+  onShowTell: () => void;
   onShop: () => void;
   onWardrobe: () => void;
   onList: () => void;
 };
 
-export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
+export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props) {
   const { progress, dayDone } = useProgress();
   const { wallet } = useWallet();
   const { name, setName } = useCharName();
   const { gender, setGender } = useCharGender();
   const { inventory, addItem, equip } = useInventory(gender);
+  const { mode, setMode } = useAppMode();
+  const { scriptId, setScriptId } = useShowTellScript();
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState(name);
   const [editingGender, setEditingGender] = useState(false);
+  const [modeMenuOpen, setModeMenuOpen] = useState(false);
+  const [scriptMenuOpen, setScriptMenuOpen] = useState(false);
   const exporterRef = useRef<CharacterExporter | null>(null);
   const exportFilename = `character-${(name || 'unnamed').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 24)}.ply`;
+
+  const script = getShowTellScript(scriptId);
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
@@ -133,14 +143,61 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
       <header className="sticky top-0 z-30 flex items-center justify-between p-4 flex-wrap gap-2 bg-gradient-to-b from-sky-soft to-sky-soft/95 backdrop-blur shadow-sm">
         <div className="flex items-center gap-3 flex-wrap">
           <CoinHUD coins={wallet.coins} />
-          <button
-            onClick={onList}
-            className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-blue-700 active:scale-95 hover:bg-blue-50 transition"
-          >
-            📖 {LIST_LABEL[progress.currentWeek]} ▾
-          </button>
+          {mode === 'sight' && (
+            <button
+              onClick={onList}
+              className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-blue-700 active:scale-95 hover:bg-blue-50 transition"
+            >
+              📖 {LIST_LABEL[progress.currentWeek]} ▾
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-2">
+          <div className="relative">
+            <button
+              onClick={() => setModeMenuOpen((v) => !v)}
+              className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700 active:scale-95 hover:bg-blue-50 transition"
+              title="Choose learning track"
+            >
+              {mode === 'sight' ? '📚 Sight Word' : '🎤 Show and Tell'} ▾
+            </button>
+            {modeMenuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setModeMenuOpen(false)}
+                />
+                <div className="absolute left-0 mt-1 z-50 w-44 bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100">
+                  <button
+                    onClick={() => {
+                      setMode('sight');
+                      setModeMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-3 font-bold active:scale-95 transition ${
+                      mode === 'sight'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-slate-700 hover:bg-blue-50'
+                    }`}
+                  >
+                    📚 Sight Word
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMode('showtell');
+                      setModeMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-3 font-bold active:scale-95 transition ${
+                      mode === 'showtell'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-slate-700 hover:bg-blue-50'
+                    }`}
+                  >
+                    🎤 Show and Tell
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
           <button
             onClick={openNameModal}
             className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700 active:scale-95 hover:bg-blue-50 transition"
@@ -181,31 +238,92 @@ export function Home({ onLearn, onShop, onWardrobe, onList }: Props) {
         </section>
 
         <section className="flex flex-col gap-4">
-          <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-5">
-            <div className="text-slate-600 font-bold text-sm">
-              Current: {currentLabel} - Step {currentDay + 1}
+          {mode === 'sight' ? (
+            <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-5">
+              <div className="text-slate-600 font-bold text-sm">
+                Current: {currentLabel} - Step {currentDay + 1}
+              </div>
+              <div className="text-2xl font-extrabold text-blue-700 my-2">
+                Which LIST shall we study?
+              </div>
+              <div className="flex gap-2 my-3">
+                {done.map((d, i) => (
+                  <div
+                    key={i}
+                    className={`flex-1 h-3 rounded-full ${d ? 'bg-green-400' : 'bg-slate-200'}`}
+                  />
+                ))}
+              </div>
+              <div className="text-slate-700 text-sm">
+                {currentLabel} words: {week.words.map((w) => w.text).join(', ')}
+              </div>
+              <button
+                onClick={onLearn}
+                className="mt-4 w-full text-2xl font-extrabold bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl py-4 shadow-lg"
+              >
+                ▶ Continue {currentLabel} Step {currentDay + 1}
+              </button>
             </div>
-            <div className="text-2xl font-extrabold text-blue-700 my-2">
-              Which LIST shall we study?
+          ) : (
+            <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-slate-600 font-bold text-sm">
+                  Today's Talk ({script.titleKo})
+                </div>
+                <div className="relative">
+                  <button
+                    onClick={() => setScriptMenuOpen((v) => !v)}
+                    className="bg-white rounded-xl px-3 py-1 shadow font-bold text-blue-700 text-sm active:scale-95 hover:bg-blue-50 transition border border-blue-100"
+                  >
+                    Change ▾
+                  </button>
+                  {scriptMenuOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setScriptMenuOpen(false)}
+                      />
+                      <div className="absolute right-0 mt-1 z-50 w-52 bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100">
+                        {SHOW_TELL_SCRIPTS.map((s) => (
+                          <button
+                            key={s.id}
+                            onClick={() => {
+                              setScriptId(s.id);
+                              setScriptMenuOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-3 font-bold active:scale-95 transition ${
+                              s.id === scriptId
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'text-slate-700 hover:bg-blue-50'
+                            }`}
+                          >
+                            {s.emoji} {s.title}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="text-2xl font-extrabold text-blue-700 my-2">
+                {script.emoji} {script.title}
+              </div>
+              <ol className="text-slate-700 text-base space-y-1 my-3 list-decimal list-inside">
+                {script.sentences.map((s, i) => (
+                  <li key={i} className="leading-snug">
+                    {s}
+                  </li>
+                ))}
+              </ol>
+              <button
+                onClick={onShowTell}
+                className="mt-2 w-full text-2xl font-extrabold bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl py-4 shadow-lg"
+              >
+                ▶ Start Practice
+              </button>
             </div>
-            <div className="flex gap-2 my-3">
-              {done.map((d, i) => (
-                <div
-                  key={i}
-                  className={`flex-1 h-3 rounded-full ${d ? 'bg-green-400' : 'bg-slate-200'}`}
-                />
-              ))}
-            </div>
-            <div className="text-slate-700 text-sm">
-              {currentLabel} words: {week.words.map((w) => w.text).join(', ')}
-            </div>
-            <button
-              onClick={onLearn}
-              className="mt-4 w-full text-2xl font-extrabold bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl py-4 shadow-lg"
-            >
-              ▶ Continue {currentLabel} Step {currentDay + 1}
-            </button>
-          </div>
+          )}
+
 
           <div className="grid grid-cols-2 gap-4">
             <button

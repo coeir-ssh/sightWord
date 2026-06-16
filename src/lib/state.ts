@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { storage, dayDoneArray, markDayDone, type Progress, type Wallet, type Inventories } from './storage';
+import { storage, dayDoneArray, markDayDone, type AppMode, type Progress, type Wallet, type Inventories } from './storage';
 import type { WeekId } from '../data/words';
 import { itemAllowedFor, type CharGender, type Slot } from '../data/items';
 
@@ -116,6 +116,24 @@ export function useCharGender() {
     storage.setCharGender(next);
   }, []);
   return { gender, setGender: update };
+}
+
+export function useAppMode() {
+  const [mode, setMode] = useState<AppMode>(() => storage.getAppMode());
+  const update = useCallback((next: AppMode) => {
+    setMode(next);
+    storage.setAppMode(next);
+  }, []);
+  return { mode, setMode: update };
+}
+
+export function useShowTellScript() {
+  const [scriptId, setScriptId] = useState<string>(() => storage.getShowTellScript());
+  const update = useCallback((next: string) => {
+    setScriptId(next);
+    storage.setShowTellScript(next);
+  }, []);
+  return { scriptId, setScriptId: update };
 }
 
 export function useSuperMode() {

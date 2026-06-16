@@ -1,7 +1,11 @@
 import { DEFAULT_ITEMS, DEFAULT_OWNED, type CharGender, type Slot } from '../data/items';
 import { WEEK_IDS, type WeekId } from '../data/words';
+import { SHOW_TELL_IDS } from '../data/showTell';
 
 export type { CharGender } from '../data/items';
+
+// Which learning track the left-hand UI shows. Coins & character are shared.
+export type AppMode = 'sight' | 'showtell';
 
 export type Progress = {
   currentWeek: WeekId;
@@ -33,6 +37,8 @@ const KEYS = {
   charGender: 'sw.charGender.v1',
   // One-time +300 coin top-up: granted once per browser, then flagged.
   bonus300: 'sw.bonus.300.v1',
+  appMode: 'sw.appMode.v1',
+  showTellScript: 'sw.showTellScript.v1',
 };
 
 const DEFAULT_PROGRESS: Progress = {
@@ -185,6 +191,37 @@ export const storage = {
   setSuperMode: (on: boolean) => {
     try {
       localStorage.setItem(KEYS.superMode, on ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+  },
+
+  getAppMode: (): AppMode => {
+    try {
+      return localStorage.getItem(KEYS.appMode) === 'showtell' ? 'showtell' : 'sight';
+    } catch {
+      return 'sight';
+    }
+  },
+  setAppMode: (m: AppMode) => {
+    try {
+      localStorage.setItem(KEYS.appMode, m);
+    } catch {
+      /* ignore */
+    }
+  },
+
+  getShowTellScript: (): string => {
+    try {
+      const v = localStorage.getItem(KEYS.showTellScript);
+      return v && SHOW_TELL_IDS.includes(v) ? v : SHOW_TELL_IDS[0];
+    } catch {
+      return SHOW_TELL_IDS[0];
+    }
+  },
+  setShowTellScript: (id: string) => {
+    try {
+      localStorage.setItem(KEYS.showTellScript, id);
     } catch {
       /* ignore */
     }
