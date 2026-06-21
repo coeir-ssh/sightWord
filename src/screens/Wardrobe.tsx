@@ -39,11 +39,11 @@ export function Wardrobe({ onBack }: Props) {
       </header>
 
       <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4">
-        <aside className="sticky top-2 z-30 self-start bg-white/95 backdrop-blur rounded-3xl shadow-lg border-2 border-white p-3 flex flex-col items-stretch w-full lg:w-[220px] mx-auto lg:mx-0">
+        <aside className="sticky top-2 z-30 self-start bg-white/95 backdrop-blur rounded-3xl shadow-lg border-2 border-white p-3 flex flex-col items-stretch w-full lg:w-[320px] mx-auto lg:mx-0">
           <div className="text-center text-xs font-extrabold text-pink-700 mb-1">
             👀 Preview
           </div>
-          <div className="bg-white rounded-2xl border-2 border-slate-100 w-[180px] aspect-square mx-auto overflow-hidden">
+          <div className="bg-white rounded-2xl border-2 border-slate-100 w-[280px] aspect-square mx-auto overflow-hidden">
             <Character3D equipped={inventory.equipped} name={charName} gender={gender} />
           </div>
           <div className="hidden lg:block text-center text-xs text-slate-500 mt-2">
