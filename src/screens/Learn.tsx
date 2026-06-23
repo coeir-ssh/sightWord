@@ -24,7 +24,7 @@ type DayPlan = {
 
 const DAY_PLANS: DayPlan[] = [
   { day: 0, kind: 'Tracing', dayBonus: 3, steps: [{ stage: 'S1' }] },
-  { day: 1, kind: 'Tracing Review', dayBonus: 3, steps: [{ stage: 'S1' }] },
+  { day: 1, kind: 'Tracing Review', dayBonus: 3, steps: [{ stage: 'S1' }], shuffleWords: true },
   { day: 2, kind: 'Fill in the Blanks', dayBonus: 4, steps: [{ stage: 'S2', s2Difficulty: 1 }] },
   { day: 3, kind: 'Free Writing', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true },
   { day: 4, kind: 'Mock Test', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true, isMockTest: true },
