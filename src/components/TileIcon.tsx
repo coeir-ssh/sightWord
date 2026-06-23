@@ -2952,6 +2952,49 @@ function Charm({ item }: { item: Item }) {
           ))}
         </g>
       );
+    case 'gr_bike':
+      return (
+        <g>
+          {/* Lanyard line + ring */}
+          <line x1="50" y1="10" x2="50" y2="22" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="8" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Motorcycle frame body */}
+          <rect x="22" y="50" width="50" height="10" rx="3" fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Fuel tank bulge */}
+          <ellipse cx="42" cy="46" rx="10" ry="5" fill={c} stroke={STROKE} strokeWidth={1} />
+          {/* Black seat at rear */}
+          <rect x="22" y="42" width="14" height="8" rx="1" fill="#0a0a0a" stroke={STROKE} strokeWidth={0.8} />
+          {/* Two wheels (front + rear) */}
+          <circle cx="28" cy="70" r="11" fill="none" stroke="#0a0a0a" strokeWidth={3} />
+          <circle cx="68" cy="70" r="11" fill="none" stroke="#0a0a0a" strokeWidth={3} />
+          {/* Chrome hubs */}
+          <circle cx="28" cy="70" r="3" fill={c} stroke={STROKE} strokeWidth={0.6} />
+          <circle cx="68" cy="70" r="3" fill={c} stroke={STROKE} strokeWidth={0.6} />
+          {/* Wheel spokes */}
+          <line x1="17" y1="70" x2="39" y2="70" stroke={c} strokeWidth={0.8} />
+          <line x1="28" y1="59" x2="28" y2="81" stroke={c} strokeWidth={0.8} />
+          <line x1="57" y1="70" x2="79" y2="70" stroke={c} strokeWidth={0.8} />
+          <line x1="68" y1="59" x2="68" y2="81" stroke={c} strokeWidth={0.8} />
+          {/* Front fork up to handlebar */}
+          <line x1="68" y1="60" x2="74" y2="36" stroke={c} strokeWidth={2.5} />
+          {/* Handlebar */}
+          <rect x="70" y="32" width="10" height="5" rx="1" fill={c} stroke={STROKE} strokeWidth={0.8} />
+          {/* Hellfire exhaust at the rear */}
+          <polygon
+            points="22,52 4,46 8,55 4,64 22,58"
+            fill={item.accent ?? '#fb923c'}
+            stroke="#dc2626"
+            strokeWidth={0.8}
+          />
+          <polygon
+            points="16,55 8,52 8,58"
+            fill="#fde047"
+          />
+          {/* Small flame licks above wheels */}
+          <polygon points="22,46 28,32 34,46" fill={item.accent ?? '#fb923c'} stroke="#dc2626" strokeWidth={0.4} />
+          <polygon points="62,46 68,32 74,46" fill={item.accent ?? '#fb923c'} stroke="#dc2626" strokeWidth={0.4} />
+        </g>
+      );
     case 'joon_band':
       return (
         <g>

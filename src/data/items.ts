@@ -213,7 +213,8 @@ export type CharmKind =
   | 'pumpkin_carriage'
   | 'seashell'
   | 'slp_badge'
-  | 'joon_band';
+  | 'joon_band'
+  | 'gr_bike';
 
 export type ItemKind =
   | TopKind
@@ -554,6 +555,7 @@ export const ITEMS: Item[] = [
   { id: 'bottom.ghost_rider', name: 'Ghost Rider Pants', slot: 'bottom', price: 200, color: '#1f2937', accent: '#cbd5e1', kind: 'ghost_rider', genders: ['boy'] },
   { id: 'back.ghost_rider', name: 'Ghost Rider Chains', slot: 'back', price: 200, color: '#cbd5e1', accent: '#fb923c', kind: 'ghost_rider_back', genders: ['boy'] },
   { id: 'shoes.ghost_rider', name: 'Ghost Rider Boots', slot: 'shoes', price: 160, color: '#1f2937', accent: '#cbd5e1', kind: 'ghost_rider', genders: ['boy'] },
+  { id: 'charm.ghost_rider_bike', name: 'Ghost Rider 헬파이어 오토바이', slot: 'charm', price: 220, color: '#cbd5e1', accent: '#fb923c', kind: 'gr_bike', genders: ['boy'] },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
