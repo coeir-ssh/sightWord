@@ -7,7 +7,7 @@ export type ScoreResult = {
   coverage: number;
 };
 
-export const PASS_RATIO = 0.3;
+export const PASS_RATIO = 0.55;
 const MIN_INK_RATIO = 0.015;
 
 // Letters that physically require more than one pen lift to write. The
@@ -29,13 +29,14 @@ export function getRequiredStrokes(letter: string): number {
 }
 // Skeleton-distance ceiling. The user's ink must, on average, sit within
 // this many pixels of the letter's centerline. Real traces sit at 3-7;
-// shaky child traces at 10-15; clearly off-letter scribbles at 20+. 18
-// leaves wide headroom for a kid's imperfect tracing.
-const MAX_MEAN_DIST_TO_CENTERLINE = 18;
+// shaky child traces at 10-12; clearly off-letter scribbles at 16+. 11
+// keeps the bar honest — a sloppy trace that drifts away from the
+// letter outline no longer auto-passes.
+const MAX_MEAN_DIST_TO_CENTERLINE = 11;
 // Compactness floor — perimeter² / area of the inked region. Real pen
-// traces land at 25-50; solid blobs at 12-18. 7 only blocks the most
-// extreme uniformly-filled circles so almost any child stroke passes.
-const MIN_COMPACTNESS = 7;
+// traces land at 25-50; chunky-but-OK traces at 18-22; solid blobs at
+// 12-18. 14 blocks blobs that fill the letter without tracing it.
+const MIN_COMPACTNESS = 14;
 
 const TEMPLATE_FONT_FAMILY =
   '"Fredoka", "Quicksand", "Patrick Hand", "Comic Sans MS", "Marker Felt", "Chalkduster", system-ui, sans-serif';
