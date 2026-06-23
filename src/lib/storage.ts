@@ -109,13 +109,20 @@ export const storage = {
   saveWallet: (w: Wallet) => write(KEYS.wallet, w),
 
   loadInventories: (): Inventories => {
+    // Deep merge: existing users may have saved equipped objects from before
+    // a new slot (e.g. 'misc') existed, so we re-spread DEFAULT_ITEMS to
+    // backfill the missing keys instead of letting them be undefined.
+    const mergeInv = (src?: Partial<Inventory>): Inventory => ({
+      owned: src?.owned ?? [],
+      equipped: { ...DEFAULT_ITEMS, ...(src?.equipped ?? {}) },
+    });
     try {
       const raw = localStorage.getItem(KEYS.inventories);
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<Inventories>;
         return {
-          boy: { ...makeDefaultInventory(), ...(parsed.boy ?? {}) },
-          girl: { ...makeDefaultInventory(), ...(parsed.girl ?? {}) },
+          boy: mergeInv(parsed.boy),
+          girl: mergeInv(parsed.girl),
         };
       }
       // Migrate from the old single-inventory format → put it under boy
@@ -124,7 +131,7 @@ export const storage = {
       if (legacy) {
         const old = JSON.parse(legacy) as Partial<Inventory>;
         return {
-          boy: { ...makeDefaultInventory(), ...old },
+          boy: mergeInv(old),
           girl: makeDefaultInventory(),
         };
       }

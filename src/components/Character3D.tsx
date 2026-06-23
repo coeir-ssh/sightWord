@@ -385,6 +385,7 @@ export function Character3D({ equipped, jumping = false, className, name, gender
       back: new THREE.Group(),
       shoes: new THREE.Group(),
       charm: new THREE.Group(),
+      misc: new THREE.Group(),
     };
     Object.values(slotGroups).forEach((g) => char.add(g));
     slotGroupsRef.current = slotGroups;
@@ -7155,110 +7156,6 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               ridge.position.set(cx + Math.sin(ang) * 0.04, cy + 0.02, cz + 0.04);
               g.add(ridge);
             }
-          } else if (kind === 'gr_bike') {
-            // Tiny side-view Hellfire motorcycle: chrome frame + 2 wheels
-            // + raised handlebar + black seat + orange exhaust flames.
-            const chromeMat = new THREE.MeshStandardMaterial({
-              color, metalness: 0.85, roughness: 0.2,
-            });
-            const tireMat = new THREE.MeshStandardMaterial({
-              color: '#0a0a0a', roughness: 0.7,
-            });
-            const flameMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#fb923c'),
-              emissive: '#f97316',
-              emissiveIntensity: 1.1,
-            });
-            // Frame body (horizontal)
-            const frame = new THREE.Mesh(
-              new THREE.BoxGeometry(0.18, 0.04, 0.05),
-              chromeMat
-            );
-            frame.position.set(cx, cy, cz);
-            g.add(frame);
-            // Fuel tank (slight bulge on top)
-            const tank = new THREE.Mesh(
-              new THREE.SphereGeometry(0.045, 14, 10),
-              chromeMat.clone()
-            );
-            tank.scale.set(1.2, 0.6, 0.7);
-            tank.position.set(cx - 0.02, cy + 0.03, cz);
-            g.add(tank);
-            // Black seat at rear
-            const seat = new THREE.Mesh(
-              new THREE.BoxGeometry(0.06, 0.022, 0.05),
-              tireMat.clone()
-            );
-            seat.position.set(cx - 0.06, cy + 0.035, cz);
-            g.add(seat);
-            // Two wheels (front + rear)
-            [-1, 1].forEach((sx) => {
-              const wheel = new THREE.Mesh(
-                new THREE.TorusGeometry(0.045, 0.014, 8, 18),
-                tireMat.clone()
-              );
-              wheel.position.set(cx + sx * 0.085, cy - 0.04, cz);
-              g.add(wheel);
-              // Chrome hub + cross spokes
-              const hub = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.012, 0.012, 0.04, 10),
-                chromeMat.clone()
-              );
-              hub.rotation.x = Math.PI / 2;
-              hub.position.set(cx + sx * 0.085, cy - 0.04, cz);
-              g.add(hub);
-              [0, Math.PI / 2].forEach((rot) => {
-                const spoke = new THREE.Mesh(
-                  new THREE.BoxGeometry(0.075, 0.005, 0.005),
-                  chromeMat.clone()
-                );
-                spoke.rotation.z = rot;
-                spoke.position.set(cx + sx * 0.085, cy - 0.04, cz);
-                g.add(spoke);
-              });
-            });
-            // Front fork up to handlebar
-            const fork = new THREE.Mesh(
-              new THREE.BoxGeometry(0.015, 0.09, 0.015),
-              chromeMat.clone()
-            );
-            fork.rotation.z = -0.25;
-            fork.position.set(cx + 0.085, cy + 0.005, cz);
-            g.add(fork);
-            const handlebar = new THREE.Mesh(
-              new THREE.BoxGeometry(0.04, 0.012, 0.06),
-              chromeMat.clone()
-            );
-            handlebar.position.set(cx + 0.095, cy + 0.05, cz);
-            g.add(handlebar);
-            // Hellfire exhaust trail (cone) out the back
-            const exhaustBig = new THREE.Mesh(
-              new THREE.ConeGeometry(0.035, 0.12, 6),
-              flameMat
-            );
-            exhaustBig.rotation.z = Math.PI / 2;
-            exhaustBig.position.set(cx - 0.16, cy - 0.01, cz);
-            g.add(exhaustBig);
-            const exhaustSmall = new THREE.Mesh(
-              new THREE.ConeGeometry(0.022, 0.07, 5),
-              new THREE.MeshStandardMaterial({
-                color: '#fde047',
-                emissive: '#facc15',
-                emissiveIntensity: 1.4,
-              })
-            );
-            exhaustSmall.rotation.z = Math.PI / 2;
-            exhaustSmall.position.set(cx - 0.13, cy - 0.01, cz);
-            g.add(exhaustSmall);
-            // Small flame licks rising off each wheel
-            [-1, 1].forEach((sx) => {
-              const lick = new THREE.Mesh(
-                new THREE.ConeGeometry(0.018, 0.07, 4),
-                flameMat.clone()
-              );
-              lick.position.set(cx + sx * 0.085, cy + 0.02, cz - 0.02);
-              g.add(lick);
-            });
           } else if (kind === 'joon_band') {
             // Yellow wristband — a thin silicone-style ring with a small
             // tag bead, hanging from the bag strap.
@@ -7367,6 +7264,235 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             const star = new THREE.Mesh(geo, shinyMat);
             star.position.set(cx, cy, cz);
             g.add(star);
+          }
+          break;
+        }
+        case 'misc': {
+          const kind = item.kind ?? 'motorcycle';
+          if (kind === 'motorcycle') {
+            // Full-size Hellfire motorcycle parked to the right of the
+            // character: chrome cruiser frame + two spoked wheels in
+            // hellfire flame rings + skull-embossed fuel tank + exhaust
+            // trail of orange/yellow fire.
+            const BIKE_X = 1.15;
+            const WHEEL_R = 0.3;
+            const WHEEL_THK = 0.09;
+            const WHEEL_Y = -0.42 + WHEEL_R;
+            const wheelOffset = 0.46;
+
+            const chromeMat = new THREE.MeshStandardMaterial({
+              color, metalness: 0.85, roughness: 0.18,
+            });
+            const tireMat = new THREE.MeshStandardMaterial({
+              color: '#0a0a0a', roughness: 0.85,
+            });
+            const flameOuter = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fb923c'),
+              emissive: '#f97316', emissiveIntensity: 1.2,
+            });
+            const flameInner = new THREE.MeshStandardMaterial({
+              color: '#fde047', emissive: '#facc15', emissiveIntensity: 1.5,
+            });
+            const flameLight = new THREE.PointLight('#fb923c', 1.0, 2.0);
+            flameLight.position.set(BIKE_X - 0.9, WHEEL_Y + 0.2, 0.1);
+            g.add(flameLight);
+
+            // Wheels + spokes + flame rings
+            [-1, 1].forEach((sx) => {
+              const cx0 = BIKE_X + sx * wheelOffset;
+              const tire = new THREE.Mesh(
+                new THREE.TorusGeometry(WHEEL_R, WHEEL_THK, 12, 28),
+                tireMat.clone()
+              );
+              tire.rotation.y = Math.PI / 2;
+              tire.position.set(cx0, WHEEL_Y, 0);
+              g.add(tire);
+              const hub = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.16, 0.16, WHEEL_THK * 1.05, 18),
+                chromeMat.clone()
+              );
+              hub.rotation.z = Math.PI / 2;
+              hub.position.set(cx0, WHEEL_Y, 0);
+              g.add(hub);
+              // 6 chrome spokes across the wheel
+              for (let i = 0; i < 6; i++) {
+                const ang = (i / 6) * Math.PI;
+                const spoke = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.025, WHEEL_R * 1.7, 0.025),
+                  chromeMat.clone()
+                );
+                spoke.rotation.x = ang;
+                spoke.position.set(cx0, WHEEL_Y, 0);
+                g.add(spoke);
+              }
+              // Hellfire flame ring around each wheel
+              for (let i = 0; i < 10; i++) {
+                const a = (i / 10) * Math.PI * 2;
+                const flame = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.055, 0.2, 5),
+                  flameOuter.clone()
+                );
+                const r = WHEEL_R + 0.1;
+                flame.position.set(
+                  cx0 + Math.cos(a) * r,
+                  WHEEL_Y + Math.sin(a) * r,
+                  0
+                );
+                // Point flame outward from wheel center
+                flame.rotation.z = a - Math.PI / 2;
+                g.add(flame);
+                const flameTip = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.025, 0.1, 4),
+                  flameInner.clone()
+                );
+                flameTip.position.set(
+                  cx0 + Math.cos(a) * (r + 0.06),
+                  WHEEL_Y + Math.sin(a) * (r + 0.06),
+                  0
+                );
+                flameTip.rotation.z = a - Math.PI / 2;
+                g.add(flameTip);
+              }
+            });
+
+            // Main horizontal frame between wheels
+            const frame = new THREE.Mesh(
+              new THREE.BoxGeometry(0.95, 0.09, 0.12),
+              chromeMat.clone()
+            );
+            frame.position.set(BIKE_X, WHEEL_Y + 0.05, 0);
+            g.add(frame);
+            // Diagonal frame brace
+            const brace = new THREE.Mesh(
+              new THREE.BoxGeometry(0.7, 0.05, 0.08),
+              chromeMat.clone()
+            );
+            brace.rotation.z = 0.35;
+            brace.position.set(BIKE_X - 0.05, WHEEL_Y + 0.2, 0);
+            g.add(brace);
+
+            // Teardrop fuel tank
+            const tank = new THREE.Mesh(
+              new THREE.SphereGeometry(0.18, 18, 12),
+              chromeMat.clone()
+            );
+            tank.scale.set(1.5, 0.7, 0.85);
+            tank.position.set(BIKE_X + 0.05, WHEEL_Y + 0.28, 0);
+            g.add(tank);
+
+            // Skull emblem on the tank side
+            const skull = new THREE.Mesh(
+              new THREE.SphereGeometry(0.07, 14, 10),
+              new THREE.MeshStandardMaterial({ color: '#f8fafc', roughness: 0.6 })
+            );
+            skull.scale.set(1, 0.95, 0.55);
+            skull.position.set(BIKE_X + 0.05, WHEEL_Y + 0.3, 0.2);
+            g.add(skull);
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.018, 8, 8),
+                new THREE.MeshStandardMaterial({
+                  color: '#fb923c',
+                  emissive: '#f97316', emissiveIntensity: 1.5,
+                })
+              );
+              eye.position.set(BIKE_X + 0.05 + sx * 0.025, WHEEL_Y + 0.31, 0.24);
+              g.add(eye);
+            });
+            const teeth = new THREE.Mesh(
+              new THREE.BoxGeometry(0.06, 0.012, 0.02),
+              new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+            );
+            teeth.position.set(BIKE_X + 0.05, WHEEL_Y + 0.27, 0.24);
+            g.add(teeth);
+
+            // Black leather seat behind tank
+            const seat = new THREE.Mesh(
+              new THREE.BoxGeometry(0.32, 0.07, 0.18),
+              tireMat.clone()
+            );
+            seat.position.set(BIKE_X - 0.22, WHEEL_Y + 0.32, 0);
+            g.add(seat);
+            // Sissy bar (vertical chrome rod behind seat)
+            const sissyBar = new THREE.Mesh(
+              new THREE.BoxGeometry(0.04, 0.4, 0.04),
+              chromeMat.clone()
+            );
+            sissyBar.position.set(BIKE_X - 0.4, WHEEL_Y + 0.55, 0);
+            g.add(sissyBar);
+
+            // Front fork (slanted chrome rods from front wheel to handlebar)
+            [-1, 1].forEach((sz) => {
+              const fork = new THREE.Mesh(
+                new THREE.BoxGeometry(0.04, 0.55, 0.04),
+                chromeMat.clone()
+              );
+              fork.rotation.z = -0.32;
+              fork.position.set(BIKE_X + 0.51, WHEEL_Y + 0.32, sz * 0.06);
+              g.add(fork);
+            });
+
+            // T-shaped handlebar
+            const handlebarStem = new THREE.Mesh(
+              new THREE.BoxGeometry(0.06, 0.18, 0.06),
+              chromeMat.clone()
+            );
+            handlebarStem.position.set(BIKE_X + 0.65, WHEEL_Y + 0.62, 0);
+            g.add(handlebarStem);
+            const handlebar = new THREE.Mesh(
+              new THREE.BoxGeometry(0.1, 0.04, 0.55),
+              chromeMat.clone()
+            );
+            handlebar.position.set(BIKE_X + 0.65, WHEEL_Y + 0.7, 0);
+            g.add(handlebar);
+            // Black grips at each end of the handlebar
+            [-1, 1].forEach((sz) => {
+              const grip = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.035, 0.035, 0.08, 10),
+                tireMat.clone()
+              );
+              grip.rotation.x = Math.PI / 2;
+              grip.position.set(BIKE_X + 0.65, WHEEL_Y + 0.7, sz * 0.3);
+              g.add(grip);
+            });
+
+            // Glowing yellow headlight on the front
+            const headlight = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.1, 0.1, 0.08, 18),
+              new THREE.MeshStandardMaterial({
+                color: '#fef3c7',
+                emissive: '#fde047', emissiveIntensity: 1.4,
+              })
+            );
+            headlight.rotation.z = Math.PI / 2;
+            headlight.position.set(BIKE_X + 0.72, WHEEL_Y + 0.36, 0);
+            g.add(headlight);
+
+            // Twin exhaust pipes running along the right side
+            [-0.07, 0.07].forEach((dz) => {
+              const exhaust = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.045, 0.045, 0.7, 14),
+                chromeMat.clone()
+              );
+              exhaust.rotation.z = Math.PI / 2;
+              exhaust.position.set(BIKE_X - 0.25, WHEEL_Y + 0.1, 0.18 + dz);
+              g.add(exhaust);
+            });
+            // Hellfire trail blasting out the back
+            const trailOuter = new THREE.Mesh(
+              new THREE.ConeGeometry(0.14, 0.6, 6),
+              flameOuter.clone()
+            );
+            trailOuter.rotation.z = Math.PI / 2;
+            trailOuter.position.set(BIKE_X - 0.9, WHEEL_Y + 0.1, 0.18);
+            g.add(trailOuter);
+            const trailInner = new THREE.Mesh(
+              new THREE.ConeGeometry(0.08, 0.36, 5),
+              flameInner.clone()
+            );
+            trailInner.rotation.z = Math.PI / 2;
+            trailInner.position.set(BIKE_X - 0.78, WHEEL_Y + 0.1, 0.18);
+            g.add(trailInner);
           }
           break;
         }

@@ -1,4 +1,6 @@
-export type Slot = 'top' | 'bottom' | 'hat' | 'mask' | 'back' | 'shoes' | 'charm';
+export type Slot = 'top' | 'bottom' | 'hat' | 'mask' | 'back' | 'shoes' | 'charm' | 'misc';
+
+export type MiscKind = 'motorcycle';
 
 export type TopKind =
   | 'tee'
@@ -214,7 +216,7 @@ export type CharmKind =
   | 'seashell'
   | 'slp_badge'
   | 'joon_band'
-  | 'gr_bike';
+  ;
 
 export type ItemKind =
   | TopKind
@@ -223,7 +225,8 @@ export type ItemKind =
   | MaskKind
   | BackKind
   | ShoeKind
-  | CharmKind;
+  | CharmKind
+  | MiscKind;
 
 export type CharGender = 'boy' | 'girl';
 
@@ -240,7 +243,7 @@ export type Item = {
   genders?: CharGender[];
 };
 
-export const SLOT_ORDER: Slot[] = ['mask', 'top', 'bottom', 'hat', 'back', 'shoes', 'charm'];
+export const SLOT_ORDER: Slot[] = ['mask', 'top', 'bottom', 'hat', 'back', 'shoes', 'charm', 'misc'];
 
 export const SLOT_LABEL: Record<Slot, string> = {
   top: 'Top',
@@ -250,6 +253,7 @@ export const SLOT_LABEL: Record<Slot, string> = {
   back: 'Bag',
   shoes: 'Shoes',
   charm: 'Charm',
+  misc: 'Misc',
 };
 
 export const ITEMS: Item[] = [
@@ -555,7 +559,7 @@ export const ITEMS: Item[] = [
   { id: 'bottom.ghost_rider', name: 'Ghost Rider Pants', slot: 'bottom', price: 200, color: '#1f2937', accent: '#cbd5e1', kind: 'ghost_rider', genders: ['boy'] },
   { id: 'back.ghost_rider', name: 'Ghost Rider Chains', slot: 'back', price: 200, color: '#cbd5e1', accent: '#fb923c', kind: 'ghost_rider_back', genders: ['boy'] },
   { id: 'shoes.ghost_rider', name: 'Ghost Rider Boots', slot: 'shoes', price: 160, color: '#1f2937', accent: '#cbd5e1', kind: 'ghost_rider', genders: ['boy'] },
-  { id: 'charm.ghost_rider_bike', name: 'Ghost Rider 헬파이어 오토바이', slot: 'charm', price: 220, color: '#cbd5e1', accent: '#fb923c', kind: 'gr_bike', genders: ['boy'] },
+  { id: 'misc.ghost_rider_bike', name: 'Ghost Rider 헬파이어 오토바이', slot: 'misc', price: 500, color: '#cbd5e1', accent: '#fb923c', kind: 'motorcycle', genders: ['boy'] },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
@@ -582,6 +586,7 @@ export const DEFAULT_ITEMS: Record<Slot, string> = {
   back: '',
   shoes: '',
   charm: '',
+  misc: '',
 };
 
 // Wardrobe starts empty — every item must be purchased.

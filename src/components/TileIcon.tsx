@@ -32,6 +32,8 @@ function renderIcon(item: Item) {
       return <Shoes item={item} />;
     case 'charm':
       return <Charm item={item} />;
+    case 'misc':
+      return <Misc item={item} />;
   }
 }
 
@@ -2952,49 +2954,6 @@ function Charm({ item }: { item: Item }) {
           ))}
         </g>
       );
-    case 'gr_bike':
-      return (
-        <g>
-          {/* Lanyard line + ring */}
-          <line x1="50" y1="10" x2="50" y2="22" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="8" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Motorcycle frame body */}
-          <rect x="22" y="50" width="50" height="10" rx="3" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Fuel tank bulge */}
-          <ellipse cx="42" cy="46" rx="10" ry="5" fill={c} stroke={STROKE} strokeWidth={1} />
-          {/* Black seat at rear */}
-          <rect x="22" y="42" width="14" height="8" rx="1" fill="#0a0a0a" stroke={STROKE} strokeWidth={0.8} />
-          {/* Two wheels (front + rear) */}
-          <circle cx="28" cy="70" r="11" fill="none" stroke="#0a0a0a" strokeWidth={3} />
-          <circle cx="68" cy="70" r="11" fill="none" stroke="#0a0a0a" strokeWidth={3} />
-          {/* Chrome hubs */}
-          <circle cx="28" cy="70" r="3" fill={c} stroke={STROKE} strokeWidth={0.6} />
-          <circle cx="68" cy="70" r="3" fill={c} stroke={STROKE} strokeWidth={0.6} />
-          {/* Wheel spokes */}
-          <line x1="17" y1="70" x2="39" y2="70" stroke={c} strokeWidth={0.8} />
-          <line x1="28" y1="59" x2="28" y2="81" stroke={c} strokeWidth={0.8} />
-          <line x1="57" y1="70" x2="79" y2="70" stroke={c} strokeWidth={0.8} />
-          <line x1="68" y1="59" x2="68" y2="81" stroke={c} strokeWidth={0.8} />
-          {/* Front fork up to handlebar */}
-          <line x1="68" y1="60" x2="74" y2="36" stroke={c} strokeWidth={2.5} />
-          {/* Handlebar */}
-          <rect x="70" y="32" width="10" height="5" rx="1" fill={c} stroke={STROKE} strokeWidth={0.8} />
-          {/* Hellfire exhaust at the rear */}
-          <polygon
-            points="22,52 4,46 8,55 4,64 22,58"
-            fill={item.accent ?? '#fb923c'}
-            stroke="#dc2626"
-            strokeWidth={0.8}
-          />
-          <polygon
-            points="16,55 8,52 8,58"
-            fill="#fde047"
-          />
-          {/* Small flame licks above wheels */}
-          <polygon points="22,46 28,32 34,46" fill={item.accent ?? '#fb923c'} stroke="#dc2626" strokeWidth={0.4} />
-          <polygon points="62,46 68,32 74,46" fill={item.accent ?? '#fb923c'} stroke="#dc2626" strokeWidth={0.4} />
-        </g>
-      );
     case 'joon_band':
       return (
         <g>
@@ -3036,6 +2995,72 @@ function Charm({ item }: { item: Item }) {
         />
       );
   }
+}
+
+function Misc({ item }: { item: Item }) {
+  const c = item.color;
+  const a = item.accent ?? '#fb923c';
+  const kind = item.kind ?? 'motorcycle';
+
+  if (kind === 'motorcycle') {
+    return (
+      <g>
+        {/* Hellfire trail extending behind the bike */}
+        <polygon points="2,52 18,44 16,52 18,60 2,56" fill={a} stroke="#dc2626" strokeWidth={0.6} />
+        <polygon points="6,54 14,50 14,58" fill="#fde047" />
+        {/* Twin exhaust pipes */}
+        <rect x="16" y="50" width="22" height="3" fill={c} stroke={STROKE} strokeWidth={0.5} />
+        <rect x="16" y="56" width="22" height="3" fill={c} stroke={STROKE} strokeWidth={0.5} />
+        {/* Frame body */}
+        <rect x="22" y="40" width="50" height="14" rx="3" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Diagonal brace */}
+        <rect x="34" y="36" width="34" height="4" rx="1" fill={c} stroke={STROKE} strokeWidth={0.6} transform="rotate(-12 51 38)" />
+        {/* Teardrop fuel tank */}
+        <ellipse cx="48" cy="32" rx="14" ry="7" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Skull emblem on tank */}
+        <ellipse cx="48" cy="32" rx="4" ry="3.5" fill="#f8fafc" stroke={STROKE} strokeWidth={0.5} />
+        <circle cx="46" cy="31" r="0.8" fill={a} />
+        <circle cx="50" cy="31" r="0.8" fill={a} />
+        {/* Black seat */}
+        <rect x="22" y="28" width="20" height="8" rx="1" fill="#0a0a0a" stroke={STROKE} strokeWidth={0.8} />
+        {/* Sissy bar */}
+        <rect x="20" y="14" width="3" height="20" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Front fork up to handlebar */}
+        <line x1="64" y1="64" x2="74" y2="22" stroke={c} strokeWidth={3} />
+        {/* Handlebar */}
+        <rect x="68" y="14" width="14" height="4" rx="1" fill={c} stroke={STROKE} strokeWidth={0.8} />
+        {/* Headlight */}
+        <circle cx="75" cy="34" r="3.5" fill="#fde047" stroke={STROKE} strokeWidth={0.6} />
+        {/* Two wheels with flame rings */}
+        {[28, 64].map((wx) => (
+          <g key={wx}>
+            {/* Flame ring around the tire */}
+            {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
+              const angle = (i / 8) * Math.PI * 2;
+              return (
+                <polygon
+                  key={i}
+                  points={`${wx + Math.cos(angle) * 16},${72 + Math.sin(angle) * 16} ${wx + Math.cos(angle) * 22},${72 + Math.sin(angle) * 22} ${wx + Math.cos(angle + 0.4) * 16},${72 + Math.sin(angle + 0.4) * 16}`}
+                  fill={a}
+                  stroke="#dc2626"
+                  strokeWidth={0.4}
+                />
+              );
+            })}
+            {/* Tire */}
+            <circle cx={wx} cy="72" r="12" fill="none" stroke="#0a0a0a" strokeWidth={4} />
+            {/* Chrome hub */}
+            <circle cx={wx} cy="72" r="4" fill={c} stroke={STROKE} strokeWidth={0.8} />
+            {/* Cross spokes */}
+            <line x1={wx - 10} y1="72" x2={wx + 10} y2="72" stroke={c} strokeWidth={1} />
+            <line x1={wx} y1="62" x2={wx} y2="82" stroke={c} strokeWidth={1} />
+          </g>
+        ))}
+      </g>
+    );
+  }
+
+  return null;
 }
 
 function darken(hex: string): string {
