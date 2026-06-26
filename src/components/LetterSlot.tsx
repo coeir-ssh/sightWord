@@ -112,11 +112,12 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
     }
     strokeCountRef.current += 1;
     const result = scoreLetterSlot(cv, letter);
-    // Multi-stroke letters (f, i, j, k, t, x, y) must be drawn with the
-    // proper number of pen lifts in every step — including the Step 1
-    // dotted trace — so the slot can't turn green after just the
-    // vertical of 't' before the cross bar gets drawn.
-    const requiredStrokes = getRequiredStrokes(letter);
+    // Multi-stroke letters (f, i, j, k, t, x, y) need separate pen lifts —
+    // but only outside the guide variant. In Step 1 + 2 the dotted shape
+    // is right there and a child can fluidly trace 't' as one connected
+    // motion; forcing two pen lifts during tracing would block the green
+    // check (and the letter-name cue tied to it) for the whole lesson.
+    const requiredStrokes = variant === 'guide' ? 1 : getRequiredStrokes(letter);
     const enoughStrokes = strokeCountRef.current >= requiredStrokes;
     // Cap the visible ratio just below PASS_RATIO until the user has lifted
     // the pen the required number of times — keeps the slot yellow even if
@@ -125,19 +126,10 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       ? result.ratio
       : Math.min(result.ratio, PASS_RATIO - 0.01);
     const effectivePass = result.pass && enoughStrokes;
-    // Announcement rules differ by variant:
-    //   'guide' (Step 1 + 2 tracing) — the dotted shape is right there
-    //     and the child is just following it, so play the letter sound
-    //     the moment they've covered the shape enough, even if multi-
-    //     stroke letters like 't'/'f' still need a second pen lift for
-    //     the visual green check. Otherwise the per-letter cue would
-    //     stay silent through the entire tracing lesson.
-    //   'hidden' (Step 3+ blanks / free writing / mock test) — the
-    //     child writes from memory, so the sound should match the
-    //     actual green check (all gates + required strokes).
-    const shouldAnnounce =
-      variant === 'guide' ? result.coverage >= PASS_RATIO : effectivePass;
-    if (variant !== 'shown' && shouldAnnounce && !announcedRef.current) {
+    // Announce when the slot actually turns green (all gates + required
+    // strokes). Matches the visual state so the cue always coincides with
+    // the green border.
+    if (variant !== 'shown' && effectivePass && !announcedRef.current) {
       announcedRef.current = true;
       void speakLetter(letter);
     }
