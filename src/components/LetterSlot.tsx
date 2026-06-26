@@ -125,10 +125,19 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       ? result.ratio
       : Math.min(result.ratio, PASS_RATIO - 0.01);
     const effectivePass = result.pass && enoughStrokes;
-    // Announce only when the slot actually passes (all gates AND required
-    // strokes) — i.e. when it turns green. Fired inside the pointer-up
-    // handler so Web Audio buffer playback fires with no perceptible lag.
-    if (variant !== 'shown' && effectivePass && !announcedRef.current) {
+    // Announcement rules differ by variant:
+    //   'guide' (Step 1 + 2 tracing) — the dotted shape is right there
+    //     and the child is just following it, so play the letter sound
+    //     the moment they've covered the shape enough, even if multi-
+    //     stroke letters like 't'/'f' still need a second pen lift for
+    //     the visual green check. Otherwise the per-letter cue would
+    //     stay silent through the entire tracing lesson.
+    //   'hidden' (Step 3+ blanks / free writing / mock test) — the
+    //     child writes from memory, so the sound should match the
+    //     actual green check (all gates + required strokes).
+    const shouldAnnounce =
+      variant === 'guide' ? result.coverage >= PASS_RATIO : effectivePass;
+    if (variant !== 'shown' && shouldAnnounce && !announcedRef.current) {
       announcedRef.current = true;
       void speakLetter(letter);
     }
