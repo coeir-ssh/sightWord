@@ -27,7 +27,7 @@ export type Inventories = Record<CharGender, Inventory>;
 
 const KEYS = {
   progress: 'sw.progress.v2',
-  wallet: 'sw.wallet.v7',
+  wallet: 'sw.wallet.v8',
   // Legacy single-inventory key. Read once for migration, then ignored.
   inventoryLegacy: 'sw.inventory.v2',
   inventories: 'sw.inventories.v1',
@@ -47,7 +47,7 @@ const DEFAULT_PROGRESS: Progress = {
   dayCompleted: {},
 };
 
-const DEFAULT_WALLET: Wallet = { coins: 1000 };
+const DEFAULT_WALLET: Wallet = { coins: 500 };
 
 const makeDefaultInventory = (): Inventory => ({
   owned: [...DEFAULT_OWNED],
