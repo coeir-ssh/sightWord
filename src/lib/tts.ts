@@ -74,18 +74,22 @@ function ensureVoices(): Promise<void> {
 /** Call inside a user gesture handler to unlock iOS audio + TTS. */
 export function unlockTts(): void {
   if (unlocked) return;
-  // Prime the SAME HTMLAudioElement we'll reuse for every cue. iOS Safari
-  // only blesses elements that have called .play() inside a user gesture;
-  // a one-shot throwaway Audio() doesn't help subsequent new ones.
-  try {
-    const a = getPooledAudio();
-    a.src =
-      'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
-    a.muted = true;
-    a.volume = 0;
-    void a.play().catch(() => {});
-  } catch {
-    /* ignore */
+  // Prime BOTH pooled HTMLAudioElements we'll reuse for every cue. iOS
+  // Safari only blesses elements that have called .play() inside a user
+  // gesture; a one-shot throwaway Audio() doesn't help subsequent new
+  // ones. The word + letter pools are unlocked together so a fallback
+  // letter cue isn't silently dropped.
+  const primeSrc =
+    'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+  for (const el of [getPooledAudio(), getPooledLetterAudio()]) {
+    try {
+      el.src = primeSrc;
+      el.muted = true;
+      el.volume = 0;
+      void el.play().catch(() => {});
+    } catch {
+      /* ignore */
+    }
   }
   // Spin up + resume the AudioContext inside the gesture (iOS leaves new
   // contexts 'suspended') and start decoding the letter buffers so the
@@ -121,8 +125,11 @@ export function isTtsUnlocked(): boolean {
 // iOS Safari only blesses an HTMLAudioElement that has been .play()'d once
 // inside a user gesture. After that, the SAME element can play a new src
 // without another gesture — but a freshly created Audio() would be locked
-// again. So we keep a single pooled element and just swap its src.
+// again. We keep two pooled elements so the word cue and any letter-cue
+// fallback (when the pre-decoded buffer wasn't ready) don't interrupt
+// each other and trigger AbortError races on iPad WebKit.
 let pooledAudio: HTMLAudioElement | null = null;
+let pooledLetterAudio: HTMLAudioElement | null = null;
 
 function getPooledAudio(): HTMLAudioElement {
   if (!pooledAudio) {
@@ -130,6 +137,14 @@ function getPooledAudio(): HTMLAudioElement {
     pooledAudio.preload = 'auto';
   }
   return pooledAudio;
+}
+
+function getPooledLetterAudio(): HTMLAudioElement {
+  if (!pooledLetterAudio) {
+    pooledLetterAudio = new Audio();
+    pooledLetterAudio.preload = 'auto';
+  }
+  return pooledLetterAudio;
 }
 
 // Per-letter cues fire the instant a slot turns green, so they need to be
@@ -202,13 +217,20 @@ function preloadLetterBuffers(): void {
   for (const ch of 'abcdefghijklmnopqrstuvwxyz') void decodeLetterBuffer(ch);
 }
 
-/** Play a pre-decoded letter buffer instantly. Returns false if not ready. */
-function playLetterBuffer(key: string): boolean {
+/** Play a pre-decoded letter buffer. Awaits ctx.resume() when suspended so
+ *  iOS' background-tab auto-suspension doesn't swallow the first cue after
+ *  a tab regains focus. Returns false if the buffer isn't decoded yet. */
+async function playLetterBuffer(key: string): Promise<boolean> {
   const ctx = getAudioContext();
   const buf = letterBuffers.get(key);
   if (!ctx || !buf) return false;
   if (ctx.state === 'suspended') {
-    void ctx.resume().catch(() => {});
+    try {
+      await ctx.resume();
+    } catch {
+      return false;
+    }
+    if (ctx.state === 'suspended') return false;
   }
   try {
     const src = ctx.createBufferSource();
@@ -221,10 +243,31 @@ function playLetterBuffer(key: string): boolean {
   }
 }
 
-function playAudioFile(url: string, opts?: { rate?: number }): Promise<boolean> {
+// Re-arm the audio stack whenever the tab comes back to the foreground:
+// iOS auto-suspends the AudioContext after the page is hidden / the device
+// is locked, and the first cue after wake would silently no-op without this.
+if (typeof document !== 'undefined') {
+  const onVisible = () => {
+    if (document.hidden) return;
+    const ctx = audioCtx;
+    if (ctx && ctx.state === 'suspended') {
+      void ctx.resume().catch(() => {});
+    }
+    // Top up any buffers that failed to decode on the cold load (rare, but
+    // happens when the page opened before the network was warm).
+    if (unlocked) preloadLetterBuffers();
+  };
+  document.addEventListener('visibilitychange', onVisible);
+  window.addEventListener('focus', onVisible);
+}
+
+function playAudioFile(
+  url: string,
+  opts?: { rate?: number; pool?: 'word' | 'letter' }
+): Promise<boolean> {
   return new Promise<boolean>((resolve) => {
     try {
-      const audio = getPooledAudio();
+      const audio = opts?.pool === 'letter' ? getPooledLetterAudio() : getPooledAudio();
       audio.pause();
       audio.onended = null;
       audio.onerror = null;
@@ -335,11 +378,17 @@ export async function speakLetter(letter: string, opts?: { rate?: number }): Pro
   if (/^[a-z]$/.test(key)) {
     // Instant path: pre-decoded Web Audio buffer. No fetch, no decode, no
     // element reload — fires the moment the slot turns green.
-    if (playLetterBuffer(key)) return;
+    if (await playLetterBuffer(key)) return;
     // Buffer not ready yet (cue beat the preload). Kick off the decode for
-    // next time and play the file directly this once.
-    void decodeLetterBuffer(key);
-    const ok = await playAudioFile(`${LETTER_AUDIO_BASE}letter-${key}.mp3`, opts);
+    // next time, wait briefly for it, and retry the buffer once before
+    // falling back to file playback.
+    const decode = decodeLetterBuffer(key);
+    const winner = await Promise.race([
+      decode,
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 150)),
+    ]);
+    if (winner && (await playLetterBuffer(key))) return;
+    const ok = await playAudioFile(`${LETTER_AUDIO_BASE}letter-${key}.mp3`, { ...opts, pool: 'letter' });
     if (ok) return;
   }
   // Last-resort synth so a broken deploy (missing letters/ folder) doesn't
