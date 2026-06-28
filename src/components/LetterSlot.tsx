@@ -112,12 +112,12 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
     }
     strokeCountRef.current += 1;
     const result = scoreLetterSlot(cv, letter);
-    // Multi-stroke letters (f, i, j, k, t, x, y) need separate pen lifts —
-    // but only outside the guide variant. In Step 1 + 2 the dotted shape
-    // is right there and a child can fluidly trace 't' as one connected
-    // motion; forcing two pen lifts during tracing would block the green
-    // check (and the letter-name cue tied to it) for the whole lesson.
-    const requiredStrokes = variant === 'guide' ? 1 : getRequiredStrokes(letter);
+    // Multi-stroke letters (f, i, j, k, t, x, y) need separate pen lifts
+    // in EVERY step including Step 1 tracing — otherwise the slot can
+    // turn green after just the vertical of 't' or only the diagonals of
+    // 'x' / 'k'. Children should learn the real stroke order even when
+    // a dotted guide is visible.
+    const requiredStrokes = getRequiredStrokes(letter);
     const enoughStrokes = strokeCountRef.current >= requiredStrokes;
     // Cap the visible ratio just below PASS_RATIO until the user has lifted
     // the pen the required number of times — keeps the slot yellow even if
