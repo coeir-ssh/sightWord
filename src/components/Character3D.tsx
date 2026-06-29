@@ -2277,6 +2277,47 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               ab.position.set(0, TORSO_Y + y, frontZ + 0.005);
               g.add(ab);
             });
+          } else if (kind === 'solmoe') {
+            // Solmoe soccer jersey: dark green base + white diagonal
+            // stripes + yellow chest band + "SOLMOE" text panel.
+            const whiteMat = new THREE.MeshStandardMaterial({ color: '#ffffff' });
+            const accMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#facc15'),
+            });
+            // Three white diagonal stripes across the front
+            for (let i = 0; i < 3; i++) {
+              const stripe = new THREE.Mesh(
+                new THREE.BoxGeometry(0.08, TORSO_H * 1.1, 0.02),
+                whiteMat.clone()
+              );
+              stripe.rotation.z = -0.6;
+              stripe.position.set(-0.12 + i * 0.16, TORSO_Y, frontZ + 0.01);
+              g.add(stripe);
+            }
+            // Yellow chest band across the upper torso
+            const band = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + padW + 0.005, 0.07, 0.02),
+              accMat.clone()
+            );
+            band.position.set(0, TORSO_Y + TORSO_H / 2 - 0.12, frontZ + 0.015);
+            g.add(band);
+            // Yellow V-neck collar
+            [-1, 1].forEach((sx) => {
+              const collar = new THREE.Mesh(
+                new THREE.BoxGeometry(0.12, 0.04, 0.02),
+                accMat.clone()
+              );
+              collar.rotation.z = sx * 0.6;
+              collar.position.set(sx * 0.06, topY - 0.07, frontZ + 0.012);
+              g.add(collar);
+            });
+            // Number patch on the back
+            const numPanel = new THREE.Mesh(
+              new THREE.BoxGeometry(0.18, 0.22, 0.012),
+              whiteMat.clone()
+            );
+            numPanel.position.set(0, TORSO_Y, backZ - 0.012);
+            g.add(numPanel);
           } else if (accent) {
             // plain tee with accent hem
             const stripe = new THREE.Mesh(
@@ -2928,6 +2969,34 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               leg.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.22, 0);
               g.add(leg);
             });
+          } else if (kind === 'solmoe') {
+            // Bright yellow soccer shorts (above-knee) with a dark green
+            // waistband and a side stripe down each leg.
+            const trimMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0f3d2e'),
+            });
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.07, LEG_H * 0.55, LEG_W + 0.07),
+                matB.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.22, 0);
+              g.add(leg);
+              // Side stripe
+              const stripe = new THREE.Mesh(
+                new THREE.BoxGeometry(0.025, LEG_H * 0.55, LEG_W + 0.09),
+                trimMat.clone()
+              );
+              stripe.position.set(sx * (LEG_X + LEG_W / 2 + 0.025), LEG_Y + LEG_H * 0.22, 0);
+              g.add(stripe);
+            });
+            // Dark green waistband across the hips
+            const band = new THREE.Mesh(
+              new THREE.BoxGeometry(TORSO_W + 0.1, 0.07, TORSO_D + 0.1),
+              trimMat.clone()
+            );
+            band.position.set(0, LEG_Y + LEG_H * 0.5, 0);
+            g.add(band);
           } else if (kind === 'spacepants') {
             const accMat = accent ? new THREE.MeshStandardMaterial({ color: accent }) : null;
             [-1, 1].forEach((sx) => {
@@ -6690,6 +6759,49 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               );
               glow.position.set(sx * LEG_X, footY - 0.08, 0.06);
               g.add(glow);
+            } else if (kind === 'solmoe') {
+              // Orange soccer cleat with a dark green swoosh stripe and a
+              // studded sole.
+              const cleat = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.07, 0.14, 0.46),
+                mat.clone()
+              );
+              cleat.position.set(sx * LEG_X, footY, 0.08);
+              g.add(cleat);
+              if (accMat) {
+                // Dark green swoosh band across the side
+                const swoosh = new THREE.Mesh(
+                  new THREE.BoxGeometry(LEG_W + 0.09, 0.04, 0.3),
+                  accMat.clone()
+                );
+                swoosh.rotation.z = 0.15;
+                swoosh.position.set(sx * LEG_X, footY + 0.02, 0.08);
+                g.add(swoosh);
+              }
+              // Studded sole
+              const sole = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.09, 0.04, 0.48),
+                new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+              );
+              sole.position.set(sx * LEG_X, footY - 0.07, 0.08);
+              g.add(sole);
+              // Studs underneath
+              const studMat = new THREE.MeshStandardMaterial({ color: '#0a0a0a' });
+              for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                  if (i === 0 && j === 0) continue;
+                  const stud = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.018, 0.018, 0.025, 8),
+                    studMat.clone()
+                  );
+                  stud.position.set(
+                    sx * LEG_X + i * 0.04,
+                    footY - 0.1,
+                    0.08 + j * 0.16
+                  );
+                  g.add(stud);
+                }
+              }
             } else {
               // sneakers / sport
               const shoe = new THREE.Mesh(
@@ -7269,6 +7381,50 @@ export function Character3D({ equipped, jumping = false, className, name, gender
         }
         case 'misc': {
           const kind = item.kind ?? 'motorcycle';
+          if (kind === 'soccer_ball') {
+            // Soccer ball placed at the character's right foot.
+            const BALL_R = 0.18;
+            const BALL_X = 0.55;
+            const BALL_Y = -0.42 + BALL_R;
+            const BALL_Z = 0.05;
+            const whiteMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.6,
+            });
+            const blackMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0f172a'),
+              roughness: 0.6,
+            });
+            const ball = new THREE.Mesh(
+              new THREE.SphereGeometry(BALL_R, 24, 18),
+              whiteMat
+            );
+            ball.position.set(BALL_X, BALL_Y, BALL_Z);
+            ball.castShadow = true;
+            g.add(ball);
+            // Black pentagon patches via small flat ovals on the surface
+            const PATCHES = 12;
+            for (let i = 0; i < PATCHES; i++) {
+              const phi = Math.acos(1 - 2 * (i + 0.5) / PATCHES);
+              const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+              const px = BALL_X + BALL_R * Math.sin(phi) * Math.cos(theta);
+              const py = BALL_Y + BALL_R * Math.cos(phi);
+              const pz = BALL_Z + BALL_R * Math.sin(phi) * Math.sin(theta);
+              const patch = new THREE.Mesh(
+                new THREE.SphereGeometry(0.045, 8, 6),
+                blackMat.clone()
+              );
+              patch.scale.set(1, 1, 0.25);
+              const dx = px - BALL_X, dy = py - BALL_Y, dz = pz - BALL_Z;
+              const len = Math.sqrt(dx * dx + dy * dy + dz * dz) || 1;
+              const ox = BALL_X + (dx / len) * (BALL_R - 0.005);
+              const oy = BALL_Y + (dy / len) * (BALL_R - 0.005);
+              const oz = BALL_Z + (dz / len) * (BALL_R - 0.005);
+              patch.position.set(ox, oy, oz);
+              patch.lookAt(BALL_X, BALL_Y, BALL_Z);
+              g.add(patch);
+            }
+            break;
+          }
           if (kind === 'motorcycle') {
             // Full-size Hellfire motorcycle parked to the right of the
             // character: chrome cruiser frame + two spoked wheels in

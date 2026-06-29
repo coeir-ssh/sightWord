@@ -772,6 +772,18 @@ function Top({ item }: { item: Item }) {
           <path d="M34,72 Q50,76 66,72" stroke={a} fill="none" strokeWidth={2} />
         </>
       )}
+      {kind === 'solmoe' && (
+        <>
+          {/* White diagonal stripes across the jersey */}
+          <line x1="32" y1="40" x2="58" y2="80" stroke="#ffffff" strokeWidth={3} />
+          <line x1="42" y1="36" x2="68" y2="76" stroke="#ffffff" strokeWidth={3} />
+          <line x1="52" y1="32" x2="72" y2="64" stroke="#ffffff" strokeWidth={3} />
+          {/* Yellow chest band */}
+          <rect x="34" y="44" width="32" height="3" fill={a} />
+          {/* Collar trim */}
+          <path d="M44,28 Q50,33 56,28" stroke={a} strokeWidth={2} fill="none" />
+        </>
+      )}
     </g>
   );
 }
@@ -1158,6 +1170,27 @@ function Bottom({ item }: { item: Item }) {
         {/* Skin legs below hem */}
         <rect x="40" y="66" width="6" height="16" fill="#ffe1c6" stroke={STROKE} strokeWidth={0.6} />
         <rect x="54" y="66" width="6" height="16" fill="#ffe1c6" stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+
+  if (kind === 'solmoe') {
+    const by = 58;
+    return (
+      <g>
+        {/* Bright yellow soccer shorts */}
+        <path
+          d={`M32,24 L68,24 L70,${by} L54,${by} L50,40 L46,${by} L30,${by} Z`}
+          fill={c}
+          stroke={STROKE}
+          strokeWidth={SW}
+          strokeLinejoin="round"
+        />
+        {/* Dark green waistband */}
+        <rect x="30" y="24" width="40" height="5" fill={a} />
+        {/* Side stripe */}
+        <line x1="34" y1="30" x2="38" y2="56" stroke={a} strokeWidth={2} />
+        <line x1="66" y1="30" x2="62" y2="56" stroke={a} strokeWidth={2} />
       </g>
     );
   }
@@ -2689,6 +2722,27 @@ function Shoes({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'solmoe') {
+    return (
+      <g>
+        {/* Orange soccer cleat */}
+        <path
+          d="M14,52 Q14,38 36,38 L60,38 Q82,42 86,60 L86,70 L14,70 Z"
+          fill={c}
+          stroke={STROKE}
+          strokeWidth={SW}
+          strokeLinejoin="round"
+        />
+        {/* Dark green swoosh */}
+        <path d="M22,58 Q40,46 70,52" fill="none" stroke={a} strokeWidth={3} strokeLinecap="round" />
+        {/* Studded sole */}
+        <rect x="14" y="70" width="72" height="6" fill={a} />
+        {[22, 36, 50, 64, 78].map((x) => (
+          <circle key={x} cx={x} cy="74" r="1.5" fill="#0a0a0a" />
+        ))}
+      </g>
+    );
+  }
   // sneakers / flat / sport / lightup
   return (
     <g>
@@ -3001,6 +3055,34 @@ function Misc({ item }: { item: Item }) {
   const c = item.color;
   const a = item.accent ?? '#fb923c';
   const kind = item.kind ?? 'motorcycle';
+
+  if (kind === 'soccer_ball') {
+    return (
+      <g>
+        {/* Ball */}
+        <circle cx="50" cy="50" r="34" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Central black pentagon */}
+        <polygon
+          points="50,34 64,44 58,60 42,60 36,44"
+          fill={a}
+          stroke={STROKE}
+          strokeWidth={1}
+        />
+        {/* Surrounding pentagon edges */}
+        <line x1="50" y1="34" x2="50" y2="16" stroke={STROKE} strokeWidth={1.5} />
+        <line x1="64" y1="44" x2="78" y2="34" stroke={STROKE} strokeWidth={1.5} />
+        <line x1="58" y1="60" x2="68" y2="76" stroke={STROKE} strokeWidth={1.5} />
+        <line x1="42" y1="60" x2="32" y2="76" stroke={STROKE} strokeWidth={1.5} />
+        <line x1="36" y1="44" x2="22" y2="34" stroke={STROKE} strokeWidth={1.5} />
+        {/* Outer black accents */}
+        <polygon points="50,16 60,18 50,28 40,18" fill={a} />
+        <polygon points="78,34 82,46 70,46 74,36" fill={a} />
+        <polygon points="68,76 56,82 60,68 70,72" fill={a} />
+        <polygon points="32,76 26,72 40,68 44,82" fill={a} />
+        <polygon points="22,34 30,36 26,46 18,46" fill={a} />
+      </g>
+    );
+  }
 
   if (kind === 'motorcycle') {
     return (

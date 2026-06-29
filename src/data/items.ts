@@ -1,6 +1,6 @@
 export type Slot = 'top' | 'bottom' | 'hat' | 'mask' | 'back' | 'shoes' | 'charm' | 'misc';
 
-export type MiscKind = 'motorcycle';
+export type MiscKind = 'motorcycle' | 'soccer_ball';
 
 export type TopKind =
   | 'tee'
@@ -39,7 +39,8 @@ export type TopKind =
   | 'falcon'
   | 'venom'
   | 'ghost_rider'
-  | 'silver_surfer';
+  | 'silver_surfer'
+  | 'solmoe';
 
 export type BottomKind =
   | 'pants'
@@ -78,7 +79,8 @@ export type BottomKind =
   | 'falcon'
   | 'venom'
   | 'ghost_rider'
-  | 'silver_surfer';
+  | 'silver_surfer'
+  | 'solmoe';
 
 export type HatKind =
   | 'cap'
@@ -193,7 +195,8 @@ export type ShoeKind =
   | 'falcon'
   | 'venom'
   | 'ghost_rider'
-  | 'silver_surfer';
+  | 'silver_surfer'
+  | 'solmoe';
 
 export type CharmKind =
   | 'star'
@@ -566,6 +569,12 @@ export const ITEMS: Item[] = [
   { id: 'bottom.silver_surfer', name: 'Silver Surfer Legs', slot: 'bottom', price: 220, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
   { id: 'back.silver_surfer', name: 'Cosmic Surfboard', slot: 'back', price: 260, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer_board', genders: ['boy'] },
   { id: 'shoes.silver_surfer', name: 'Silver Feet', slot: 'shoes', price: 180, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
+
+  // ───────── Solmoe Soccer Center (boy only) ─────────
+  { id: 'top.solmoe', name: '솔뫼축구센터 유니폼 상의', slot: 'top', price: 200, color: '#0f3d2e', accent: '#facc15', kind: 'solmoe', genders: ['boy'] },
+  { id: 'bottom.solmoe', name: '솔뫼축구센터 유니폼 반바지', slot: 'bottom', price: 160, color: '#facc15', accent: '#0f3d2e', kind: 'solmoe', genders: ['boy'] },
+  { id: 'shoes.solmoe', name: '솔뫼축구센터 축구화', slot: 'shoes', price: 140, color: '#f97316', accent: '#0f3d2e', kind: 'solmoe', genders: ['boy'] },
+  { id: 'misc.soccer_ball', name: '축구공', slot: 'misc', price: 120, color: '#ffffff', accent: '#0f172a', kind: 'soccer_ball' },
 ];
 
 export function itemsForGender(g: CharGender): Item[] {
