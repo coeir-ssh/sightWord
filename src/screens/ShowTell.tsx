@@ -105,19 +105,22 @@ export function ShowTell({ onBack }: Props) {
     setTimeout(() => setJumping(false), 700);
   };
 
-  const fillCurrentBlank = (word: string) => {
+  const pickWord = (word: string) => {
     const cursor = blanks[fillCursor];
     if (!cursor) return;
     setFills((prev) => {
       const next = prev.map((row) => row.slice());
+      const prevWord = next[cursor.sIdx][cursor.bIdx];
       next[cursor.sIdx][cursor.bIdx] = word;
+      // Tiny coin reward only the FIRST time a blank gets filled, so
+      // tapping different choices for the same blank doesn't farm coins.
+      if (!prevWord) {
+        addCoins(FILL_COIN * multiplier);
+        setCoinTrigger((n) => n + 1);
+      }
       return next;
     });
-    // Tiny coin reward for each blank filled, to keep momentum.
-    addCoins(FILL_COIN * multiplier);
-    setCoinTrigger((n) => n + 1);
-    // Advance to the next empty blank, or stay if already at the end.
-    setFillCursor((c) => Math.min(c + 1, blanks.length - 1));
+    // No auto-advance — the child explicitly presses "Next Blank →".
   };
 
   const clearCurrentBlank = () => {
@@ -210,14 +213,21 @@ export function ShowTell({ onBack }: Props) {
 
   const phaseLabel =
     phase === 'fill'
-      ? 'Step 1 · Fill in the Blanks'
+      ? 'Step 1 · Choose Your Words'
       : phase === 'learn'
         ? 'Step 2 · Listen & Repeat'
         : 'Step 3 · Present from Memory';
 
-  // ───────── Fill phase render ─────────
+  // ───────── Fill phase render — focused per-blank picker ─────────
   if (phase === 'fill') {
     const cursor = blanks[fillCursor];
+    const cursorFill = cursor ? fills[cursor.sIdx]?.[cursor.bIdx] ?? '' : '';
+    // The sentence currently being filled, rendered with the active blank
+    // shown as a placeholder slot and any other blanks shown as small
+    // greyed placeholders so the kid sees context but the focus stays on
+    // the active slot.
+    const ctxParts = cursor ? splitSentence(script.sentences[cursor.sIdx]) : [];
+
     return (
       <div className="min-h-screen bg-gradient-to-b from-sky-soft to-blue-100 flex flex-col">
         <CoinFly triggerKey={coinTrigger} />
@@ -247,104 +257,129 @@ export function ShowTell({ onBack }: Props) {
             <div
               className="h-full bg-amber-500 transition-all"
               style={{
-                width: `${(blanks.filter((b) => (fills[b.sIdx]?.[b.bIdx] ?? '') !== '').length /
-                  Math.max(1, blanks.length)) *
-                  100}%`,
+                width: `${((fillCursor + 1) / Math.max(1, blanks.length)) * 100}%`,
               }}
             />
           </div>
           <div className="text-center text-slate-600 mt-1 text-sm font-bold">
-            {blanks.filter((b) => (fills[b.sIdx]?.[b.bIdx] ?? '') !== '').length} / {blanks.length}{' '}
-            blanks
+            Blank {fillCursor + 1} / {blanks.length}
           </div>
         </div>
 
         <main className="flex-1 flex flex-col items-center p-4 gap-4">
-          <div className="bg-white/85 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
-            <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">
-              The Script
+          {/* Active sentence card */}
+          <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-6 w-full max-w-3xl">
+            <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
+              Fill in this blank
             </div>
-            <div className="space-y-2 text-lg md:text-xl text-slate-800 leading-relaxed">
-              {script.sentences.map((s, sIdx) => {
-                const parts = splitSentence(s);
+            <p className="flex flex-wrap items-baseline gap-x-1.5 gap-y-2 text-2xl md:text-3xl font-extrabold text-slate-800 leading-relaxed">
+              {ctxParts.map((p, pIdx) => {
+                if (p.kind === 'text') {
+                  return (
+                    <span key={pIdx} className="whitespace-pre-wrap">
+                      {p.value}
+                    </span>
+                  );
+                }
+                const isActive = cursor && p.index === cursor.bIdx;
+                const filled = fills[cursor!.sIdx]?.[p.index] ?? '';
+                if (isActive) {
+                  return (
+                    <span
+                      key={pIdx}
+                      className="inline-flex items-center justify-center min-w-[160px] px-4 py-1 rounded-xl border-4 border-amber-500 bg-amber-100 text-amber-800 shadow"
+                    >
+                      {cursorFill || '___'}
+                    </span>
+                  );
+                }
                 return (
-                  <p key={sIdx} className="flex flex-wrap items-baseline gap-x-1.5 gap-y-1.5">
-                    {parts.map((p, pIdx) => {
-                      if (p.kind === 'text') {
-                        return (
-                          <span key={pIdx} className="whitespace-pre-wrap">
-                            {p.value}
-                          </span>
-                        );
-                      }
-                      const filled = fills[sIdx]?.[p.index] ?? '';
-                      const isActive =
-                        cursor && cursor.sIdx === sIdx && cursor.bIdx === p.index;
-                      return (
-                        <button
-                          key={pIdx}
-                          onClick={() => {
-                            // Set the cursor to this blank.
-                            const target = blanks.findIndex(
-                              (b) => b.sIdx === sIdx && b.bIdx === p.index
-                            );
-                            if (target >= 0) setFillCursor(target);
-                          }}
-                          className={`inline-flex items-center min-w-[80px] px-3 py-1 rounded-lg border-2 font-extrabold text-base align-baseline transition ${
-                            isActive
-                              ? 'bg-amber-100 border-amber-500 text-amber-800 shadow'
-                              : filled
-                                ? 'bg-green-100 border-green-400 text-green-800'
-                                : 'bg-white border-slate-300 text-slate-400 hover:border-amber-400'
-                          }`}
-                        >
-                          {filled || '___'}
-                        </button>
-                      );
-                    })}
-                  </p>
+                  <span
+                    key={pIdx}
+                    className={`inline-flex items-center justify-center min-w-[80px] px-2 py-0.5 rounded-lg border-2 text-base align-baseline ${
+                      filled
+                        ? 'bg-green-50 border-green-300 text-green-700'
+                        : 'bg-slate-50 border-slate-200 text-slate-400'
+                    }`}
+                  >
+                    {filled || '___'}
+                  </span>
                 );
               })}
-            </div>
+            </p>
           </div>
 
+          {/* Word Box picker — large buttons */}
           {script.wordBox && (
-            <div className="bg-white/85 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
-              <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-2">
-                Word Box · tap a word to fill the highlighted blank
+            <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
+              <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
+                Pick a Word
               </div>
-              <div className="flex flex-wrap gap-2">
-                {script.wordBox.map((w) => (
-                  <button
-                    key={w}
-                    onClick={() => fillCurrentBlank(w)}
-                    className="px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 text-blue-800 font-extrabold active:scale-95 transition"
-                  >
-                    {w}
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {script.wordBox.map((w) => {
+                  const isPicked = cursorFill === w;
+                  return (
+                    <button
+                      key={w}
+                      onClick={() => pickWord(w)}
+                      className={`px-4 py-3 rounded-2xl border-2 text-lg font-extrabold shadow active:scale-95 transition ${
+                        isPicked
+                          ? 'bg-amber-200 border-amber-500 text-amber-900'
+                          : 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800'
+                      }`}
+                    >
+                      {w}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
 
+          {/* Navigation */}
           <div className="flex flex-wrap items-center justify-center gap-3 pb-4">
+            <button
+              onClick={() => setFillCursor((c) => Math.max(0, c - 1))}
+              disabled={fillCursor === 0}
+              className={`rounded-2xl px-5 py-3 text-base font-extrabold shadow ${
+                fillCursor === 0
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  : 'bg-white border-2 border-slate-200 hover:bg-slate-50 active:scale-95 text-slate-700'
+              }`}
+            >
+              ← Back
+            </button>
             <button
               onClick={clearCurrentBlank}
               className="bg-white border-2 border-slate-200 hover:bg-slate-50 active:scale-95 rounded-2xl px-5 py-3 text-base font-extrabold text-slate-700 shadow"
             >
               ✕ Clear
             </button>
-            <button
-              onClick={finishFill}
-              disabled={!allBlanksFilled}
-              className={`rounded-2xl px-8 py-3 text-lg font-extrabold shadow-lg ${
-                allBlanksFilled
-                  ? 'bg-blue-500 hover:bg-blue-600 active:scale-95 text-white'
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`}
-            >
-              {allBlanksFilled ? 'Memorize ▶' : `Fill all ${blanks.length} blanks first`}
-            </button>
+            {fillCursor + 1 < blanks.length ? (
+              <button
+                onClick={() => setFillCursor((c) => Math.min(blanks.length - 1, c + 1))}
+                disabled={cursorFill === ''}
+                className={`rounded-2xl px-6 py-3 text-base font-extrabold shadow ${
+                  cursorFill === ''
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    : 'bg-amber-500 hover:bg-amber-600 active:scale-95 text-white'
+                }`}
+              >
+                Next Blank →
+              </button>
+            ) : (
+              <button
+                onClick={finishFill}
+                disabled={!allBlanksFilled}
+                className={`rounded-2xl px-8 py-3 text-lg font-extrabold shadow-lg ${
+                  allBlanksFilled
+                    ? 'bg-blue-500 hover:bg-blue-600 active:scale-95 text-white'
+                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                }`}
+              >
+                {allBlanksFilled ? 'Memorize ▶' : 'Finish picking words first'}
+              </button>
+            )}
           </div>
         </main>
       </div>
