@@ -283,23 +283,45 @@ export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props)
                         className="fixed inset-0 z-40"
                         onClick={() => setScriptMenuOpen(false)}
                       />
-                      <div className="absolute right-0 mt-1 z-50 w-52 bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100">
-                        {SHOW_TELL_SCRIPTS.map((s) => (
-                          <button
-                            key={s.id}
-                            onClick={() => {
-                              setScriptId(s.id);
-                              setScriptMenuOpen(false);
-                            }}
-                            className={`w-full text-left px-4 py-3 font-bold active:scale-95 transition ${
-                              s.id === scriptId
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'text-slate-700 hover:bg-blue-50'
-                            }`}
-                          >
-                            {s.emoji} {s.title}
-                          </button>
-                        ))}
+                      <div className="absolute right-0 mt-1 z-50 w-64 max-h-[70vh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-slate-100">
+                        {(() => {
+                          // Group worksheet chapters by month; classic
+                          // "memorize-as-is" scripts (no month) go first.
+                          const groups: { label: string; items: typeof SHOW_TELL_SCRIPTS }[] = [];
+                          const monthOrder = [
+                            'June', 'July', 'August', 'September', 'October',
+                            'November', 'December', 'January', 'February',
+                          ];
+                          const noMonth = SHOW_TELL_SCRIPTS.filter((s) => !s.month);
+                          if (noMonth.length) groups.push({ label: 'Classics', items: noMonth });
+                          monthOrder.forEach((m) => {
+                            const items = SHOW_TELL_SCRIPTS.filter((s) => s.month === m);
+                            if (items.length) groups.push({ label: m, items });
+                          });
+                          return groups.map((g) => (
+                            <div key={g.label}>
+                              <div className="px-3 pt-3 pb-1 text-[11px] font-extrabold uppercase tracking-wider text-slate-400 bg-slate-50">
+                                {g.label}
+                              </div>
+                              {g.items.map((s) => (
+                                <button
+                                  key={s.id}
+                                  onClick={() => {
+                                    setScriptId(s.id);
+                                    setScriptMenuOpen(false);
+                                  }}
+                                  className={`w-full text-left px-4 py-2.5 font-bold active:scale-95 transition ${
+                                    s.id === scriptId
+                                      ? 'bg-blue-100 text-blue-700'
+                                      : 'text-slate-700 hover:bg-blue-50'
+                                  }`}
+                                >
+                                  {s.emoji} {s.title}
+                                </button>
+                              ))}
+                            </div>
+                          ));
+                        })()}
                       </div>
                     </>
                   )}
@@ -307,11 +329,40 @@ export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props)
               </div>
               <div className="text-2xl font-extrabold text-blue-700 my-2">
                 {script.emoji} {script.title}
+                {script.month && (
+                  <span className="ml-2 text-sm font-extrabold text-slate-400 uppercase">
+                    {script.month}
+                  </span>
+                )}
               </div>
+              {script.wordBox && script.wordBox.length > 0 && (
+                <div className="mb-3">
+                  <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                    Word Box
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {script.wordBox.map((w) => (
+                      <span
+                        key={w}
+                        className="text-xs font-extrabold px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-700"
+                      >
+                        {w}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
               <ol className="text-slate-700 text-base space-y-1 my-3 list-decimal list-inside">
                 {script.sentences.map((s, i) => (
                   <li key={i} className="leading-snug">
-                    {s}
+                    {s.split('___').map((part, j, arr) => (
+                      <span key={j}>
+                        {part}
+                        {j < arr.length - 1 && (
+                          <span className="inline-block min-w-[3rem] border-b-2 border-slate-400 mx-1 align-middle" />
+                        )}
+                      </span>
+                    ))}
                   </li>
                 ))}
               </ol>
