@@ -17,7 +17,15 @@ type Props = {
   variant: SlotVariant;
   width?: number;
   height?: number;
-  onCoverageChange?: (coverage: number) => void;
+  /**
+   * Fired whenever the slot's coverage/pass state changes.
+   * `passing` is the authoritative pass flag — DO NOT re-derive it from
+   * `coverage >= PASS_RATIO` at the call site, because the multi-stroke
+   * gate deliberately clamps `coverage` below PASS_RATIO to keep the
+   * yellow indicator visible even after a numerically-strong first
+   * stroke. Only `passing` accounts for the stroke count.
+   */
+  onCoverageChange?: (coverage: number, passing: boolean) => void;
 };
 
 export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlot(
@@ -45,7 +53,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       penRef.current?.clear();
       if (variant !== 'shown') {
         setCoverage(0);
-        onCoverageChange?.(0);
+        onCoverageChange?.(0, false);
         announcedRef.current = false;
         strokeCountRef.current = 0;
       }
@@ -60,10 +68,10 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
     strokeCountRef.current = 0;
     if (variant === 'shown') {
       setCoverage(1);
-      onCoverageChange?.(1);
+      onCoverageChange?.(1, true);
     } else {
       setCoverage(0);
-      onCoverageChange?.(0);
+      onCoverageChange?.(0, false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [letter, variant]);
@@ -107,7 +115,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
     if (!cv) return;
     if (!penRef.current?.hasInk()) {
       setCoverage(0);
-      onCoverageChange?.(0);
+      onCoverageChange?.(0, false);
       return;
     }
     strokeCountRef.current += 1;
@@ -119,12 +127,14 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
     // a dotted guide is visible.
     const requiredStrokes = getRequiredStrokes(letter);
     const enoughStrokes = strokeCountRef.current >= requiredStrokes;
-    // Cap the visible ratio just below PASS_RATIO until the user has lifted
-    // the pen the required number of times — keeps the slot yellow even if
-    // the first stroke already covered the centerline well enough.
+    // Cap the visible ratio well below PASS_RATIO until the user has
+    // lifted the pen the required number of times — keeps the slot
+    // yellow even if the first stroke already covered the centerline
+    // well enough. `effectivePass` (below) is the authoritative gate;
+    // the cap is purely so the yellow bar still communicates progress.
     const effectiveRatio = enoughStrokes
       ? result.ratio
-      : Math.min(result.ratio, PASS_RATIO - 0.01);
+      : Math.min(result.ratio, PASS_RATIO * 0.9);
     const effectivePass = result.pass && enoughStrokes;
     // Announce when the slot actually turns green (all gates + required
     // strokes). Matches the visual state so the cue always coincides with
@@ -134,7 +144,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       void speakLetter(letter);
     }
     setCoverage(effectiveRatio);
-    onCoverageChange?.(effectiveRatio);
+    onCoverageChange?.(effectiveRatio, effectivePass);
   };
 
   const interactive = variant !== 'shown';

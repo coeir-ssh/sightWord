@@ -1,6 +1,5 @@
 import { useImperativeHandle, useRef, forwardRef, useState, useCallback } from 'react';
 import { LetterSlot, type LetterSlotHandle, type SlotVariant } from './LetterSlot';
-import { PASS_RATIO } from '../lib/scoring';
 
 export type WordRowHandle = {
   resetAll: () => void;
@@ -38,6 +37,10 @@ export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow(
   const slotRefs = useRef<Array<LetterSlotHandle | null>>([]);
   const interactiveCountRef = useRef(0);
   const coveragesRef = useRef<Record<number, number>>({});
+  // Authoritative pass flag reported by each LetterSlot. Kept separate
+  // from coverage so the multi-stroke gate cannot be bypassed by any
+  // floating-point weirdness on `coverage >= PASS_RATIO`.
+  const passingRef = useRef<Record<number, boolean>>({});
   const [, force] = useState(0);
 
   // Recompute interactive count when variants change
@@ -58,7 +61,7 @@ export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow(
     for (const i of interactiveIndices) {
       const c = coveragesRef.current[i] ?? 0;
       sum += c;
-      if (c >= PASS_RATIO) passedCount += 1;
+      if (passingRef.current[i]) passedCount += 1;
     }
     onAggregateChange?.({
       avg: sum / interactiveIndices.length,
@@ -72,13 +75,15 @@ export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow(
     resetAll: () => {
       slotRefs.current.forEach((s) => s?.reset());
       coveragesRef.current = {};
+      passingRef.current = {};
       reportAggregate();
       force((n) => n + 1);
     },
   }));
 
-  const handleCoverage = (i: number) => (cov: number) => {
+  const handleCoverage = (i: number) => (cov: number, passing: boolean) => {
     coveragesRef.current[i] = cov;
+    passingRef.current[i] = passing;
     reportAggregate();
   };
 
@@ -89,6 +94,7 @@ export const WordRow = forwardRef<WordRowHandle, Props>(function WordRow(
   const resetSlot = (i: number) => {
     slotRefs.current[i]?.reset();
     delete coveragesRef.current[i];
+    delete passingRef.current[i];
     reportAggregate();
     force((n) => n + 1);
   };
