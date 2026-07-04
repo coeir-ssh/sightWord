@@ -11,7 +11,7 @@ import {
   useWallet,
 } from '../lib/state';
 import { getWeek, LIST_LABEL } from '../data/words';
-import { SHOW_TELL_SCRIPTS, getShowTellScript } from '../data/showTell';
+import { getShowTellScript, groupShowTellByMonth } from '../data/showTell';
 import type { CharGender, Slot } from '../data/items';
 import { storage } from '../lib/storage';
 
@@ -106,6 +106,7 @@ export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props)
   const exportFilename = `character-${(name || 'unnamed').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 24)}.ply`;
 
   const script = getShowTellScript(scriptId);
+  const scriptGroups = groupShowTellByMonth();
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
@@ -268,7 +269,7 @@ export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props)
             <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-5">
               <div className="flex items-center justify-between gap-2">
                 <div className="text-slate-600 font-bold text-sm">
-                  Today's Talk ({script.titleKo})
+                  {script.month ? `${script.month} · ` : ''}Today's Talk ({script.titleKo})
                 </div>
                 <div className="relative">
                   <button
@@ -284,21 +285,28 @@ export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props)
                         onClick={() => setScriptMenuOpen(false)}
                       />
                       <div className="absolute right-0 mt-1 z-50 w-64 max-h-[70vh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-slate-100">
-                        {SHOW_TELL_SCRIPTS.map((s) => (
-                          <button
-                            key={s.id}
-                            onClick={() => {
-                              setScriptId(s.id);
-                              setScriptMenuOpen(false);
-                            }}
-                            className={`w-full text-left px-4 py-2.5 font-bold active:scale-95 transition ${
-                              s.id === scriptId
-                                ? 'bg-blue-100 text-blue-700'
-                                : 'text-slate-700 hover:bg-blue-50'
-                            }`}
-                          >
-                            {s.emoji} {s.title}
-                          </button>
+                        {scriptGroups.map((group) => (
+                          <div key={group.month}>
+                            <div className="sticky top-0 px-4 py-1.5 bg-slate-100 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider">
+                              {group.month}
+                            </div>
+                            {group.scripts.map((s) => (
+                              <button
+                                key={s.id}
+                                onClick={() => {
+                                  setScriptId(s.id);
+                                  setScriptMenuOpen(false);
+                                }}
+                                className={`w-full text-left px-4 py-2.5 font-bold active:scale-95 transition ${
+                                  s.id === scriptId
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'text-slate-700 hover:bg-blue-50'
+                                }`}
+                              >
+                                {s.emoji} {s.title}
+                              </button>
+                            ))}
+                          </div>
                         ))}
                       </div>
                     </>

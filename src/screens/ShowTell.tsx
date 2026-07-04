@@ -242,6 +242,11 @@ export function ShowTell({ onBack }: Props) {
             <div className="text-blue-700 font-extrabold text-xl">
               {script.emoji} {script.title}
             </div>
+            {script.month && (
+              <div className="text-blue-400 font-extrabold text-[11px] mt-0.5">
+                {script.month}
+              </div>
+            )}
             <div className="text-slate-600 font-bold text-xs mt-0.5">{phaseLabel}</div>
             {superMode && (
               <div className="mt-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-gradient-to-r from-fuchsia-500 to-indigo-500 text-white shadow">

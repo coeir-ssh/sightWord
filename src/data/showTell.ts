@@ -385,6 +385,26 @@ export function getShowTellScript(id: string): ShowTellScript {
   return SHOW_TELL_SCRIPTS.find((s) => s.id === id) ?? SHOW_TELL_SCRIPTS[0];
 }
 
+// Label used to group the original "memorize-as-is" scripts that have no
+// curriculum month of their own.
+export const BASIC_GROUP_LABEL = 'Basic';
+
+export type ShowTellGroup = { month: string; scripts: ShowTellScript[] };
+
+// Group chapters by month, preserving the array's curriculum order
+// (Basic → June → July → … → February). Consecutive chapters that share a
+// month collapse into one group so the picker can print a single month header.
+export function groupShowTellByMonth(): ShowTellGroup[] {
+  const groups: ShowTellGroup[] = [];
+  for (const s of SHOW_TELL_SCRIPTS) {
+    const label = s.month ?? BASIC_GROUP_LABEL;
+    const last = groups[groups.length - 1];
+    if (last && last.month === label) last.scripts.push(s);
+    else groups.push({ month: label, scripts: [s] });
+  }
+  return groups;
+}
+
 /** Split a sentence into text segments + blank slots. */
 export type SentencePart =
   | { kind: 'text'; value: string }
