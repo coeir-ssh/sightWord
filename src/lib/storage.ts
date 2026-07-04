@@ -41,11 +41,16 @@ const KEYS = {
   showTellScript: 'sw.showTellScript.v1',
   // Blanks the child typed for each Show and Tell chapter.
   showTellFills: 'sw.showTellFills.v1',
+  // Next step index (0-based) to do for each Show and Tell chapter.
+  showTellStep: 'sw.showTellStep.v1',
 };
 
 // Per-script fills: fills[scriptId] = string[][] (one row per sentence, one
 // entry per blank in that sentence).
 export type ShowTellFills = Record<string, string[][]>;
+
+// Per-script next-step index (like sight-word day progress). 0-based.
+export type ShowTellSteps = Record<string, number>;
 
 const DEFAULT_PROGRESS: Progress = {
   currentWeek: 'L1-1',
@@ -257,6 +262,28 @@ export const storage = {
       const all: ShowTellFills = raw ? (JSON.parse(raw) as ShowTellFills) : {};
       all[scriptId] = fills;
       localStorage.setItem(KEYS.showTellFills, JSON.stringify(all));
+    } catch {
+      /* ignore */
+    }
+  },
+
+  getShowTellStep: (scriptId: string): number => {
+    try {
+      const raw = localStorage.getItem(KEYS.showTellStep);
+      if (!raw) return 0;
+      const all = JSON.parse(raw) as ShowTellSteps;
+      const n = all[scriptId];
+      return typeof n === 'number' && n >= 0 ? n : 0;
+    } catch {
+      return 0;
+    }
+  },
+  setShowTellStep: (scriptId: string, step: number) => {
+    try {
+      const raw = localStorage.getItem(KEYS.showTellStep);
+      const all: ShowTellSteps = raw ? (JSON.parse(raw) as ShowTellSteps) : {};
+      all[scriptId] = step;
+      localStorage.setItem(KEYS.showTellStep, JSON.stringify(all));
     } catch {
       /* ignore */
     }

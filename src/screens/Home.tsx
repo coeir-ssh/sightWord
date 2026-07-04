@@ -11,7 +11,7 @@ import {
   useWallet,
 } from '../lib/state';
 import { getWeek, LIST_LABEL } from '../data/words';
-import { getShowTellScript, groupShowTellByMonth } from '../data/showTell';
+import { getShowTellScript, groupShowTellByMonth, totalBlanks } from '../data/showTell';
 import type { CharGender, Slot } from '../data/items';
 import { storage } from '../lib/storage';
 
@@ -107,6 +107,17 @@ export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props)
 
   const script = getShowTellScript(scriptId);
   const scriptGroups = groupShowTellByMonth();
+
+  // Show and Tell runs one step at a time (like the sight-word day flow).
+  // The saved progress points at the NEXT step to do for the chosen chapter.
+  const stPhaseNames =
+    totalBlanks(script) > 0
+      ? ['Fill in the Blanks', 'Listen & Repeat', 'Present from Memory']
+      : ['Listen & Repeat', 'Present from Memory'];
+  const stStep = Math.min(
+    stPhaseNames.length - 1,
+    Math.max(0, storage.getShowTellStep(scriptId))
+  );
 
   const week = getWeek(progress.currentWeek);
   const done = dayDone(progress.currentWeek);
@@ -316,6 +327,14 @@ export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props)
               <div className="text-2xl font-extrabold text-blue-700 my-2">
                 {script.emoji} {script.title}
               </div>
+              <div className="flex gap-2 my-3">
+                {stPhaseNames.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`flex-1 h-3 rounded-full ${i < stStep ? 'bg-green-400' : 'bg-slate-200'}`}
+                  />
+                ))}
+              </div>
               <ol className="text-slate-700 text-base space-y-1 my-3 list-decimal list-inside">
                 {script.sentences.map((s, i) => (
                   <li key={i} className="leading-snug">
@@ -334,7 +353,7 @@ export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props)
                 onClick={onShowTell}
                 className="mt-2 w-full text-2xl font-extrabold bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl py-4 shadow-lg"
               >
-                ▶ Start Practice
+                ▶ Step {stStep + 1}: {stPhaseNames[stStep]}
               </button>
             </div>
           )}
