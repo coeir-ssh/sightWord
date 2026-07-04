@@ -1,12 +1,8 @@
-// Show and Tell scripts — short English presentations the child fills in
-// (using words from the Word Box) and memorizes. Coins + character
-// customization are shared with the Sight Word side; only the left-hand
-// learning UI differs.
-//
-// New worksheet-style chapters have a `wordBox` (list of suggested words)
-// and `sentences` where blanks are marked with `___` (three underscores).
-// Older "memorize-as-is" scripts (My Family, My Animal, My Food) omit
-// `wordBox` and contain no blanks — they fall through the same renderer.
+// Show and Tell scripts — short English presentations organized by month.
+// Worksheet chapters contain blanks marked with `___` (three underscores)
+// that the child types in themselves; the typed answers are saved. Coins +
+// character customization are shared with the Sight Word side; only the
+// left-hand learning UI differs.
 
 export type ShowTellScript = {
   id: string;
@@ -15,8 +11,6 @@ export type ShowTellScript = {
   emoji: string;
   /** Month label for worksheet-style chapters (June, July, …). */
   month?: string;
-  /** Suggested words/phrases shown above the template. */
-  wordBox?: string[];
   /** Sentences. `___` is a blank the child fills in. */
   sentences: string[];
 };
@@ -33,10 +27,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '내가 좋아하는 동물',
     emoji: '🦁',
     month: 'June',
-    wordBox: [
-      'Lion', 'Alligator', 'Tiger', 'Hippo', 'Monkey', 'Gorillas', 'Chicken', 'Rabbits',
-      'Zoo', 'Farm', 'Fish', 'Meat', 'Vegetables', 'Fruits',
-    ],
     sentences: [
       'My favorite animal is a(n) ___.',
       'It lives in the ___.',
@@ -52,10 +42,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '내가 좋아하는 스포츠',
     emoji: '⚽',
     month: 'July',
-    wordBox: [
-      'Baseball', 'Basketball', 'Soccer', 'Hockey', 'Swimming',
-      'I can have fun', 'I can do it well', 'I love it so much',
-    ],
     sentences: [
       'My favorite sport is ___.',
       'I am good at ___.',
@@ -71,10 +57,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '여름 방학',
     emoji: '🏖️',
     month: 'July',
-    wordBox: [
-      'Camping', 'To a hotel', "To my grandparents' house", 'Abroad', 'To the beach',
-      'Swim', 'Play', 'Run', 'Have fun',
-    ],
     sentences: [
       'For Summer vacation, I will go ___ with my ___.',
       'I want to ___ there and eat ___ while I am there.',
@@ -88,10 +70,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '나의 건강한 습관',
     emoji: '🪥',
     month: 'August',
-    wordBox: [
-      'Brush my teeth', 'Wash my face', 'Take a shower', 'Eat vegetables',
-      'Drink lots of water', 'Go to bed early', 'Sleep well', 'Eat fruits',
-    ],
     sentences: [
       'I learned about healthy habits.',
       'Every night, I ___.',
@@ -108,7 +86,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '지구',
     emoji: '🌍',
     month: 'August',
-    wordBox: ['Beautiful', 'Awesome', 'Fantastic', 'Colorful', 'Bright', 'Dynamic'],
     sentences: [
       'My favorite planet is Earth.',
       'Earth is ___ and ___.',
@@ -124,10 +101,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '나의 꿈',
     emoji: '🚒',
     month: 'September',
-    wordBox: [
-      'Firefighter', 'Police', 'Doctor', 'Nurse', 'Teacher',
-      'Patience', 'Care', 'Helmet', 'Uniform',
-    ],
     sentences: [
       'I will tell you about my dream job.',
       'I want to be a ___ because it looks ___.',
@@ -142,10 +115,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '추석',
     emoji: '🌕',
     month: 'September',
-    wordBox: [
-      'September', 'October', 'Family', 'Grandparents', 'Songpyeon',
-      'Tug-of-war', 'Tuho', 'Eat many delicious foods',
-    ],
     sentences: [
       'Chuseok is celebrated on ___.',
       'I celebrate Chuseok with my ___.',
@@ -161,10 +130,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '우리 나라',
     emoji: '🇰🇷',
     month: 'October',
-    wordBox: [
-      'Rice cake', 'Bibimbap', 'Bulgogi', 'Tae-geuk-gi',
-      'Beautiful places', 'Yummy food', 'Kind people', 'Historical places',
-    ],
     sentences: [
       'I live in Seoul, Korea.',
       'The most popular food in my country is called ___.',
@@ -180,7 +145,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '세계',
     emoji: '🗺️',
     month: 'October',
-    wordBox: ['Spain', 'China', 'France', 'Mexico', 'United States', 'Australia', 'Canada', 'Italy'],
     sentences: [
       'There are so many countries in the world.',
       'I want to visit ___.',
@@ -196,7 +160,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '교통수단',
     emoji: '🚌',
     month: 'November',
-    wordBox: ['Bus', 'Car', 'Train', 'Airplane', 'Subway', 'Spaceship', 'Taxi', 'Van'],
     sentences: [
       'How do you go to school?',
       'I go to school by ___.',
@@ -212,7 +175,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '우주',
     emoji: '🚀',
     month: 'November',
-    wordBox: ['Planets', 'Moon', 'Sun', 'Rockets', 'Satellites', 'Float', 'Spacesuit', 'Helmet'],
     sentences: [
       'I want to travel to space.',
       'I want to see the ___.',
@@ -228,11 +190,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '겨울',
     emoji: '❄️',
     month: 'December',
-    wordBox: [
-      'December', 'January', 'February',
-      'Make a snowman', 'Have a snowball fight', 'Drink hot chocolate',
-      'Ice hockey', 'Figure skating', 'Speed skating',
-    ],
     sentences: [
       'Winter is cold but beautiful.',
       'The months of winter are ___, ___, and ___.',
@@ -248,10 +205,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '크리스마스',
     emoji: '🎄',
     month: 'December',
-    wordBox: [
-      'Toy car', 'Pretty doll', 'Lego box', 'A stuffed animal',
-      'Cute', 'Pretty', 'Adorable', 'Coloring book',
-    ],
     sentences: [
       'Dear Santa,',
       'These are the things I want for Christmas.',
@@ -269,11 +222,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '새해 첫날',
     emoji: '🎆',
     month: 'January',
-    wordBox: [
-      'Eat more vegetables', 'Brush my teeth more', 'Change my clothes by myself',
-      'Becoming healthy', 'Becoming strong', 'Not fight with my siblings',
-      'Listen to my parents',
-    ],
     sentences: [
       'Happy New Year!',
       "Do you have a New Year's Resolution?",
@@ -303,7 +251,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '미술',
     emoji: '🎨',
     month: 'February',
-    wordBox: ['Picasso', 'Van Gogh', 'Frida Kahlo', 'Da Vinci', 'Amazing', 'Breathtaking', 'Vivid'],
     sentences: [
       'Who is your favorite artist?',
       'My favorite artist is ___.',
@@ -318,10 +265,6 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
     titleKo: '졸업',
     emoji: '🎓',
     month: 'February',
-    wordBox: [
-      'Excited', 'Nervous', 'Shy', 'Anxious',
-      'Art class', 'Gym class', 'Science class', 'Role box class', 'Musical English class',
-    ],
     sentences: [
       'I am 7 years old now.',
       'I will be going to ___ class.',

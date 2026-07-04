@@ -316,23 +316,6 @@ export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props)
               <div className="text-2xl font-extrabold text-blue-700 my-2">
                 {script.emoji} {script.title}
               </div>
-              {script.wordBox && script.wordBox.length > 0 && (
-                <div className="mb-3">
-                  <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
-                    Word Box
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {script.wordBox.map((w) => (
-                      <span
-                        key={w}
-                        className="text-xs font-extrabold px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-700"
-                      >
-                        {w}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
               <ol className="text-slate-700 text-base space-y-1 my-3 list-decimal list-inside">
                 {script.sentences.map((s, i) => (
                   <li key={i} className="leading-snug">

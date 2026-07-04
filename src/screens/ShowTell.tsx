@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { CoinHUD } from '../components/CoinHUD';
 import { CoinFly } from '../components/CoinFly';
 import { Character3D } from '../components/Character3D';
@@ -17,16 +17,28 @@ import {
   getShowTellScript,
   splitSentence,
   totalBlanks,
+  type ShowTellScript,
 } from '../data/showTell';
+import { storage } from '../lib/storage';
 import { speak } from '../lib/tts';
 
 type Props = {
   onBack: () => void;
 };
 
+// Build the starting fills for a script: an empty slot per blank, overlaid
+// with whatever the child previously typed (saved per script). Rebuilt from
+// the current blank shape so it stays valid even if a chapter's text changes.
+function buildInitialFills(script: ShowTellScript): string[][] {
+  const empty = script.sentences.map((s) => new Array(countBlanks(s)).fill(''));
+  const saved = storage.getShowTellFills(script.id);
+  if (!saved) return empty;
+  return empty.map((row, i) => row.map((_, j) => saved[i]?.[j] ?? ''));
+}
+
 // Three passes through the script:
-//  - 'fill'   : (worksheet chapters only) fill each blank with a word from
-//               the Word Box so the child personalizes the script.
+//  - 'fill'   : (worksheet chapters only) the child types a word into each
+//               blank to personalize the script. Answers are saved.
 //  - 'learn'  : every (filled-in) sentence is shown + read aloud so the
 //               child learns it.
 //  - 'recite' : the sentence is hidden; the child presents it from memory,
@@ -62,12 +74,15 @@ export function ShowTell({ onBack }: Props) {
   }, [script]);
 
   // fills[sentenceIdx] = array of strings, one per blank in that sentence.
-  const [fills, setFills] = useState<string[][]>(() =>
-    script.sentences.map((s) => new Array(countBlanks(s)).fill(''))
-  );
+  // Seeded from any previously saved answers for this script.
+  const [fills, setFills] = useState<string[][]>(() => buildInitialFills(script));
+  // Tracks which blanks already granted the fill coin this session so
+  // clearing + retyping the same blank can't farm coins.
+  const awardedRef = useRef<Set<string>>(new Set());
   // Reset fills when the script changes.
   useEffect(() => {
-    setFills(script.sentences.map((s) => new Array(countBlanks(s)).fill('')));
+    setFills(buildInitialFills(script));
+    awardedRef.current = new Set();
     setPhase(hasBlanks ? 'fill' : 'learn');
     setFillCursor(0);
     setIdx(0);
@@ -105,22 +120,25 @@ export function ShowTell({ onBack }: Props) {
     setTimeout(() => setJumping(false), 700);
   };
 
-  const pickWord = (word: string) => {
+  // The child types the blank in directly; every keystroke saves.
+  const typeBlank = (value: string) => {
     const cursor = blanks[fillCursor];
     if (!cursor) return;
     setFills((prev) => {
       const next = prev.map((row) => row.slice());
       const prevWord = next[cursor.sIdx][cursor.bIdx];
-      next[cursor.sIdx][cursor.bIdx] = word;
-      // Tiny coin reward only the FIRST time a blank gets filled, so
-      // tapping different choices for the same blank doesn't farm coins.
-      if (!prevWord) {
+      next[cursor.sIdx][cursor.bIdx] = value;
+      storage.setShowTellFills(script.id, next);
+      // Tiny coin reward the first time a blank goes from empty to filled,
+      // once per blank per session (tracked in awardedRef).
+      const key = `${cursor.sIdx}:${cursor.bIdx}`;
+      if (!prevWord && value.trim() !== '' && !awardedRef.current.has(key)) {
+        awardedRef.current.add(key);
         addCoins(FILL_COIN * multiplier);
         setCoinTrigger((n) => n + 1);
       }
       return next;
     });
-    // No auto-advance — the child explicitly presses "Next Blank →".
   };
 
   const clearCurrentBlank = () => {
@@ -129,12 +147,13 @@ export function ShowTell({ onBack }: Props) {
     setFills((prev) => {
       const next = prev.map((row) => row.slice());
       next[cursor.sIdx][cursor.bIdx] = '';
+      storage.setShowTellFills(script.id, next);
       return next;
     });
   };
 
   const allBlanksFilled = blanks.every(
-    ({ sIdx, bIdx }) => (fills[sIdx]?.[bIdx] ?? '') !== ''
+    ({ sIdx, bIdx }) => (fills[sIdx]?.[bIdx] ?? '').trim() !== ''
   );
 
   const finishFill = () => {
@@ -213,10 +232,22 @@ export function ShowTell({ onBack }: Props) {
 
   const phaseLabel =
     phase === 'fill'
-      ? 'Step 1 · Choose Your Words'
+      ? 'Step 1 · Type Your Words'
       : phase === 'learn'
         ? 'Step 2 · Listen & Repeat'
         : 'Step 3 · Present from Memory';
+
+  const cursor0 = blanks[fillCursor];
+  const cursor0Fill = cursor0 ? fills[cursor0.sIdx]?.[cursor0.bIdx] ?? '' : '';
+  const advanceFill = () => {
+    if (fillCursor + 1 < blanks.length) {
+      if (cursor0Fill.trim() !== '') {
+        setFillCursor((c) => Math.min(blanks.length - 1, c + 1));
+      }
+    } else if (allBlanksFilled) {
+      finishFill();
+    }
+  };
 
   // ───────── Fill phase render — focused per-blank picker ─────────
   if (phase === 'fill') {
@@ -314,32 +345,26 @@ export function ShowTell({ onBack }: Props) {
             </p>
           </div>
 
-          {/* Word Box picker — large buttons */}
-          {script.wordBox && (
-            <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
-              <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
-                Pick a Word
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                {script.wordBox.map((w) => {
-                  const isPicked = cursorFill === w;
-                  return (
-                    <button
-                      key={w}
-                      onClick={() => pickWord(w)}
-                      className={`px-4 py-3 rounded-2xl border-2 text-lg font-extrabold shadow active:scale-95 transition ${
-                        isPicked
-                          ? 'bg-amber-200 border-amber-500 text-amber-900'
-                          : 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800'
-                      }`}
-                    >
-                      {w}
-                    </button>
-                  );
-                })}
-              </div>
+          {/* Type-in box */}
+          <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
+            <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
+              Type Your Word
             </div>
-          )}
+            <input
+              key={fillCursor}
+              autoFocus
+              value={cursorFill}
+              onChange={(e) => typeBlank(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  advanceFill();
+                }
+              }}
+              placeholder="Type here…"
+              className="w-full border-4 border-amber-400 focus:border-amber-500 rounded-2xl px-4 py-3 text-2xl font-extrabold text-slate-800 outline-none placeholder:text-slate-300"
+            />
+          </div>
 
           {/* Navigation */}
           <div className="flex flex-wrap items-center justify-center gap-3 pb-4">
@@ -382,7 +407,7 @@ export function ShowTell({ onBack }: Props) {
                     : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                 }`}
               >
-                {allBlanksFilled ? 'Memorize ▶' : 'Finish picking words first'}
+                {allBlanksFilled ? 'Memorize ▶' : 'Fill in every blank first'}
               </button>
             )}
           </div>

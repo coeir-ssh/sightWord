@@ -39,7 +39,13 @@ const KEYS = {
   bonus300: 'sw.bonus.300.v1',
   appMode: 'sw.appMode.v1',
   showTellScript: 'sw.showTellScript.v1',
+  // Blanks the child typed for each Show and Tell chapter.
+  showTellFills: 'sw.showTellFills.v1',
 };
+
+// Per-script fills: fills[scriptId] = string[][] (one row per sentence, one
+// entry per blank in that sentence).
+export type ShowTellFills = Record<string, string[][]>;
 
 const DEFAULT_PROGRESS: Progress = {
   currentWeek: 'L1-1',
@@ -229,6 +235,28 @@ export const storage = {
   setShowTellScript: (id: string) => {
     try {
       localStorage.setItem(KEYS.showTellScript, id);
+    } catch {
+      /* ignore */
+    }
+  },
+
+  getShowTellFills: (scriptId: string): string[][] | null => {
+    try {
+      const raw = localStorage.getItem(KEYS.showTellFills);
+      if (!raw) return null;
+      const all = JSON.parse(raw) as ShowTellFills;
+      const rows = all[scriptId];
+      return Array.isArray(rows) ? rows : null;
+    } catch {
+      return null;
+    }
+  },
+  setShowTellFills: (scriptId: string, fills: string[][]) => {
+    try {
+      const raw = localStorage.getItem(KEYS.showTellFills);
+      const all: ShowTellFills = raw ? (JSON.parse(raw) as ShowTellFills) : {};
+      all[scriptId] = fills;
+      localStorage.setItem(KEYS.showTellFills, JSON.stringify(all));
     } catch {
       /* ignore */
     }
