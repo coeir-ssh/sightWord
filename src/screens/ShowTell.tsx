@@ -42,7 +42,6 @@ const PHASE_LABEL: Record<Phase, string> = {
 
 const FILL_STEP_COINS = 5;
 const LEARN_STEP_COINS = 5;
-const PER_SENTENCE_COINS = 5;
 const COMPLETE_BONUS = 10;
 // Slower than the default so the child can repeat after it.
 const READ_RATE = 0.6;
@@ -95,7 +94,6 @@ export function ShowTell({ onBack }: Props) {
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [coinTrigger, setCoinTrigger] = useState(0);
-  const [jumping, setJumping] = useState(false);
   const [stepResult, setStepResult] = useState<
     null | { coins: number; chapterComplete: boolean }
   >(null);
@@ -180,20 +178,13 @@ export function ShowTell({ onBack }: Props) {
     }
   };
 
-  // ── Recite phase ──
-  const award = () => {
-    addCoins(PER_SENTENCE_COINS * multiplier);
-    setCoinTrigger((n) => n + 1);
-    setJumping(true);
-    setTimeout(() => setJumping(false), 700);
-  };
-
+  // ── Recite phase ── (no per-sentence coins; only the completion bonus)
   const passRecite = () => {
-    award();
     if (idx + 1 >= total) {
       const bonus = COMPLETE_BONUS * multiplier;
       addCoins(bonus);
-      completeStep(total * PER_SENTENCE_COINS * multiplier + bonus);
+      setCoinTrigger((n) => n + 1);
+      completeStep(bonus);
     } else {
       setIdx((n) => n + 1);
       setRevealed(false);
@@ -444,7 +435,7 @@ export function ShowTell({ onBack }: Props) {
         <div className="h-3 bg-white rounded-full overflow-hidden shadow">
           <div
             className="h-full bg-blue-500 transition-all"
-            style={{ width: `${((idx + (jumping ? 1 : 0)) / total) * 100}%` }}
+            style={{ width: `${(idx / total) * 100}%` }}
           />
         </div>
         <div className="text-center text-slate-600 mt-1 text-sm font-bold">
@@ -503,9 +494,9 @@ export function ShowTell({ onBack }: Props) {
                 </button>
                 <button
                   onClick={passRecite}
-                  className="bg-green-500 hover:bg-green-600 active:scale-95 text-white rounded-2xl px-7 py-3 text-lg font-extrabold shadow-lg"
+                  className="bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl px-7 py-3 text-lg font-extrabold shadow-lg"
                 >
-                  ✅ Got it!
+                  {idx + 1 >= total ? 'Finish ▶' : 'Next ▶'}
                 </button>
               </div>
             </>
