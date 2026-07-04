@@ -44,8 +44,8 @@ const FILL_STEP_COINS = 5;
 const LEARN_STEP_COINS = 5;
 const PER_SENTENCE_COINS = 5;
 const COMPLETE_BONUS = 10;
-// A little slower than the default so the child can repeat after it.
-const READ_RATE = 0.7;
+// Slower than the default so the child can repeat after it.
+const READ_RATE = 0.6;
 
 // Build the starting fills for a script: an empty slot per blank, overlaid
 // with whatever the child previously typed (saved per script).
