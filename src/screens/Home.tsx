@@ -120,8 +120,8 @@ export function Home({
   // The saved progress points at the NEXT step to do for the chosen chapter.
   const stPhaseNames =
     totalBlanks(script) > 0
-      ? ['Fill in the Blanks', 'Listen & Repeat', 'Present from Memory']
-      : ['Listen & Repeat', 'Present from Memory'];
+      ? ['Fill in the Blanks', 'Listen & Repeat', 'First Two Words', 'Present from Memory']
+      : ['Listen & Repeat', 'First Two Words', 'Present from Memory'];
   const stStep = Math.min(
     stPhaseNames.length - 1,
     Math.max(0, storage.getShowTellStep(scriptId))

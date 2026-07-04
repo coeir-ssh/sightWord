@@ -31,20 +31,28 @@ type Props = {
 // next-step button to start the following step.
 //  - 'fill'   : (worksheet chapters only) type a word into each blank.
 //  - 'learn'  : every filled-in sentence is shown + read aloud (slowly).
+//  - 'cue'    : only the first two words are shown + read (memory prompt).
 //  - 'recite' : the sentence is hidden; the child presents it from memory.
-type Phase = 'fill' | 'learn' | 'recite';
+type Phase = 'fill' | 'learn' | 'cue' | 'recite';
 
 const PHASE_LABEL: Record<Phase, string> = {
   fill: 'Fill in the Blanks',
   learn: 'Listen & Repeat',
+  cue: 'First Two Words',
   recite: 'Present from Memory',
 };
 
 const FILL_STEP_COINS = 5;
 const LEARN_STEP_COINS = 5;
+const CUE_STEP_COINS = 5;
 const COMPLETE_BONUS = 10;
 // Slower than the default so the child can repeat after it.
 const READ_RATE = 0.6;
+
+// The first two words of a sentence — used for the 'cue' step.
+function firstTwoWords(sentence: string): string {
+  return sentence.trim().split(/\s+/).slice(0, 2).join(' ');
+}
 
 // Build the starting fills for a script: an empty slot per blank, overlaid
 // with whatever the child previously typed (saved per script).
@@ -71,7 +79,7 @@ export function ShowTell({ onBack }: Props) {
   // The ordered steps for this chapter, and the single step this session runs
   // (read once from saved progress; fixed for the session).
   const phases = useMemo<Phase[]>(
-    () => (hasBlanks ? ['fill', 'learn', 'recite'] : ['learn', 'recite']),
+    () => (hasBlanks ? ['fill', 'learn', 'cue', 'recite'] : ['learn', 'cue', 'recite']),
     [hasBlanks]
   );
   const [step] = useState(() =>
@@ -104,11 +112,12 @@ export function ShowTell({ onBack }: Props) {
   );
   const cur = filledSentences[idx];
 
-  // Auto-read the sentence (slowly) when it first appears in the learn phase.
+  // Auto-read (slowly) when a sentence first appears: the full sentence in
+  // the learn phase, only the first two words in the cue phase.
   useEffect(() => {
-    if (phase === 'learn' && !stepResult) {
-      void speak(cur, { rate: READ_RATE });
-    }
+    if (stepResult) return;
+    if (phase === 'learn') void speak(cur, { rate: READ_RATE });
+    else if (phase === 'cue') void speak(firstTwoWords(cur), { rate: READ_RATE });
   }, [phase, idx, stepResult, cur]);
 
   // Advance saved progress to the next step and show the step-complete screen.
@@ -166,10 +175,21 @@ export function ShowTell({ onBack }: Props) {
     }
   };
 
-  // ── Learn phase ──
+  // ── Learn / Cue phases (walk through the sentences, award on finish) ──
   const nextLearn = () => {
     if (idx + 1 >= total) {
       const coins = LEARN_STEP_COINS * multiplier;
+      addCoins(coins);
+      setCoinTrigger((n) => n + 1);
+      completeStep(coins);
+    } else {
+      setIdx((n) => n + 1);
+    }
+  };
+
+  const nextCue = () => {
+    if (idx + 1 >= total) {
+      const coins = CUE_STEP_COINS * multiplier;
       addCoins(coins);
       setCoinTrigger((n) => n + 1);
       completeStep(coins);
@@ -445,20 +465,27 @@ export function ShowTell({ onBack }: Props) {
 
       <main className="flex-1 flex items-center justify-center p-6">
         <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-8 w-full max-w-3xl flex flex-col items-center gap-6">
-          {phase === 'learn' ? (
+          {phase !== 'recite' ? (
             <>
               <div className="text-center text-3xl md:text-4xl font-extrabold text-slate-800 leading-snug">
-                {cur}
+                {phase === 'cue' ? `${firstTwoWords(cur)} …` : cur}
               </div>
+              {phase === 'cue' && (
+                <div className="text-center text-base font-bold text-slate-500">
+                  Only the first two words — try to remember the rest!
+                </div>
+              )}
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <button
-                  onClick={() => void speak(cur, { rate: READ_RATE })}
+                  onClick={() =>
+                    void speak(phase === 'cue' ? firstTwoWords(cur) : cur, { rate: READ_RATE })
+                  }
                   className="bg-white border-2 border-blue-200 hover:bg-blue-50 active:scale-95 rounded-2xl px-6 py-3 text-xl font-extrabold text-blue-700 shadow"
                 >
                   🔊 Listen Again
                 </button>
                 <button
-                  onClick={nextLearn}
+                  onClick={phase === 'cue' ? nextCue : nextLearn}
                   className="bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl px-8 py-3 text-xl font-extrabold shadow-lg"
                 >
                   {idx + 1 >= total ? 'Finish ▶' : 'Next ▶'}

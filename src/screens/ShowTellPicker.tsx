@@ -5,7 +5,12 @@ import { groupShowTellByMonth, totalBlanks, type ShowTellScript } from '../data/
 
 type Props = { onBack: () => void; onStart: () => void };
 
-const STEP_KIND = ['Fill in the Blanks', 'Listen & Repeat', 'Present from Memory'];
+const STEP_KIND = [
+  'Fill in the Blanks',
+  'Listen & Repeat',
+  'First Two Words',
+  'Present from Memory',
+];
 
 function stepNames(script: ShowTellScript): string[] {
   return totalBlanks(script) > 0 ? STEP_KIND : STEP_KIND.slice(1);
@@ -61,7 +66,7 @@ export function ShowTellPicker({ onBack, onStart }: Props) {
                       </div>
                       <div className="text-xs font-bold text-slate-500">{script.titleKo}</div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {names.map((kind, step) => {
                         const isDone = step < savedStep;
                         const isCurrent = isCurrentScript && step === savedStep;
