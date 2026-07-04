@@ -84,12 +84,20 @@ const GENDER_BUNDLES: Record<CharGender, Partial<Record<Slot, string[]>>> = {
 type Props = {
   onLearn: () => void;
   onShowTell: () => void;
+  onShowTellList: () => void;
   onShop: () => void;
   onWardrobe: () => void;
   onList: () => void;
 };
 
-export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props) {
+export function Home({
+  onLearn,
+  onShowTell,
+  onShowTellList,
+  onShop,
+  onWardrobe,
+  onList,
+}: Props) {
   const { progress, dayDone } = useProgress();
   const { wallet } = useWallet();
   const { name, setName } = useCharName();
@@ -155,12 +163,19 @@ export function Home({ onLearn, onShowTell, onShop, onWardrobe, onList }: Props)
       <header className="sticky top-0 z-30 flex items-center justify-between p-4 flex-wrap gap-2 bg-gradient-to-b from-sky-soft to-sky-soft/95 backdrop-blur shadow-sm">
         <div className="flex items-center gap-3 flex-wrap">
           <CoinHUD coins={wallet.coins} />
-          {mode === 'sight' && (
+          {mode === 'sight' ? (
             <button
               onClick={onList}
               className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-blue-700 active:scale-95 hover:bg-blue-50 transition"
             >
               📖 {LIST_LABEL[progress.currentWeek]} ▾
+            </button>
+          ) : (
+            <button
+              onClick={onShowTellList}
+              className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-blue-700 active:scale-95 hover:bg-blue-50 transition"
+            >
+              📋 All Chapters ▾
             </button>
           )}
         </div>

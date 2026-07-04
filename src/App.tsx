@@ -2,19 +2,29 @@ import { useEffect, useState } from 'react';
 import { Home } from './screens/Home';
 import { Learn } from './screens/Learn';
 import { ShowTell } from './screens/ShowTell';
+import { ShowTellPicker } from './screens/ShowTellPicker';
 import { Shop } from './screens/Shop';
 import { Wardrobe } from './screens/Wardrobe';
 import { ParentGate } from './screens/ParentGate';
 import { ListPicker } from './screens/ListPicker';
 import { unlockTts } from './lib/tts';
 
-type Route = 'home' | 'learn' | 'showtell' | 'shop' | 'wardrobe' | 'parent' | 'list';
+type Route =
+  | 'home'
+  | 'learn'
+  | 'showtell'
+  | 'showtell-list'
+  | 'shop'
+  | 'wardrobe'
+  | 'parent'
+  | 'list';
 
 function parseHash(): Route {
   const h = location.hash.replace(/^#\/?/, '');
   if (
     h === 'learn' ||
     h === 'showtell' ||
+    h === 'showtell-list' ||
     h === 'shop' ||
     h === 'wardrobe' ||
     h === 'parent' ||
@@ -65,6 +75,10 @@ export function App() {
       return <Learn onBack={() => go('home')} />;
     case 'showtell':
       return <ShowTell onBack={() => go('home')} />;
+    case 'showtell-list':
+      return (
+        <ShowTellPicker onBack={() => go('home')} onStart={() => go('showtell')} />
+      );
     case 'shop':
       return <Shop onBack={() => go('home')} />;
     case 'wardrobe':
@@ -78,6 +92,7 @@ export function App() {
         <Home
           onLearn={() => go('learn')}
           onShowTell={() => go('showtell')}
+          onShowTellList={() => go('showtell-list')}
           onShop={() => go('shop')}
           onWardrobe={() => go('wardrobe')}
           onList={() => go('list')}
