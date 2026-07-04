@@ -26,50 +26,6 @@ export type ShowTellScript = {
 export const BLANK = '___';
 
 export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
-  // ───────── Original "memorize-as-is" scripts ─────────
-  {
-    id: 'my-family',
-    title: 'My Family',
-    titleKo: '우리 가족',
-    emoji: '👨‍👩‍👧',
-    sentences: [
-      'Hello, everyone!',
-      'Today I will talk about my family.',
-      'There are four people in my family.',
-      'I have a mom, a dad, and a baby brother.',
-      'We love to play together.',
-      'Thank you for listening!',
-    ],
-  },
-  {
-    id: 'my-animal-simple',
-    title: 'My Favorite Animal (Easy)',
-    titleKo: '내가 좋아하는 동물 (쉬움)',
-    emoji: '🐶',
-    sentences: [
-      'Hello, my friends!',
-      'My favorite animal is the dog.',
-      'My dog is small and brown.',
-      'He likes to run and play with me.',
-      'I give him food every day.',
-      'I love my dog. Thank you!',
-    ],
-  },
-  {
-    id: 'my-food',
-    title: 'My Favorite Food',
-    titleKo: '내가 좋아하는 음식',
-    emoji: '🍕',
-    sentences: [
-      'Hi, everyone!',
-      'My favorite food is pizza.',
-      'It is round and yummy.',
-      'I like cheese and tomato on top.',
-      'I eat it with my family on Friday.',
-      'Yum yum! Thank you!',
-    ],
-  },
-
   // ───────── Worksheet chapters (월별) ─────────
   {
     id: 'favorite-animal',
