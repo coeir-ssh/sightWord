@@ -35,8 +35,11 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
   const penRef = useRef<PenCanvasHandle | null>(null);
   const guideRef = useRef<HTMLCanvasElement | null>(null);
   const [coverage, setCoverage] = useState(variant === 'shown' ? 1 : 0);
+  const [strokeCount, setStrokeCount] = useState(0);
 
   const passed = coverage >= PASS_RATIO || variant === 'shown';
+  const requiredStrokes = getRequiredStrokes(letter);
+  const needMoreStrokes = requiredStrokes > 1 && strokeCount > 0 && strokeCount < requiredStrokes;
   // Whether we've already spoken the letter name for the current pass.
   // Reset on letter/variant change and on an explicit retry so re-passing
   // announces again, but a second stroke on an already-green slot doesn't.
@@ -53,6 +56,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       penRef.current?.clear();
       if (variant !== 'shown') {
         setCoverage(0);
+        setStrokeCount(0);
         onCoverageChange?.(0, false);
         announcedRef.current = false;
         strokeCountRef.current = 0;
@@ -66,6 +70,7 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
   useEffect(() => {
     announcedRef.current = false;
     strokeCountRef.current = 0;
+    setStrokeCount(0);
     if (variant === 'shown') {
       setCoverage(1);
       onCoverageChange?.(1, true);
@@ -115,17 +120,18 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
     if (!cv) return;
     if (!penRef.current?.hasInk()) {
       setCoverage(0);
+      setStrokeCount(0);
       onCoverageChange?.(0, false);
       return;
     }
     strokeCountRef.current += 1;
+    setStrokeCount(strokeCountRef.current);
     const result = scoreLetterSlot(cv, letter);
     // Multi-stroke letters (f, i, j, k, t, x, y) need separate pen lifts
     // in EVERY step including Step 1 tracing — otherwise the slot can
     // turn green after just the vertical of 't' or only the diagonals of
     // 'x' / 'k'. Children should learn the real stroke order even when
     // a dotted guide is visible.
-    const requiredStrokes = getRequiredStrokes(letter);
     const enoughStrokes = strokeCountRef.current >= requiredStrokes;
     // Cap the visible ratio well below PASS_RATIO until the user has
     // lifted the pen the required number of times — keeps the slot
@@ -180,6 +186,15 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
       {passed && interactive && (
         <div className="absolute top-1 right-1 w-6 h-6 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold shadow">
           ✓
+        </div>
+      )}
+      {/* Multi-stroke hint: show 1/2 badge on i/j/k/f/t/x/y until the
+       *  required number of pen lifts have been made. Lets the child
+       *  see WHY the slot is still yellow even when their ink covers
+       *  most of the letter. */}
+      {!passed && interactive && needMoreStrokes && (
+        <div className="absolute top-1 right-1 px-2 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-[11px] font-extrabold shadow">
+          {strokeCount} / {requiredStrokes} ✏️
         </div>
       )}
     </div>
