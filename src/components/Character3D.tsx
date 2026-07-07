@@ -4668,7 +4668,7 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 18,
                 1,
                 true,
-                -Math.PI * 0.6,
+                Math.PI * 0.4,
                 Math.PI * 1.2
               ),
               capeMat
@@ -4839,7 +4839,7 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             const cape = new THREE.Mesh(
               new THREE.CylinderGeometry(
                 0.5, 0.85, 1.5, 22, 1, true,
-                -Math.PI * 0.65, Math.PI * 1.3
+                Math.PI * 0.35, Math.PI * 1.3
               ),
               capeMat
             );
@@ -5015,7 +5015,7 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               color, side: THREE.DoubleSide, roughness: 0.6,
             });
             const cape = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.5, 0.95, 1.55, 22, 1, true, -Math.PI * 0.65, Math.PI * 1.3),
+              new THREE.CylinderGeometry(0.5, 0.95, 1.55, 22, 1, true, Math.PI * 0.35, Math.PI * 1.3),
               capeMat
             );
             cape.position.set(0, TORSO_Y - 0.4, -TORSO_D / 2 - 0.04);
@@ -5145,7 +5145,7 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               emissive: new THREE.Color(color.getHex()).multiplyScalar(0.05),
             });
             const cape = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.46, 0.78, 1.4, 20, 1, true, -Math.PI * 0.6, Math.PI * 1.2),
+              new THREE.CylinderGeometry(0.46, 0.78, 1.4, 20, 1, true, Math.PI * 0.4, Math.PI * 1.2),
               capeMat
             );
             cape.position.set(0, TORSO_Y - 0.36, -TORSO_D / 2 - 0.04);
@@ -5605,7 +5605,7 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 20,
                 1,
                 true,
-                -Math.PI * 0.65,
+                Math.PI * 0.35,
                 Math.PI * 1.3
               ),
               capeMat
