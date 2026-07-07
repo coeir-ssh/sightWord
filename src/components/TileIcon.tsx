@@ -3008,6 +3008,31 @@ function Charm({ item }: { item: Item }) {
           ))}
         </g>
       );
+    case 'pikachu_charm':
+      return (
+        <g>
+          {/* Lanyard */}
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Two tall pointy ears with black tips */}
+          <polygon points="26,44 12,4 34,32" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+          <polygon points="15,16 12,4 22,20" fill="#0a0a0a" />
+          <polygon points="74,44 88,4 66,32" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+          <polygon points="85,16 88,4 78,20" fill="#0a0a0a" />
+          {/* Round head */}
+          <ellipse cx="50" cy="54" rx="26" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Red cheeks */}
+          <circle cx="30" cy="60" r="6" fill={item.accent ?? '#dc2626'} stroke={STROKE} strokeWidth={0.6} />
+          <circle cx="70" cy="60" r="6" fill={item.accent ?? '#dc2626'} stroke={STROKE} strokeWidth={0.6} />
+          {/* Big shiny black eyes */}
+          <ellipse cx="40" cy="48" rx="4" ry="5" fill="#0a0a0a" />
+          <ellipse cx="60" cy="48" rx="4" ry="5" fill="#0a0a0a" />
+          <circle cx="41.5" cy="46" r="1.2" fill="#f8fafc" />
+          <circle cx="61.5" cy="46" r="1.2" fill="#f8fafc" />
+          {/* Small nose + smile */}
+          <path d="M46,60 Q50,64 54,60" stroke="#0a0a0a" fill="none" strokeWidth={1.5} strokeLinecap="round" />
+        </g>
+      );
     case 'joon_band':
       return (
         <g>
@@ -3138,6 +3163,51 @@ function Misc({ item }: { item: Item }) {
             <line x1={wx} y1="62" x2={wx} y2="82" stroke={c} strokeWidth={1} />
           </g>
         ))}
+      </g>
+    );
+  }
+
+  if (kind === 'pikachu') {
+    return (
+      <g>
+        {/* Zigzag lightning bolt tail behind body */}
+        <polygon
+          points="4,30 20,26 14,42 24,44 8,64 22,58 16,72 30,66"
+          fill={c}
+          stroke={STROKE}
+          strokeWidth={SW}
+          strokeLinejoin="round"
+        />
+        {/* Brown base of tail */}
+        <rect x="26" y="60" width="8" height="10" fill="#78350f" stroke={STROKE} strokeWidth={0.6} />
+        {/* Two tall pointy ears with black tips */}
+        <polygon points="40,32 30,2 48,26" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <polygon points="32,10 30,2 40,14" fill="#0a0a0a" />
+        <polygon points="60,32 70,2 52,26" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <polygon points="68,10 70,2 60,14" fill="#0a0a0a" />
+        {/* Chubby body */}
+        <ellipse cx="52" cy="70" rx="26" ry="20" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Head */}
+        <ellipse cx="52" cy="40" rx="22" ry="19" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Red cheeks */}
+        <circle cx="34" cy="46" r="5" fill={item.accent ?? '#dc2626'} stroke={STROKE} strokeWidth={0.6} />
+        <circle cx="70" cy="46" r="5" fill={item.accent ?? '#dc2626'} stroke={STROKE} strokeWidth={0.6} />
+        {/* Shiny black eyes */}
+        <ellipse cx="44" cy="36" rx="3" ry="4" fill="#0a0a0a" />
+        <ellipse cx="60" cy="36" rx="3" ry="4" fill="#0a0a0a" />
+        <circle cx="45" cy="34.5" r="1" fill="#f8fafc" />
+        <circle cx="61" cy="34.5" r="1" fill="#f8fafc" />
+        {/* Small nose */}
+        <ellipse cx="52" cy="43" rx="1.2" ry="0.8" fill="#0a0a0a" />
+        {/* Open mouth with pink tongue */}
+        <path d="M46,48 Q52,54 58,48" stroke="#0a0a0a" fill="#78350f" strokeWidth={1.2} />
+        <ellipse cx="52" cy="50" rx="3" ry="1.5" fill="#fb7185" />
+        {/* Little arms */}
+        <ellipse cx="30" cy="66" rx="4" ry="7" fill={c} stroke={STROKE} strokeWidth={0.8} transform="rotate(-30 30 66)" />
+        <ellipse cx="74" cy="66" rx="4" ry="7" fill={c} stroke={STROKE} strokeWidth={0.8} transform="rotate(30 74 66)" />
+        {/* Feet */}
+        <ellipse cx="42" cy="88" rx="7" ry="4" fill={c} stroke={STROKE} strokeWidth={0.8} />
+        <ellipse cx="62" cy="88" rx="7" ry="4" fill={c} stroke={STROKE} strokeWidth={0.8} />
       </g>
     );
   }

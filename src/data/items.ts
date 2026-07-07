@@ -1,6 +1,6 @@
 export type Slot = 'top' | 'bottom' | 'hat' | 'mask' | 'back' | 'shoes' | 'charm' | 'misc';
 
-export type MiscKind = 'motorcycle' | 'soccer_ball';
+export type MiscKind = 'motorcycle' | 'soccer_ball' | 'pikachu';
 
 export type TopKind =
   | 'tee'
@@ -219,6 +219,7 @@ export type CharmKind =
   | 'seashell'
   | 'slp_badge'
   | 'joon_band'
+  | 'pikachu_charm'
   ;
 
 export type ItemKind =
@@ -563,6 +564,8 @@ export const ITEMS: Item[] = [
   { id: 'back.ghost_rider', name: 'Ghost Rider Chains', slot: 'back', price: 200, color: '#cbd5e1', accent: '#fb923c', kind: 'ghost_rider_back', genders: ['boy'] },
   { id: 'shoes.ghost_rider', name: 'Ghost Rider Boots', slot: 'shoes', price: 160, color: '#1f2937', accent: '#cbd5e1', kind: 'ghost_rider', genders: ['boy'] },
   { id: 'misc.ghost_rider_bike', name: 'Ghost Rider 헬파이어 오토바이', slot: 'misc', price: 500, color: '#cbd5e1', accent: '#fb923c', kind: 'motorcycle', genders: ['boy'] },
+  { id: 'misc.pikachu', name: '피카츄', slot: 'misc', price: 400, color: '#facc15', accent: '#dc2626', kind: 'pikachu' },
+  { id: 'charm.pikachu', name: '피카츄 키링', slot: 'charm', price: 120, color: '#facc15', accent: '#dc2626', kind: 'pikachu_charm' },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },

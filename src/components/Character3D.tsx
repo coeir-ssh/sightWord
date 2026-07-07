@@ -7268,6 +7268,81 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               ridge.position.set(cx + Math.sin(ang) * 0.04, cy + 0.02, cz + 0.04);
               g.add(ridge);
             }
+          } else if (kind === 'pikachu_charm') {
+            // Mini Pikachu head charm hanging from the bag strap:
+            // yellow rounded head + tall pointy ears (black tips) +
+            // shiny black eyes with white highlight + red cheeks.
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.05),
+            });
+            const blackMat = new THREE.MeshStandardMaterial({ color: '#0a0a0a' });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#dc2626'),
+            });
+            const whiteMat = new THREE.MeshStandardMaterial({
+              color: '#f8fafc',
+              emissive: '#f8fafc', emissiveIntensity: 0.5,
+            });
+            // Head
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(0.09, 16, 12),
+              yellowMat.clone()
+            );
+            head.scale.set(1.05, 0.95, 0.9);
+            head.position.set(cx, cy, cz);
+            g.add(head);
+            // Ears
+            [-1, 1].forEach((sx) => {
+              const ear = new THREE.Mesh(
+                new THREE.ConeGeometry(0.028, 0.13, 5),
+                yellowMat.clone()
+              );
+              ear.rotation.z = sx * 0.35;
+              ear.position.set(cx + sx * 0.055, cy + 0.13, cz);
+              g.add(ear);
+              const tip = new THREE.Mesh(
+                new THREE.ConeGeometry(0.022, 0.05, 5),
+                blackMat.clone()
+              );
+              tip.rotation.z = sx * 0.35;
+              tip.position.set(cx + sx * 0.075, cy + 0.185, cz);
+              g.add(tip);
+            });
+            // Eyes
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.018, 12, 10),
+                blackMat.clone()
+              );
+              eye.scale.set(1, 1.15, 0.7);
+              eye.position.set(cx + sx * 0.035, cy + 0.015, cz + 0.075);
+              g.add(eye);
+              const hl = new THREE.Mesh(
+                new THREE.SphereGeometry(0.007, 8, 6),
+                whiteMat.clone()
+              );
+              hl.position.set(cx + sx * 0.035 + 0.008, cy + 0.025, cz + 0.083);
+              g.add(hl);
+            });
+            // Red cheeks
+            [-1, 1].forEach((sx) => {
+              const cheek = new THREE.Mesh(
+                new THREE.SphereGeometry(0.024, 10, 8),
+                redMat.clone()
+              );
+              cheek.scale.set(1, 1, 0.4);
+              cheek.position.set(cx + sx * 0.07, cy - 0.02, cz + 0.055);
+              g.add(cheek);
+            });
+            // Tiny smile
+            const smile = new THREE.Mesh(
+              new THREE.TorusGeometry(0.018, 0.006, 6, 12, Math.PI),
+              blackMat.clone()
+            );
+            smile.rotation.z = Math.PI;
+            smile.position.set(cx, cy - 0.035, cz + 0.076);
+            g.add(smile);
           } else if (kind === 'joon_band') {
             // Yellow wristband — a thin silicone-style ring with a small
             // tag bead, hanging from the bag strap.
@@ -7649,6 +7724,182 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             trailInner.rotation.z = Math.PI / 2;
             trailInner.position.set(BIKE_X - 0.78, WHEEL_Y + 0.1, 0.18);
             g.add(trailInner);
+          } else if (kind === 'pikachu') {
+            // Full-size chibi Pikachu standing next to the character on
+            // the opposite side from the motorcycle: chubby yellow body +
+            // rounded head + tall pointed ears with black tips + red
+            // cheeks + tiny black eyes with white highlights + open pink
+            // smile + short arms/feet + lightning-bolt tail (zigzag).
+            const PIKA_X = -1.15;
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.05),
+            });
+            const blackMat = new THREE.MeshStandardMaterial({
+              color: '#0a0a0a', roughness: 0.55,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#dc2626'),
+              roughness: 0.6,
+            });
+            const whiteMat = new THREE.MeshStandardMaterial({
+              color: '#f8fafc',
+              emissive: '#f8fafc', emissiveIntensity: 0.5,
+            });
+            const pinkMat = new THREE.MeshStandardMaterial({
+              color: '#fb7185', roughness: 0.6,
+            });
+            const brownMat = new THREE.MeshStandardMaterial({
+              color: '#78350f', roughness: 0.7,
+            });
+
+            // Chubby body
+            const body = new THREE.Mesh(
+              new THREE.SphereGeometry(0.38, 22, 16),
+              yellowMat.clone()
+            );
+            body.scale.set(1, 1.15, 0.9);
+            body.position.set(PIKA_X, -0.05, 0);
+            g.add(body);
+
+            // Head — slightly wider than body
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(0.34, 22, 16),
+              yellowMat.clone()
+            );
+            head.scale.set(1.1, 0.95, 0.95);
+            head.position.set(PIKA_X, 0.52, 0);
+            g.add(head);
+
+            // Two tall pointy ears (yellow) with black tips
+            [-1, 1].forEach((sx) => {
+              const earShape = new THREE.Mesh(
+                new THREE.ConeGeometry(0.11, 0.55, 6),
+                yellowMat.clone()
+              );
+              earShape.rotation.z = sx * 0.35;
+              earShape.position.set(PIKA_X + sx * 0.22, 0.95, 0);
+              g.add(earShape);
+              // Black tip (~upper 35%)
+              const earTip = new THREE.Mesh(
+                new THREE.ConeGeometry(0.08, 0.22, 6),
+                blackMat.clone()
+              );
+              earTip.rotation.z = sx * 0.35;
+              earTip.position.set(PIKA_X + sx * 0.3, 1.16, 0);
+              g.add(earTip);
+            });
+
+            // Big shiny black eyes with white highlight
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.055, 16, 12),
+                blackMat.clone()
+              );
+              eye.scale.set(1, 1.15, 0.7);
+              eye.position.set(PIKA_X + sx * 0.13, 0.56, 0.29);
+              g.add(eye);
+              const hl = new THREE.Mesh(
+                new THREE.SphereGeometry(0.022, 10, 8),
+                whiteMat.clone()
+              );
+              hl.position.set(PIKA_X + sx * 0.13 + 0.02, 0.58, 0.33);
+              g.add(hl);
+            });
+
+            // Round red cheeks
+            [-1, 1].forEach((sx) => {
+              const cheek = new THREE.Mesh(
+                new THREE.SphereGeometry(0.075, 14, 10),
+                redMat.clone()
+              );
+              cheek.scale.set(1, 1, 0.35);
+              cheek.position.set(PIKA_X + sx * 0.27, 0.44, 0.22);
+              g.add(cheek);
+            });
+
+            // Small open mouth (dark) + pink tongue
+            const mouth = new THREE.Mesh(
+              new THREE.SphereGeometry(0.05, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2),
+              blackMat.clone()
+            );
+            mouth.rotation.x = Math.PI / 2;
+            mouth.position.set(PIKA_X, 0.42, 0.3);
+            mouth.scale.set(1, 0.4, 1);
+            g.add(mouth);
+            const tongue = new THREE.Mesh(
+              new THREE.SphereGeometry(0.032, 12, 10),
+              pinkMat.clone()
+            );
+            tongue.scale.set(1, 0.5, 0.6);
+            tongue.position.set(PIKA_X, 0.39, 0.33);
+            g.add(tongue);
+
+            // Small arm nubs on each side
+            [-1, 1].forEach((sx) => {
+              const arm = new THREE.Mesh(
+                new THREE.SphereGeometry(0.11, 14, 10),
+                yellowMat.clone()
+              );
+              arm.scale.set(0.8, 1.3, 0.8);
+              arm.rotation.z = sx * 0.5;
+              arm.position.set(PIKA_X + sx * 0.38, 0.05, 0.08);
+              g.add(arm);
+            });
+
+            // Feet
+            [-1, 1].forEach((sx) => {
+              const foot = new THREE.Mesh(
+                new THREE.SphereGeometry(0.13, 14, 10),
+                yellowMat.clone()
+              );
+              foot.scale.set(1, 0.7, 1.2);
+              foot.position.set(PIKA_X + sx * 0.16, -0.38, 0.08);
+              g.add(foot);
+            });
+
+            // Lightning bolt tail — zigzag on the back-left, brown base
+            const tailBase = new THREE.Mesh(
+              new THREE.BoxGeometry(0.1, 0.12, 0.08),
+              brownMat.clone()
+            );
+            tailBase.position.set(PIKA_X - 0.36, -0.02, -0.1);
+            g.add(tailBase);
+
+            // First zig (going up-back)
+            const zig1 = new THREE.Mesh(
+              new THREE.BoxGeometry(0.2, 0.11, 0.09),
+              yellowMat.clone()
+            );
+            zig1.rotation.z = 0.6;
+            zig1.position.set(PIKA_X - 0.46, 0.11, -0.05);
+            g.add(zig1);
+
+            // Second zig (going down-back)
+            const zig2 = new THREE.Mesh(
+              new THREE.BoxGeometry(0.24, 0.13, 0.1),
+              yellowMat.clone()
+            );
+            zig2.rotation.z = -0.55;
+            zig2.position.set(PIKA_X - 0.6, 0.28, 0);
+            g.add(zig2);
+
+            // Big lightning tip at top (fat zigzag)
+            const tip1 = new THREE.Mesh(
+              new THREE.BoxGeometry(0.34, 0.18, 0.12),
+              yellowMat.clone()
+            );
+            tip1.rotation.z = 0.5;
+            tip1.position.set(PIKA_X - 0.75, 0.5, 0);
+            g.add(tip1);
+
+            const tip2 = new THREE.Mesh(
+              new THREE.ConeGeometry(0.14, 0.24, 4),
+              yellowMat.clone()
+            );
+            tip2.rotation.z = 0.5;
+            tip2.position.set(PIKA_X - 0.9, 0.68, 0);
+            g.add(tip2);
           }
           break;
         }
