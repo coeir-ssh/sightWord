@@ -128,29 +128,29 @@ export const LetterSlot = forwardRef<LetterSlotHandle, Props>(function LetterSlo
     setStrokeCount(strokeCountRef.current);
     const result = scoreLetterSlot(cv, letter);
     // Multi-stroke letters (f, i, j, k, t, x, y) need separate pen lifts
-    // in EVERY step including Step 1 tracing — otherwise the slot can
-    // turn green after just the vertical of 't' or only the diagonals of
-    // 'x' / 'k'. Children should learn the real stroke order even when
-    // a dotted guide is visible.
+    // before the slot can turn green — otherwise the slot could pass on
+    // just the vertical of 't' or only the diagonals of 'x' / 'k'. The
+    // cap is applied to the visible ratio so the slot stays yellow, and
+    // the "passing" flag reported to the parent is derived from the same
+    // capped value — one number, no hidden second gate.
     const enoughStrokes = strokeCountRef.current >= requiredStrokes;
-    // Cap the visible ratio well below PASS_RATIO until the user has
-    // lifted the pen the required number of times — keeps the slot
-    // yellow even if the first stroke already covered the centerline
-    // well enough. `effectivePass` (below) is the authoritative gate;
-    // the cap is purely so the yellow bar still communicates progress.
     const effectiveRatio = enoughStrokes
       ? result.ratio
       : Math.min(result.ratio, PASS_RATIO * 0.9);
-    const effectivePass = result.pass && enoughStrokes;
-    // Announce when the slot actually turns green (all gates + required
-    // strokes). Matches the visual state so the cue always coincides with
-    // the green border.
-    if (variant !== 'shown' && effectivePass && !announcedRef.current) {
+    // Single source of truth: if the slot's border turns green (coverage
+    // >= PASS_RATIO), the row counts it as passed. No extra `result.pass`
+    // requirement — that used to let a slot look green but still block
+    // "Next" when the centerline/compactness sub-gates disagreed with the
+    // coverage check.
+    const passing = effectiveRatio >= PASS_RATIO;
+    // Announce when the slot actually turns green. Matches the visual
+    // state so the cue always coincides with the green border.
+    if (variant !== 'shown' && passing && !announcedRef.current) {
       announcedRef.current = true;
       void speakLetter(letter);
     }
     setCoverage(effectiveRatio);
-    onCoverageChange?.(effectiveRatio, effectivePass);
+    onCoverageChange?.(effectiveRatio, passing);
   };
 
   const interactive = variant !== 'shown';
