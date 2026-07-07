@@ -1,7 +1,17 @@
+import { useState } from 'react';
 import { Character3D } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
 import { ItemTile } from '../components/ItemTile';
-import { itemsForGender, SLOT_LABEL, SLOT_ORDER, type Slot } from '../data/items';
+import {
+  categoryOf,
+  CATEGORY_LABEL,
+  CATEGORY_ORDER,
+  itemsForGender,
+  SLOT_LABEL,
+  SLOT_ORDER,
+  type Category,
+  type Slot,
+} from '../data/items';
 import { useCharGender, useCharName, useInventory, useWallet } from '../lib/state';
 
 type Props = { onBack: () => void };
@@ -12,6 +22,7 @@ export function Shop({ onBack }: Props) {
   const { inventory, addItem } = useInventory(gender);
   const { name: charName } = useCharName();
   const visibleItems = itemsForGender(gender);
+  const [tab, setTab] = useState<Category>('basic');
 
   const buy = (id: string, price: number) => {
     if (inventory.owned.includes(id)) return;
@@ -23,6 +34,14 @@ export function Shop({ onBack }: Props) {
       addItem(id);
     }
   };
+
+  const tabItems = visibleItems.filter((i) => categoryOf(i) === tab);
+  // Only show tabs that actually have at least one visible item, so the
+  // Princess tab hides on the boy and vice-versa without needing hard-coded
+  // gender rules.
+  const availableTabs = CATEGORY_ORDER.filter((c) =>
+    visibleItems.some((i) => categoryOf(i) === c)
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-yellow-100 to-yellow-200 flex flex-col">
@@ -55,25 +74,51 @@ export function Shop({ onBack }: Props) {
           </div>
         </aside>
 
-        <div className="flex-1 space-y-6">
-          {SLOT_ORDER.map((slot: Slot) => (
-            <section key={slot} className="bg-white/70 backdrop-blur rounded-3xl shadow p-4">
-              <div className="text-xl font-extrabold text-slate-700 mb-3">{SLOT_LABEL[slot]}</div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {visibleItems.filter((i) => i.slot === slot).map((item) => (
-                  <ItemTile
-                    key={item.id}
-                    item={item}
-                    state="shop"
-                    owned={inventory.owned.includes(item.id)}
-                    equipped={inventory.equipped[slot] === item.id}
-                    canAfford={wallet.coins >= item.price}
-                    onAction={() => buy(item.id, item.price)}
-                  />
-                ))}
-              </div>
-            </section>
-          ))}
+        <div className="flex-1 flex flex-col gap-4">
+          {/* Category tab bar */}
+          <div className="sticky top-20 z-20 flex flex-wrap gap-2 bg-white/85 backdrop-blur rounded-2xl shadow p-2">
+            {availableTabs.map((c) => {
+              const active = c === tab;
+              return (
+                <button
+                  key={c}
+                  onClick={() => setTab(c)}
+                  className={`px-3 py-1.5 rounded-xl text-sm font-extrabold border-2 transition ${
+                    active
+                      ? 'bg-yellow-400 border-yellow-500 text-yellow-900 shadow'
+                      : 'bg-white border-transparent text-slate-600 hover:bg-yellow-50'
+                  }`}
+                >
+                  {CATEGORY_LABEL[c]}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="space-y-6">
+            {SLOT_ORDER.map((slot: Slot) => {
+              const slotItems = tabItems.filter((i) => i.slot === slot);
+              if (slotItems.length === 0) return null;
+              return (
+                <section key={slot} className="bg-white/70 backdrop-blur rounded-3xl shadow p-4">
+                  <div className="text-xl font-extrabold text-slate-700 mb-3">{SLOT_LABEL[slot]}</div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {slotItems.map((item) => (
+                      <ItemTile
+                        key={item.id}
+                        item={item}
+                        state="shop"
+                        owned={inventory.owned.includes(item.id)}
+                        equipped={inventory.equipped[slot] === item.id}
+                        canAfford={wallet.coins >= item.price}
+                        onAction={() => buy(item.id, item.price)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
         </div>
       </main>
     </div>

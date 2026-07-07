@@ -42,7 +42,15 @@ export type TopKind =
   | 'silver_surfer'
   | 'solmoe'
   | 'snorlax_suit'
-  | 'gengar_suit';
+  | 'gengar_suit'
+  | 'pikachu_top'
+  | 'charmander_top'
+  | 'squirtle_top'
+  | 'bulbasaur_top'
+  | 'eevee_top'
+  | 'jigglypuff_top'
+  | 'psyduck_top'
+  | 'charizard_top';
 
 export type BottomKind =
   | 'pants'
@@ -83,6 +91,16 @@ export type BottomKind =
   | 'ghost_rider'
   | 'silver_surfer'
   | 'solmoe'
+  | 'pikachu_legs'
+  | 'charmander_legs'
+  | 'squirtle_legs'
+  | 'bulbasaur_legs'
+  | 'eevee_legs'
+  | 'jigglypuff_legs'
+  | 'psyduck_legs'
+  | 'snorlax_legs'
+  | 'gengar_legs'
+  | 'charizard_legs';
 
 export type HatKind =
   | 'cap'
@@ -123,7 +141,13 @@ export type MaskKind =
   | 'charmander_face'
   | 'squirtle_face'
   | 'bulbasaur_face'
-  | 'eevee_face';
+  | 'eevee_face'
+  | 'pikachu_face'
+  | 'jigglypuff_face'
+  | 'psyduck_face'
+  | 'snorlax_face'
+  | 'gengar_face'
+  | 'charizard_face';
 
 export type BackKind =
   | 'kinder'
@@ -163,7 +187,17 @@ export type BackKind =
   | 'falcon_wings'
   | 'venom_back'
   | 'ghost_rider_back'
-  | 'silver_surfer_board';
+  | 'silver_surfer_board'
+  | 'pikachu_tail'
+  | 'charmander_tail'
+  | 'squirtle_shell'
+  | 'bulbasaur_bulb'
+  | 'eevee_tail'
+  | 'jigglypuff_tail'
+  | 'psyduck_tail'
+  | 'snorlax_back'
+  | 'gengar_shadow'
+  | 'charizard_wings';
 
 export type ShoeKind =
   | 'sneakers'
@@ -229,7 +263,14 @@ export type CharmKind =
   | 'pikachu_charm'
   | 'jigglypuff_charm'
   | 'mew_charm'
-  | 'psyduck_charm';
+  | 'psyduck_charm'
+  | 'charmander_charm'
+  | 'squirtle_charm'
+  | 'bulbasaur_charm'
+  | 'eevee_charm'
+  | 'snorlax_charm'
+  | 'gengar_charm'
+  | 'charizard_charm';
 
 export type ItemKind =
   | TopKind
@@ -588,6 +629,59 @@ export const ITEMS: Item[] = [
   { id: 'charm.mew', name: '뮤 키링', slot: 'charm', price: 140, color: '#fbcfe8', accent: '#7dd3fc', kind: 'mew_charm' },
   { id: 'charm.psyduck', name: '고라파덕 키링', slot: 'charm', price: 120, color: '#facc15', accent: '#f97316', kind: 'psyduck_charm' },
 
+  // ───────── Pokemon 10 full sets ─────────
+  // Pikachu (yellow / red cheeks)
+  { id: 'mask.pikachu', name: '피카츄 얼굴', slot: 'mask', price: 180, color: '#facc15', accent: '#dc2626', kind: 'pikachu_face' },
+  { id: 'top.pikachu', name: '피카츄 상의', slot: 'top', price: 180, color: '#facc15', accent: '#a16207', kind: 'pikachu_top' },
+  { id: 'bottom.pikachu', name: '피카츄 하의', slot: 'bottom', price: 160, color: '#facc15', accent: '#a16207', kind: 'pikachu_legs' },
+  { id: 'back.pikachu', name: '피카츄 번개 꼬리', slot: 'back', price: 160, color: '#facc15', accent: '#78350f', kind: 'pikachu_tail' },
+  // Charmander (orange / cream)
+  { id: 'top.charmander', name: '파이리 상의', slot: 'top', price: 180, color: '#f97316', accent: '#fef3c7', kind: 'charmander_top' },
+  { id: 'bottom.charmander', name: '파이리 하의', slot: 'bottom', price: 160, color: '#f97316', accent: '#fef3c7', kind: 'charmander_legs' },
+  { id: 'back.charmander', name: '파이리 불꼬리', slot: 'back', price: 180, color: '#f97316', accent: '#fbbf24', kind: 'charmander_tail' },
+  { id: 'charm.charmander', name: '파이리 키링', slot: 'charm', price: 120, color: '#f97316', accent: '#fef3c7', kind: 'charmander_charm' },
+  // Squirtle (blue / cream)
+  { id: 'top.squirtle', name: '꼬부기 상의', slot: 'top', price: 180, color: '#38bdf8', accent: '#fef3c7', kind: 'squirtle_top' },
+  { id: 'bottom.squirtle', name: '꼬부기 하의', slot: 'bottom', price: 160, color: '#38bdf8', accent: '#fef3c7', kind: 'squirtle_legs' },
+  { id: 'back.squirtle', name: '꼬부기 등껍질', slot: 'back', price: 200, color: '#a16207', accent: '#fbbf24', kind: 'squirtle_shell' },
+  { id: 'charm.squirtle', name: '꼬부기 키링', slot: 'charm', price: 120, color: '#38bdf8', accent: '#fef3c7', kind: 'squirtle_charm' },
+  // Bulbasaur (green / dark green)
+  { id: 'top.bulbasaur', name: '이상해씨 상의', slot: 'top', price: 180, color: '#4ade80', accent: '#166534', kind: 'bulbasaur_top' },
+  { id: 'bottom.bulbasaur', name: '이상해씨 하의', slot: 'bottom', price: 160, color: '#4ade80', accent: '#166534', kind: 'bulbasaur_legs' },
+  { id: 'back.bulbasaur', name: '이상해씨 구근', slot: 'back', price: 200, color: '#4d7c0f', accent: '#166534', kind: 'bulbasaur_bulb' },
+  { id: 'charm.bulbasaur', name: '이상해씨 키링', slot: 'charm', price: 120, color: '#4ade80', accent: '#166534', kind: 'bulbasaur_charm' },
+  // Eevee (brown / cream)
+  { id: 'top.eevee', name: '이브이 상의', slot: 'top', price: 180, color: '#a16207', accent: '#fef3c7', kind: 'eevee_top' },
+  { id: 'bottom.eevee', name: '이브이 하의', slot: 'bottom', price: 160, color: '#a16207', accent: '#fef3c7', kind: 'eevee_legs' },
+  { id: 'back.eevee', name: '이브이 꼬리', slot: 'back', price: 160, color: '#a16207', accent: '#fef3c7', kind: 'eevee_tail' },
+  { id: 'charm.eevee', name: '이브이 키링', slot: 'charm', price: 120, color: '#a16207', accent: '#fef3c7', kind: 'eevee_charm' },
+  // Jigglypuff (pink / blue eyes)
+  { id: 'mask.jigglypuff', name: '푸린 얼굴', slot: 'mask', price: 180, color: '#fbcfe8', accent: '#3b82f6', kind: 'jigglypuff_face' },
+  { id: 'top.jigglypuff', name: '푸린 상의', slot: 'top', price: 180, color: '#fbcfe8', accent: '#f472b6', kind: 'jigglypuff_top' },
+  { id: 'bottom.jigglypuff', name: '푸린 하의', slot: 'bottom', price: 160, color: '#fbcfe8', accent: '#f472b6', kind: 'jigglypuff_legs' },
+  { id: 'back.jigglypuff', name: '푸린 꼬리', slot: 'back', price: 140, color: '#fbcfe8', accent: '#f472b6', kind: 'jigglypuff_tail' },
+  // Psyduck (yellow / orange bill)
+  { id: 'mask.psyduck', name: '고라파덕 얼굴', slot: 'mask', price: 180, color: '#facc15', accent: '#f97316', kind: 'psyduck_face' },
+  { id: 'top.psyduck', name: '고라파덕 상의', slot: 'top', price: 180, color: '#facc15', accent: '#f97316', kind: 'psyduck_top' },
+  { id: 'bottom.psyduck', name: '고라파덕 하의', slot: 'bottom', price: 160, color: '#facc15', accent: '#f97316', kind: 'psyduck_legs' },
+  { id: 'back.psyduck', name: '고라파덕 꼬리', slot: 'back', price: 140, color: '#facc15', accent: '#f97316', kind: 'psyduck_tail' },
+  // Snorlax (cream / dark navy)
+  { id: 'mask.snorlax', name: '잠만보 얼굴', slot: 'mask', price: 180, color: '#fde68a', accent: '#0f172a', kind: 'snorlax_face' },
+  { id: 'bottom.snorlax', name: '잠만보 하의', slot: 'bottom', price: 180, color: '#0f172a', accent: '#fde68a', kind: 'snorlax_legs' },
+  { id: 'back.snorlax', name: '잠만보 등', slot: 'back', price: 200, color: '#0f172a', accent: '#fde68a', kind: 'snorlax_back' },
+  { id: 'charm.snorlax', name: '잠만보 키링', slot: 'charm', price: 120, color: '#fde68a', accent: '#0f172a', kind: 'snorlax_charm' },
+  // Gengar (purple / red mouth)
+  { id: 'mask.gengar', name: '겐가 얼굴', slot: 'mask', price: 180, color: '#6b21a8', accent: '#dc2626', kind: 'gengar_face' },
+  { id: 'bottom.gengar', name: '겐가 하의', slot: 'bottom', price: 160, color: '#6b21a8', accent: '#dc2626', kind: 'gengar_legs' },
+  { id: 'back.gengar', name: '겐가 그림자', slot: 'back', price: 200, color: '#6b21a8', accent: '#7f1d1d', kind: 'gengar_shadow' },
+  { id: 'charm.gengar', name: '겐가 키링', slot: 'charm', price: 120, color: '#6b21a8', accent: '#dc2626', kind: 'gengar_charm' },
+  // Charizard (orange / cream)
+  { id: 'mask.charizard', name: '리자몽 얼굴', slot: 'mask', price: 220, color: '#f97316', accent: '#fef3c7', kind: 'charizard_face' },
+  { id: 'top.charizard', name: '리자몽 상의', slot: 'top', price: 220, color: '#f97316', accent: '#fef3c7', kind: 'charizard_top' },
+  { id: 'bottom.charizard', name: '리자몽 하의', slot: 'bottom', price: 200, color: '#f97316', accent: '#fef3c7', kind: 'charizard_legs' },
+  { id: 'back.charizard', name: '리자몽 날개', slot: 'back', price: 260, color: '#38bdf8', accent: '#166534', kind: 'charizard_wings' },
+  { id: 'charm.charizard', name: '리자몽 키링', slot: 'charm', price: 140, color: '#f97316', accent: '#fef3c7', kind: 'charizard_charm' },
+
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
   { id: 'bottom.silver_surfer', name: 'Silver Surfer Legs', slot: 'bottom', price: 220, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
@@ -609,6 +703,88 @@ export function itemAllowedFor(id: string, g: CharGender): boolean {
   const item = ITEMS.find((i) => i.id === id);
   if (!item) return false;
   return !item.genders || item.genders.includes(g);
+}
+
+// ─────────────────────────────────────────────────────────
+// Shop tabs — categories used to group items in the shop UI
+// so the huge catalogue is browsable at a glance.
+// ─────────────────────────────────────────────────────────
+export type Category =
+  | 'basic'
+  | 'heroes'
+  | 'princess'
+  | 'pokemon'
+  | 'school'
+  | 'special'
+  | 'misc';
+
+export const CATEGORY_ORDER: Category[] = [
+  'basic',
+  'heroes',
+  'princess',
+  'pokemon',
+  'school',
+  'special',
+  'misc',
+];
+
+export const CATEGORY_LABEL: Record<Category, string> = {
+  basic: '🧢 Basic',
+  heroes: '🦸 Heroes',
+  princess: '👸 Princess',
+  pokemon: '⚡ Pokemon',
+  school: '🎒 School',
+  special: '🎂 Special',
+  misc: '🏍️ Misc',
+};
+
+// Item kinds and IDs that map to each category. The switch is derived
+// from either item.kind (per-slot union) or the item id, whichever is
+// most distinctive for that group.
+const HERO_KIND_PATTERNS = [
+  'ironman', 'spiderman', 'hulk', 'batman', 'captain_america', 'thor',
+  'superman', 'flash', 'panther', 'wolverine', 'dr_strange', 'starlord',
+  'antman', 'war_machine', 'vision', 'daredevil', 'hawkeye', 'falcon',
+  'venom', 'ghost_rider', 'silver_surfer',
+  'batman_cape', 'cap_shield', 'thor_cape', 'superman_cape', 'flash_bolt',
+  'panther_cape', 'wolverine_claws', 'dr_strange_cape', 'starlord_pack',
+  'antman_pack', 'war_machine_back', 'vision_cape', 'daredevil_back',
+  'hawkeye_quiver', 'falcon_wings', 'venom_back', 'ghost_rider_back',
+  'silver_surfer_board',
+];
+const PRINCESS_KIND_PATTERNS = [
+  'princess_dress', 'princess_skirt', 'princess_cape',
+  'tiara', 'flower_crown', 'princess_crown',
+  'elsa_top', 'elsa_skirt', 'elsa_cape', 'elsa_crown',
+  'ariel_top', 'ariel_tail', 'ariel_wave', 'ariel_shell',
+  'rapunzel_top', 'rapunzel_skirt', 'rapunzel_hair',
+  'belle_bow',
+  'tutu', 'glass_slipper', 'ballet', 'ribbon_heel',
+  'wand', 'ribbon_bow', 'rose', 'snowflake', 'pumpkin_carriage', 'seashell',
+];
+const POKEMON_SPECIES = [
+  'pikachu', 'charmander', 'squirtle', 'bulbasaur', 'eevee',
+  'jigglypuff', 'psyduck', 'snorlax', 'gengar', 'charizard', 'mew',
+];
+const SCHOOL_KIND_PATTERNS = [
+  'slp', 'slp_girl', 'slp_skirt', 'slp_backpack', 'slp_badge',
+];
+const SPECIAL_KIND_PATTERNS = [
+  'joon_cardigan', 'joon_band', 'solmoe',
+];
+
+export function categoryOf(item: Item): Category {
+  const kind = item.kind ?? '';
+  const id = item.id;
+  if (POKEMON_SPECIES.some((s) => kind.includes(s) || id.endsWith('.' + s) || id.endsWith('.' + s + '_bike'))) {
+    return 'pokemon';
+  }
+  if (HERO_KIND_PATTERNS.includes(kind)) return 'heroes';
+  if (PRINCESS_KIND_PATTERNS.includes(kind)) return 'princess';
+  if (SCHOOL_KIND_PATTERNS.includes(kind)) return 'school';
+  if (SPECIAL_KIND_PATTERNS.includes(kind)) return 'special';
+  if (item.slot === 'misc') return 'misc';
+  return 'basic';
 }
 
 export const DEFAULT_ITEMS: Record<Slot, string> = {

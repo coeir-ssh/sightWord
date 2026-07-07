@@ -1,7 +1,18 @@
+import { useState } from 'react';
 import { Character3D } from '../components/Character3D';
 import { CoinHUD } from '../components/CoinHUD';
 import { ItemTile } from '../components/ItemTile';
-import { getItem, ITEMS, SLOT_LABEL, SLOT_ORDER, type Slot } from '../data/items';
+import {
+  categoryOf,
+  CATEGORY_LABEL,
+  CATEGORY_ORDER,
+  getItem,
+  ITEMS,
+  SLOT_LABEL,
+  SLOT_ORDER,
+  type Category,
+  type Slot,
+} from '../data/items';
 import { useCharGender, useCharName, useInventory, useWallet } from '../lib/state';
 
 type Props = { onBack: () => void };
@@ -11,6 +22,7 @@ export function Wardrobe({ onBack }: Props) {
   const { gender } = useCharGender();
   const { inventory, equip, unequip } = useInventory(gender);
   const { name: charName } = useCharName();
+  const [tab, setTab] = useState<Category>('basic');
 
   const toggle = (slot: Slot, id: string) => {
     if (inventory.equipped[slot] === id) {
@@ -19,6 +31,12 @@ export function Wardrobe({ onBack }: Props) {
       equip(slot, id);
     }
   };
+
+  const ownedItems = ITEMS.filter((i) => inventory.owned.includes(i.id));
+  // Only tabs the user actually owns something in
+  const availableTabs = CATEGORY_ORDER.filter((c) =>
+    ownedItems.some((i) => categoryOf(i) === c)
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-100 to-pink-200 flex flex-col">
@@ -51,19 +69,46 @@ export function Wardrobe({ onBack }: Props) {
           </div>
         </aside>
 
-        <div className="flex-1 space-y-6">
-          {SLOT_ORDER.map((slot) => {
-            const owned = ITEMS.filter(
-              (i) => i.slot === slot && inventory.owned.includes(i.id)
-            );
-            return (
-              <section key={slot} className="bg-white/70 backdrop-blur rounded-3xl shadow p-4">
-                <div className="text-xl font-extrabold text-slate-700 mb-3">
-                  {SLOT_LABEL[slot]}
-                </div>
-                {owned.length === 0 ? (
-                  <div className="text-slate-500">You don't have any {SLOT_LABEL[slot]} items yet. Try the shop! 🛒</div>
-                ) : (
+        <div className="flex-1 flex flex-col gap-4">
+          {/* Category tab bar */}
+          {availableTabs.length > 0 && (
+            <div className="sticky top-20 z-20 flex flex-wrap gap-2 bg-white/85 backdrop-blur rounded-2xl shadow p-2">
+              {availableTabs.map((c) => {
+                const active = c === tab;
+                return (
+                  <button
+                    key={c}
+                    onClick={() => setTab(c)}
+                    className={`px-3 py-1.5 rounded-xl text-sm font-extrabold border-2 transition ${
+                      active
+                        ? 'bg-pink-400 border-pink-500 text-pink-900 shadow'
+                        : 'bg-white border-transparent text-slate-600 hover:bg-pink-50'
+                    }`}
+                  >
+                    {CATEGORY_LABEL[c]}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          <div className="space-y-6">
+            {SLOT_ORDER.map((slot) => {
+              const owned = ITEMS.filter(
+                (i) =>
+                  i.slot === slot &&
+                  inventory.owned.includes(i.id) &&
+                  categoryOf(i) === tab
+              );
+              const equippedForSlot = inventory.equipped[slot];
+              const equippedItem = equippedForSlot ? getItem(equippedForSlot) : null;
+              // Skip slots that have no owned items in this tab
+              if (owned.length === 0) return null;
+              return (
+                <section key={slot} className="bg-white/70 backdrop-blur rounded-3xl shadow p-4">
+                  <div className="text-xl font-extrabold text-slate-700 mb-3">
+                    {SLOT_LABEL[slot]}
+                  </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {owned.map((item) => (
                       <ItemTile
@@ -76,23 +121,15 @@ export function Wardrobe({ onBack }: Props) {
                       />
                     ))}
                   </div>
-                )}
-                {inventory.equipped[slot] && getItem(inventory.equipped[slot]) ? (
-                  <div className="text-sm text-slate-500 mt-2">
-                    Currently wearing: {getItem(inventory.equipped[slot])!.name}
-                  </div>
-                ) : (
-                  <div className="text-sm text-slate-400 mt-2">
-                    {slot === 'top'
-                      ? 'No top — just a tank top'
-                      : slot === 'bottom'
-                        ? 'No bottoms — just underwear'
-                        : 'Nothing equipped'}
-                  </div>
-                )}
-              </section>
-            );
-          })}
+                  {equippedItem && (
+                    <div className="text-sm text-slate-500 mt-2">
+                      Currently wearing: {equippedItem.name}
+                    </div>
+                  )}
+                </section>
+              );
+            })}
+          </div>
         </div>
       </main>
     </div>
