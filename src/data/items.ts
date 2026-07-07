@@ -40,7 +40,9 @@ export type TopKind =
   | 'venom'
   | 'ghost_rider'
   | 'silver_surfer'
-  | 'solmoe';
+  | 'solmoe'
+  | 'snorlax_suit'
+  | 'gengar_suit';
 
 export type BottomKind =
   | 'pants'
@@ -80,7 +82,7 @@ export type BottomKind =
   | 'venom'
   | 'ghost_rider'
   | 'silver_surfer'
-  | 'solmoe';
+  | 'solmoe'
 
 export type HatKind =
   | 'cap'
@@ -117,7 +119,11 @@ export type MaskKind =
   | 'daredevil'
   | 'falcon'
   | 'venom'
-  | 'ghost_rider';
+  | 'ghost_rider'
+  | 'charmander_face'
+  | 'squirtle_face'
+  | 'bulbasaur_face'
+  | 'eevee_face';
 
 export type BackKind =
   | 'kinder'
@@ -196,7 +202,8 @@ export type ShoeKind =
   | 'venom'
   | 'ghost_rider'
   | 'silver_surfer'
-  | 'solmoe';
+  | 'solmoe'
+  | 'charizard_boots';
 
 export type CharmKind =
   | 'star'
@@ -220,7 +227,9 @@ export type CharmKind =
   | 'slp_badge'
   | 'joon_band'
   | 'pikachu_charm'
-  ;
+  | 'jigglypuff_charm'
+  | 'mew_charm'
+  | 'psyduck_charm';
 
 export type ItemKind =
   | TopKind
@@ -566,6 +575,18 @@ export const ITEMS: Item[] = [
   { id: 'misc.ghost_rider_bike', name: 'Ghost Rider 헬파이어 오토바이', slot: 'misc', price: 500, color: '#cbd5e1', accent: '#fb923c', kind: 'motorcycle', genders: ['boy'] },
   { id: 'misc.pikachu', name: '피카츄', slot: 'misc', price: 400, color: '#facc15', accent: '#dc2626', kind: 'pikachu' },
   { id: 'charm.pikachu', name: '피카츄 키링', slot: 'charm', price: 120, color: '#facc15', accent: '#dc2626', kind: 'pikachu_charm' },
+
+  // ───────── Pokemon set (unisex) ─────────
+  { id: 'mask.charmander', name: '파이리 얼굴', slot: 'mask', price: 180, color: '#f97316', accent: '#fef3c7', kind: 'charmander_face' },
+  { id: 'mask.squirtle', name: '꼬부기 얼굴', slot: 'mask', price: 180, color: '#38bdf8', accent: '#fef3c7', kind: 'squirtle_face' },
+  { id: 'mask.bulbasaur', name: '이상해씨 얼굴', slot: 'mask', price: 180, color: '#4ade80', accent: '#166534', kind: 'bulbasaur_face' },
+  { id: 'mask.eevee', name: '이브이 얼굴', slot: 'mask', price: 180, color: '#a16207', accent: '#fef3c7', kind: 'eevee_face' },
+  { id: 'top.snorlax', name: '잠만보 잠옷', slot: 'top', price: 220, color: '#fef3c7', accent: '#0f172a', kind: 'snorlax_suit' },
+  { id: 'top.gengar', name: '겐가 슈트', slot: 'top', price: 220, color: '#6b21a8', accent: '#dc2626', kind: 'gengar_suit' },
+  { id: 'shoes.charizard', name: '리자몽 부츠', slot: 'shoes', price: 180, color: '#f97316', accent: '#fef3c7', kind: 'charizard_boots' },
+  { id: 'charm.jigglypuff', name: '푸린 키링', slot: 'charm', price: 120, color: '#fbcfe8', accent: '#3b82f6', kind: 'jigglypuff_charm' },
+  { id: 'charm.mew', name: '뮤 키링', slot: 'charm', price: 140, color: '#fbcfe8', accent: '#7dd3fc', kind: 'mew_charm' },
+  { id: 'charm.psyduck', name: '고라파덕 키링', slot: 'charm', price: 120, color: '#facc15', accent: '#f97316', kind: 'psyduck_charm' },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },

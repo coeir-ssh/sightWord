@@ -702,6 +702,36 @@ function Top({ item }: { item: Item }) {
     );
   }
 
+  if (kind === 'snorlax_suit') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Dark blue tummy patch */}
+        <ellipse cx="50" cy="58" rx="22" ry="18" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        {/* Round hood collar */}
+        <ellipse cx="50" cy="26" rx="16" ry="5" fill={c} stroke={STROKE} strokeWidth={SW} />
+      </g>
+    );
+  }
+
+  if (kind === 'gengar_suit') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Big red grin across belly */}
+        <path d="M28,52 Q50,70 72,52" stroke={a} fill="none" strokeWidth={4} strokeLinecap="round" />
+        {/* White teeth */}
+        {[-2, -1, 0, 1, 2].map((i) => (
+          <polygon key={i} points={`${50 + i * 6 - 2},58 ${50 + i * 6 + 2},58 ${50 + i * 6},66`} fill="#f8fafc" />
+        ))}
+        {/* Purple spikes on shoulders + top */}
+        <polygon points="22,30 18,20 30,32" fill={c} stroke={STROKE} strokeWidth={1} />
+        <polygon points="50,28 50,16 56,28" fill={c} stroke={STROKE} strokeWidth={1} />
+        <polygon points="78,30 82,20 70,32" fill={c} stroke={STROKE} strokeWidth={1} />
+      </g>
+    );
+  }
+
   // Base T-shirt silhouette
   const body = (
     <path
@@ -1803,6 +1833,93 @@ function Mask({ item }: { item: Item }) {
     );
   }
 
+  if (kind === 'charmander_face') {
+    return (
+      <g>
+        <rect x="22" y="20" width="56" height="60" rx="10" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Cream muzzle */}
+        <ellipse cx="50" cy="60" rx="18" ry="8" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        {/* Big black eyes with highlights */}
+        <ellipse cx="36" cy="40" rx="7" ry="9" fill="#0a0a0a" />
+        <ellipse cx="64" cy="40" rx="7" ry="9" fill="#0a0a0a" />
+        <circle cx="38" cy="36" r="2.5" fill="#f8fafc" />
+        <circle cx="66" cy="36" r="2.5" fill="#f8fafc" />
+        {/* Grin */}
+        <path d="M38,62 Q50,72 62,62" stroke="#0a0a0a" fill="none" strokeWidth={2} />
+        <polygon points="42,64 44,72 46,64" fill="#f8fafc" />
+        <polygon points="54,64 56,72 58,64" fill="#f8fafc" />
+      </g>
+    );
+  }
+  if (kind === 'squirtle_face') {
+    return (
+      <g>
+        <circle cx="50" cy="52" r="30" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Cheek circles */}
+        <ellipse cx="30" cy="60" rx="5" ry="4" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <ellipse cx="70" cy="60" rx="5" ry="4" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Big shiny eyes */}
+        <ellipse cx="38" cy="44" rx="7" ry="9" fill="#0a0a0a" />
+        <ellipse cx="62" cy="44" rx="7" ry="9" fill="#0a0a0a" />
+        <circle cx="40" cy="40" r="2.5" fill="#f8fafc" />
+        <circle cx="64" cy="40" r="2.5" fill="#f8fafc" />
+        {/* Cream beak */}
+        <rect x="44" y="60" width="12" height="6" rx="1" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        {/* Smile */}
+        <path d="M40,68 Q50,76 60,68" stroke="#0a0a0a" fill="none" strokeWidth={1.5} />
+      </g>
+    );
+  }
+  if (kind === 'bulbasaur_face') {
+    return (
+      <g>
+        {/* Green bulb on top */}
+        <ellipse cx="50" cy="18" rx="14" ry="10" fill="#4d7c0f" stroke={STROKE} strokeWidth={SW} />
+        <polygon points="42,10 46,0 44,12" fill="#4d7c0f" stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="50,6 52,-4 48,4" fill="#4d7c0f" stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="58,10 62,0 56,10" fill="#4d7c0f" stroke={STROKE} strokeWidth={0.6} />
+        {/* Green head */}
+        <circle cx="50" cy="54" r="30" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Dark green spots */}
+        <ellipse cx="26" cy="50" rx="5" ry="4" fill={a} />
+        <ellipse cx="74" cy="50" rx="5" ry="4" fill={a} />
+        {/* Red eyes with black pupils */}
+        <ellipse cx="38" cy="48" rx="7" ry="9" fill="#dc2626" stroke={STROKE} strokeWidth={0.6} />
+        <ellipse cx="62" cy="48" rx="7" ry="9" fill="#dc2626" stroke={STROKE} strokeWidth={0.6} />
+        <circle cx="38" cy="50" r="3" fill="#0a0a0a" />
+        <circle cx="62" cy="50" r="3" fill="#0a0a0a" />
+        {/* Wide grin */}
+        <path d="M32,66 Q50,80 68,66" stroke="#0a0a0a" fill="none" strokeWidth={2.5} />
+      </g>
+    );
+  }
+  if (kind === 'eevee_face') {
+    return (
+      <g>
+        {/* Tall pointy ears */}
+        <polygon points="22,44 12,0 34,32" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <polygon points="19,32 14,6 26,28" fill={a} />
+        <polygon points="78,44 88,0 66,32" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <polygon points="81,32 86,6 74,28" fill={a} />
+        {/* Brown head */}
+        <circle cx="50" cy="52" r="27" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Fluffy cream ruff around neck */}
+        {[20, 32, 44, 56, 68, 80].map((x) => (
+          <circle key={x} cx={x} cy="82" r="6" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        ))}
+        {/* Big shiny eyes */}
+        <ellipse cx="38" cy="48" rx="7" ry="9" fill="#0a0a0a" />
+        <ellipse cx="62" cy="48" rx="7" ry="9" fill="#0a0a0a" />
+        <circle cx="40" cy="44" r="2.5" fill="#f8fafc" />
+        <circle cx="64" cy="44" r="2.5" fill="#f8fafc" />
+        {/* Small triangular nose */}
+        <polygon points="46,60 54,60 50,66" fill="#0a0a0a" />
+        {/* Small smile */}
+        <path d="M42,72 Q50,78 58,72" stroke="#0a0a0a" fill="none" strokeWidth={1.5} />
+      </g>
+    );
+  }
+
   // Default: Iron Man face plate.
   return (
     <g>
@@ -2490,6 +2607,20 @@ function Shoes({ item }: { item: Item }) {
     />
   );
 
+  if (kind === 'charizard_boots') {
+    return (
+      <g>
+        {heroBoot(c)}
+        {/* Cream sole */}
+        <rect x="14" y="66" width="72" height="10" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Sharp claws */}
+        <polygon points="76,66 82,58 74,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="66,66 68,54 62,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="56,66 54,54 50,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+
   if (
     kind === 'wolverine' ||
     kind === 'dr_strange' ||
@@ -3006,6 +3137,70 @@ function Charm({ item }: { item: Item }) {
               strokeWidth={1.4}
             />
           ))}
+        </g>
+      );
+    case 'jigglypuff_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Round pink body */}
+          <circle cx="50" cy="52" r="28" fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Curl tuft on top */}
+          <ellipse cx="40" cy="24" rx="6" ry="8" fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Small cat ears */}
+          <polygon points="40,32 34,20 46,26" fill={c} stroke={STROKE} strokeWidth={1} />
+          <polygon points="62,26 66,18 58,32" fill={c} stroke={STROKE} strokeWidth={1} />
+          {/* Big blue eyes with white highlight */}
+          <ellipse cx="38" cy="48" rx="6" ry="8" fill={item.accent ?? '#3b82f6'} />
+          <ellipse cx="62" cy="48" rx="6" ry="8" fill={item.accent ?? '#3b82f6'} />
+          <circle cx="40" cy="44" r="2" fill="#f8fafc" />
+          <circle cx="64" cy="44" r="2" fill="#f8fafc" />
+          {/* Small mouth */}
+          <path d="M46,64 Q50,70 54,64" stroke="#0a0a0a" fill="none" strokeWidth={1.5} />
+        </g>
+      );
+    case 'mew_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Round pink head */}
+          <circle cx="50" cy="48" r="24" fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Small kitten ears */}
+          <polygon points="36,32 30,18 44,32" fill={c} stroke={STROKE} strokeWidth={1} strokeLinejoin="round" />
+          <polygon points="64,32 70,18 56,32" fill={c} stroke={STROKE} strokeWidth={1} strokeLinejoin="round" />
+          {/* Big cyan eyes */}
+          <ellipse cx="40" cy="46" rx="5" ry="7" fill={item.accent ?? '#7dd3fc'} />
+          <ellipse cx="60" cy="46" rx="5" ry="7" fill={item.accent ?? '#7dd3fc'} />
+          <circle cx="42" cy="42" r="2" fill="#f8fafc" />
+          <circle cx="62" cy="42" r="2" fill="#f8fafc" />
+          {/* Tiny nose */}
+          <circle cx="50" cy="56" r="1.5" fill="#dc2626" />
+          {/* Curling tail */}
+          <path d="M28,72 Q10,84 20,90 Q26,92 24,86" stroke={c} fill="none" strokeWidth={4} strokeLinecap="round" />
+          <circle cx="22" cy="86" r="3" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        </g>
+      );
+    case 'psyduck_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* 3 black feather tufts on crown */}
+          <polygon points="42,22 40,10 44,22" fill="#0a0a0a" />
+          <polygon points="50,20 50,8 52,20" fill="#0a0a0a" />
+          <polygon points="58,22 60,10 56,22" fill="#0a0a0a" />
+          {/* Round yellow head */}
+          <ellipse cx="50" cy="52" rx="28" ry="26" fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Orange bill */}
+          <rect x="34" y="58" width="32" height="12" rx="3" fill={item.accent ?? '#f97316'} stroke={STROKE} strokeWidth={0.8} />
+          <line x1="50" y1="58" x2="50" y2="70" stroke="#c2410c" strokeWidth={0.8} />
+          {/* Vacant white eyes with tiny black pupils */}
+          <circle cx="38" cy="46" r="6" fill="#f8fafc" stroke={STROKE} strokeWidth={0.8} />
+          <circle cx="62" cy="46" r="6" fill="#f8fafc" stroke={STROKE} strokeWidth={0.8} />
+          <circle cx="38" cy="46" r="2" fill="#0a0a0a" />
+          <circle cx="62" cy="46" r="2" fill="#0a0a0a" />
         </g>
       );
     case 'pikachu_charm':
