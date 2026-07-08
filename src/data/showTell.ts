@@ -304,60 +304,95 @@ export function groupShowTellByMonth(): ShowTellGroup[] {
   return groups;
 }
 
-/** Split a sentence into text segments + blank slots. */
+// A "slot" is something the child fills in: a typed blank (`___`) or a
+// pick-one choice written as a parenthetical with a slash, e.g.
+// "(outside/inside)". Parentheses WITHOUT a slash (like "a(n)") are plain
+// text, not a choice.
+export type Slot =
+  | { kind: 'blank' }
+  | { kind: 'choice'; options: string[] };
+
+/** Split a sentence into text segments + fill slots (blanks and choices). */
 export type SentencePart =
   | { kind: 'text'; value: string }
-  | { kind: 'blank'; index: number };
+  | { kind: 'blank'; index: number }
+  | { kind: 'choice'; index: number; options: string[] };
+
+const SLOT_SOURCE = '___|\\(([^()]*\\/[^()]*)\\)';
 
 export function splitSentence(sentence: string): SentencePart[] {
   const out: SentencePart[] = [];
-  let rest = sentence;
-  let blankIndex = 0;
-  while (rest.length > 0) {
-    const i = rest.indexOf(BLANK);
-    if (i === -1) {
-      out.push({ kind: 'text', value: rest });
-      break;
+  const re = new RegExp(SLOT_SOURCE, 'g');
+  let last = 0;
+  let index = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(sentence)) !== null) {
+    if (m.index > last) out.push({ kind: 'text', value: sentence.slice(last, m.index) });
+    if (m[0] === BLANK) {
+      out.push({ kind: 'blank', index });
+    } else {
+      const options = m[1]
+        .split('/')
+        .map((o) => o.trim())
+        .filter((o) => o.length > 0);
+      out.push({ kind: 'choice', index, options });
     }
-    if (i > 0) out.push({ kind: 'text', value: rest.slice(0, i) });
-    out.push({ kind: 'blank', index: blankIndex++ });
-    rest = rest.slice(i + BLANK.length);
+    index += 1;
+    last = m.index + m[0].length;
   }
+  if (last < sentence.length) out.push({ kind: 'text', value: sentence.slice(last) });
   return out;
 }
 
-/** Count blanks in a sentence. */
-export function countBlanks(sentence: string): number {
-  let n = 0;
-  let rest = sentence;
-  while (true) {
-    const i = rest.indexOf(BLANK);
-    if (i === -1) return n;
-    n += 1;
-    rest = rest.slice(i + BLANK.length);
-  }
+/** The ordered fill slots in a sentence. */
+export function getSlots(sentence: string): Slot[] {
+  return splitSentence(sentence)
+    .filter((p): p is Exclude<SentencePart, { kind: 'text' }> => p.kind !== 'text')
+    .map((p): Slot =>
+      p.kind === 'blank' ? { kind: 'blank' } : { kind: 'choice', options: p.options }
+    );
 }
 
-/** Total number of blanks across all sentences in a script. */
-export function totalBlanks(script: ShowTellScript): number {
-  return script.sentences.reduce((sum, s) => sum + countBlanks(s), 0);
+/** Count fill slots in a sentence. */
+export function countSlots(sentence: string): number {
+  return getSlots(sentence).length;
 }
 
-/** Replace blanks in a sentence with the provided fills (in order). */
+/** Total number of fill slots across all sentences in a script. */
+export function totalSlots(script: ShowTellScript): number {
+  return script.sentences.reduce((sum, s) => sum + countSlots(s), 0);
+}
+
+export type ShowTellStep = {
+  kind: 'fill' | 'learn' | 'cue' | 'recite';
+  /** For cue steps: how many leading words of each sentence to show/read. */
+  words?: number;
+  label: string;
+};
+
+// The ordered learning steps for a chapter. After Fill and Listen & Repeat,
+// the cue steps fade the prompt from the first 4 words down to 1, and finally
+// the child presents the whole thing from memory with nothing shown.
+export function showTellSteps(script: ShowTellScript): ShowTellStep[] {
+  const steps: ShowTellStep[] = [];
+  if (totalSlots(script) > 0) steps.push({ kind: 'fill', label: 'Fill in the Blanks' });
+  steps.push({ kind: 'learn', label: 'Listen & Repeat' });
+  steps.push({ kind: 'cue', words: 4, label: 'First 4 Words' });
+  steps.push({ kind: 'cue', words: 3, label: 'First 3 Words' });
+  steps.push({ kind: 'cue', words: 2, label: 'First 2 Words' });
+  steps.push({ kind: 'cue', words: 1, label: 'First 1 Word' });
+  steps.push({ kind: 'recite', label: 'Present from Memory' });
+  return steps;
+}
+
+/** Replace each slot with its fill (in order); a placeholder if still empty. */
 export function fillSentence(sentence: string, fills: string[]): string {
-  let out = '';
-  let rest = sentence;
-  let i = 0;
-  while (rest.length > 0) {
-    const j = rest.indexOf(BLANK);
-    if (j === -1) {
-      out += rest;
-      break;
-    }
-    out += rest.slice(0, j);
-    const fill = fills[i++] ?? '';
-    out += fill.length > 0 ? fill : '___';
-    rest = rest.slice(j + BLANK.length);
-  }
-  return out;
+  return splitSentence(sentence)
+    .map((p) => {
+      if (p.kind === 'text') return p.value;
+      const v = (fills[p.index] ?? '').trim();
+      if (v) return v;
+      return p.kind === 'blank' ? '___' : `(${p.options.join('/')})`;
+    })
+    .join('');
 }

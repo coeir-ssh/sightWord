@@ -11,7 +11,7 @@ import {
   useWallet,
 } from '../lib/state';
 import { getWeek, LIST_LABEL } from '../data/words';
-import { getShowTellScript, groupShowTellByMonth, totalBlanks } from '../data/showTell';
+import { getShowTellScript, groupShowTellByMonth, showTellSteps } from '../data/showTell';
 import type { CharGender, Slot } from '../data/items';
 import { storage } from '../lib/storage';
 
@@ -118,10 +118,7 @@ export function Home({
 
   // Show and Tell runs one step at a time (like the sight-word day flow).
   // The saved progress points at the NEXT step to do for the chosen chapter.
-  const stPhaseNames =
-    totalBlanks(script) > 0
-      ? ['Fill in the Blanks', 'Listen & Repeat', 'First Two Words', 'Present from Memory']
-      : ['Listen & Repeat', 'First Two Words', 'Present from Memory'];
+  const stPhaseNames = showTellSteps(script).map((s) => s.label);
   const stStep = Math.min(
     stPhaseNames.length - 1,
     Math.max(0, storage.getShowTellStep(scriptId))

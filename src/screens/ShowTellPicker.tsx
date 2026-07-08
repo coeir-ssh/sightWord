@@ -1,19 +1,12 @@
 import { CoinHUD } from '../components/CoinHUD';
 import { useShowTellScript, useWallet } from '../lib/state';
 import { storage } from '../lib/storage';
-import { groupShowTellByMonth, totalBlanks, type ShowTellScript } from '../data/showTell';
+import { groupShowTellByMonth, showTellSteps, type ShowTellScript } from '../data/showTell';
 
 type Props = { onBack: () => void; onStart: () => void };
 
-const STEP_KIND = [
-  'Fill in the Blanks',
-  'Listen & Repeat',
-  'First Two Words',
-  'Present from Memory',
-];
-
 function stepNames(script: ShowTellScript): string[] {
-  return totalBlanks(script) > 0 ? STEP_KIND : STEP_KIND.slice(1);
+  return showTellSteps(script).map((s) => s.label);
 }
 
 export function ShowTellPicker({ onBack, onStart }: Props) {

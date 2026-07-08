@@ -12,12 +12,14 @@ import {
   useWallet,
 } from '../lib/state';
 import {
-  countBlanks,
+  countSlots,
   fillSentence,
   getShowTellScript,
+  getSlots,
+  showTellSteps,
   splitSentence,
-  totalBlanks,
   type ShowTellScript,
+  type Slot,
 } from '../data/showTell';
 import { storage } from '../lib/storage';
 import { speak } from '../lib/tts';
@@ -28,37 +30,27 @@ type Props = {
 
 // A chapter is done one STEP at a time (like the sight-word day flow): the
 // child completes a single step, earns coins, returns Home, then presses the
-// next-step button to start the following step.
-//  - 'fill'   : (worksheet chapters only) type a word into each blank.
-//  - 'learn'  : every filled-in sentence is shown + read aloud (slowly).
-//  - 'cue'    : only the first two words are shown + read (memory prompt).
-//  - 'recite' : the sentence is hidden; the child presents it from memory.
-type Phase = 'fill' | 'learn' | 'cue' | 'recite';
+// next-step button to start the following step. Steps (per showTellSteps):
+//  - fill   : type each blank / pick each (a/b) choice. Answers are saved.
+//  - learn  : full sentence shown + read aloud (slowly).
+//  - cue    : only the first N words shown + read (4 → 3 → 2 → 1, fading).
+//  - recite : nothing shown; the child presents the whole thing from memory.
 
-const PHASE_LABEL: Record<Phase, string> = {
-  fill: 'Fill in the Blanks',
-  learn: 'Listen & Repeat',
-  cue: 'First Two Words',
-  recite: 'Present from Memory',
-};
-
-const FILL_STEP_COINS = 5;
-const LEARN_STEP_COINS = 5;
-const CUE_STEP_COINS = 5;
+const STEP_COINS = 5;
 // Big payoff for finishing the whole chapter (the final step).
 const COMPLETE_BONUS = 300;
 // Slower than the default so the child can repeat after it.
 const READ_RATE = 0.6;
 
-// The first two words of a sentence — used for the 'cue' step.
-function firstTwoWords(sentence: string): string {
-  return sentence.trim().split(/\s+/).slice(0, 2).join(' ');
+// The first N words of a sentence — used for the fading 'cue' steps.
+function firstWords(sentence: string, n: number): string {
+  return sentence.trim().split(/\s+/).slice(0, n).join(' ');
 }
 
-// Build the starting fills for a script: an empty slot per blank, overlaid
-// with whatever the child previously typed (saved per script).
+// Build the starting fills for a script: an empty slot per fill slot, overlaid
+// with whatever the child previously typed/picked (saved per script).
 function buildInitialFills(script: ShowTellScript): string[][] {
-  const empty = script.sentences.map((s) => new Array(countBlanks(s)).fill(''));
+  const empty = script.sentences.map((s) => new Array(countSlots(s)).fill(''));
   const saved = storage.getShowTellFills(script.id);
   if (!saved) return empty;
   return empty.map((row, i) => row.map((_, j) => saved[i]?.[j] ?? ''));
@@ -75,25 +67,20 @@ export function ShowTell({ onBack }: Props) {
 
   const script = getShowTellScript(scriptId);
   const total = script.sentences.length;
-  const hasBlanks = totalBlanks(script) > 0;
 
   // The ordered steps for this chapter, and the single step this session runs
   // (read once from saved progress; fixed for the session).
-  const phases = useMemo<Phase[]>(
-    () => (hasBlanks ? ['fill', 'learn', 'cue', 'recite'] : ['learn', 'cue', 'recite']),
-    [hasBlanks]
-  );
+  const steps = useMemo(() => showTellSteps(script), [script]);
   const [step] = useState(() =>
-    Math.min(phases.length - 1, Math.max(0, storage.getShowTellStep(scriptId)))
+    Math.min(steps.length - 1, Math.max(0, storage.getShowTellStep(scriptId)))
   );
-  const phase = phases[step];
+  const stepDef = steps[step];
 
-  // Flat list of [sentenceIdx, blankIdx] for the fill phase.
-  const blanks = useMemo(() => {
-    const out: { sIdx: number; bIdx: number }[] = [];
+  // Flat list of fill slots (blank or choice) in reading order for the fill phase.
+  const slots = useMemo(() => {
+    const out: { sIdx: number; bIdx: number; slot: Slot }[] = [];
     script.sentences.forEach((s, sIdx) => {
-      const n = countBlanks(s);
-      for (let bIdx = 0; bIdx < n; bIdx++) out.push({ sIdx, bIdx });
+      getSlots(s).forEach((slot, bIdx) => out.push({ sIdx, bIdx, slot }));
     });
     return out;
   }, [script]);
@@ -112,27 +99,28 @@ export function ShowTell({ onBack }: Props) {
     [script, fills]
   );
   const cur = filledSentences[idx];
+  const cueText = stepDef.kind === 'cue' ? firstWords(cur, stepDef.words ?? 2) : cur;
 
-  // Auto-read (slowly) when a sentence first appears: the full sentence in
-  // the learn phase, only the first two words in the cue phase.
+  // Auto-read (slowly) when a sentence first appears: the full sentence in the
+  // learn phase, only the leading words in the cue phases.
   useEffect(() => {
     if (stepResult) return;
-    if (phase === 'learn') void speak(cur, { rate: READ_RATE });
-    else if (phase === 'cue') void speak(firstTwoWords(cur), { rate: READ_RATE });
-  }, [phase, idx, stepResult, cur]);
+    if (stepDef.kind === 'learn') void speak(cur, { rate: READ_RATE });
+    else if (stepDef.kind === 'cue') void speak(cueText, { rate: READ_RATE });
+  }, [stepDef, idx, stepResult, cur, cueText]);
 
   // Advance saved progress to the next step and show the step-complete screen.
   const completeStep = (coins: number) => {
     const nextStep = step + 1;
-    const chapterComplete = nextStep >= phases.length;
+    const chapterComplete = nextStep >= steps.length;
     // Loop back to step 0 once the chapter is finished so it can be replayed.
     storage.setShowTellStep(scriptId, chapterComplete ? 0 : nextStep);
     setStepResult({ coins, chapterComplete });
   };
 
-  // ── Fill phase helpers ──
-  const typeBlank = (value: string) => {
-    const cursor = blanks[fillCursor];
+  // ── Fill phase helpers (blank = typed, choice = picked; both saved) ──
+  const setSlotValue = (value: string) => {
+    const cursor = slots[fillCursor];
     if (!cursor) return;
     setFills((prev) => {
       const next = prev.map((row) => row.slice());
@@ -142,8 +130,8 @@ export function ShowTell({ onBack }: Props) {
     });
   };
 
-  const clearCurrentBlank = () => {
-    const cursor = blanks[fillCursor];
+  const clearCurrentSlot = () => {
+    const cursor = slots[fillCursor];
     if (!cursor) return;
     setFills((prev) => {
       const next = prev.map((row) => row.slice());
@@ -153,33 +141,33 @@ export function ShowTell({ onBack }: Props) {
     });
   };
 
-  const allBlanksFilled = blanks.every(
+  const allSlotsFilled = slots.every(
     ({ sIdx, bIdx }) => (fills[sIdx]?.[bIdx] ?? '').trim() !== ''
   );
 
   const finishFill = () => {
-    const coins = FILL_STEP_COINS * multiplier;
+    const coins = STEP_COINS * multiplier;
     addCoins(coins);
     setCoinTrigger((n) => n + 1);
     completeStep(coins);
   };
 
-  const cursor0 = blanks[fillCursor];
+  const cursor0 = slots[fillCursor];
   const cursor0Fill = cursor0 ? fills[cursor0.sIdx]?.[cursor0.bIdx] ?? '' : '';
   const advanceFill = () => {
-    if (fillCursor + 1 < blanks.length) {
+    if (fillCursor + 1 < slots.length) {
       if (cursor0Fill.trim() !== '') {
-        setFillCursor((c) => Math.min(blanks.length - 1, c + 1));
+        setFillCursor((c) => Math.min(slots.length - 1, c + 1));
       }
-    } else if (allBlanksFilled) {
+    } else if (allSlotsFilled) {
       finishFill();
     }
   };
 
-  // ── Learn / Cue phases (walk through the sentences, award on finish) ──
-  const nextLearn = () => {
+  // ── Learn / Cue phases (walk the sentences, award on finish) ──
+  const nextSentence = () => {
     if (idx + 1 >= total) {
-      const coins = LEARN_STEP_COINS * multiplier;
+      const coins = STEP_COINS * multiplier;
       addCoins(coins);
       setCoinTrigger((n) => n + 1);
       completeStep(coins);
@@ -188,18 +176,7 @@ export function ShowTell({ onBack }: Props) {
     }
   };
 
-  const nextCue = () => {
-    if (idx + 1 >= total) {
-      const coins = CUE_STEP_COINS * multiplier;
-      addCoins(coins);
-      setCoinTrigger((n) => n + 1);
-      completeStep(coins);
-    } else {
-      setIdx((n) => n + 1);
-    }
-  };
-
-  // ── Recite phase ── (no per-sentence coins; only the completion bonus)
+  // ── Recite phase (nothing shown; the big completion bonus at the end) ──
   const passRecite = () => {
     if (idx + 1 >= total) {
       const bonus = COMPLETE_BONUS * multiplier;
@@ -220,19 +197,23 @@ export function ShowTell({ onBack }: Props) {
         <div className="text-4xl font-extrabold text-blue-700 text-center">
           {stepResult.chapterComplete
             ? `${script.emoji} ${script.title} Complete!`
-            : `${PHASE_LABEL[phase]} done!`}
+            : `${stepDef.label} done!`}
         </div>
         <div className="flex gap-2 text-5xl">⭐⭐⭐</div>
 
-        <div className="bg-white rounded-3xl px-8 py-5 shadow-lg space-y-2 min-w-[280px]">
-          <div className="flex items-center justify-between gap-6">
-            <span className="font-extrabold text-slate-800 text-lg">You earned</span>
-            <div className="flex items-center gap-1">
-              <Coin size={32} />
-              <span className="font-extrabold text-yellow-700 text-2xl">+{stepResult.coins}</span>
+        {stepResult.coins > 0 && (
+          <div className="bg-white rounded-3xl px-8 py-5 shadow-lg space-y-2 min-w-[280px]">
+            <div className="flex items-center justify-between gap-6">
+              <span className="font-extrabold text-slate-800 text-lg">You earned</span>
+              <div className="flex items-center gap-1">
+                <Coin size={32} />
+                <span className="font-extrabold text-yellow-700 text-2xl">
+                  +{stepResult.coins}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="w-64 h-64">
           <Character3D
@@ -257,12 +238,13 @@ export function ShowTell({ onBack }: Props) {
     );
   }
 
-  const phaseLabel = `Step ${step + 1} / ${phases.length} · ${PHASE_LABEL[phase]}`;
+  const phaseLabel = `Step ${step + 1} / ${steps.length} · ${stepDef.label}`;
 
-  // ───────── Fill phase render — focused per-blank typing ─────────
-  if (phase === 'fill') {
-    const cursor = blanks[fillCursor];
+  // ───────── Fill phase render — focused per-slot (type or circle) ─────────
+  if (stepDef.kind === 'fill') {
+    const cursor = slots[fillCursor];
     const cursorFill = cursor ? fills[cursor.sIdx]?.[cursor.bIdx] ?? '' : '';
+    const isChoice = cursor?.slot.kind === 'choice';
     const ctxParts = cursor ? splitSentence(script.sentences[cursor.sIdx]) : [];
 
     return (
@@ -298,13 +280,11 @@ export function ShowTell({ onBack }: Props) {
           <div className="h-3 bg-white rounded-full overflow-hidden shadow">
             <div
               className="h-full bg-amber-500 transition-all"
-              style={{
-                width: `${((fillCursor + 1) / Math.max(1, blanks.length)) * 100}%`,
-              }}
+              style={{ width: `${((fillCursor + 1) / Math.max(1, slots.length)) * 100}%` }}
             />
           </div>
           <div className="text-center text-slate-600 mt-1 text-sm font-bold">
-            Blank {fillCursor + 1} / {blanks.length}
+            {isChoice ? 'Choice' : 'Blank'} {fillCursor + 1} / {slots.length}
           </div>
         </div>
 
@@ -312,7 +292,7 @@ export function ShowTell({ onBack }: Props) {
           {/* Active sentence card */}
           <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-6 w-full max-w-3xl">
             <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
-              Fill in this blank
+              {isChoice ? 'Circle one' : 'Fill in this blank'}
             </div>
             <p className="flex flex-wrap items-baseline gap-x-1.5 gap-y-2 text-2xl md:text-3xl font-extrabold text-slate-800 leading-relaxed">
               {ctxParts.map((p, pIdx) => {
@@ -323,6 +303,8 @@ export function ShowTell({ onBack }: Props) {
                     </span>
                   );
                 }
+                const placeholder =
+                  p.kind === 'choice' ? `(${p.options.join('/')})` : '___';
                 const isActive = cursor && p.index === cursor.bIdx;
                 const filled = fills[cursor!.sIdx]?.[p.index] ?? '';
                 if (isActive) {
@@ -331,7 +313,7 @@ export function ShowTell({ onBack }: Props) {
                       key={pIdx}
                       className="inline-flex items-center justify-center min-w-[160px] px-4 py-1 rounded-xl border-4 border-amber-500 bg-amber-100 text-amber-800 shadow"
                     >
-                      {cursorFill || '___'}
+                      {cursorFill || placeholder}
                     </span>
                   );
                 }
@@ -344,33 +326,60 @@ export function ShowTell({ onBack }: Props) {
                         : 'bg-slate-50 border-slate-200 text-slate-400'
                     }`}
                   >
-                    {filled || '___'}
+                    {filled || placeholder}
                   </span>
                 );
               })}
             </p>
           </div>
 
-          {/* Type-in box */}
-          <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
-            <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
-              Type Your Word
+          {/* Input: type a word (blank) or circle one (choice) */}
+          {isChoice ? (
+            <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
+              <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
+                Circle Your Pick
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {cursor!.slot.kind === 'choice' &&
+                  cursor!.slot.options.map((opt) => {
+                    const picked = cursorFill === opt;
+                    return (
+                      <button
+                        key={opt}
+                        onClick={() => setSlotValue(opt)}
+                        className={`px-4 py-4 rounded-full border-4 text-xl font-extrabold shadow active:scale-95 transition ${
+                          picked
+                            ? 'bg-amber-200 border-amber-500 text-amber-900'
+                            : 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800'
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
+              </div>
             </div>
-            <input
-              key={fillCursor}
-              autoFocus
-              value={cursorFill}
-              onChange={(e) => typeBlank(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  advanceFill();
-                }
-              }}
-              placeholder="Type here…"
-              className="w-full border-4 border-amber-400 focus:border-amber-500 rounded-2xl px-4 py-3 text-2xl font-extrabold text-slate-800 outline-none placeholder:text-slate-300"
-            />
-          </div>
+          ) : (
+            <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
+              <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
+                Type Your Word
+              </div>
+              <input
+                key={fillCursor}
+                autoFocus
+                value={cursorFill}
+                onChange={(e) => setSlotValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    advanceFill();
+                  }
+                }}
+                placeholder="Type here…"
+                className="w-full border-4 border-amber-400 focus:border-amber-500 rounded-2xl px-4 py-3 text-2xl font-extrabold text-slate-800 outline-none placeholder:text-slate-300"
+              />
+            </div>
+          )}
 
           {/* Navigation */}
           <div className="flex flex-wrap items-center justify-center gap-3 pb-4">
@@ -386,14 +395,14 @@ export function ShowTell({ onBack }: Props) {
               ← Back
             </button>
             <button
-              onClick={clearCurrentBlank}
+              onClick={clearCurrentSlot}
               className="bg-white border-2 border-slate-200 hover:bg-slate-50 active:scale-95 rounded-2xl px-5 py-3 text-base font-extrabold text-slate-700 shadow"
             >
               ✕ Clear
             </button>
-            {fillCursor + 1 < blanks.length ? (
+            {fillCursor + 1 < slots.length ? (
               <button
-                onClick={() => setFillCursor((c) => Math.min(blanks.length - 1, c + 1))}
+                onClick={() => setFillCursor((c) => Math.min(slots.length - 1, c + 1))}
                 disabled={cursorFill.trim() === ''}
                 className={`rounded-2xl px-6 py-3 text-base font-extrabold shadow ${
                   cursorFill.trim() === ''
@@ -401,19 +410,19 @@ export function ShowTell({ onBack }: Props) {
                     : 'bg-amber-500 hover:bg-amber-600 active:scale-95 text-white'
                 }`}
               >
-                Next Blank →
+                Next →
               </button>
             ) : (
               <button
                 onClick={finishFill}
-                disabled={!allBlanksFilled}
+                disabled={!allSlotsFilled}
                 className={`rounded-2xl px-8 py-3 text-lg font-extrabold shadow-lg ${
-                  allBlanksFilled
+                  allSlotsFilled
                     ? 'bg-blue-500 hover:bg-blue-600 active:scale-95 text-white'
                     : 'bg-slate-200 text-slate-400 cursor-not-allowed'
                 }`}
               >
-                {allBlanksFilled ? 'Finish ▶' : 'Fill in every blank first'}
+                {allSlotsFilled ? 'Finish ▶' : 'Fill in everything first'}
               </button>
             )}
           </div>
@@ -422,7 +431,7 @@ export function ShowTell({ onBack }: Props) {
     );
   }
 
-  // ───────── Learn / Recite phase render ─────────
+  // ───────── Learn / Cue / Recite render ─────────
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-soft to-blue-100 flex flex-col">
       <CoinFly triggerKey={coinTrigger} />
@@ -466,27 +475,28 @@ export function ShowTell({ onBack }: Props) {
 
       <main className="flex-1 flex items-center justify-center p-6">
         <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-8 w-full max-w-3xl flex flex-col items-center gap-6">
-          {phase !== 'recite' ? (
+          {stepDef.kind !== 'recite' ? (
             <>
               <div className="text-center text-3xl md:text-4xl font-extrabold text-slate-800 leading-snug">
-                {phase === 'cue' ? `${firstTwoWords(cur)} …` : cur}
+                {stepDef.kind === 'cue' ? `${cueText} …` : cur}
               </div>
-              {phase === 'cue' && (
+              {stepDef.kind === 'cue' && (
                 <div className="text-center text-base font-bold text-slate-500">
-                  Only the first two words — try to remember the rest!
+                  Only the first {stepDef.words} word{stepDef.words === 1 ? '' : 's'} — try to
+                  remember the rest!
                 </div>
               )}
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <button
                   onClick={() =>
-                    void speak(phase === 'cue' ? firstTwoWords(cur) : cur, { rate: READ_RATE })
+                    void speak(stepDef.kind === 'cue' ? cueText : cur, { rate: READ_RATE })
                   }
                   className="bg-white border-2 border-blue-200 hover:bg-blue-50 active:scale-95 rounded-2xl px-6 py-3 text-xl font-extrabold text-blue-700 shadow"
                 >
                   🔊 Listen Again
                 </button>
                 <button
-                  onClick={phase === 'cue' ? nextCue : nextLearn}
+                  onClick={nextSentence}
                   className="bg-blue-500 hover:bg-blue-600 active:scale-95 text-white rounded-2xl px-8 py-3 text-xl font-extrabold shadow-lg"
                 >
                   {idx + 1 >= total ? 'Finish ▶' : 'Next ▶'}
@@ -503,7 +513,7 @@ export function ShowTell({ onBack }: Props) {
                 <div className="text-center text-2xl font-extrabold text-slate-400 leading-snug py-6">
                   🙈 Hidden
                   <div className="text-base font-bold text-slate-400 mt-2">
-                    Say it out loud from memory!
+                    Say the whole sentence from memory!
                   </div>
                 </div>
               )}
