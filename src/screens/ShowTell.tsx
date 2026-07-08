@@ -45,7 +45,8 @@ const PHASE_LABEL: Record<Phase, string> = {
 const FILL_STEP_COINS = 5;
 const LEARN_STEP_COINS = 5;
 const CUE_STEP_COINS = 5;
-const COMPLETE_BONUS = 10;
+// Big payoff for finishing the whole chapter (the final step).
+const COMPLETE_BONUS = 300;
 // Slower than the default so the child can repeat after it.
 const READ_RATE = 0.6;
 
