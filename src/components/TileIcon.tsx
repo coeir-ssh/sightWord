@@ -2201,6 +2201,26 @@ function Mask({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'mew_face') {
+    return (
+      <g>
+        {/* Pink round head */}
+        <circle cx="50" cy="52" r="28" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Tiny pointy ears */}
+        <polygon points="36,32 30,20 44,32" fill={c} stroke={STROKE} strokeWidth={0.8} />
+        <polygon points="64,32 70,20 56,32" fill={c} stroke={STROKE} strokeWidth={0.8} />
+        {/* Big cyan eyes with sparkle */}
+        <ellipse cx="40" cy="46" rx="5" ry="7" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <ellipse cx="60" cy="46" rx="5" ry="7" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <circle cx="42" cy="42" r="2" fill="#f8fafc" />
+        <circle cx="62" cy="42" r="2" fill="#f8fafc" />
+        {/* Tiny red nose */}
+        <circle cx="50" cy="60" r="2" fill="#dc2626" />
+        {/* Small smile */}
+        <path d="M44,68 Q50,72 56,68" stroke="#7f1d1d" fill="none" strokeWidth={1.4} />
+      </g>
+    );
+  }
   if (kind === 'charizard_face') {
     return (
       <g>
@@ -2912,6 +2932,22 @@ function Back({ item }: { item: Item }) {
         <polygon points="66,80 70,50 74,80" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
         <polygon points="10,80 14,58 18,80" fill={a} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
         <polygon points="82,80 86,58 90,80" fill={a} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+      </g>
+    );
+  }
+  if (kind === 'mew_tail') {
+    return (
+      <g>
+        {/* Long curly thin pink tail with rounded tip */}
+        <path
+          d="M50,80 Q64,68 66,52 Q66,36 50,32 Q34,32 32,44 Q30,58 44,60"
+          stroke={c}
+          fill="none"
+          strokeWidth={5}
+          strokeLinecap="round"
+        />
+        {/* Rounded tip */}
+        <circle cx="44" cy="60" r="6" fill={c} stroke={STROKE} strokeWidth={0.8} />
       </g>
     );
   }
@@ -3986,6 +4022,176 @@ function Misc({ item }: { item: Item }) {
         {/* Feet */}
         <ellipse cx="42" cy="88" rx="7" ry="4" fill={c} stroke={STROKE} strokeWidth={0.8} />
         <ellipse cx="62" cy="88" rx="7" ry="4" fill={c} stroke={STROKE} strokeWidth={0.8} />
+      </g>
+    );
+  }
+
+  // Pokemon companions — small full-body icon per species
+  if (kind === 'charmander') {
+    return (
+      <g>
+        <ellipse cx="50" cy="58" rx="26" ry="24" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="50" cy="68" rx="16" ry="10" fill={a} />
+        <ellipse cx="50" cy="30" rx="20" ry="18" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="42" cy="28" rx="3" ry="4" fill="#0a0a0a" />
+        <ellipse cx="58" cy="28" rx="3" ry="4" fill="#0a0a0a" />
+        <path d="M76,64 Q88,50 82,30" stroke={c} fill="none" strokeWidth={6} strokeLinecap="round" />
+        <polygon points="72,30 90,20 78,10 84,4 68,18" fill="#fb923c" stroke="#dc2626" strokeWidth={0.6} />
+        <polygon points="78,22 84,12 78,8 82,4 74,16" fill="#fde047" />
+      </g>
+    );
+  }
+  if (kind === 'squirtle') {
+    return (
+      <g>
+        <ellipse cx="50" cy="58" rx="28" ry="24" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <path d="M22,60 Q50,32 78,60 Q78,72 50,80 Q22,72 22,60" fill="#a16207" stroke={STROKE} strokeWidth={0.8} />
+        <ellipse cx="50" cy="70" rx="14" ry="6" fill={a} />
+        <ellipse cx="50" cy="30" rx="20" ry="18" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="42" cy="28" rx="3" ry="4" fill="#0a0a0a" />
+        <ellipse cx="58" cy="28" rx="3" ry="4" fill="#0a0a0a" />
+        <rect x="42" y="34" width="16" height="6" rx="1" fill={a} stroke={STROKE} strokeWidth={0.5} />
+      </g>
+    );
+  }
+  if (kind === 'bulbasaur') {
+    return (
+      <g>
+        <ellipse cx="50" cy="62" rx="34" ry="18" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="34" cy="34" rx="24" ry="22" fill="#4d7c0f" stroke={STROKE} strokeWidth={SW} />
+        <polygon points="28,10 32,4 34,18" fill="#4d7c0f" stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="40,4 44,0 40,20" fill="#4d7c0f" stroke={STROKE} strokeWidth={0.5} />
+        <ellipse cx="70" cy="56" rx="18" ry="14" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="65" cy="52" rx="3" ry="4" fill="#dc2626" />
+        <ellipse cx="76" cy="52" rx="3" ry="4" fill="#dc2626" />
+        <ellipse cx="42" cy="50" rx="4" ry="3" fill={a} />
+        <ellipse cx="58" cy="72" rx="4" ry="3" fill={a} />
+      </g>
+    );
+  }
+  if (kind === 'eevee') {
+    return (
+      <g>
+        <polygon points="30,32 20,4 42,26" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <polygon points="70,32 80,4 58,26" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="50" cy="62" rx="32" ry="20" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="50" cy="42" rx="22" ry="18" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {[26, 34, 42, 50, 58, 66, 74].map((x) => (
+          <circle key={x} cx={x} cy="82" r="5" fill={a} stroke={STROKE} strokeWidth={0.4} />
+        ))}
+        <ellipse cx="42" cy="40" rx="3.5" ry="5" fill="#0a0a0a" />
+        <ellipse cx="58" cy="40" rx="3.5" ry="5" fill="#0a0a0a" />
+        <polygon points="46,52 54,52 50,58" fill="#0a0a0a" />
+      </g>
+    );
+  }
+  if (kind === 'jigglypuff') {
+    return (
+      <g>
+        <circle cx="50" cy="50" r="36" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="36" cy="20" rx="8" ry="10" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <polygon points="34,32 30,16 44,32" fill={c} stroke={STROKE} strokeWidth={1} />
+        <polygon points="66,32 70,16 58,32" fill={c} stroke={STROKE} strokeWidth={1} />
+        <ellipse cx="38" cy="48" rx="6" ry="9" fill={a} />
+        <ellipse cx="62" cy="48" rx="6" ry="9" fill={a} />
+        <circle cx="40" cy="44" r="2.5" fill="#f8fafc" />
+        <circle cx="64" cy="44" r="2.5" fill="#f8fafc" />
+        <path d="M42,66 Q50,72 58,66" stroke="#0a0a0a" fill="none" strokeWidth={1.5} />
+      </g>
+    );
+  }
+  if (kind === 'psyduck') {
+    return (
+      <g>
+        <ellipse cx="50" cy="60" rx="24" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="50" cy="30" rx="26" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <polygon points="42,20 40,4 44,20" fill="#0a0a0a" />
+        <polygon points="50,18 50,2 52,18" fill="#0a0a0a" />
+        <polygon points="58,20 60,4 56,20" fill="#0a0a0a" />
+        <rect x="34" y="34" width="32" height="10" rx="3" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <circle cx="42" cy="26" r="5" fill="#f8fafc" stroke={STROKE} strokeWidth={0.6} />
+        <circle cx="58" cy="26" r="5" fill="#f8fafc" stroke={STROKE} strokeWidth={0.6} />
+        <circle cx="42" cy="26" r="1.5" fill="#0a0a0a" />
+        <circle cx="58" cy="26" r="1.5" fill="#0a0a0a" />
+        <ellipse cx="24" cy="34" rx="7" ry="6" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <ellipse cx="76" cy="34" rx="7" ry="6" fill={c} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'snorlax') {
+    return (
+      <g>
+        <ellipse cx="50" cy="58" rx="38" ry="32" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <path d="M12,50 Q50,20 88,50 Q86,60 50,60 Q14,60 12,50" fill={a} />
+        <ellipse cx="50" cy="24" rx="18" ry="14" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <path d="M38,22 Q42,26 46,22" stroke={a} fill="none" strokeWidth={2.5} strokeLinecap="round" />
+        <path d="M54,22 Q58,26 62,22" stroke={a} fill="none" strokeWidth={2.5} strokeLinecap="round" />
+        <ellipse cx="50" cy="30" rx="8" ry="4" fill={a} />
+      </g>
+    );
+  }
+  if (kind === 'gengar') {
+    return (
+      <g>
+        <ellipse cx="50" cy="54" rx="34" ry="30" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <polygon points="30,32 22,10 40,28" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <polygon points="70,32 78,10 60,28" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <circle cx="38" cy="46" r="5" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        <circle cx="62" cy="46" r="5" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        <circle cx="38" cy="46" r="1.5" fill="#0a0a0a" />
+        <circle cx="62" cy="46" r="1.5" fill="#0a0a0a" />
+        <path d="M28,62 Q50,80 72,62" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        {[34, 42, 50, 58, 66].map((x) => (
+          <polygon key={x} points={`${x - 2},63 ${x + 2},63 ${x},72`} fill="#f8fafc" />
+        ))}
+      </g>
+    );
+  }
+  if (kind === 'charizard') {
+    return (
+      <g>
+        {/* Wings */}
+        <path d="M8,20 L28,42 L18,50 L34,44 L24,60 L38,44 L28,32 Z" fill="#38bdf8" stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <path d="M92,20 L72,42 L82,50 L66,44 L76,60 L62,44 L72,32 Z" fill="#38bdf8" stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Body */}
+        <ellipse cx="50" cy="58" rx="20" ry="24" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="50" cy="62" rx="12" ry="18" fill={a} />
+        {/* Head */}
+        <rect x="34" y="18" width="32" height="24" rx="4" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="50" cy="36" rx="12" ry="4" fill={a} />
+        <polygon points="34,18 26,6 42,20" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="66,18 74,6 58,20" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <ellipse cx="42" cy="26" rx="3" ry="4" fill="#0a0a0a" />
+        <ellipse cx="58" cy="26" rx="3" ry="4" fill="#0a0a0a" />
+        {/* Tail with flame */}
+        <path d="M30,80 Q10,84 4,74" stroke={c} fill="none" strokeWidth={8} strokeLinecap="round" />
+        <polygon points="4,74 -2,60 8,68 -4,62" fill="#fb923c" stroke="#dc2626" strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'mew') {
+    return (
+      <g>
+        {/* Sparkle aura */}
+        {[[16, 20], [82, 22], [12, 60], [86, 62], [50, 8]].map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r="1.5" fill="#fbcfe8" />
+        ))}
+        {/* Small floating body */}
+        <ellipse cx="50" cy="60" rx="18" ry="20" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="50" cy="38" rx="16" ry="14" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Ears */}
+        <polygon points="42,28 36,16 46,32" fill={c} stroke={STROKE} strokeWidth={0.8} />
+        <polygon points="58,28 64,16 54,32" fill={c} stroke={STROKE} strokeWidth={0.8} />
+        {/* Cyan eyes */}
+        <ellipse cx="44" cy="38" rx="3" ry="4" fill={a} />
+        <ellipse cx="56" cy="38" rx="3" ry="4" fill={a} />
+        <circle cx="45" cy="36" r="1.2" fill="#f8fafc" />
+        <circle cx="57" cy="36" r="1.2" fill="#f8fafc" />
+        {/* Tiny nose */}
+        <circle cx="50" cy="46" r="1.5" fill="#dc2626" />
+        {/* Long curling tail */}
+        <path d="M32,80 Q10,86 6,66 Q4,50 20,44 Q24,52 14,56" stroke={c} fill="none" strokeWidth={3} strokeLinecap="round" />
+        <circle cx="20" cy="54" r="4" fill={c} stroke={STROKE} strokeWidth={0.6} />
       </g>
     );
   }

@@ -1,6 +1,19 @@
 export type Slot = 'top' | 'bottom' | 'hat' | 'mask' | 'back' | 'shoes' | 'charm' | 'misc';
 
-export type MiscKind = 'motorcycle' | 'soccer_ball' | 'pikachu';
+export type MiscKind =
+  | 'motorcycle'
+  | 'soccer_ball'
+  | 'pikachu'
+  | 'charmander'
+  | 'squirtle'
+  | 'bulbasaur'
+  | 'eevee'
+  | 'jigglypuff'
+  | 'psyduck'
+  | 'snorlax'
+  | 'gengar'
+  | 'charizard'
+  | 'mew';
 
 export type TopKind =
   | 'tee'
@@ -50,7 +63,8 @@ export type TopKind =
   | 'eevee_top'
   | 'jigglypuff_top'
   | 'psyduck_top'
-  | 'charizard_top';
+  | 'charizard_top'
+  | 'mew_top';
 
 export type BottomKind =
   | 'pants'
@@ -100,7 +114,8 @@ export type BottomKind =
   | 'psyduck_legs'
   | 'snorlax_legs'
   | 'gengar_legs'
-  | 'charizard_legs';
+  | 'charizard_legs'
+  | 'mew_legs';
 
 export type HatKind =
   | 'cap'
@@ -147,7 +162,8 @@ export type MaskKind =
   | 'psyduck_face'
   | 'snorlax_face'
   | 'gengar_face'
-  | 'charizard_face';
+  | 'charizard_face'
+  | 'mew_face';
 
 export type BackKind =
   | 'kinder'
@@ -197,7 +213,8 @@ export type BackKind =
   | 'psyduck_tail'
   | 'snorlax_back'
   | 'gengar_shadow'
-  | 'charizard_wings';
+  | 'charizard_wings'
+  | 'mew_tail';
 
 export type ShoeKind =
   | 'sneakers'
@@ -237,7 +254,8 @@ export type ShoeKind =
   | 'ghost_rider'
   | 'silver_surfer'
   | 'solmoe'
-  | 'charizard_boots';
+  | 'charizard_boots'
+  | 'mew_feet';
 
 export type CharmKind =
   | 'star'
@@ -681,6 +699,26 @@ export const ITEMS: Item[] = [
   { id: 'bottom.charizard', name: '리자몽 하의', slot: 'bottom', price: 200, color: '#f97316', accent: '#fef3c7', kind: 'charizard_legs' },
   { id: 'back.charizard', name: '리자몽 날개', slot: 'back', price: 260, color: '#38bdf8', accent: '#166534', kind: 'charizard_wings' },
   { id: 'charm.charizard', name: '리자몽 키링', slot: 'charm', price: 140, color: '#f97316', accent: '#fef3c7', kind: 'charizard_charm' },
+
+  // Mew full set (unisex)
+  { id: 'mask.mew', name: '뮤 얼굴', slot: 'mask', price: 220, color: '#fbcfe8', accent: '#7dd3fc', kind: 'mew_face' },
+  { id: 'top.mew', name: '뮤 상의', slot: 'top', price: 220, color: '#fbcfe8', accent: '#f472b6', kind: 'mew_top' },
+  { id: 'bottom.mew', name: '뮤 하의', slot: 'bottom', price: 200, color: '#fbcfe8', accent: '#f472b6', kind: 'mew_legs' },
+  { id: 'back.mew', name: '뮤 꼬리', slot: 'back', price: 200, color: '#fbcfe8', accent: '#f472b6', kind: 'mew_tail' },
+  { id: 'shoes.mew', name: '뮤 발', slot: 'shoes', price: 160, color: '#fbcfe8', accent: '#f472b6', kind: 'mew_feet' },
+
+  // Misc Pokemon companions — stand next to the character just like the
+  // existing Pikachu companion at misc.pikachu.
+  { id: 'misc.charmander', name: '파이리 (컴패니언)', slot: 'misc', price: 380, color: '#f97316', accent: '#fef3c7', kind: 'charmander' },
+  { id: 'misc.squirtle', name: '꼬부기 (컴패니언)', slot: 'misc', price: 380, color: '#38bdf8', accent: '#fef3c7', kind: 'squirtle' },
+  { id: 'misc.bulbasaur', name: '이상해씨 (컴패니언)', slot: 'misc', price: 380, color: '#4ade80', accent: '#166534', kind: 'bulbasaur' },
+  { id: 'misc.eevee', name: '이브이 (컴패니언)', slot: 'misc', price: 380, color: '#a16207', accent: '#fef3c7', kind: 'eevee' },
+  { id: 'misc.jigglypuff', name: '푸린 (컴패니언)', slot: 'misc', price: 360, color: '#fbcfe8', accent: '#3b82f6', kind: 'jigglypuff' },
+  { id: 'misc.psyduck', name: '고라파덕 (컴패니언)', slot: 'misc', price: 380, color: '#facc15', accent: '#f97316', kind: 'psyduck' },
+  { id: 'misc.snorlax', name: '잠만보 (컴패니언)', slot: 'misc', price: 450, color: '#fde68a', accent: '#0f172a', kind: 'snorlax' },
+  { id: 'misc.gengar', name: '겐가 (컴패니언)', slot: 'misc', price: 420, color: '#6b21a8', accent: '#dc2626', kind: 'gengar' },
+  { id: 'misc.charizard', name: '리자몽 (컴패니언)', slot: 'misc', price: 500, color: '#f97316', accent: '#fef3c7', kind: 'charizard' },
+  { id: 'misc.mew', name: '뮤 (컴패니언)', slot: 'misc', price: 500, color: '#fbcfe8', accent: '#7dd3fc', kind: 'mew' },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
