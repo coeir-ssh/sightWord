@@ -30,8 +30,14 @@ const DAY_PLANS: DayPlan[] = [
   { day: 4, kind: 'Mock Test', dayBonus: 5, steps: [{ stage: 'S3' }], shuffleWords: true, isMockTest: true },
 ];
 
-const WEEKLY_BONUS = 100;
-const PER_WORD_COINS = 20;
+// Target reward per finished chapter is ~1200 coins so a single chapter
+// unlocks a full outfit in the shop.
+//  5 words × 5 days × 40 = 1000  (per-word coins)
+//  + (3+3+4+5+5)           = 20   (per-day bonuses)
+//  + WEEKLY_BONUS          = 200  (chapter-complete bonus)
+//  =                          1220 total
+const WEEKLY_BONUS = 200;
+const PER_WORD_COINS = 40;
 
 export function Learn({ onBack }: Props) {
   const { progress, dayDone, completeDay, setWeekAndDay } = useProgress();
