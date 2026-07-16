@@ -37,6 +37,8 @@ const KEYS = {
   charGender: 'sw.charGender.v1',
   // One-time +300 coin top-up: granted once per browser, then flagged.
   bonus300: 'sw.bonus.300.v1',
+  // One-time +500 coin top-up: granted once per browser, then flagged.
+  bonus500: 'sw.bonus.500.v1',
   appMode: 'sw.appMode.v1',
   showTellScript: 'sw.showTellScript.v1',
   // Blanks the child typed for each Show and Tell chapter.
@@ -107,6 +109,17 @@ export const storage = {
         wallet = { coins: wallet.coins + 300 };
         try {
           localStorage.setItem(KEYS.bonus300, '1');
+          localStorage.setItem(KEYS.wallet, JSON.stringify(wallet));
+        } catch {
+          /* ignore */
+        }
+      }
+      // One-time +500 coin top-up. Same pattern: bumps once and flags so
+      // the top-up never runs a second time.
+      if (!localStorage.getItem(KEYS.bonus500)) {
+        wallet = { coins: wallet.coins + 500 };
+        try {
+          localStorage.setItem(KEYS.bonus500, '1');
           localStorage.setItem(KEYS.wallet, JSON.stringify(wallet));
         } catch {
           /* ignore */
