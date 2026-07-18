@@ -16,6 +16,7 @@ import {
   fillSentence,
   getShowTellScript,
   getSlots,
+  getWordBox,
   showTellSteps,
   splitSentence,
   type ShowTellScript,
@@ -246,6 +247,15 @@ export function ShowTell({ onBack }: Props) {
     const cursorFill = cursor ? fills[cursor.sIdx]?.[cursor.bIdx] ?? '' : '';
     const isChoice = cursor?.slot.kind === 'choice';
     const ctxParts = cursor ? splitSentence(script.sentences[cursor.sIdx]) : [];
+    const wordBox = getWordBox(script.id);
+    // The sentence read aloud: filled-in words kept, empty slots dropped.
+    const spoken = cursor
+      ? fillSentence(script.sentences[cursor.sIdx], fills[cursor.sIdx] ?? [])
+          .replace(/\(([^()]*\/[^()]*)\)/g, ' ')
+          .replace(/___/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+      : '';
 
     return (
       <div className="min-h-screen bg-gradient-to-b from-sky-soft to-blue-100 flex flex-col">
@@ -291,8 +301,16 @@ export function ShowTell({ onBack }: Props) {
         <main className="flex-1 flex flex-col items-center p-4 gap-4">
           {/* Active sentence card */}
           <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-6 w-full max-w-3xl">
-            <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
-              {isChoice ? 'Circle one' : 'Fill in this blank'}
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">
+                {isChoice ? 'Circle one' : 'Fill in this blank'}
+              </div>
+              <button
+                onClick={() => void speak(spoken, { rate: READ_RATE })}
+                className="bg-white border-2 border-blue-200 hover:bg-blue-50 active:scale-95 rounded-full px-4 py-1.5 text-sm font-extrabold text-blue-700 shadow"
+              >
+                🔊 Listen
+              </button>
             </div>
             <p className="flex flex-wrap items-baseline gap-x-1.5 gap-y-2 text-2xl md:text-3xl font-extrabold text-slate-800 leading-relaxed">
               {ctxParts.map((p, pIdx) => {
@@ -378,6 +396,33 @@ export function ShowTell({ onBack }: Props) {
                 placeholder="Type here…"
                 className="w-full border-4 border-amber-400 focus:border-amber-500 rounded-2xl px-4 py-3 text-2xl font-extrabold text-slate-800 outline-none placeholder:text-slate-300"
               />
+            </div>
+          )}
+
+          {/* Word Box — reference words for the blanks (tap to use) */}
+          {!isChoice && wordBox.length > 0 && (
+            <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
+              <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
+                Word Box — tap to use
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {wordBox.map((w) => {
+                  const picked = cursorFill === w;
+                  return (
+                    <button
+                      key={w}
+                      onClick={() => setSlotValue(w)}
+                      className={`px-3 py-2 rounded-xl border-2 text-base font-extrabold shadow-sm active:scale-95 transition ${
+                        picked
+                          ? 'bg-amber-200 border-amber-500 text-amber-900'
+                          : 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800'
+                      }`}
+                    >
+                      {w}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 

@@ -280,6 +280,31 @@ export const SHOW_TELL_SCRIPTS: ShowTellScript[] = [
 
 export const SHOW_TELL_IDS = SHOW_TELL_SCRIPTS.map((s) => s.id);
 
+// Suggested words shown as tappable chips during the fill (first) step. These
+// are reference words for the child while typing blanks; not required.
+export const WORD_BOX: Record<string, string[]> = {
+  'favorite-animal': ['Lion', 'Alligator', 'Tiger', 'Hippo', 'Monkey', 'Gorillas', 'Chicken', 'Rabbits', 'Zoo', 'Farm', 'Fish', 'Meat', 'Vegetables', 'Fruits'],
+  'favorite-sport': ['Baseball', 'Basketball', 'Soccer', 'Hockey', 'Swimming', 'I can have fun', 'I can do it well', 'I love it so much'],
+  'summer-vacation': ['Camping', 'To a hotel', "To my grandparents' house", 'Abroad', 'To the beach', 'Swim', 'Play', 'Run', 'Have fun'],
+  'healthy-habits': ['Brush my teeth', 'Wash my face', 'Take a shower', 'Eat vegetables', 'Drink lots of water', 'Go to bed early', 'Sleep well', 'Eat fruits'],
+  earth: ['Beautiful', 'Awesome', 'Fantastic', 'Colorful', 'Bright', 'Dynamic'],
+  'dream-job': ['Firefighter', 'Police', 'Doctor', 'Nurse', 'Teacher', 'Patience', 'Care', 'Helmet', 'Uniform'],
+  chuseok: ['September', 'October', 'Family', 'Grandparents', 'Songpyeon', 'Tug-of-war', 'Tuho', 'Eat many delicious foods'],
+  'my-country': ['Rice cake', 'Bibimbap', 'Bulgogi', 'Tae-geuk-gi', 'Beautiful places', 'Yummy food', 'Kind people', 'Historical places'],
+  'the-world': ['Spain', 'China', 'France', 'Mexico', 'United States', 'Australia', 'Canada', 'Italy'],
+  transportation: ['Bus', 'Car', 'Train', 'Airplane', 'Subway', 'Spaceship', 'Taxi', 'Van'],
+  'outer-space': ['Planets', 'Moon', 'Sun', 'Rockets', 'Satellites', 'Float', 'Spacesuit', 'Helmet'],
+  winter: ['December', 'January', 'February', 'Make a snowman', 'Have a snowball fight', 'Drink hot chocolate', 'Ice hockey', 'Figure skating', 'Speed skating'],
+  christmas: ['Toy car', 'Pretty doll', 'Lego box', 'A stuffed animal', 'Cute', 'Pretty', 'Adorable', 'Coloring book'],
+  'new-years-day': ['Eat more vegetables', 'Brush my teeth more', 'Change my clothes by myself', 'Becoming healthy', 'Becoming strong', 'Not fight with my siblings', 'Listen to my parents'],
+  art: ['Picasso', 'Van Gogh', 'Frida Kahlo', 'Da Vinci', 'Amazing', 'Breathtaking', 'Vivid'],
+  graduation: ['Excited', 'Nervous', 'Shy', 'Anxious', 'Art class', 'Gym class', 'Science class', 'Role box class', 'Musical English class'],
+};
+
+export function getWordBox(id: string): string[] {
+  return WORD_BOX[id] ?? [];
+}
+
 export function getShowTellScript(id: string): ShowTellScript {
   return SHOW_TELL_SCRIPTS.find((s) => s.id === id) ?? SHOW_TELL_SCRIPTS[0];
 }
