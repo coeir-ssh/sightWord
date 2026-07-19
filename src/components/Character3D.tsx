@@ -436,29 +436,53 @@ export function Character3D({ equipped, jumping = false, className, name, gender
     const animate = () => {
       const t = (performance.now() - start) / 1000;
       if (userRotation === null) {
-        char.rotation.y = Math.sin(t * 0.6) * 0.25;
+        char.rotation.y = Math.sin(t * 1.3) * 0.3;
       }
 
       // Idle limb motion: swing each whole limb (with everything attached
       // to it through the redistribute pass) around the shoulder/hip. Arms
       // and legs move in opposite phase so it reads as a relaxed gait.
-      const idle = Math.sin(t * 1.6);
-      const armSwing = idle * 0.22;
-      const legSwing = idle * 0.18;
+      // Faster + larger swings so the character reads as visibly active.
+      const idle = Math.sin(t * 3.4);
+      const armSwing = idle * 0.38;
+      const legSwing = idle * 0.32;
       armPivots[0].rotation.x = armSwing;
       armPivots[1].rotation.x = -armSwing;
       legPivots[0].rotation.x = -legSwing;
       legPivots[1].rotation.x = legSwing;
+      // Small vertical bob so the character bounces on their feet
+      const idleBobY = Math.abs(Math.sin(t * 3.4)) * 0.05;
 
       if (jumpRef.current && jumpStart === 0) jumpStart = performance.now();
+      let jumpY = 0;
       if (jumpStart > 0) {
         const dt = (performance.now() - jumpStart) / 1000;
-        if (dt > 0.6) {
+        if (dt > 0.4) {
           jumpStart = 0;
           jumpRef.current = false;
-          char.position.y = 0;
         } else {
-          char.position.y = Math.sin((dt / 0.6) * Math.PI) * 0.45;
+          jumpY = Math.sin((dt / 0.4) * Math.PI) * 0.55;
+        }
+      }
+      char.position.y = jumpY + (jumpStart > 0 ? 0 : idleBobY);
+
+      // Companion (misc slot) — hop and sway so it doesn't just stand there.
+      // The misc group holds the whole companion mesh; translating/rotating
+      // the group animates every child (body, head, wings, tail) as one.
+      const miscGroup = slotGroups.misc;
+      if (miscGroup && miscGroup.children.length > 0) {
+        // Continuous small hop
+        miscGroup.position.y = Math.abs(Math.sin(t * 5.5)) * 0.14;
+        // Playful side-to-side sway
+        miscGroup.rotation.z = Math.sin(t * 3.2) * 0.09;
+        // Slight nod/tilt
+        miscGroup.rotation.x = Math.sin(t * 2.4) * 0.06;
+        // Extra bounce when the main character jumps (reacts to correct answer)
+        if (jumpStart > 0) {
+          const dt = (performance.now() - jumpStart) / 1000;
+          if (dt < 0.4) {
+            miscGroup.position.y += Math.sin((dt / 0.4) * Math.PI) * 0.35;
+          }
         }
       }
       try {
@@ -11403,20 +11427,24 @@ export function Character3D({ equipped, jumping = false, className, name, gender
     });
 
     // Hide the base face features (eyes, glasses, cheeks, mouth, tongue)
-    // and the hair when a full-head mask is equipped — otherwise the kid's
-    // glasses, smile and hair would poke through the Iron Man / Spider-Man /
-    // Hulk head cover.
+    // and the hair only when a full-head *cover* mask is equipped (Iron Man,
+    // Spider-Man, Hulk, etc.) — otherwise the kid's face would poke through
+    // the head cover. Pokemon masks are treated as accessories: the kid's
+    // eyes/nose/mouth stay visible so the character still feels like *them*.
+    const maskKind = equipped.mask ? getItem(equipped.mask)?.kind : undefined;
+    const isPokemonMask = typeof maskKind === 'string' && maskKind.endsWith('_face');
     const maskOn = !!equipped.mask;
-    maskOnRef.current = maskOn;
+    const maskHidesFace = maskOn && !isPokemonMask;
+    maskOnRef.current = maskHidesFace;
     const backKind = equipped.back ? getItem(equipped.back)?.kind : undefined;
     const backHidesHair =
       backKind === 'ariel_wave' || backKind === 'rapunzel_hair';
     backHidesHairRef.current = backHidesHair;
     faceFeaturesRef.current.forEach((m) => {
-      m.visible = !maskOn;
+      m.visible = !maskHidesFace;
     });
     if (hairGroupRef.current)
-      hairGroupRef.current.visible = !maskOn && !backHidesHair;
+      hairGroupRef.current.visible = !maskHidesFace && !backHidesHair;
 
     // Undershirt (런닝) when nothing in 'top' slot
     if (!equipped.top) {
