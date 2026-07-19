@@ -114,6 +114,30 @@ export function ShowTell({ onBack }: Props) {
     else if (stepDef.kind === 'cue') void speak(cueText, { rate: READ_RATE });
   }, [stepDef, idx, stepResult, cur, cueText]);
 
+  // Fill phase: auto-read the current sentence whenever the child lands
+  // on a new sentence (each new blank position that jumped to a different
+  // sIdx). Empty blanks are read as the word "blank" (see the `spoken`
+  // string built below). We intentionally do NOT re-fire on every keystroke —
+  // the child updates their own word in real time; the Listen button is
+  // there to re-read the sentence with the current choices when they want.
+  const fillSpokenSentenceIdx = stepDef.kind === 'fill' ? slots[fillCursor]?.sIdx : undefined;
+  useEffect(() => {
+    if (stepResult) return;
+    if (stepDef.kind !== 'fill') return;
+    if (fillSpokenSentenceIdx == null) return;
+    // Build the spoken form here to read the LATEST fills — don't depend on
+    // the memoised `spoken` variable defined lower in render.
+    const sentence = script.sentences[fillSpokenSentenceIdx];
+    const rowFills = fills[fillSpokenSentenceIdx] ?? [];
+    const text = fillSentence(sentence, rowFills)
+      .replace(/\(([^()]*\/[^()]*)\)/g, ' blank ')
+      .replace(/___/g, ' blank ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (text) void speak(text, { rate: READ_RATE });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stepDef.kind, fillSpokenSentenceIdx, stepResult]);
+
   // Advance saved progress to the next step and show the step-complete screen.
   const completeStep = (coins: number) => {
     const nextStep = step + 1;
@@ -261,11 +285,14 @@ export function ShowTell({ onBack }: Props) {
         if (n) usedWords.add(n);
       })
     );
-    // The sentence read aloud: filled-in words kept, empty slots dropped.
+    // The sentence read aloud: filled-in words kept, empty blanks spoken
+    // as the word "blank" so the child hears where their word will go
+    // instead of an awkward gap. Choice slots that haven't been picked
+    // yet keep their "(A/B)" pair collapsed into a single "blank" too.
     const spoken = cursor
       ? fillSentence(script.sentences[cursor.sIdx], fills[cursor.sIdx] ?? [])
-          .replace(/\(([^()]*\/[^()]*)\)/g, ' ')
-          .replace(/___/g, ' ')
+          .replace(/\(([^()]*\/[^()]*)\)/g, ' blank ')
+          .replace(/___/g, ' blank ')
           .replace(/\s+/g, ' ')
           .trim()
       : '';
