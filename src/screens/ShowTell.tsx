@@ -444,7 +444,6 @@ export function ShowTell({ onBack }: Props) {
               </div>
               <input
                 key={fillCursor}
-                autoFocus
                 value={cursorFill}
                 onChange={(e) => setSlotValue(e.target.value)}
                 onKeyDown={(e) => {
