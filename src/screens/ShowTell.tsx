@@ -48,6 +48,10 @@ function firstWords(sentence: string, n: number): string {
   return sentence.trim().split(/\s+/).slice(0, n).join(' ');
 }
 
+// Normalize a word for "already used" matching: case- and space-insensitive,
+// so a Word Box "To a hotel" matches a blank filled with "to a hotel".
+const normWord = (s: string) => s.trim().toLowerCase();
+
 // Build the starting fills for a script: an empty slot per fill slot, overlaid
 // with whatever the child previously typed/picked (saved per script).
 function buildInitialFills(script: ShowTellScript): string[][] {
@@ -248,6 +252,15 @@ export function ShowTell({ onBack }: Props) {
     const isChoice = cursor?.slot.kind === 'choice';
     const ctxParts = cursor ? splitSentence(script.sentences[cursor.sIdx]) : [];
     const wordBox = getWordBox(script.id);
+    // Words already placed in any blank (normalized) so the Word Box can mark
+    // them as used — case-insensitively ("To a hotel" ≈ "to a hotel").
+    const usedWords = new Set<string>();
+    fills.forEach((row) =>
+      row.forEach((v) => {
+        const n = normWord(v);
+        if (n) usedWords.add(n);
+      })
+    );
     // The sentence read aloud: filled-in words kept, empty slots dropped.
     const spoken = cursor
       ? fillSentence(script.sentences[cursor.sIdx], fills[cursor.sIdx] ?? [])
@@ -407,17 +420,24 @@ export function ShowTell({ onBack }: Props) {
               </div>
               <div className="flex flex-wrap gap-2">
                 {wordBox.map((w) => {
-                  const picked = cursorFill === w;
+                  // Amber = the word in the blank being edited right now.
+                  // Green = already used in some blank (case-insensitive).
+                  const isCurrent =
+                    normWord(cursorFill) !== '' && normWord(w) === normWord(cursorFill);
+                  const isUsed = usedWords.has(normWord(w));
                   return (
                     <button
                       key={w}
                       onClick={() => setSlotValue(w)}
                       className={`px-3 py-2 rounded-xl border-2 text-base font-extrabold shadow-sm active:scale-95 transition ${
-                        picked
+                        isCurrent
                           ? 'bg-amber-200 border-amber-500 text-amber-900'
-                          : 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800'
+                          : isUsed
+                            ? 'bg-green-100 border-green-400 text-green-800'
+                            : 'bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800'
                       }`}
                     >
+                      {isUsed && !isCurrent ? '✓ ' : ''}
                       {w}
                     </button>
                   );
