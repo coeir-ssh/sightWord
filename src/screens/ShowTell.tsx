@@ -604,12 +604,10 @@ export function ShowTell({ onBack }: Props) {
               )}
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <button
-                  onClick={() =>
-                    void speak(stepDef.kind === 'cue' ? cueText : cur, { rate: READ_RATE })
-                  }
+                  onClick={() => void speak(cur, { rate: READ_RATE })}
                   className="bg-white border-2 border-blue-200 hover:bg-blue-50 active:scale-95 rounded-2xl px-6 py-3 text-xl font-extrabold text-blue-700 shadow"
                 >
-                  🔊 Listen Again
+                  {stepDef.kind === 'cue' ? '🔊 Hear Full Sentence' : '🔊 Listen Again'}
                 </button>
                 <button
                   onClick={nextSentence}
