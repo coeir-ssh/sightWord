@@ -5,7 +5,7 @@ import { WordStage, type Stage } from '../components/WordStage';
 import { Character3D } from '../components/Character3D';
 import { Coin } from '../components/Coin';
 import { useCharGender, useCharName, useInventory, useProgress, useWallet } from '../lib/state';
-import { getWeek, WEEK_IDS } from '../data/words';
+import { getWeek } from '../data/words';
 import { shuffle } from '../lib/shuffle';
 
 type Props = {
@@ -93,13 +93,12 @@ export function Learn({ onBack }: Props) {
 
       completeDay(progress.currentWeek, todayDay);
 
-      if (todayDay < 4) {
-        setWeekAndDay(progress.currentWeek, todayDay + 1);
-      } else {
-        const idx = WEEK_IDS.indexOf(progress.currentWeek);
-        const nextWeek = WEEK_IDS[idx + 1] ?? progress.currentWeek;
-        setWeekAndDay(nextWeek, 0);
-      }
+      // After finishing Step 5, loop the CURRENT list back to Step 1 so the
+      // child can keep repeating the same list all week. Moving on to the
+      // next list is done manually via the list picker on Home — auto-
+      // jumping to the next week was too easy to hit accidentally.
+      const nextDay = todayDay < 4 ? todayDay + 1 : 0;
+      setWeekAndDay(progress.currentWeek, nextDay);
 
       setCompletedScreen({ coins: sequence.length * perWord, bonus, weekly });
     } else {
