@@ -14,7 +14,9 @@ export type MiscKind =
   | 'gengar'
   | 'charizard'
   | 'mew'
-  | 'lugia';
+  | 'lugia'
+  | 'growlithe'
+  | 'gardevoir';
 
 export type TopKind =
   | 'tee'
@@ -66,7 +68,9 @@ export type TopKind =
   | 'psyduck_top'
   | 'charizard_top'
   | 'mew_top'
-  | 'lugia_top';
+  | 'lugia_top'
+  | 'growlithe_top'
+  | 'gardevoir_top';
 
 export type BottomKind =
   | 'pants'
@@ -118,7 +122,9 @@ export type BottomKind =
   | 'gengar_legs'
   | 'charizard_legs'
   | 'mew_legs'
-  | 'lugia_legs';
+  | 'lugia_legs'
+  | 'growlithe_legs'
+  | 'gardevoir_legs';
 
 export type HatKind =
   | 'cap'
@@ -167,7 +173,9 @@ export type MaskKind =
   | 'gengar_face'
   | 'charizard_face'
   | 'mew_face'
-  | 'lugia_face';
+  | 'lugia_face'
+  | 'growlithe_face'
+  | 'gardevoir_face';
 
 export type BackKind =
   | 'kinder'
@@ -219,7 +227,9 @@ export type BackKind =
   | 'gengar_shadow'
   | 'charizard_wings'
   | 'mew_tail'
-  | 'lugia_wings';
+  | 'lugia_wings'
+  | 'growlithe_tail'
+  | 'gardevoir_dress';
 
 export type ShoeKind =
   | 'sneakers'
@@ -261,7 +271,9 @@ export type ShoeKind =
   | 'solmoe'
   | 'charizard_boots'
   | 'mew_feet'
-  | 'lugia_feet';
+  | 'lugia_feet'
+  | 'growlithe_feet'
+  | 'gardevoir_feet';
 
 export type CharmKind =
   | 'star'
@@ -295,7 +307,9 @@ export type CharmKind =
   | 'snorlax_charm'
   | 'gengar_charm'
   | 'charizard_charm'
-  | 'lugia_charm';
+  | 'lugia_charm'
+  | 'growlithe_charm'
+  | 'gardevoir_charm';
 
 export type ItemKind =
   | TopKind
@@ -723,6 +737,24 @@ export const ITEMS: Item[] = [
   { id: 'shoes.lugia', name: '루기아 발톱', slot: 'shoes', price: 200, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia_feet' },
   { id: 'charm.lugia', name: '루기아 키링', slot: 'charm', price: 160, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia_charm' },
 
+  // 가디 (Growlithe) full set — fire puppy: orange body, cream fluffy mane,
+  // dark tiger stripes.
+  { id: 'mask.growlithe', name: '가디 얼굴', slot: 'mask', price: 220, color: '#ea580c', accent: '#fef3c7', kind: 'growlithe_face' },
+  { id: 'top.growlithe', name: '가디 상의', slot: 'top', price: 200, color: '#ea580c', accent: '#fef3c7', kind: 'growlithe_top' },
+  { id: 'bottom.growlithe', name: '가디 하의', slot: 'bottom', price: 180, color: '#ea580c', accent: '#7c2d12', kind: 'growlithe_legs' },
+  { id: 'back.growlithe', name: '가디 꼬리', slot: 'back', price: 220, color: '#ea580c', accent: '#fef3c7', kind: 'growlithe_tail' },
+  { id: 'shoes.growlithe', name: '가디 발', slot: 'shoes', price: 160, color: '#ea580c', accent: '#7c2d12', kind: 'growlithe_feet' },
+  { id: 'charm.growlithe', name: '가디 키링', slot: 'charm', price: 140, color: '#ea580c', accent: '#fef3c7', kind: 'growlithe_charm' },
+
+  // 가디안 (Gardevoir) full set — elegant psychic: green helmet-hair, white
+  // gown-body, red horn spike on chest and back.
+  { id: 'mask.gardevoir', name: '가디안 얼굴', slot: 'mask', price: 260, color: '#f8fafc', accent: '#16a34a', kind: 'gardevoir_face' },
+  { id: 'top.gardevoir', name: '가디안 상의', slot: 'top', price: 260, color: '#f8fafc', accent: '#dc2626', kind: 'gardevoir_top' },
+  { id: 'bottom.gardevoir', name: '가디안 하의', slot: 'bottom', price: 240, color: '#f8fafc', accent: '#dc2626', kind: 'gardevoir_legs' },
+  { id: 'back.gardevoir', name: '가디안 드레스', slot: 'back', price: 300, color: '#f8fafc', accent: '#dc2626', kind: 'gardevoir_dress' },
+  { id: 'shoes.gardevoir', name: '가디안 발', slot: 'shoes', price: 180, color: '#f8fafc', accent: '#16a34a', kind: 'gardevoir_feet' },
+  { id: 'charm.gardevoir', name: '가디안 키링', slot: 'charm', price: 150, color: '#f8fafc', accent: '#16a34a', kind: 'gardevoir_charm' },
+
   // Misc Pokemon companions — stand next to the character just like the
   // existing Pikachu companion at misc.pikachu.
   { id: 'misc.charmander', name: '파이리 (컴패니언)', slot: 'misc', price: 380, color: '#f97316', accent: '#fef3c7', kind: 'charmander' },
@@ -736,6 +768,8 @@ export const ITEMS: Item[] = [
   { id: 'misc.charizard', name: '리자몽 (컴패니언)', slot: 'misc', price: 500, color: '#f97316', accent: '#fef3c7', kind: 'charizard' },
   { id: 'misc.mew', name: '뮤 (컴패니언)', slot: 'misc', price: 500, color: '#fbcfe8', accent: '#7dd3fc', kind: 'mew' },
   { id: 'misc.lugia', name: '루기아 (컴패니언)', slot: 'misc', price: 600, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia' },
+  { id: 'misc.growlithe', name: '가디 (컴패니언)', slot: 'misc', price: 480, color: '#ea580c', accent: '#fef3c7', kind: 'growlithe' },
+  { id: 'misc.gardevoir', name: '가디안 (컴패니언)', slot: 'misc', price: 580, color: '#f8fafc', accent: '#16a34a', kind: 'gardevoir' },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
@@ -820,6 +854,7 @@ const PRINCESS_KIND_PATTERNS = [
 const POKEMON_SPECIES = [
   'pikachu', 'charmander', 'squirtle', 'bulbasaur', 'eevee',
   'jigglypuff', 'psyduck', 'snorlax', 'gengar', 'charizard', 'mew', 'lugia',
+  'growlithe', 'gardevoir',
 ];
 const SCHOOL_KIND_PATTERNS = [
   'slp', 'slp_girl', 'slp_skirt', 'slp_backpack', 'slp_badge',

@@ -823,6 +823,33 @@ function Top({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'growlithe_top') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Cream chest fluff (Growlithe's mane) */}
+        <ellipse cx="50" cy="52" rx="24" ry="18" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        {/* Ruff outer edge — puffy bumps */}
+        {[[28, 44], [34, 34], [50, 30], [66, 34], [72, 44]].map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r="6" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        ))}
+        {/* Dark tiger stripes on sleeves */}
+        <path d="M24,42 L28,50" stroke="#7c2d12" strokeWidth={2.5} />
+        <path d="M76,42 L72,50" stroke="#7c2d12" strokeWidth={2.5} />
+      </g>
+    );
+  }
+  if (kind === 'gardevoir_top') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Red spike/horn emerging from the chest */}
+        <polygon points="46,38 50,68 54,38" fill={a} stroke={STROKE} strokeWidth={0.8} strokeLinejoin="round" />
+        {/* Sleek collar V */}
+        <path d="M40,28 L50,44 L60,28" stroke={a} fill="none" strokeWidth={1.5} />
+      </g>
+    );
+  }
   if (kind === 'lugia_top') {
     return (
       <g>
@@ -1189,6 +1216,37 @@ function Bottom({ item }: { item: Item }) {
         <polygon points="42,76 46,84 50,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
         <polygon points="52,76 56,84 60,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
         <polygon points="64,76 68,84 72,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
+      </g>
+    );
+  }
+  if (kind === 'growlithe_legs') {
+    return (
+      <g>
+        {heroLegs(c)}
+        {/* Dark tiger stripes on the legs */}
+        {[36, 46, 56, 66].map((y) => (
+          <g key={y}>
+            <path d={`M28,${y} Q38,${y - 2} 40,${y + 4}`} stroke={a} fill="none" strokeWidth={2.5} strokeLinecap="round" />
+            <path d={`M60,${y + 4} Q62,${y - 2} 72,${y}`} stroke={a} fill="none" strokeWidth={2.5} strokeLinecap="round" />
+          </g>
+        ))}
+        {/* Cream fluffy cuffs at ankles */}
+        {[[30, 78], [40, 78], [60, 78], [70, 78]].map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r="4" fill="#fef3c7" stroke={STROKE} strokeWidth={0.5} />
+        ))}
+      </g>
+    );
+  }
+  if (kind === 'gardevoir_legs') {
+    // Flowing dress-like bottom, not really legs
+    return (
+      <g>
+        {/* Wide flowing white gown flaring outward */}
+        <path d="M28,22 L72,22 L88,80 L12,80 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Red vertical spike/pattern in center */}
+        <polygon points="46,22 50,60 54,22" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Waistband */}
+        <rect x="28" y="22" width="44" height="4" fill={a} />
       </g>
     );
   }
@@ -2271,6 +2329,58 @@ function Mask({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'growlithe_face') {
+    // Growlithe — orange puppy face + big cream mane + dark tiger stripes.
+    return (
+      <g>
+        {/* Cream fluffy mane behind head */}
+        {[[16, 40], [24, 22], [50, 12], [76, 22], [84, 40]].map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r="10" fill={a} stroke={STROKE} strokeWidth={SW} />
+        ))}
+        {/* Orange head */}
+        <ellipse cx="50" cy="54" rx="26" ry="24" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Dark tiger stripes on head */}
+        <path d="M32,42 Q36,50 32,58" stroke="#7c2d12" fill="none" strokeWidth={2.5} strokeLinecap="round" />
+        <path d="M68,42 Q64,50 68,58" stroke="#7c2d12" fill="none" strokeWidth={2.5} strokeLinecap="round" />
+        {/* Cream muzzle */}
+        <ellipse cx="50" cy="66" rx="14" ry="8" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Dark round eyes */}
+        <ellipse cx="40" cy="50" rx="3.5" ry="4" fill="#0a0a0a" />
+        <ellipse cx="60" cy="50" rx="3.5" ry="4" fill="#0a0a0a" />
+        <circle cx="41" cy="48" r="1.2" fill="#f8fafc" />
+        <circle cx="61" cy="48" r="1.2" fill="#f8fafc" />
+        {/* Nose */}
+        <ellipse cx="50" cy="62" rx="2.5" ry="2" fill="#0a0a0a" />
+        {/* Small open mouth */}
+        <path d="M42,72 Q50,78 58,72" stroke="#7c2d12" fill="none" strokeWidth={1.6} />
+      </g>
+    );
+  }
+  if (kind === 'gardevoir_face') {
+    // Gardevoir — elegant psychic: pale white face + green helmet-hair
+    // covering the top with a forward-pointing "bang" over one eye + red
+    // horn spike on the forehead + red eyes.
+    return (
+      <g>
+        {/* Green helmet-hair (rear) */}
+        <path d="M18,30 Q18,10 50,8 Q82,10 82,30 L78,42 L68,36 L50,42 L32,36 L22,42 Z"
+          fill={a} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Pale face */}
+        <ellipse cx="50" cy="52" rx="22" ry="24" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Forward-pointing green bang over one eye */}
+        <path d="M28,32 L34,50 L42,44 Z" fill={a} stroke={STROKE} strokeWidth={0.8} strokeLinejoin="round" />
+        {/* Red horn spike on forehead (down-pointing) */}
+        <polygon points="46,34 50,52 54,34" fill="#dc2626" stroke={STROKE} strokeWidth={0.6} />
+        {/* Red eyes with white shine */}
+        <ellipse cx="42" cy="56" rx="3.5" ry="5" fill="#dc2626" />
+        <ellipse cx="58" cy="56" rx="3.5" ry="5" fill="#dc2626" />
+        <circle cx="43" cy="54" r="1.2" fill="#f8fafc" />
+        <circle cx="59" cy="54" r="1.2" fill="#f8fafc" />
+        {/* Tiny pink smile */}
+        <path d="M44,70 Q50,74 56,70" stroke="#be185d" fill="none" strokeWidth={1.4} strokeLinecap="round" />
+      </g>
+    );
+  }
   if (kind === 'lugia_face') {
     // Lugia — white head, pointed crest on top, navy-blue eye "mask"
     // wrapping around the eyes, small open beak-mouth.
@@ -3015,6 +3125,35 @@ function Back({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'growlithe_tail') {
+    // Growlithe — fluffy curled cream tail with orange stripes
+    return (
+      <g>
+        {/* Curled tail base (orange) */}
+        <path d="M40,72 Q22,66 20,44 Q22,26 42,26 Q60,26 60,44"
+          stroke={c} fill="none" strokeWidth={10} strokeLinecap="round" />
+        {/* Cream fluffy tuft on the tip */}
+        {[[62, 40], [56, 32], [66, 30], [74, 36]].map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r="8" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        ))}
+        {/* Dark stripe */}
+        <path d="M32,52 Q30,44 32,36" stroke={item.accent === '#fef3c7' ? '#7c2d12' : a}
+          fill="none" strokeWidth={2.5} />
+      </g>
+    );
+  }
+  if (kind === 'gardevoir_dress') {
+    // Gardevoir's flowing white gown "cape" flaring behind
+    return (
+      <g>
+        {/* Flowing side panels of the gown */}
+        <path d="M50,20 L14,44 L20,80 L36,72 L50,50 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <path d="M50,20 L86,44 L80,80 L64,72 L50,50 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Red back-spike */}
+        <polygon points="46,20 50,60 54,20" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
   if (kind === 'lugia_wings') {
     // Lugia — huge white wings with finger-like tips + row of navy back plates
     return (
@@ -3160,6 +3299,31 @@ function Shoes({ item }: { item: Item }) {
         <polygon points="76,66 82,58 74,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="66,66 68,54 62,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="56,66 54,54 50,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'growlithe_feet') {
+    return (
+      <g>
+        {heroBoot(c)}
+        {/* Cream fluff cuffs */}
+        {[[24, 26], [36, 22], [50, 20], [64, 22], [76, 26]].map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r="6" fill="#fef3c7" stroke={STROKE} strokeWidth={0.6} />
+        ))}
+        {/* Dark tiger stripes on the boot */}
+        <path d="M32,42 Q40,48 32,54" stroke={a} fill="none" strokeWidth={2.5} strokeLinecap="round" />
+        <path d="M68,42 Q60,48 68,54" stroke={a} fill="none" strokeWidth={2.5} strokeLinecap="round" />
+      </g>
+    );
+  }
+  if (kind === 'gardevoir_feet') {
+    return (
+      <g>
+        {heroBoot(c)}
+        {/* Green pointy toe accent */}
+        <polygon points="72,68 84,58 82,74" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Elegant ankle band (green) */}
+        <rect x="20" y="42" width="60" height="4" fill={a} />
       </g>
     );
   }
@@ -3902,6 +4066,51 @@ function Charm({ item }: { item: Item }) {
           <polygon points="56,68 60,68 58,76" fill={item.accent ?? '#fef3c7'} />
         </g>
       );
+    case 'growlithe_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Cream mane behind */}
+          {[[26, 32], [34, 20], [50, 14], [66, 20], [74, 32]].map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="8" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.5} />
+          ))}
+          {/* Orange head */}
+          <ellipse cx="50" cy="54" rx="22" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Dark stripes */}
+          <path d="M32,44 Q36,52 32,58" stroke="#7c2d12" fill="none" strokeWidth={2} />
+          <path d="M68,44 Q64,52 68,58" stroke="#7c2d12" fill="none" strokeWidth={2} />
+          {/* Cream muzzle */}
+          <ellipse cx="50" cy="62" rx="10" ry="6" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.5} />
+          {/* Eyes */}
+          <ellipse cx="42" cy="52" rx="3" ry="4" fill="#0a0a0a" />
+          <ellipse cx="58" cy="52" rx="3" ry="4" fill="#0a0a0a" />
+          <circle cx="43" cy="50" r="1" fill="#f8fafc" />
+          <circle cx="59" cy="50" r="1" fill="#f8fafc" />
+          <circle cx="50" cy="62" r="1.5" fill="#0a0a0a" />
+        </g>
+      );
+    case 'gardevoir_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Green helmet-hair */}
+          <path d="M22,30 Q22,10 50,10 Q78,10 78,30 L74,42 L64,38 L50,44 L36,38 L26,42 Z"
+            fill={item.accent ?? '#16a34a'} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+          {/* Pale face */}
+          <ellipse cx="50" cy="52" rx="20" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Forward bang */}
+          <path d="M30,32 L34,50 L42,44 Z" fill={item.accent ?? '#16a34a'} stroke={STROKE} strokeWidth={0.5} />
+          {/* Red horn spike */}
+          <polygon points="46,34 50,50 54,34" fill="#dc2626" stroke={STROKE} strokeWidth={0.5} />
+          {/* Red eyes */}
+          <ellipse cx="42" cy="56" rx="3" ry="4.5" fill="#dc2626" />
+          <ellipse cx="58" cy="56" rx="3" ry="4.5" fill="#dc2626" />
+          <circle cx="43" cy="54" r="1" fill="#f8fafc" />
+          <circle cx="59" cy="54" r="1" fill="#f8fafc" />
+        </g>
+      );
     case 'lugia_charm':
       return (
         <g>
@@ -4292,6 +4501,65 @@ function Misc({ item }: { item: Item }) {
         {/* Long curling tail */}
         <path d="M32,80 Q10,86 6,66 Q4,50 20,44 Q24,52 14,56" stroke={c} fill="none" strokeWidth={3} strokeLinecap="round" />
         <circle cx="20" cy="54" r="4" fill={c} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'growlithe') {
+    // Standing Growlithe puppy
+    return (
+      <g>
+        {/* Big cream mane */}
+        {[[16, 32], [24, 20], [42, 14], [58, 14], [76, 20], [84, 32]].map(([x, y], i) => (
+          <circle key={i} cx={x} cy={y} r="9" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        ))}
+        {/* Orange head */}
+        <ellipse cx="50" cy="36" rx="20" ry="18" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Dark tiger stripes on head */}
+        <path d="M34,30 Q38,36 34,42" stroke="#7c2d12" fill="none" strokeWidth={2} />
+        <path d="M66,30 Q62,36 66,42" stroke="#7c2d12" fill="none" strokeWidth={2} />
+        {/* Cream muzzle */}
+        <ellipse cx="50" cy="44" rx="8" ry="5" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        {/* Eyes + nose */}
+        <ellipse cx="42" cy="34" rx="2.5" ry="3.5" fill="#0a0a0a" />
+        <ellipse cx="58" cy="34" rx="2.5" ry="3.5" fill="#0a0a0a" />
+        <circle cx="50" cy="44" r="1.5" fill="#0a0a0a" />
+        {/* Orange body */}
+        <ellipse cx="50" cy="66" rx="18" ry="12" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Dark body stripes */}
+        <path d="M40,58 Q40,66 42,72" stroke="#7c2d12" fill="none" strokeWidth={2} />
+        <path d="M60,58 Q60,66 58,72" stroke="#7c2d12" fill="none" strokeWidth={2} />
+        {/* Legs */}
+        <rect x="36" y="72" width="6" height="10" fill={c} stroke={STROKE} strokeWidth={0.8} />
+        <rect x="58" y="72" width="6" height="10" fill={c} stroke={STROKE} strokeWidth={0.8} />
+        {/* Curled fluffy cream tail */}
+        <path d="M68,60 Q84,54 82,42" stroke={a} fill="none" strokeWidth={8} strokeLinecap="round" />
+        <circle cx="82" cy="42" r="6" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'gardevoir') {
+    // Standing Gardevoir — elegant psychic
+    return (
+      <g>
+        {/* Green helmet-hair */}
+        <path d="M28,32 Q28,10 50,8 Q72,10 72,32 L68,42 L58,38 L50,42 L42,38 L32,42 Z"
+          fill={a} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Pale white head */}
+        <ellipse cx="50" cy="32" rx="16" ry="16" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Forward bang */}
+        <path d="M34,22 L38,36 L46,32 Z" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        {/* Red eyes */}
+        <ellipse cx="44" cy="34" rx="2" ry="3" fill="#dc2626" />
+        <ellipse cx="56" cy="34" rx="2" ry="3" fill="#dc2626" />
+        {/* Flowing white gown body */}
+        <path d="M40,44 L60,44 L74,84 L26,84 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Red horn spike on chest running through the gown */}
+        <polygon points="46,44 50,70 54,44" fill="#dc2626" stroke={STROKE} strokeWidth={0.6} />
+        {/* Red back-horn peek */}
+        <polygon points="46,30 50,10 54,30" fill="#dc2626" opacity="0.4" />
+        {/* Slim arms */}
+        <path d="M40,50 L28,66" stroke={c} strokeWidth={4} strokeLinecap="round" />
+        <path d="M60,50 L72,66" stroke={c} strokeWidth={4} strokeLinecap="round" />
       </g>
     );
   }

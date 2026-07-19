@@ -2656,6 +2656,89 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               seam.position.set(0, TORSO_Y + dy, frontZ + 0.02);
               g.add(seam);
             });
+          } else if (kind === 'growlithe_top') {
+            // Orange body + big fluffy cream chest mane + tiger stripes
+            const orangeMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+            });
+            const creamMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fef3c7'),
+              roughness: 0.85,
+            });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: '#7c2d12', roughness: 0.6,
+            });
+            (torsoMesh as THREE.Mesh).material = orangeMat;
+            // Puffy cream mane around neck/chest
+            for (let i = 0; i < 10; i++) {
+              const a = (i / 10) * Math.PI * 2;
+              const puff = new THREE.Mesh(
+                new THREE.SphereGeometry(0.11, 12, 10),
+                creamMat.clone()
+              );
+              puff.position.set(
+                Math.cos(a) * 0.34,
+                TORSO_Y + 0.28 + Math.sin(a) * 0.08,
+                Math.sin(a) * 0.28
+              );
+              g.add(puff);
+            }
+            // Big front chest fluff
+            const chest = new THREE.Mesh(
+              new THREE.SphereGeometry(0.26, 18, 14),
+              creamMat.clone()
+            );
+            chest.scale.set(1.1, 0.9, 0.5);
+            chest.position.set(0, TORSO_Y - 0.02, frontZ - 0.01);
+            g.add(chest);
+            // Dark tiger stripes on sides
+            [-1, 1].forEach((sx) => {
+              [0.15, -0.05].forEach((dy) => {
+                const stripe = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.14, 0.05, 0.02),
+                  darkMat.clone()
+                );
+                stripe.rotation.z = sx * 0.5;
+                stripe.position.set(sx * 0.34, TORSO_Y + dy, 0);
+                g.add(stripe);
+              });
+            });
+          } else if (kind === 'gardevoir_top') {
+            // Elegant white gown top + red vertical spike on chest + slim
+            // shoulders (make torso pale white with sleek collar).
+            const whiteMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.4,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.03),
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#dc2626'),
+              emissive: '#7f1d1d', emissiveIntensity: 0.3,
+            });
+            (torsoMesh as THREE.Mesh).material = whiteMat;
+            // Big red spike/horn running vertically down the chest
+            const spike = new THREE.Mesh(
+              new THREE.ConeGeometry(0.09, 0.55, 4),
+              redMat.clone()
+            );
+            spike.rotation.x = Math.PI;
+            spike.position.set(0, TORSO_Y + 0.05, frontZ + 0.03);
+            g.add(spike);
+            // Same spike coming out of the back
+            const backSpike = new THREE.Mesh(
+              new THREE.ConeGeometry(0.09, 0.55, 4),
+              redMat.clone()
+            );
+            backSpike.rotation.x = Math.PI;
+            backSpike.position.set(0, TORSO_Y + 0.05, backZ - 0.03);
+            g.add(backSpike);
+            // Sleek V-neck
+            const collar = new THREE.Mesh(
+              new THREE.TorusGeometry(0.22, 0.02, 8, 16, Math.PI),
+              redMat.clone()
+            );
+            collar.rotation.z = Math.PI;
+            collar.position.set(0, topY - 0.05, frontZ - 0.005);
+            g.add(collar);
           } else if (kind === 'lugia_top') {
             // Lugia — white body with pale-blue belly overlay, long white
             // neck rising up from the shoulders, small navy shoulder plates.
@@ -3747,6 +3830,88 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               belly.position.set(0, LEG_Y + LEG_H / 2 - 0.04, 0.14);
               g.add(belly);
             }
+          } else if (kind === 'growlithe_legs') {
+            // Orange rounded legs with dark tiger stripes + cream fluffy cuffs
+            const orangeMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+            });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#7c2d12'),
+              roughness: 0.6,
+            });
+            const creamMat = new THREE.MeshStandardMaterial({
+              color: '#fef3c7', roughness: 0.9,
+            });
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.CylinderGeometry(LEG_W * 0.75, LEG_W * 0.9, LEG_H + 0.02, 14),
+                orangeMat.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+              // Dark tiger stripes (3 rings)
+              [0.18, 0.02, -0.14].forEach((dy) => {
+                const stripe = new THREE.Mesh(
+                  new THREE.TorusGeometry(LEG_W * 0.8, 0.02, 6, 14),
+                  darkMat.clone()
+                );
+                stripe.rotation.x = Math.PI / 2;
+                stripe.position.set(sx * LEG_X, LEG_Y + dy, 0);
+                g.add(stripe);
+              });
+              // Cream fluffy cuff at ankle
+              for (let i = 0; i < 6; i++) {
+                const a = (i / 6) * Math.PI * 2;
+                const puff = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.06, 10, 8), creamMat.clone());
+                puff.position.set(
+                  sx * LEG_X + Math.cos(a) * LEG_W * 0.75,
+                  LEG_Y - LEG_H / 2 + 0.04,
+                  Math.sin(a) * LEG_W * 0.7
+                );
+                g.add(puff);
+              }
+            });
+          } else if (kind === 'gardevoir_legs') {
+            // Flowing white gown flaring outward instead of legs — replace
+            // the boxy legs with a wide cone-skirt shape (Gardevoir has no
+            // visible legs, just a gown).
+            const whiteMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.4,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.03),
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#dc2626'),
+              roughness: 0.5,
+            });
+            const gown = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.16, 0.55, LEG_H + 0.1, 20),
+              whiteMat.clone()
+            );
+            gown.position.set(0, LEG_Y, 0);
+            g.add(gown);
+            // Red vertical stripe running down the front of the gown
+            const stripe = new THREE.Mesh(
+              new THREE.BoxGeometry(0.04, LEG_H, 0.02),
+              redMat.clone()
+            );
+            stripe.position.set(0, LEG_Y, 0.28);
+            g.add(stripe);
+            // Same on the back
+            const backStripe = new THREE.Mesh(
+              new THREE.BoxGeometry(0.04, LEG_H, 0.02),
+              redMat.clone()
+            );
+            backStripe.position.set(0, LEG_Y, -0.28);
+            g.add(backStripe);
+            // Small waistband
+            const waist = new THREE.Mesh(
+              new THREE.TorusGeometry(0.18, 0.02, 8, 18),
+              redMat.clone()
+            );
+            waist.rotation.x = Math.PI / 2;
+            waist.position.set(0, LEG_Y + LEG_H / 2 - 0.02, 0);
+            g.add(waist);
           } else if (kind === 'lugia_legs') {
             // Lugia — white legs with pale-blue upper thighs and navy claw
             // marks at the ankles. Wider stance and slightly curved (bird
@@ -6059,6 +6224,194 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               half.position.set(sx * 0.02, HEAD_Y - 0.12, FACE_Z + 0.14);
               g.add(half);
             });
+          } else if (kind === 'growlithe_face') {
+            // Growlithe — orange puppy head with fluffy cream mane framing
+            // it, dark tiger stripes, black round eyes, black nose.
+            const orangeMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+            });
+            const creamMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fef3c7'),
+              roughness: 0.85,
+            });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: '#7c2d12', roughness: 0.6,
+            });
+            const blackMat = new THREE.MeshStandardMaterial({ color: '#0a0a0a' });
+            // Orange rounded head
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(HEAD_SIZE * 0.55, 24, 20),
+              orangeMat.clone()
+            );
+            head.scale.set(1.1, 0.98, 1.0);
+            head.position.set(0, HEAD_Y, 0);
+            g.add(head);
+            // Big fluffy cream mane — ring of puffs around the head
+            for (let i = 0; i < 12; i++) {
+              const a = (i / 12) * Math.PI * 2;
+              const puff = new THREE.Mesh(
+                new THREE.SphereGeometry(0.11, 12, 10),
+                creamMat.clone()
+              );
+              puff.position.set(
+                Math.cos(a) * 0.42,
+                HEAD_Y + Math.sin(a) * 0.22 + 0.02,
+                Math.sin(a) * 0.16 - 0.02
+              );
+              g.add(puff);
+            }
+            // Extra top mane tuft
+            const topPuff = new THREE.Mesh(
+              new THREE.SphereGeometry(0.14, 14, 12),
+              creamMat.clone()
+            );
+            topPuff.position.set(0, HEAD_Y + 0.32, -0.06);
+            g.add(topPuff);
+            // Cream muzzle
+            const muzzle = new THREE.Mesh(
+              new THREE.SphereGeometry(0.15, 16, 12),
+              creamMat.clone()
+            );
+            muzzle.scale.set(1.1, 0.7, 0.9);
+            muzzle.position.set(0, HEAD_Y - 0.14, FACE_Z + 0.04);
+            g.add(muzzle);
+            // Dark tiger stripes on cheeks
+            [-1, 1].forEach((sx) => {
+              const stripe = new THREE.Mesh(
+                new THREE.BoxGeometry(0.05, 0.14, 0.03),
+                darkMat.clone()
+              );
+              stripe.rotation.z = sx * 0.4;
+              stripe.position.set(sx * 0.22, HEAD_Y + 0.02, FACE_Z + 0.02);
+              g.add(stripe);
+            });
+            // Big round black eyes with shine
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.055, 14, 10),
+                blackMat.clone()
+              );
+              eye.scale.set(1, 1.15, 0.7);
+              eye.position.set(sx * 0.14, HEAD_Y + 0.06, FACE_Z + 0.04);
+              g.add(eye);
+              const hl = new THREE.Mesh(
+                new THREE.SphereGeometry(0.02, 8, 6),
+                new THREE.MeshStandardMaterial({
+                  color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.8,
+                })
+              );
+              hl.position.set(sx * 0.14 + 0.018, HEAD_Y + 0.09, FACE_Z + 0.08);
+              g.add(hl);
+            });
+            // Black nose
+            const nose = new THREE.Mesh(
+              new THREE.SphereGeometry(0.03, 12, 10),
+              blackMat.clone()
+            );
+            nose.position.set(0, HEAD_Y - 0.09, FACE_Z + 0.19);
+            g.add(nose);
+            // Small open mouth
+            const mouth = new THREE.Mesh(
+              new THREE.TorusGeometry(0.045, 0.012, 6, 12, Math.PI),
+              new THREE.MeshStandardMaterial({ color: '#7f1d1d' })
+            );
+            mouth.rotation.z = Math.PI;
+            mouth.position.set(0, HEAD_Y - 0.15, FACE_Z + 0.15);
+            g.add(mouth);
+            // Pointed orange ears
+            [-1, 1].forEach((sx) => {
+              const ear = new THREE.Mesh(
+                new THREE.ConeGeometry(0.08, 0.18, 4),
+                orangeMat.clone()
+              );
+              ear.rotation.z = sx * 0.4;
+              ear.position.set(sx * 0.22, HEAD_Y + HEAD_SIZE / 2 - 0.02, 0);
+              g.add(ear);
+            });
+          } else if (kind === 'gardevoir_face') {
+            // Gardevoir — pale white psychic face + green helmet-hair with a
+            // forward bang covering one eye + red horn on forehead + red eyes.
+            const paleMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.4,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.05),
+            });
+            const greenMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#16a34a'),
+              roughness: 0.55,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.3,
+            });
+            // Pale face
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(HEAD_SIZE * 0.55, 22, 20),
+              paleMat.clone()
+            );
+            head.scale.set(1.0, 1.08, 0.95);
+            head.position.set(0, HEAD_Y, 0);
+            g.add(head);
+            // Green helmet-hair — dome covering top of head
+            const helmet = new THREE.Mesh(
+              new THREE.SphereGeometry(HEAD_SIZE * 0.6, 24, 16, 0, Math.PI * 2, 0, Math.PI * 0.65),
+              greenMat.clone()
+            );
+            helmet.scale.set(1.05, 1.0, 1.05);
+            helmet.position.set(0, HEAD_Y + 0.02, -0.02);
+            g.add(helmet);
+            // Forward-pointing green bang covering one eye
+            const bang = new THREE.Mesh(
+              new THREE.ConeGeometry(0.14, 0.28, 4),
+              greenMat.clone()
+            );
+            bang.rotation.x = Math.PI / 2 + 0.4;
+            bang.rotation.z = 0.25;
+            bang.position.set(-0.16, HEAD_Y + 0.1, FACE_Z + 0.02);
+            g.add(bang);
+            // Rear pointy hair tips (two spikes going down)
+            [-1, 1].forEach((sx) => {
+              const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.1, 0.28, 4),
+                greenMat.clone()
+              );
+              spike.rotation.z = sx * -0.3;
+              spike.rotation.x = 0.3;
+              spike.position.set(sx * 0.32, HEAD_Y - 0.06, -0.12);
+              g.add(spike);
+            });
+            // Red horn spike on forehead (down-pointing)
+            const horn = new THREE.Mesh(
+              new THREE.ConeGeometry(0.05, 0.18, 4),
+              redMat.clone()
+            );
+            horn.rotation.x = Math.PI;
+            horn.position.set(0, HEAD_Y + 0.02, FACE_Z + 0.06);
+            g.add(horn);
+            // Red eyes
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.05, 14, 10),
+                redMat.clone()
+              );
+              eye.scale.set(1, 1.3, 0.7);
+              eye.position.set(sx * 0.14, HEAD_Y - 0.05, FACE_Z + 0.03);
+              g.add(eye);
+              const hl = new THREE.Mesh(
+                new THREE.SphereGeometry(0.014, 8, 6),
+                new THREE.MeshStandardMaterial({
+                  color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.9,
+                })
+              );
+              hl.position.set(sx * 0.14 + 0.015, HEAD_Y - 0.02, FACE_Z + 0.08);
+              g.add(hl);
+            });
+            // Tiny pink smile
+            const smile = new THREE.Mesh(
+              new THREE.TorusGeometry(0.035, 0.01, 6, 12, Math.PI),
+              new THREE.MeshStandardMaterial({ color: '#be185d' })
+            );
+            smile.rotation.z = Math.PI;
+            smile.position.set(0, HEAD_Y - 0.18, FACE_Z + 0.06);
+            g.add(smile);
           } else if (kind === 'lugia_face') {
             // Lugia — elongated white bird-dragon head, pointed navy back-crest,
             // dark navy blue jagged eye "mask" wrapping across both eyes,
@@ -6485,6 +6838,88 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 g.add(finger);
               });
             });
+            break;
+          }
+          if (kind === 'growlithe_tail') {
+            // Growlithe — fluffy curled cream tail with orange stripes
+            const orangeMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+            });
+            const creamMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fef3c7'),
+              roughness: 0.85,
+            });
+            // Curved orange tail base
+            const tailBase = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.08, 0.1, 0.4, 12),
+              orangeMat.clone()
+            );
+            tailBase.rotation.z = -0.6;
+            tailBase.position.set(-0.2, TORSO_Y - 0.1, -TORSO_D / 2 - 0.14);
+            g.add(tailBase);
+            // Big fluffy cream tail tip — cluster of puffs
+            for (let i = 0; i < 8; i++) {
+              const a = (i / 8) * Math.PI * 2;
+              const r = 0.14;
+              const puff = new THREE.Mesh(
+                new THREE.SphereGeometry(0.13, 12, 10),
+                creamMat.clone()
+              );
+              puff.position.set(
+                -0.42 + Math.cos(a) * r,
+                TORSO_Y + 0.12 + Math.sin(a) * r,
+                -TORSO_D / 2 - 0.14
+              );
+              g.add(puff);
+            }
+            // Center tuft
+            const centerPuff = new THREE.Mesh(
+              new THREE.SphereGeometry(0.16, 14, 12),
+              creamMat.clone()
+            );
+            centerPuff.position.set(-0.42, TORSO_Y + 0.12, -TORSO_D / 2 - 0.14);
+            g.add(centerPuff);
+            break;
+          }
+          if (kind === 'gardevoir_dress') {
+            // Gardevoir — flowing white gown wings on the back, red back-horn
+            // spike, elegant flare panels.
+            const whiteMat = new THREE.MeshStandardMaterial({
+              color, side: THREE.DoubleSide, roughness: 0.4,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.03),
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#dc2626'),
+              emissive: '#7f1d1d', emissiveIntensity: 0.3,
+            });
+            // Two flowing side panels (like fabric wings)
+            [-1, 1].forEach((sx) => {
+              const panel = new THREE.Mesh(
+                new THREE.BoxGeometry(0.5, 0.8, 0.03),
+                whiteMat.clone()
+              );
+              panel.rotation.z = sx * -0.35;
+              panel.rotation.y = sx * -0.2;
+              panel.position.set(sx * 0.36, TORSO_Y + 0.05, -TORSO_D / 2 - 0.14);
+              g.add(panel);
+              // Pointed tip at bottom
+              const tip = new THREE.Mesh(
+                new THREE.ConeGeometry(0.14, 0.3, 3),
+                whiteMat.clone()
+              );
+              tip.rotation.z = sx * -0.35 + Math.PI;
+              tip.rotation.y = sx * -0.2;
+              tip.position.set(sx * 0.5, TORSO_Y - 0.4, -TORSO_D / 2 - 0.14);
+              g.add(tip);
+            });
+            // Big red horn spike on the back
+            const backHorn = new THREE.Mesh(
+              new THREE.ConeGeometry(0.1, 0.6, 4),
+              redMat.clone()
+            );
+            backHorn.rotation.x = Math.PI;
+            backHorn.position.set(0, TORSO_Y + 0.1, -TORSO_D / 2 - 0.16);
+            g.add(backHorn);
             break;
           }
           if (kind === 'lugia_wings') {
@@ -7964,6 +8399,94 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             : null;
           const footY = LEG_Y - LEG_H / 2 - 0.02;
 
+          if (kind === 'growlithe_feet') {
+            // Orange feet with dark stripes + cream fluffy cuffs
+            const orangeMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+            });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#7c2d12'),
+              roughness: 0.6,
+            });
+            const creamMat = new THREE.MeshStandardMaterial({
+              color: '#fef3c7', roughness: 0.85,
+            });
+            [-1, 1].forEach((sx) => {
+              const foot = new THREE.Mesh(
+                new THREE.SphereGeometry(0.16, 14, 12),
+                orangeMat.clone()
+              );
+              foot.scale.set(1.05, 0.7, 1.4);
+              foot.position.set(sx * LEG_X, footY + 0.02, 0.08);
+              g.add(foot);
+              // Dark stripe across the foot
+              const stripe = new THREE.Mesh(
+                new THREE.BoxGeometry(LEG_W + 0.05, 0.03, 0.06),
+                darkMat.clone()
+              );
+              stripe.position.set(sx * LEG_X, footY, 0.14);
+              g.add(stripe);
+              // Cream fluffy cuff at the ankle
+              for (let i = 0; i < 8; i++) {
+                const a = (i / 8) * Math.PI * 2;
+                const puff = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.055, 10, 8), creamMat.clone());
+                puff.position.set(
+                  sx * LEG_X + Math.cos(a) * 0.13,
+                  footY + 0.08,
+                  Math.sin(a) * 0.13
+                );
+                g.add(puff);
+              }
+              // 3 toe pads
+              [-0.06, 0, 0.06].forEach((dx) => {
+                const toe = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.03, 8, 6), darkMat.clone());
+                toe.position.set(sx * LEG_X + dx, footY - 0.06, 0.22);
+                g.add(toe);
+              });
+            });
+            break;
+          }
+          if (kind === 'gardevoir_feet') {
+            // Elegant pointed white "slippers" — Gardevoir has no visible
+            // feet, so make them elegant pointed white shapes with green
+            // accents. Very minimal since the gown covers most of them.
+            const whiteMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.4,
+              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.03),
+            });
+            const greenMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#16a34a'),
+              roughness: 0.55,
+            });
+            [-1, 1].forEach((sx) => {
+              const slipper = new THREE.Mesh(
+                new THREE.SphereGeometry(0.12, 14, 10),
+                whiteMat.clone()
+              );
+              slipper.scale.set(0.85, 0.5, 1.4);
+              slipper.position.set(sx * LEG_X, footY + 0.02, 0.08);
+              g.add(slipper);
+              // Green pointed tip
+              const tip = new THREE.Mesh(
+                new THREE.ConeGeometry(0.05, 0.1, 4),
+                greenMat.clone()
+              );
+              tip.rotation.x = -Math.PI / 2;
+              tip.position.set(sx * LEG_X, footY, 0.22);
+              g.add(tip);
+              // Green ankle band
+              const band = new THREE.Mesh(
+                new THREE.TorusGeometry(0.11, 0.02, 6, 14),
+                greenMat.clone()
+              );
+              band.rotation.x = Math.PI / 2;
+              band.position.set(sx * LEG_X, footY + 0.08, 0);
+              g.add(band);
+            });
+            break;
+          }
           if (kind === 'lugia_feet') {
             // Lugia — white bird-feet with pale-blue upper band + 3 huge
             // navy claws pointing forward.
@@ -9582,6 +10105,92 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               eye.position.set(cx + sx * 0.035, cy + 0.02, cz + 0.06);
               g.add(eye);
             });
+          } else if (kind === 'growlithe_charm') {
+            // Mini Growlithe head — orange head + cream mane + tiger stripe
+            const orangeMat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
+            const creamMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fef3c7'), roughness: 0.85,
+            });
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(0.08, 14, 12), orangeMat.clone()
+            );
+            head.position.set(cx, cy, cz);
+            g.add(head);
+            // Mane puffs around head
+            for (let i = 0; i < 8; i++) {
+              const a = (i / 8) * Math.PI * 2;
+              const puff = new THREE.Mesh(
+                new THREE.SphereGeometry(0.028, 8, 6), creamMat.clone()
+              );
+              puff.position.set(
+                cx + Math.cos(a) * 0.09,
+                cy + Math.sin(a) * 0.09,
+                cz - 0.02
+              );
+              g.add(puff);
+            }
+            // Muzzle
+            const muzzle = new THREE.Mesh(
+              new THREE.SphereGeometry(0.032, 10, 8), creamMat.clone()
+            );
+            muzzle.scale.set(1, 0.7, 0.9);
+            muzzle.position.set(cx, cy - 0.03, cz + 0.05);
+            g.add(muzzle);
+            // Eyes
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.014, 8, 8),
+                new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+              );
+              eye.position.set(cx + sx * 0.028, cy + 0.02, cz + 0.06);
+              g.add(eye);
+            });
+          } else if (kind === 'gardevoir_charm') {
+            // Mini Gardevoir head — pale face + green helmet + red horn
+            const paleMat = new THREE.MeshStandardMaterial({ color, roughness: 0.4 });
+            const greenMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#16a34a'), roughness: 0.55,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.4,
+            });
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(0.08, 14, 12), paleMat.clone()
+            );
+            head.position.set(cx, cy, cz);
+            g.add(head);
+            // Green helmet dome
+            const helmet = new THREE.Mesh(
+              new THREE.SphereGeometry(0.088, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.6),
+              greenMat.clone()
+            );
+            helmet.position.set(cx, cy + 0.005, cz - 0.005);
+            g.add(helmet);
+            // Rear pointy hair tips
+            [-1, 1].forEach((sx) => {
+              const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.02, 0.06, 3), greenMat.clone()
+              );
+              spike.rotation.z = sx * -0.3;
+              spike.rotation.x = 0.3;
+              spike.position.set(cx + sx * 0.05, cy - 0.03, cz - 0.04);
+              g.add(spike);
+            });
+            // Red horn
+            const horn = new THREE.Mesh(
+              new THREE.ConeGeometry(0.014, 0.05, 3), redMat.clone()
+            );
+            horn.rotation.x = Math.PI;
+            horn.position.set(cx, cy + 0.005, cz + 0.06);
+            g.add(horn);
+            // Red eyes
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.014, 8, 8), redMat.clone()
+              );
+              eye.position.set(cx + sx * 0.025, cy - 0.015, cz + 0.06);
+              g.add(eye);
+            });
           } else if (kind === 'lugia_charm') {
             // Mini Lugia head charm — white elongated head + navy eye-mask
             // spikes + small back-crest + tiny beak.
@@ -10282,7 +10891,9 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             kind === 'gengar' ||
             kind === 'charizard' ||
             kind === 'mew' ||
-            kind === 'lugia'
+            kind === 'lugia' ||
+            kind === 'growlithe' ||
+            kind === 'gardevoir'
           ) {
             // Full-body Pokemon companion standing (or floating) at
             // X=-1.15 — mirror of the motorcycle side.
@@ -11409,6 +12020,246 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               // Soft blue psychic glow (Lugia is a legendary psychic-flying)
               const auraLight = new THREE.PointLight('#93c5fd', 0.6, 2.0);
               auraLight.position.set(CX, 0.5, 0.3);
+              g.add(auraLight);
+            } else if (kind === 'growlithe') {
+              // Standing orange puppy with big cream mane, tiger stripes,
+              // curled cream tail.
+              const orangeMat = new THREE.MeshStandardMaterial({
+                color, roughness: 0.55,
+                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.05),
+              });
+              const creamMat = new THREE.MeshStandardMaterial({
+                color: accent ?? new THREE.Color('#fef3c7'),
+                roughness: 0.85,
+              });
+              const darkMat = new THREE.MeshStandardMaterial({
+                color: '#7c2d12', roughness: 0.6,
+              });
+              // Body
+              const body = new THREE.Mesh(
+                new THREE.SphereGeometry(0.32, 22, 18), orangeMat.clone());
+              body.scale.set(1.3, 0.9, 0.95);
+              body.position.set(CX, 0, 0);
+              g.add(body);
+              // Head
+              const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.28, 22, 18), orangeMat.clone());
+              head.scale.set(1.1, 0.98, 1.0);
+              head.position.set(CX + 0.16, 0.34, 0.04);
+              g.add(head);
+              // Cream muzzle
+              const muzzle = new THREE.Mesh(
+                new THREE.SphereGeometry(0.13, 14, 10), creamMat.clone());
+              muzzle.scale.set(1.1, 0.7, 0.9);
+              muzzle.position.set(CX + 0.28, 0.24, 0.16);
+              g.add(muzzle);
+              // Big cream mane around neck/head
+              for (let i = 0; i < 12; i++) {
+                const a = (i / 12) * Math.PI * 2;
+                const puff = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.11, 12, 10), creamMat.clone());
+                puff.position.set(
+                  CX + 0.1 + Math.cos(a) * 0.22,
+                  0.24 + Math.sin(a) * 0.18,
+                  Math.sin(a) * 0.14
+                );
+                g.add(puff);
+              }
+              // Extra top mane tuft
+              const topPuff = new THREE.Mesh(
+                new THREE.SphereGeometry(0.13, 14, 10), creamMat.clone());
+              topPuff.position.set(CX + 0.14, 0.6, -0.04);
+              g.add(topPuff);
+              // Ears (pointy orange)
+              [-1, 1].forEach((sx) => {
+                const ear = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.07, 0.15, 4), orangeMat.clone());
+                ear.rotation.z = sx * 0.4;
+                ear.rotation.x = -0.2;
+                ear.position.set(CX + 0.16 + sx * 0.14, 0.56, 0.04);
+                g.add(ear);
+              });
+              // Eyes + nose
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.028, 10, 8),
+                  new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+                );
+                eye.position.set(CX + 0.22 + sx * 0.06, 0.36, 0.22);
+                g.add(eye);
+              });
+              const nose = new THREE.Mesh(
+                new THREE.SphereGeometry(0.022, 10, 8),
+                new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+              );
+              nose.position.set(CX + 0.34, 0.24, 0.2);
+              g.add(nose);
+              // Tiger stripes on body sides
+              [-1, 1].forEach((sx) => {
+                [0.08, -0.06].forEach((dy) => {
+                  const stripe = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.14, 0.04, 0.02),
+                    darkMat.clone()
+                  );
+                  stripe.rotation.z = sx * 0.5;
+                  stripe.position.set(CX + sx * 0.14, dy, sx * 0.28);
+                  g.add(stripe);
+                });
+              });
+              // 4 legs
+              [-0.22, 0.2].forEach((dx) => {
+                [-0.14, 0.14].forEach((dz) => {
+                  const leg = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.07, 0.08, 0.22, 10),
+                    orangeMat.clone()
+                  );
+                  leg.position.set(CX + dx, -0.28, dz);
+                  g.add(leg);
+                });
+              });
+              // Curled fluffy cream tail
+              for (let i = 0; i < 6; i++) {
+                const a = (i / 6) * Math.PI * 2;
+                const puff = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.09, 12, 10), creamMat.clone());
+                puff.position.set(
+                  CX - 0.36 + Math.cos(a) * 0.1,
+                  0.15 + Math.sin(a) * 0.1,
+                  0
+                );
+                g.add(puff);
+              }
+              const tailCenter = new THREE.Mesh(
+                new THREE.SphereGeometry(0.12, 14, 10), creamMat.clone());
+              tailCenter.position.set(CX - 0.36, 0.15, 0);
+              g.add(tailCenter);
+            } else if (kind === 'gardevoir') {
+              // Standing Gardevoir — elegant humanoid with green helmet-hair,
+              // pale face, red horn on chest and back, flowing white gown.
+              const whiteMat = new THREE.MeshStandardMaterial({
+                color, roughness: 0.4,
+                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.04),
+              });
+              const greenMat = new THREE.MeshStandardMaterial({
+                color: accent ?? new THREE.Color('#16a34a'),
+                roughness: 0.55,
+              });
+              const redMat = new THREE.MeshStandardMaterial({
+                color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.3,
+              });
+              // Flowing gown body (wide at bottom, narrow at waist)
+              const gown = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.16, 0.5, 0.8, 20),
+                whiteMat.clone()
+              );
+              gown.position.set(CX, -0.15, 0);
+              g.add(gown);
+              // Slim upper body
+              const upper = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2, 20, 16),
+                whiteMat.clone()
+              );
+              upper.scale.set(0.9, 1.2, 0.85);
+              upper.position.set(CX, 0.32, 0);
+              g.add(upper);
+              // Big red vertical spike/horn on chest
+              const chestSpike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.07, 0.42, 4), redMat.clone());
+              chestSpike.rotation.x = Math.PI;
+              chestSpike.position.set(CX, 0.3, 0.14);
+              g.add(chestSpike);
+              // Same spike on the back
+              const backSpike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.07, 0.42, 4), redMat.clone());
+              backSpike.rotation.x = Math.PI;
+              backSpike.position.set(CX, 0.3, -0.14);
+              g.add(backSpike);
+              // Neck
+              const neck = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.06, 0.08, 0.12, 10),
+                whiteMat.clone()
+              );
+              neck.position.set(CX, 0.52, 0);
+              g.add(neck);
+              // Pale head
+              const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.19, 22, 18), whiteMat.clone());
+              head.scale.set(1.0, 1.08, 0.95);
+              head.position.set(CX, 0.7, 0);
+              g.add(head);
+              // Green helmet-hair dome
+              const helmet = new THREE.Mesh(
+                new THREE.SphereGeometry(0.21, 22, 12, 0, Math.PI * 2, 0, Math.PI * 0.65),
+                greenMat.clone()
+              );
+              helmet.scale.set(1.05, 1.0, 1.05);
+              helmet.position.set(CX, 0.72, -0.02);
+              g.add(helmet);
+              // Forward-pointing bang
+              const bang = new THREE.Mesh(
+                new THREE.ConeGeometry(0.11, 0.24, 4), greenMat.clone());
+              bang.rotation.x = Math.PI / 2 + 0.4;
+              bang.rotation.z = 0.25;
+              bang.position.set(CX - 0.12, 0.78, 0.14);
+              g.add(bang);
+              // Rear pointy hair spikes
+              [-1, 1].forEach((sx) => {
+                const spike = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.09, 0.26, 4), greenMat.clone());
+                spike.rotation.z = sx * -0.3;
+                spike.rotation.x = 0.3;
+                spike.position.set(CX + sx * 0.24, 0.64, -0.14);
+                g.add(spike);
+              });
+              // Red horn on forehead
+              const foreHorn = new THREE.Mesh(
+                new THREE.ConeGeometry(0.045, 0.14, 4), redMat.clone());
+              foreHorn.rotation.x = Math.PI;
+              foreHorn.position.set(CX, 0.74, 0.16);
+              g.add(foreHorn);
+              // Red eyes
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.038, 12, 10), redMat.clone());
+                eye.scale.set(1, 1.3, 0.7);
+                eye.position.set(CX + sx * 0.09, 0.66, 0.16);
+                g.add(eye);
+                const hl = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.011, 8, 6),
+                  new THREE.MeshStandardMaterial({
+                    color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.9,
+                  })
+                );
+                hl.position.set(CX + sx * 0.09 + 0.012, 0.69, 0.19);
+                g.add(hl);
+              });
+              // Slim arms held out
+              [-1, 1].forEach((sx) => {
+                const arm = new THREE.Mesh(
+                  new THREE.CylinderGeometry(0.04, 0.05, 0.36, 10),
+                  whiteMat.clone()
+                );
+                arm.rotation.z = sx * -0.4;
+                arm.position.set(CX + sx * 0.22, 0.16, 0.05);
+                g.add(arm);
+                // Small hand
+                const hand = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.06, 12, 10), whiteMat.clone());
+                hand.position.set(CX + sx * 0.36, 0.04, 0.06);
+                g.add(hand);
+              });
+              // Small gown-side flare panels
+              [-1, 1].forEach((sx) => {
+                const flare = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.36, 0.5, 0.03), whiteMat.clone()
+                );
+                flare.rotation.z = sx * -0.4;
+                flare.position.set(CX + sx * 0.42, -0.16, 0);
+                g.add(flare);
+              });
+              // Soft psychic pink aura
+              const auraLight = new THREE.PointLight('#fbcfe8', 0.5, 1.8);
+              auraLight.position.set(CX, 0.4, 0.3);
               g.add(auraLight);
             }
           }
