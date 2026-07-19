@@ -29,6 +29,13 @@ type Props = {
   onBack: () => void;
 };
 
+// The fill step walks the chapter sentence by sentence. A sentence with slots
+// yields one item per slot (blank/choice); a sentence with no slot yields a
+// single read-only item so the whole sentence is still shown.
+type FillItem =
+  | { kind: 'slot'; sIdx: number; bIdx: number; slot: Slot }
+  | { kind: 'read'; sIdx: number };
+
 // A chapter is done one STEP at a time (like the sight-word day flow): the
 // child completes a single step, earns coins, returns Home, then presses the
 // next-step button to start the following step. Steps (per showTellSteps):
@@ -81,11 +88,14 @@ export function ShowTell({ onBack }: Props) {
   );
   const stepDef = steps[step];
 
-  // Flat list of fill slots (blank or choice) in reading order for the fill phase.
-  const slots = useMemo(() => {
-    const out: { sIdx: number; bIdx: number; slot: Slot }[] = [];
+  // The fill walk: every sentence appears. Sentences with slots contribute one
+  // item per slot; sentences with no slot contribute a single read-only item.
+  const fillItems = useMemo<FillItem[]>(() => {
+    const out: FillItem[] = [];
     script.sentences.forEach((s, sIdx) => {
-      getSlots(s).forEach((slot, bIdx) => out.push({ sIdx, bIdx, slot }));
+      const ss = getSlots(s);
+      if (ss.length === 0) out.push({ kind: 'read', sIdx });
+      else ss.forEach((slot, bIdx) => out.push({ kind: 'slot', sIdx, bIdx, slot }));
     });
     return out;
   }, [script]);
@@ -120,7 +130,8 @@ export function ShowTell({ onBack }: Props) {
   // string built below). We intentionally do NOT re-fire on every keystroke —
   // the child updates their own word in real time; the Listen button is
   // there to re-read the sentence with the current choices when they want.
-  const fillSpokenSentenceIdx = stepDef.kind === 'fill' ? slots[fillCursor]?.sIdx : undefined;
+  const fillSpokenSentenceIdx =
+    stepDef.kind === 'fill' ? fillItems[fillCursor]?.sIdx : undefined;
   useEffect(() => {
     if (stepResult) return;
     if (stepDef.kind !== 'fill') return;
@@ -149,29 +160,29 @@ export function ShowTell({ onBack }: Props) {
 
   // ── Fill phase helpers (blank = typed, choice = picked; both saved) ──
   const setSlotValue = (value: string) => {
-    const cursor = slots[fillCursor];
-    if (!cursor) return;
+    const it = fillItems[fillCursor];
+    if (!it || it.kind !== 'slot') return;
     setFills((prev) => {
       const next = prev.map((row) => row.slice());
-      next[cursor.sIdx][cursor.bIdx] = value;
+      next[it.sIdx][it.bIdx] = value;
       storage.setShowTellFills(script.id, next);
       return next;
     });
   };
 
   const clearCurrentSlot = () => {
-    const cursor = slots[fillCursor];
-    if (!cursor) return;
+    const it = fillItems[fillCursor];
+    if (!it || it.kind !== 'slot') return;
     setFills((prev) => {
       const next = prev.map((row) => row.slice());
-      next[cursor.sIdx][cursor.bIdx] = '';
+      next[it.sIdx][it.bIdx] = '';
       storage.setShowTellFills(script.id, next);
       return next;
     });
   };
 
-  const allSlotsFilled = slots.every(
-    ({ sIdx, bIdx }) => (fills[sIdx]?.[bIdx] ?? '').trim() !== ''
+  const allSlotsFilled = fillItems.every(
+    (it) => it.kind !== 'slot' || (fills[it.sIdx]?.[it.bIdx] ?? '').trim() !== ''
   );
 
   const finishFill = () => {
@@ -181,13 +192,13 @@ export function ShowTell({ onBack }: Props) {
     completeStep(coins);
   };
 
-  const cursor0 = slots[fillCursor];
-  const cursor0Fill = cursor0 ? fills[cursor0.sIdx]?.[cursor0.bIdx] ?? '' : '';
+  const cur0 = fillItems[fillCursor];
+  const cur0Fill = cur0 && cur0.kind === 'slot' ? fills[cur0.sIdx]?.[cur0.bIdx] ?? '' : '';
+  // Read-only items need no fill; slot items need a non-empty value to advance.
+  const canAdvance = !cur0 || cur0.kind !== 'slot' || cur0Fill.trim() !== '';
   const advanceFill = () => {
-    if (fillCursor + 1 < slots.length) {
-      if (cursor0Fill.trim() !== '') {
-        setFillCursor((c) => Math.min(slots.length - 1, c + 1));
-      }
+    if (fillCursor + 1 < fillItems.length) {
+      if (canAdvance) setFillCursor((c) => Math.min(fillItems.length - 1, c + 1));
     } else if (allSlotsFilled) {
       finishFill();
     }
@@ -271,10 +282,12 @@ export function ShowTell({ onBack }: Props) {
 
   // ───────── Fill phase render — focused per-slot (type or circle) ─────────
   if (stepDef.kind === 'fill') {
-    const cursor = slots[fillCursor];
-    const cursorFill = cursor ? fills[cursor.sIdx]?.[cursor.bIdx] ?? '' : '';
-    const isChoice = cursor?.slot.kind === 'choice';
-    const ctxParts = cursor ? splitSentence(script.sentences[cursor.sIdx]) : [];
+    const item = fillItems[fillCursor];
+    const isRead = item?.kind === 'read';
+    const isChoice = item?.kind === 'slot' && item.slot.kind === 'choice';
+    const cursorFill =
+      item?.kind === 'slot' ? fills[item.sIdx]?.[item.bIdx] ?? '' : '';
+    const ctxParts = item ? splitSentence(script.sentences[item.sIdx]) : [];
     const wordBox = getWordBox(script.id);
     // Words already placed in any blank (normalized) so the Word Box can mark
     // them as used — case-insensitively ("To a hotel" ≈ "to a hotel").
@@ -287,10 +300,10 @@ export function ShowTell({ onBack }: Props) {
     );
     // The sentence read aloud: filled-in words kept, empty blanks spoken
     // as the word "blank" so the child hears where their word will go
-    // instead of an awkward gap. Choice slots that haven't been picked
-    // yet keep their "(A/B)" pair collapsed into a single "blank" too.
-    const spoken = cursor
-      ? fillSentence(script.sentences[cursor.sIdx], fills[cursor.sIdx] ?? [])
+    // instead of an awkward gap. For a read-only sentence there are no
+    // slots, so the whole sentence is read as-is.
+    const spoken = item
+      ? fillSentence(script.sentences[item.sIdx], fills[item.sIdx] ?? [])
           .replace(/\(([^()]*\/[^()]*)\)/g, ' blank ')
           .replace(/___/g, ' blank ')
           .replace(/\s+/g, ' ')
@@ -330,11 +343,12 @@ export function ShowTell({ onBack }: Props) {
           <div className="h-3 bg-white rounded-full overflow-hidden shadow">
             <div
               className="h-full bg-amber-500 transition-all"
-              style={{ width: `${((fillCursor + 1) / Math.max(1, slots.length)) * 100}%` }}
+              style={{ width: `${((fillCursor + 1) / Math.max(1, fillItems.length)) * 100}%` }}
             />
           </div>
           <div className="text-center text-slate-600 mt-1 text-sm font-bold">
-            {isChoice ? 'Choice' : 'Blank'} {fillCursor + 1} / {slots.length}
+            {isRead ? 'Read' : isChoice ? 'Choice' : 'Blank'} {fillCursor + 1} /{' '}
+            {fillItems.length}
           </div>
         </div>
 
@@ -343,7 +357,7 @@ export function ShowTell({ onBack }: Props) {
           <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-6 w-full max-w-3xl">
             <div className="flex items-center justify-between gap-2 mb-3">
               <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider">
-                {isChoice ? 'Circle one' : 'Fill in this blank'}
+                {isRead ? 'Read this sentence' : isChoice ? 'Circle one' : 'Fill in this blank'}
               </div>
               <button
                 onClick={() => void speak(spoken, { rate: READ_RATE })}
@@ -363,8 +377,8 @@ export function ShowTell({ onBack }: Props) {
                 }
                 const placeholder =
                   p.kind === 'choice' ? `(${p.options.join('/')})` : '___';
-                const isActive = cursor && p.index === cursor.bIdx;
-                const filled = fills[cursor!.sIdx]?.[p.index] ?? '';
+                const isActive = item?.kind === 'slot' && p.index === item.bIdx;
+                const filled = item ? fills[item.sIdx]?.[p.index] ?? '' : '';
                 if (isActive) {
                   return (
                     <span
@@ -391,15 +405,16 @@ export function ShowTell({ onBack }: Props) {
             </p>
           </div>
 
-          {/* Input: type a word (blank) or circle one (choice) */}
-          {isChoice ? (
+          {/* Input: nothing for read-only, circle for choice, type for blank */}
+          {isRead ? null : isChoice ? (
             <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
               <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
                 Circle Your Pick
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {cursor!.slot.kind === 'choice' &&
-                  cursor!.slot.options.map((opt) => {
+                {item?.kind === 'slot' &&
+                  item.slot.kind === 'choice' &&
+                  item.slot.options.map((opt) => {
                     const picked = cursorFill === opt;
                     return (
                       <button
@@ -440,7 +455,7 @@ export function ShowTell({ onBack }: Props) {
           )}
 
           {/* Word Box — reference words for the blanks (tap to use) */}
-          {!isChoice && wordBox.length > 0 && (
+          {!isRead && !isChoice && wordBox.length > 0 && (
             <div className="bg-white/90 backdrop-blur rounded-3xl shadow-lg p-5 w-full max-w-3xl">
               <div className="text-xs font-extrabold text-slate-500 uppercase tracking-wider mb-3">
                 Word Box — tap to use
@@ -486,18 +501,22 @@ export function ShowTell({ onBack }: Props) {
             >
               ← Back
             </button>
-            <button
-              onClick={clearCurrentSlot}
-              className="bg-white border-2 border-slate-200 hover:bg-slate-50 active:scale-95 rounded-2xl px-5 py-3 text-base font-extrabold text-slate-700 shadow"
-            >
-              ✕ Clear
-            </button>
-            {fillCursor + 1 < slots.length ? (
+            {!isRead && (
               <button
-                onClick={() => setFillCursor((c) => Math.min(slots.length - 1, c + 1))}
-                disabled={cursorFill.trim() === ''}
+                onClick={clearCurrentSlot}
+                className="bg-white border-2 border-slate-200 hover:bg-slate-50 active:scale-95 rounded-2xl px-5 py-3 text-base font-extrabold text-slate-700 shadow"
+              >
+                ✕ Clear
+              </button>
+            )}
+            {fillCursor + 1 < fillItems.length ? (
+              <button
+                onClick={() => {
+                  if (canAdvance) setFillCursor((c) => Math.min(fillItems.length - 1, c + 1));
+                }}
+                disabled={!canAdvance}
                 className={`rounded-2xl px-6 py-3 text-base font-extrabold shadow ${
-                  cursorFill.trim() === ''
+                  !canAdvance
                     ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                     : 'bg-amber-500 hover:bg-amber-600 active:scale-95 text-white'
                 }`}
