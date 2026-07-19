@@ -823,6 +823,17 @@ function Top({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'lugia_top') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Pale-blue belly patch (Lugia's underside) */}
+        <ellipse cx="50" cy="60" rx="22" ry="20" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        {/* Long white neck rising from collar */}
+        <path d="M44,28 Q50,10 56,28" fill={c} stroke={STROKE} strokeWidth={0.8} />
+      </g>
+    );
+  }
 
   // Base T-shirt silhouette
   const body = (
@@ -1163,6 +1174,21 @@ function Bottom({ item }: { item: Item }) {
             <rect x="30" y="74" width="40" height="3" fill={a} />
           </>
         )}
+      </g>
+    );
+  }
+
+  if (kind === 'lugia_legs') {
+    return (
+      <g>
+        {heroLegs(c)}
+        {/* Pale blue belly overlap on upper thighs */}
+        <ellipse cx="50" cy="40" rx="22" ry="12" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Navy claws at the toes */}
+        <polygon points="30,76 34,84 38,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
+        <polygon points="42,76 46,84 50,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
+        <polygon points="52,76 56,84 60,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
+        <polygon points="64,76 68,84 72,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
       </g>
     );
   }
@@ -2245,6 +2271,29 @@ function Mask({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'lugia_face') {
+    // Lugia — white head, pointed crest on top, navy-blue eye "mask"
+    // wrapping around the eyes, small open beak-mouth.
+    return (
+      <g>
+        {/* Pointed back-crest */}
+        <polygon points="70,14 82,4 74,24" fill={a} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Elongated white head */}
+        <path d="M22,52 Q22,26 50,22 Q78,26 80,50 Q74,74 50,80 Q26,74 22,52 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Beak-jaw pointing right (Lugia has a pointed dinosaur snout) */}
+        <path d="M74,54 L92,52 L84,64 L76,60 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Open mouth interior */}
+        <path d="M78,58 L88,56 L82,62 Z" fill="#7f1d1d" />
+        {/* Navy eye mask — jagged spike across both eyes */}
+        <path d="M30,42 L44,38 L54,44 L64,38 L72,46 L64,50 L54,46 L44,50 Z"
+          fill={a} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+        {/* Small white glowing eye slit */}
+        <ellipse cx="48" cy="44" rx="3" ry="2" fill="#f8fafc" />
+        <ellipse cx="62" cy="44" rx="3" ry="2" fill="#f8fafc" />
+      </g>
+    );
+  }
 
   // Default: Iron Man face plate.
   return (
@@ -2966,6 +3015,24 @@ function Back({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'lugia_wings') {
+    // Lugia — huge white wings with finger-like tips + row of navy back plates
+    return (
+      <g>
+        {/* Left wing with hand-like finger tips */}
+        <path d="M50,42 L8,20 L2,48 L14,44 L4,64 L22,52 L14,70 L34,58 L50,54 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Right wing */}
+        <path d="M50,42 L92,20 L98,48 L86,44 L96,64 L78,52 L86,70 L66,58 L50,54 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Row of navy back spike-plates */}
+        {[30, 42, 54, 66].map((x) => (
+          <polygon key={x} points={`${x - 4},80 ${x + 4},80 ${x},68`}
+            fill={a} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+        ))}
+      </g>
+    );
+  }
 
   if (kind === 'slp_backpack') {
     return (
@@ -3093,6 +3160,19 @@ function Shoes({ item }: { item: Item }) {
         <polygon points="76,66 82,58 74,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="66,66 68,54 62,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="56,66 54,54 50,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'lugia_feet') {
+    return (
+      <g>
+        {heroBoot(c)}
+        {/* Pale-blue accent band */}
+        <rect x="20" y="60" width="60" height="6" fill="#bfdbfe" stroke={STROKE} strokeWidth={0.6} />
+        {/* Three big navy claws pointing forward */}
+        <polygon points="80,74 92,70 84,58" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="66,74 78,72 72,60" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="52,74 62,72 58,60" fill={a} stroke={STROKE} strokeWidth={0.6} />
       </g>
     );
   }
@@ -3822,6 +3902,26 @@ function Charm({ item }: { item: Item }) {
           <polygon points="56,68 60,68 58,76" fill={item.accent ?? '#fef3c7'} />
         </g>
       );
+    case 'lugia_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Elongated white Lugia head */}
+          <path d="M22,52 Q22,26 50,22 Q78,26 80,52 Q74,74 50,78 Q26,74 22,52 Z"
+            fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Navy back-crest */}
+          <polygon points="70,20 84,10 74,32" fill={item.accent ?? '#1e3a8a'} stroke={STROKE} strokeWidth={0.6} />
+          {/* Navy eye mask spike-band */}
+          <path d="M30,46 L44,42 L54,48 L64,42 L72,50 L64,54 L54,50 L44,54 Z"
+            fill={item.accent ?? '#1e3a8a'} stroke={STROKE} strokeWidth={0.5} />
+          <ellipse cx="48" cy="48" rx="2.5" ry="1.6" fill="#f8fafc" />
+          <ellipse cx="62" cy="48" rx="2.5" ry="1.6" fill="#f8fafc" />
+          {/* Beak-jaw */}
+          <path d="M74,56 L92,54 L84,66 L76,62 Z" fill={c} stroke={STROKE} strokeWidth={0.6} />
+          <path d="M78,60 L88,58 L82,64 Z" fill="#7f1d1d" />
+        </g>
+      );
     case 'pikachu_charm':
       return (
         <g>
@@ -4192,6 +4292,42 @@ function Misc({ item }: { item: Item }) {
         {/* Long curling tail */}
         <path d="M32,80 Q10,86 6,66 Q4,50 20,44 Q24,52 14,56" stroke={c} fill="none" strokeWidth={3} strokeLinecap="round" />
         <circle cx="20" cy="54" r="4" fill={c} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'lugia') {
+    // Legendary Lugia — flying pose with big wings, long tail, back plates,
+    // navy eye mask.
+    return (
+      <g>
+        {/* Left wing */}
+        <path d="M50,32 L4,12 L8,44 L20,38 L10,54 L26,44 L18,60 L34,50 L50,44 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Right wing */}
+        <path d="M50,32 L96,12 L92,44 L80,38 L90,54 L74,44 L82,60 L66,50 L50,44 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Curved white body/neck */}
+        <path d="M40,44 Q40,64 50,72 Q64,74 66,64 Q68,52 60,48 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Pale-blue belly */}
+        <ellipse cx="54" cy="64" rx="10" ry="8" fill="#bfdbfe" />
+        {/* Long tail with navy fin tip */}
+        <path d="M56,72 Q72,80 82,72" stroke={c} fill="none" strokeWidth={5} strokeLinecap="round" />
+        <polygon points="82,66 92,72 82,78" fill={a} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+        {/* Row of navy back plate-spikes */}
+        {[[46, 46], [52, 44], [58, 46], [64, 50]].map(([x, y], i) => (
+          <polygon key={i} points={`${x - 3},${y + 4} ${x + 3},${y + 4} ${x},${y - 4}`}
+            fill={a} stroke={STROKE} strokeWidth={0.5} />
+        ))}
+        {/* Head */}
+        <ellipse cx="42" cy="38" rx="10" ry="8" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Beak-jaw */}
+        <path d="M32,38 L22,38 L28,44 L34,42 Z" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Pointed back-crest on head */}
+        <polygon points="46,32 54,20 48,42" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        {/* Navy eye mask */}
+        <path d="M32,36 L40,34 L42,38 L38,40 Z" fill={a} />
+        <ellipse cx="38" cy="37" rx="1" ry="0.8" fill="#f8fafc" />
       </g>
     );
   }

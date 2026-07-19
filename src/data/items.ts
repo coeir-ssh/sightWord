@@ -13,7 +13,8 @@ export type MiscKind =
   | 'snorlax'
   | 'gengar'
   | 'charizard'
-  | 'mew';
+  | 'mew'
+  | 'lugia';
 
 export type TopKind =
   | 'tee'
@@ -64,7 +65,8 @@ export type TopKind =
   | 'jigglypuff_top'
   | 'psyduck_top'
   | 'charizard_top'
-  | 'mew_top';
+  | 'mew_top'
+  | 'lugia_top';
 
 export type BottomKind =
   | 'pants'
@@ -115,7 +117,8 @@ export type BottomKind =
   | 'snorlax_legs'
   | 'gengar_legs'
   | 'charizard_legs'
-  | 'mew_legs';
+  | 'mew_legs'
+  | 'lugia_legs';
 
 export type HatKind =
   | 'cap'
@@ -163,7 +166,8 @@ export type MaskKind =
   | 'snorlax_face'
   | 'gengar_face'
   | 'charizard_face'
-  | 'mew_face';
+  | 'mew_face'
+  | 'lugia_face';
 
 export type BackKind =
   | 'kinder'
@@ -214,7 +218,8 @@ export type BackKind =
   | 'snorlax_back'
   | 'gengar_shadow'
   | 'charizard_wings'
-  | 'mew_tail';
+  | 'mew_tail'
+  | 'lugia_wings';
 
 export type ShoeKind =
   | 'sneakers'
@@ -255,7 +260,8 @@ export type ShoeKind =
   | 'silver_surfer'
   | 'solmoe'
   | 'charizard_boots'
-  | 'mew_feet';
+  | 'mew_feet'
+  | 'lugia_feet';
 
 export type CharmKind =
   | 'star'
@@ -288,7 +294,8 @@ export type CharmKind =
   | 'eevee_charm'
   | 'snorlax_charm'
   | 'gengar_charm'
-  | 'charizard_charm';
+  | 'charizard_charm'
+  | 'lugia_charm';
 
 export type ItemKind =
   | TopKind
@@ -707,6 +714,15 @@ export const ITEMS: Item[] = [
   { id: 'back.mew', name: '뮤 꼬리', slot: 'back', price: 200, color: '#fbcfe8', accent: '#f472b6', kind: 'mew_tail' },
   { id: 'shoes.mew', name: '뮤 발', slot: 'shoes', price: 160, color: '#fbcfe8', accent: '#f472b6', kind: 'mew_feet' },
 
+  // Lugia full set (unisex) — legendary diving Pokemon: white body, pale-blue
+  // belly, dark navy-blue eye mask and back-plate spikes.
+  { id: 'mask.lugia', name: '루기아 얼굴', slot: 'mask', price: 280, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia_face' },
+  { id: 'top.lugia', name: '루기아 상의', slot: 'top', price: 260, color: '#f8fafc', accent: '#bfdbfe', kind: 'lugia_top' },
+  { id: 'bottom.lugia', name: '루기아 하의', slot: 'bottom', price: 240, color: '#f8fafc', accent: '#bfdbfe', kind: 'lugia_legs' },
+  { id: 'back.lugia', name: '루기아 날개+등가시', slot: 'back', price: 320, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia_wings' },
+  { id: 'shoes.lugia', name: '루기아 발톱', slot: 'shoes', price: 200, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia_feet' },
+  { id: 'charm.lugia', name: '루기아 키링', slot: 'charm', price: 160, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia_charm' },
+
   // Misc Pokemon companions — stand next to the character just like the
   // existing Pikachu companion at misc.pikachu.
   { id: 'misc.charmander', name: '파이리 (컴패니언)', slot: 'misc', price: 380, color: '#f97316', accent: '#fef3c7', kind: 'charmander' },
@@ -719,6 +735,7 @@ export const ITEMS: Item[] = [
   { id: 'misc.gengar', name: '겐가 (컴패니언)', slot: 'misc', price: 420, color: '#6b21a8', accent: '#dc2626', kind: 'gengar' },
   { id: 'misc.charizard', name: '리자몽 (컴패니언)', slot: 'misc', price: 500, color: '#f97316', accent: '#fef3c7', kind: 'charizard' },
   { id: 'misc.mew', name: '뮤 (컴패니언)', slot: 'misc', price: 500, color: '#fbcfe8', accent: '#7dd3fc', kind: 'mew' },
+  { id: 'misc.lugia', name: '루기아 (컴패니언)', slot: 'misc', price: 600, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia' },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
@@ -802,7 +819,7 @@ const PRINCESS_KIND_PATTERNS = [
 ];
 const POKEMON_SPECIES = [
   'pikachu', 'charmander', 'squirtle', 'bulbasaur', 'eevee',
-  'jigglypuff', 'psyduck', 'snorlax', 'gengar', 'charizard', 'mew',
+  'jigglypuff', 'psyduck', 'snorlax', 'gengar', 'charizard', 'mew', 'lugia',
 ];
 const SCHOOL_KIND_PATTERNS = [
   'slp', 'slp_girl', 'slp_skirt', 'slp_backpack', 'slp_badge',
