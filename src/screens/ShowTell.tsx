@@ -116,38 +116,43 @@ export function ShowTell({ onBack }: Props) {
   const cur = filledSentences[idx];
   const cueText = stepDef.kind === 'cue' ? firstWords(cur, stepDef.words ?? 2) : cur;
 
-  // Auto-read (slowly) when a sentence first appears: the full sentence in the
-  // learn phase, only the leading words in the cue phases.
+  // Auto-read (slowly) when a sentence first appears: the full sentence in
+  // the learn phase, only the leading words in the cue phases, and — for
+  // the fill phase — the sentence-with-blanks-said-as-"blank" whenever the
+  // child lands on a new sentence (each new blank position that jumped to
+  // a different sIdx, including the very first blank on entry).
+  const fillSIdx = fillItems[fillCursor]?.sIdx;
   useEffect(() => {
     if (stepResult) return;
-    if (stepDef.kind === 'learn') void speak(cur, { rate: READ_RATE });
-    else if (stepDef.kind === 'cue') void speak(cueText, { rate: READ_RATE });
-  }, [stepDef, idx, stepResult, cur, cueText]);
-
-  // Fill phase: auto-read the current sentence whenever the child lands
-  // on a new sentence (each new blank position that jumped to a different
-  // sIdx). Empty blanks are read as the word "blank" (see the `spoken`
-  // string built below). We intentionally do NOT re-fire on every keystroke —
-  // the child updates their own word in real time; the Listen button is
-  // there to re-read the sentence with the current choices when they want.
-  const fillSpokenSentenceIdx =
-    stepDef.kind === 'fill' ? fillItems[fillCursor]?.sIdx : undefined;
-  useEffect(() => {
-    if (stepResult) return;
-    if (stepDef.kind !== 'fill') return;
-    if (fillSpokenSentenceIdx == null) return;
-    // Build the spoken form here to read the LATEST fills — don't depend on
-    // the memoised `spoken` variable defined lower in render.
-    const sentence = script.sentences[fillSpokenSentenceIdx];
-    const rowFills = fills[fillSpokenSentenceIdx] ?? [];
-    const text = fillSentence(sentence, rowFills)
-      .replace(/\(([^()]*\/[^()]*)\)/g, ' blank ')
-      .replace(/___/g, ' blank ')
-      .replace(/\s+/g, ' ')
-      .trim();
-    if (text) void speak(text, { rate: READ_RATE });
+    if (stepDef.kind === 'learn') {
+      void speak(cur, { rate: READ_RATE });
+      return;
+    }
+    if (stepDef.kind === 'cue') {
+      void speak(cueText, { rate: READ_RATE });
+      return;
+    }
+    if (stepDef.kind === 'fill') {
+      if (fillSIdx == null) return;
+      // Build the read-aloud form here so we always use the LATEST fills.
+      const sentence = script.sentences[fillSIdx];
+      const rowFills = fills[fillSIdx] ?? [];
+      const text = fillSentence(sentence, rowFills)
+        .replace(/\(([^()]*\/[^()]*)\)/g, ' blank ')
+        .replace(/___/g, ' blank ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      // Tiny delay lets any audio from the previous screen finish and the
+      // AudioContext fully warm on iOS before we start the auto-read.
+      if (text) {
+        const t = window.setTimeout(() => {
+          void speak(text, { rate: READ_RATE });
+        }, 150);
+        return () => window.clearTimeout(t);
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stepDef.kind, fillSpokenSentenceIdx, stepResult]);
+  }, [stepDef.kind, idx, stepResult, cur, cueText, fillSIdx]);
 
   // Advance saved progress to the next step and show the step-complete screen.
   const completeStep = (coins: number) => {
