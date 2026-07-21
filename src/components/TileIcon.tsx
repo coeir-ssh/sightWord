@@ -823,6 +823,22 @@ function Top({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'absol_top') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Dark navy chest/collar patch */}
+        <path d="M34,28 L50,44 L66,28 L66,42 L52,52 L48,52 L34,42 Z"
+          fill={a} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+        {/* Shaggy fur tufts on shoulders */}
+        <polygon points="18,36 26,32 22,44" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="82,36 74,32 78,44" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Shaggy tufts on sides */}
+        <polygon points="24,58 32,54 30,66" fill={c} stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="76,58 68,54 70,66" fill={c} stroke={STROKE} strokeWidth={0.5} />
+      </g>
+    );
+  }
   if (kind === 'growlithe_top') {
     return (
       <g>
@@ -1216,6 +1232,26 @@ function Bottom({ item }: { item: Item }) {
         <polygon points="42,76 46,84 50,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
         <polygon points="52,76 56,84 60,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
         <polygon points="64,76 68,84 72,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
+      </g>
+    );
+  }
+  if (kind === 'absol_legs') {
+    return (
+      <g>
+        {heroLegs(c)}
+        {/* Dark navy paw sections at bottom */}
+        <rect x="26" y="60" width="20" height="20" rx="3" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <rect x="54" y="60" width="20" height="20" rx="3" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Shaggy fur tufts along thighs */}
+        <polygon points="22,42 28,38 26,50" fill={c} stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="22,54 30,50 26,62" fill={c} stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="78,42 72,38 74,50" fill={c} stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="78,54 70,50 74,62" fill={c} stroke={STROKE} strokeWidth={0.5} />
+        {/* Sharp claws */}
+        <polygon points="28,78 32,86 36,78" fill="#0a0a0a" />
+        <polygon points="36,78 40,86 44,78" fill="#0a0a0a" />
+        <polygon points="56,78 60,86 64,78" fill="#0a0a0a" />
+        <polygon points="64,78 68,86 72,78" fill="#0a0a0a" />
       </g>
     );
   }
@@ -2329,6 +2365,35 @@ function Mask({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'absol_face') {
+    // Absol — pale white shaggy face + dark navy muzzle/mask + huge asymmetric
+    // sickle horn on the left + red eye.
+    return (
+      <g>
+        {/* Big curved sickle horn on the left side */}
+        <path d="M22,50 Q6,40 4,20 L14,26 L18,40 L28,50 Z"
+          fill={a} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Fluffy pale head silhouette (shaggy) */}
+        <path d="M20,54 L30,30 L44,20 L58,20 L74,32 L82,54 L74,72 L60,80 L40,80 L28,72 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Fluffy tufts sticking up on right */}
+        <polygon points="66,22 74,10 72,26" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="78,30 88,26 82,40" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Dark navy face mask across eyes and muzzle */}
+        <path d="M28,50 L50,44 L74,50 L70,66 L54,72 L36,66 Z"
+          fill={a} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+        {/* Pointed dark muzzle jutting forward */}
+        <path d="M42,64 L28,68 L34,76 L48,72 Z" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        {/* Red eyes */}
+        <ellipse cx="44" cy="54" rx="3" ry="4" fill="#dc2626" />
+        <ellipse cx="60" cy="54" rx="3" ry="4" fill="#dc2626" />
+        <circle cx="45" cy="52" r="1" fill="#f8fafc" />
+        <circle cx="61" cy="52" r="1" fill="#f8fafc" />
+        {/* Small nose dot */}
+        <circle cx="34" cy="70" r="1.5" fill="#0a0a0a" />
+      </g>
+    );
+  }
   if (kind === 'growlithe_face') {
     // Growlithe — orange puppy face + big cream mane + dark tiger stripes.
     return (
@@ -3125,6 +3190,21 @@ function Back({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'absol_tail') {
+    // Absol — forked/split scythe-shaped tail
+    return (
+      <g>
+        {/* Curved tail base */}
+        <path d="M50,80 Q40,60 32,42" stroke={c} fill="none" strokeWidth={9} strokeLinecap="round" />
+        {/* Split forked tips (two curved sickles) */}
+        <path d="M32,42 Q22,24 14,32" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <path d="M32,42 Q36,20 42,20 L38,32 L32,42 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Dark navy tips */}
+        <polygon points="14,32 8,28 18,26" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="42,20 46,10 40,22" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
   if (kind === 'growlithe_tail') {
     // Growlithe — fluffy curled cream tail with orange stripes
     return (
@@ -3299,6 +3379,20 @@ function Shoes({ item }: { item: Item }) {
         <polygon points="76,66 82,58 74,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="66,66 68,54 62,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="56,66 54,54 50,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'absol_feet') {
+    return (
+      <g>
+        {heroBoot(c)}
+        {/* Dark navy paw upper */}
+        <rect x="20" y="40" width="60" height="26" rx="4" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Sharp black claws */}
+        <polygon points="22,66 26,76 30,66" fill="#0a0a0a" />
+        <polygon points="36,66 40,76 44,66" fill="#0a0a0a" />
+        <polygon points="56,66 60,76 64,66" fill="#0a0a0a" />
+        <polygon points="70,66 74,76 78,66" fill="#0a0a0a" />
       </g>
     );
   }
@@ -4066,6 +4160,27 @@ function Charm({ item }: { item: Item }) {
           <polygon points="56,68 60,68 58,76" fill={item.accent ?? '#fef3c7'} />
         </g>
       );
+    case 'absol_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Big sickle horn */}
+          <path d="M28,44 Q10,32 8,14 L18,22 L22,36 L32,44 Z"
+            fill={item.accent ?? '#1e293b'} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+          {/* Shaggy pale head */}
+          <path d="M26,50 L36,30 L50,22 L64,26 L76,38 L80,54 L70,72 L54,78 L38,74 L28,66 Z"
+            fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+          {/* Dark navy face mask */}
+          <path d="M34,50 L52,44 L72,50 L68,64 L52,70 L38,64 Z"
+            fill={item.accent ?? '#1e293b'} stroke={STROKE} strokeWidth={0.4} strokeLinejoin="round" />
+          {/* Red eyes */}
+          <ellipse cx="46" cy="54" rx="2.5" ry="3.5" fill="#dc2626" />
+          <ellipse cx="60" cy="54" rx="2.5" ry="3.5" fill="#dc2626" />
+          {/* Nose */}
+          <circle cx="38" cy="66" r="1.4" fill="#0a0a0a" />
+        </g>
+      );
     case 'growlithe_charm':
       return (
         <g>
@@ -4501,6 +4616,39 @@ function Misc({ item }: { item: Item }) {
         {/* Long curling tail */}
         <path d="M32,80 Q10,86 6,66 Q4,50 20,44 Q24,52 14,56" stroke={c} fill="none" strokeWidth={3} strokeLinecap="round" />
         <circle cx="20" cy="54" r="4" fill={c} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'absol') {
+    // Standing Absol — quadruped with big sickle horn, shaggy fur, dark face
+    return (
+      <g>
+        {/* Big sickle horn on left */}
+        <path d="M16,44 Q2,32 6,10 L14,20 L18,36 L26,44 Z"
+          fill={a} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Shaggy pale head */}
+        <ellipse cx="34" cy="42" rx="18" ry="16" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Fluffy mane spikes */}
+        <polygon points="46,20 56,12 52,28" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="56,26 68,20 60,34" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Dark face mask */}
+        <path d="M22,44 L34,38 L48,44 L44,54 L30,58 Z"
+          fill={a} stroke={STROKE} strokeWidth={0.5} strokeLinejoin="round" />
+        {/* Nose + eye */}
+        <circle cx="24" cy="52" r="1.5" fill="#0a0a0a" />
+        <ellipse cx="38" cy="46" rx="2.5" ry="3.5" fill="#dc2626" />
+        {/* Pale body */}
+        <ellipse cx="60" cy="60" rx="22" ry="14" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Body shaggy back tuft */}
+        <polygon points="58,46 66,40 62,54" fill={c} stroke={STROKE} strokeWidth={0.5} />
+        {/* Legs with dark paws */}
+        <rect x="46" y="72" width="6" height="10" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <rect x="70" y="72" width="6" height="10" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <rect x="46" y="80" width="6" height="4" fill={a} />
+        <rect x="70" y="80" width="6" height="4" fill={a} />
+        {/* Forked scythe tail */}
+        <path d="M82,60 Q92,52 88,40" stroke={c} fill="none" strokeWidth={5} strokeLinecap="round" />
+        <polygon points="88,40 96,32 90,44" fill={a} stroke={STROKE} strokeWidth={0.6} />
       </g>
     );
   }

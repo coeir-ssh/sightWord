@@ -2656,6 +2656,48 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               seam.position.set(0, TORSO_Y + dy, frontZ + 0.02);
               g.add(seam);
             });
+          } else if (kind === 'absol_top') {
+            // Pale white torso with dark navy chest V + shaggy fur tufts on
+            // shoulders and sides.
+            const paleMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.7,
+            });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1e293b'),
+              roughness: 0.55,
+            });
+            (torsoMesh as THREE.Mesh).material = paleMat;
+            // Dark navy chest V-shape
+            const chestV = new THREE.Mesh(
+              new THREE.ConeGeometry(0.24, 0.4, 3),
+              darkMat.clone()
+            );
+            chestV.rotation.x = Math.PI;
+            chestV.rotation.z = Math.PI;
+            chestV.position.set(0, TORSO_Y + 0.05, frontZ + 0.01);
+            g.add(chestV);
+            // Shaggy fur tufts on shoulders (4 outward-pointing cones)
+            [-1, 1].forEach((sx) => {
+              [0.28, 0.12].forEach((dy, i) => {
+                const tuft = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.08, 0.22, 4),
+                  paleMat.clone()
+                );
+                tuft.rotation.z = sx * (Math.PI / 2 - 0.3 - i * 0.15);
+                tuft.position.set(sx * 0.38, TORSO_Y + dy, 0);
+                g.add(tuft);
+              });
+            });
+            // Back fur ridge (row of tufts down the spine)
+            [0.24, 0.08, -0.08].forEach((dy) => {
+              const spine = new THREE.Mesh(
+                new THREE.ConeGeometry(0.06, 0.18, 4),
+                paleMat.clone()
+              );
+              spine.rotation.x = -0.4;
+              spine.position.set(0, TORSO_Y + dy, backZ - 0.02);
+              g.add(spine);
+            });
           } else if (kind === 'growlithe_top') {
             // Orange body + big fluffy cream chest mane + tiger stripes
             const orangeMat = new THREE.MeshStandardMaterial({
@@ -3830,6 +3872,42 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               belly.position.set(0, LEG_Y + LEG_H / 2 - 0.04, 0.14);
               g.add(belly);
             }
+          } else if (kind === 'absol_legs') {
+            // Pale white rounded thighs + dark navy paw sections at the
+            // bottom + shaggy fur tufts on the outside of thighs.
+            const paleMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.7,
+            });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1e293b'),
+              roughness: 0.55,
+            });
+            [-1, 1].forEach((sx) => {
+              // Thigh + shin (pale)
+              const thigh = new THREE.Mesh(
+                new THREE.CylinderGeometry(LEG_W * 0.75, LEG_W * 0.85, LEG_H * 0.55, 14),
+                paleMat.clone()
+              );
+              thigh.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.2, 0);
+              g.add(thigh);
+              // Dark paw section
+              const paw = new THREE.Mesh(
+                new THREE.CylinderGeometry(LEG_W * 0.85, LEG_W * 0.85, LEG_H * 0.45, 14),
+                darkMat.clone()
+              );
+              paw.position.set(sx * LEG_X, LEG_Y - LEG_H * 0.22, 0);
+              g.add(paw);
+              // Shaggy tufts on outside of thigh
+              [0.2, 0.0].forEach((dy) => {
+                const tuft = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.07, 0.18, 4),
+                  paleMat.clone()
+                );
+                tuft.rotation.z = sx * (Math.PI / 2 - 0.3);
+                tuft.position.set(sx * (LEG_X + 0.13), LEG_Y + dy, 0);
+                g.add(tuft);
+              });
+            });
           } else if (kind === 'growlithe_legs') {
             // Orange rounded legs with dark tiger stripes + cream fluffy cuffs
             const orangeMat = new THREE.MeshStandardMaterial({
@@ -6224,6 +6302,109 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               half.position.set(sx * 0.02, HEAD_Y - 0.12, FACE_Z + 0.14);
               g.add(half);
             });
+          } else if (kind === 'absol_face') {
+            // Absol — pale white head with shaggy fur, dark navy face mask
+            // wrapping around eyes/muzzle, huge sickle-shaped horn on the
+            // left side of the head, red eyes, small dark nose.
+            const paleMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.7,
+            });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1e293b'),
+              roughness: 0.55,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.35,
+            });
+            // Pale rounded head
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(HEAD_SIZE * 0.55, 22, 20),
+              paleMat.clone()
+            );
+            head.scale.set(1.08, 0.98, 1.05);
+            head.position.set(0, HEAD_Y, 0);
+            g.add(head);
+            // Dark navy pointed muzzle
+            const muzzle = new THREE.Mesh(
+              new THREE.SphereGeometry(0.14, 16, 12),
+              darkMat.clone()
+            );
+            muzzle.scale.set(0.9, 0.65, 1.4);
+            muzzle.position.set(0, HEAD_Y - 0.14, FACE_Z + 0.1);
+            g.add(muzzle);
+            // Dark face band across the eyes
+            const eyeBand = new THREE.Mesh(
+              new THREE.BoxGeometry(HEAD_SIZE * 0.7, 0.14, 0.06),
+              darkMat.clone()
+            );
+            eyeBand.position.set(0, HEAD_Y + 0.02, FACE_Z + 0.02);
+            g.add(eyeBand);
+            // HUGE sickle horn on the left side (bird-of-prey shape)
+            // Made from a curved series of segments to look like a scythe blade
+            const hornPositions: [number, number, number, number, number][] = [
+              // [x, y, z, scale, rotZ]
+              [-0.28, HEAD_Y + 0.24, 0.02, 1.0, -0.4],
+              [-0.42, HEAD_Y + 0.44, 0.02, 0.9, 0.3],
+              [-0.5, HEAD_Y + 0.66, 0.02, 0.7, 0.9],
+              [-0.42, HEAD_Y + 0.86, 0.02, 0.5, 1.4],
+            ];
+            hornPositions.forEach(([hx, hy, hz, s, rz]) => {
+              const seg = new THREE.Mesh(
+                new THREE.ConeGeometry(0.06 * s, 0.24 * s, 4),
+                darkMat.clone()
+              );
+              seg.rotation.z = rz;
+              seg.position.set(hx, hy, hz);
+              g.add(seg);
+            });
+            // Shaggy fur tufts around the head (right side, top)
+            [
+              [0.28, HEAD_Y + 0.32, -0.06, 0.4],
+              [0.38, HEAD_Y + 0.14, -0.04, -0.4],
+              [0.34, HEAD_Y - 0.08, 0, -0.7],
+              [0.2, HEAD_Y + 0.4, 0.02, 0.2],
+            ].forEach(([tx, ty, tz, rz]) => {
+              const tuft = new THREE.Mesh(
+                new THREE.ConeGeometry(0.08, 0.24, 4),
+                paleMat.clone()
+              );
+              tuft.rotation.z = rz;
+              tuft.position.set(tx, ty, tz);
+              g.add(tuft);
+            });
+            // Under-jaw tuft
+            const chinTuft = new THREE.Mesh(
+              new THREE.ConeGeometry(0.08, 0.2, 4),
+              paleMat.clone()
+            );
+            chinTuft.rotation.x = Math.PI;
+            chinTuft.position.set(0.08, HEAD_Y - 0.26, FACE_Z + 0.02);
+            g.add(chinTuft);
+            // Red eyes with sharp shape
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.045, 12, 10),
+                redMat.clone()
+              );
+              eye.scale.set(1.3, 0.9, 0.6);
+              eye.position.set(sx * 0.14, HEAD_Y + 0.02, FACE_Z + 0.05);
+              g.add(eye);
+              const hl = new THREE.Mesh(
+                new THREE.SphereGeometry(0.012, 8, 6),
+                new THREE.MeshStandardMaterial({
+                  color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.9,
+                })
+              );
+              hl.position.set(sx * 0.14 + 0.012, HEAD_Y + 0.04, FACE_Z + 0.09);
+              g.add(hl);
+            });
+            // Small dark nose tip on the muzzle
+            const nose = new THREE.Mesh(
+              new THREE.SphereGeometry(0.028, 12, 10),
+              new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+            );
+            nose.position.set(0, HEAD_Y - 0.11, FACE_Z + 0.24);
+            g.add(nose);
           } else if (kind === 'growlithe_face') {
             // Growlithe — orange puppy head with fluffy cream mane framing
             // it, dark tiger stripes, black round eyes, black nose.
@@ -6838,6 +7019,57 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 g.add(finger);
               });
             });
+            break;
+          }
+          if (kind === 'absol_tail') {
+            // Absol — forked/split scythe-shaped tail. Curved pale main body
+            // that splits into two navy-tipped points.
+            const paleMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.7,
+            });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1e293b'),
+              roughness: 0.55,
+            });
+            // Base of the tail
+            const base = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.06, 0.09, 0.4, 12),
+              paleMat.clone()
+            );
+            base.rotation.z = -0.4;
+            base.position.set(-0.14, TORSO_Y - 0.1, -TORSO_D / 2 - 0.14);
+            g.add(base);
+            // Fork split — two arms going in different directions
+            // Left prong (curving up-left)
+            const prong1 = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.05, 0.06, 0.34, 10),
+              paleMat.clone()
+            );
+            prong1.rotation.z = -1.1;
+            prong1.position.set(-0.36, TORSO_Y + 0.08, -TORSO_D / 2 - 0.14);
+            g.add(prong1);
+            const prong1Tip = new THREE.Mesh(
+              new THREE.ConeGeometry(0.06, 0.2, 4),
+              darkMat.clone()
+            );
+            prong1Tip.rotation.z = -1.4;
+            prong1Tip.position.set(-0.5, TORSO_Y + 0.2, -TORSO_D / 2 - 0.14);
+            g.add(prong1Tip);
+            // Right prong (curving up-right)
+            const prong2 = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.05, 0.06, 0.34, 10),
+              paleMat.clone()
+            );
+            prong2.rotation.z = 0.4;
+            prong2.position.set(-0.02, TORSO_Y + 0.06, -TORSO_D / 2 - 0.14);
+            g.add(prong2);
+            const prong2Tip = new THREE.Mesh(
+              new THREE.ConeGeometry(0.06, 0.2, 4),
+              darkMat.clone()
+            );
+            prong2Tip.rotation.z = 0.9;
+            prong2Tip.position.set(0.14, TORSO_Y + 0.24, -TORSO_D / 2 - 0.14);
+            g.add(prong2Tip);
             break;
           }
           if (kind === 'growlithe_tail') {
@@ -8399,6 +8631,35 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             : null;
           const footY = LEG_Y - LEG_H / 2 - 0.02;
 
+          if (kind === 'absol_feet') {
+            // Dark navy paws with sharp black claws
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1e293b'),
+              roughness: 0.55,
+            });
+            const clawMat = new THREE.MeshStandardMaterial({
+              color: '#0a0a0a', roughness: 0.4,
+            });
+            [-1, 1].forEach((sx) => {
+              const foot = new THREE.Mesh(
+                new THREE.SphereGeometry(0.16, 14, 12),
+                darkMat.clone()
+              );
+              foot.scale.set(1.05, 0.7, 1.4);
+              foot.position.set(sx * LEG_X, footY + 0.02, 0.08);
+              g.add(foot);
+              // Three sharp black claws
+              [-0.09, 0, 0.09].forEach((dx) => {
+                const claw = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.035, 0.14, 4), clawMat.clone()
+                );
+                claw.rotation.x = -Math.PI / 2;
+                claw.position.set(sx * LEG_X + dx, footY - 0.02, 0.32);
+                g.add(claw);
+              });
+            });
+            break;
+          }
           if (kind === 'growlithe_feet') {
             // Orange feet with dark stripes + cream fluffy cuffs
             const orangeMat = new THREE.MeshStandardMaterial({
@@ -10105,6 +10366,56 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               eye.position.set(cx + sx * 0.035, cy + 0.02, cz + 0.06);
               g.add(eye);
             });
+          } else if (kind === 'absol_charm') {
+            // Mini Absol head charm — pale head + dark mask + sickle horn +
+            // red eyes.
+            const paleMat = new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
+            const darkMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#1e293b'), roughness: 0.55,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.4,
+            });
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(0.085, 14, 12), paleMat.clone()
+            );
+            head.scale.set(1.05, 0.95, 1.05);
+            head.position.set(cx, cy, cz);
+            g.add(head);
+            // Small sickle horn on left side
+            [
+              [-0.06, 0.03, 0.4, -0.4],
+              [-0.09, 0.09, 0.35, 0.4],
+              [-0.09, 0.15, 0.25, 1.2],
+            ].forEach(([dx, dy, s, rz]) => {
+              const seg = new THREE.Mesh(
+                new THREE.ConeGeometry(0.022 * s, 0.09 * s, 4), darkMat.clone()
+              );
+              seg.rotation.z = rz;
+              seg.position.set(cx + dx, cy + dy, cz);
+              g.add(seg);
+            });
+            // Dark navy face mask
+            const mask = new THREE.Mesh(
+              new THREE.BoxGeometry(0.12, 0.04, 0.02), darkMat.clone()
+            );
+            mask.position.set(cx, cy + 0.008, cz + 0.055);
+            g.add(mask);
+            // Dark muzzle
+            const muzzle = new THREE.Mesh(
+              new THREE.SphereGeometry(0.03, 12, 10), darkMat.clone()
+            );
+            muzzle.scale.set(0.9, 0.65, 1.4);
+            muzzle.position.set(cx, cy - 0.03, cz + 0.06);
+            g.add(muzzle);
+            // Red eyes
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.012, 8, 6), redMat.clone()
+              );
+              eye.position.set(cx + sx * 0.024, cy + 0.006, cz + 0.06);
+              g.add(eye);
+            });
           } else if (kind === 'growlithe_charm') {
             // Mini Growlithe head — orange head + cream mane + tiger stripe
             const orangeMat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
@@ -10893,7 +11204,8 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             kind === 'mew' ||
             kind === 'lugia' ||
             kind === 'growlithe' ||
-            kind === 'gardevoir'
+            kind === 'gardevoir' ||
+            kind === 'absol'
           ) {
             // Full-body Pokemon companion standing (or floating) at
             // X=-1.15 — mirror of the motorcycle side.
@@ -12261,6 +12573,177 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               const auraLight = new THREE.PointLight('#fbcfe8', 0.5, 1.8);
               auraLight.position.set(CX, 0.4, 0.3);
               g.add(auraLight);
+            } else if (kind === 'absol') {
+              // Standing Absol — 4-legged disaster Pokemon with pale body,
+              // dark face/paws, big sickle horn, shaggy fur, red eyes,
+              // forked scythe tail.
+              const paleMat = new THREE.MeshStandardMaterial({
+                color, roughness: 0.7,
+                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.03),
+              });
+              const darkMat = new THREE.MeshStandardMaterial({
+                color: accent ?? new THREE.Color('#1e293b'),
+                roughness: 0.55,
+              });
+              const redMat = new THREE.MeshStandardMaterial({
+                color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.4,
+              });
+              // Body (quadruped)
+              const body = new THREE.Mesh(
+                new THREE.SphereGeometry(0.32, 22, 18), paleMat.clone()
+              );
+              body.scale.set(1.4, 0.9, 0.95);
+              body.position.set(CX, 0, 0);
+              g.add(body);
+              // Head
+              const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.28, 22, 18), paleMat.clone()
+              );
+              head.scale.set(1.08, 0.98, 1.05);
+              head.position.set(CX + 0.28, 0.28, 0.02);
+              g.add(head);
+              // Dark navy pointed muzzle
+              const muzzle = new THREE.Mesh(
+                new THREE.SphereGeometry(0.14, 16, 12), darkMat.clone()
+              );
+              muzzle.scale.set(0.9, 0.65, 1.4);
+              muzzle.position.set(CX + 0.44, 0.16, 0.14);
+              g.add(muzzle);
+              // Dark face band
+              const eyeBand = new THREE.Mesh(
+                new THREE.BoxGeometry(0.36, 0.11, 0.06), darkMat.clone()
+              );
+              eyeBand.position.set(CX + 0.3, 0.28, 0.14);
+              g.add(eyeBand);
+              // HUGE sickle horn on the left side (curved segments)
+              [
+                [-0.02, 0.5, 0, 1.0, -0.4],
+                [-0.14, 0.7, 0, 0.9, 0.3],
+                [-0.22, 0.9, 0, 0.7, 0.9],
+                [-0.16, 1.05, 0, 0.5, 1.4],
+              ].forEach(([hx, hy, hz, s, rz]) => {
+                const seg = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.06 * s, 0.22 * s, 4), darkMat.clone()
+                );
+                seg.rotation.z = rz;
+                seg.position.set(CX + hx, hy, hz);
+                g.add(seg);
+              });
+              // Shaggy fur tufts around head
+              [
+                [0.36, 0.5, -0.02, 0.3],
+                [0.5, 0.35, -0.06, -0.3],
+                [0.5, 0.15, -0.06, -0.9],
+                [0.24, 0.55, 0.02, 0.1],
+              ].forEach(([tx, ty, tz, rz]) => {
+                const tuft = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.08, 0.22, 4), paleMat.clone()
+                );
+                tuft.rotation.z = rz;
+                tuft.position.set(CX + tx, ty, tz);
+                g.add(tuft);
+              });
+              // Chin fluff
+              const chinTuft = new THREE.Mesh(
+                new THREE.ConeGeometry(0.08, 0.2, 4), paleMat.clone()
+              );
+              chinTuft.rotation.x = Math.PI;
+              chinTuft.rotation.z = -0.3;
+              chinTuft.position.set(CX + 0.4, 0.04, 0.14);
+              g.add(chinTuft);
+              // Back ridge tufts
+              [-0.02, -0.14, -0.26].forEach((dx) => {
+                const spine = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.06, 0.18, 4), paleMat.clone()
+                );
+                spine.rotation.x = -0.4;
+                spine.rotation.z = 0.1;
+                spine.position.set(CX + dx, 0.14, -0.24);
+                g.add(spine);
+              });
+              // Red eyes with sharp shape
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.036, 12, 10), redMat.clone()
+                );
+                eye.scale.set(1.3, 0.9, 0.6);
+                eye.position.set(CX + 0.24 + sx * 0.08, 0.3, 0.22);
+                g.add(eye);
+                const hl = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.01, 8, 6),
+                  new THREE.MeshStandardMaterial({
+                    color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.9,
+                  })
+                );
+                hl.position.set(CX + 0.24 + sx * 0.08 + 0.01, 0.32, 0.24);
+                g.add(hl);
+              });
+              // Dark nose
+              const nose = new THREE.Mesh(
+                new THREE.SphereGeometry(0.022, 12, 10),
+                new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+              );
+              nose.position.set(CX + 0.52, 0.15, 0.24);
+              g.add(nose);
+              // 4 legs — pale upper, dark navy paws
+              [-0.24, 0.22].forEach((dx) => {
+                [-0.14, 0.14].forEach((dz) => {
+                  const upper = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.06, 0.07, 0.16, 10),
+                    paleMat.clone()
+                  );
+                  upper.position.set(CX + dx, -0.22, dz);
+                  g.add(upper);
+                  const paw = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.07, 0.07, 0.12, 10),
+                    darkMat.clone()
+                  );
+                  paw.position.set(CX + dx, -0.34, dz);
+                  g.add(paw);
+                  // Sharp black claws
+                  [-0.04, 0, 0.04].forEach((cdx) => {
+                    const claw = new THREE.Mesh(
+                      new THREE.ConeGeometry(0.014, 0.04, 3),
+                      new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+                    );
+                    claw.rotation.x = -Math.PI / 2;
+                    claw.position.set(CX + dx + cdx, -0.38, dz + 0.08);
+                    g.add(claw);
+                  });
+                });
+              });
+              // Forked scythe tail
+              const tailBase = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.05, 0.08, 0.34, 12), paleMat.clone()
+              );
+              tailBase.rotation.z = -0.4;
+              tailBase.position.set(CX - 0.36, 0.1, -0.02);
+              g.add(tailBase);
+              // Two forked prongs
+              const prong1 = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.04, 0.05, 0.26, 10), paleMat.clone()
+              );
+              prong1.rotation.z = -1.0;
+              prong1.position.set(CX - 0.54, 0.28, -0.02);
+              g.add(prong1);
+              const prong1Tip = new THREE.Mesh(
+                new THREE.ConeGeometry(0.05, 0.14, 4), darkMat.clone()
+              );
+              prong1Tip.rotation.z = -1.4;
+              prong1Tip.position.set(CX - 0.66, 0.36, -0.02);
+              g.add(prong1Tip);
+              const prong2 = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.04, 0.05, 0.26, 10), paleMat.clone()
+              );
+              prong2.rotation.z = 0.4;
+              prong2.position.set(CX - 0.32, 0.28, -0.02);
+              g.add(prong2);
+              const prong2Tip = new THREE.Mesh(
+                new THREE.ConeGeometry(0.05, 0.14, 4), darkMat.clone()
+              );
+              prong2Tip.rotation.z = 0.9;
+              prong2Tip.position.set(CX - 0.22, 0.4, -0.02);
+              g.add(prong2Tip);
             }
           }
           break;

@@ -16,7 +16,8 @@ export type MiscKind =
   | 'mew'
   | 'lugia'
   | 'growlithe'
-  | 'gardevoir';
+  | 'gardevoir'
+  | 'absol';
 
 export type TopKind =
   | 'tee'
@@ -70,7 +71,8 @@ export type TopKind =
   | 'mew_top'
   | 'lugia_top'
   | 'growlithe_top'
-  | 'gardevoir_top';
+  | 'gardevoir_top'
+  | 'absol_top';
 
 export type BottomKind =
   | 'pants'
@@ -124,7 +126,8 @@ export type BottomKind =
   | 'mew_legs'
   | 'lugia_legs'
   | 'growlithe_legs'
-  | 'gardevoir_legs';
+  | 'gardevoir_legs'
+  | 'absol_legs';
 
 export type HatKind =
   | 'cap'
@@ -175,7 +178,8 @@ export type MaskKind =
   | 'mew_face'
   | 'lugia_face'
   | 'growlithe_face'
-  | 'gardevoir_face';
+  | 'gardevoir_face'
+  | 'absol_face';
 
 export type BackKind =
   | 'kinder'
@@ -229,7 +233,8 @@ export type BackKind =
   | 'mew_tail'
   | 'lugia_wings'
   | 'growlithe_tail'
-  | 'gardevoir_dress';
+  | 'gardevoir_dress'
+  | 'absol_tail';
 
 export type ShoeKind =
   | 'sneakers'
@@ -273,7 +278,8 @@ export type ShoeKind =
   | 'mew_feet'
   | 'lugia_feet'
   | 'growlithe_feet'
-  | 'gardevoir_feet';
+  | 'gardevoir_feet'
+  | 'absol_feet';
 
 export type CharmKind =
   | 'star'
@@ -309,7 +315,8 @@ export type CharmKind =
   | 'charizard_charm'
   | 'lugia_charm'
   | 'growlithe_charm'
-  | 'gardevoir_charm';
+  | 'gardevoir_charm'
+  | 'absol_charm';
 
 export type ItemKind =
   | TopKind
@@ -755,6 +762,15 @@ export const ITEMS: Item[] = [
   { id: 'shoes.gardevoir', name: '가디안 발', slot: 'shoes', price: 180, color: '#f8fafc', accent: '#16a34a', kind: 'gardevoir_feet' },
   { id: 'charm.gardevoir', name: '가디안 키링', slot: 'charm', price: 150, color: '#f8fafc', accent: '#16a34a', kind: 'gardevoir_charm' },
 
+  // 앱솔 (Absol) full set — disaster Pokemon: pale white body, dark navy
+  // face/mask + sickle-shaped horn + red eyes + fluffy mane and forked tail.
+  { id: 'mask.absol', name: '앱솔 얼굴', slot: 'mask', price: 260, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_face' },
+  { id: 'top.absol', name: '앱솔 상의', slot: 'top', price: 240, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_top' },
+  { id: 'bottom.absol', name: '앱솔 하의', slot: 'bottom', price: 220, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_legs' },
+  { id: 'back.absol', name: '앱솔 꼬리', slot: 'back', price: 260, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_tail' },
+  { id: 'shoes.absol', name: '앱솔 발톱', slot: 'shoes', price: 180, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_feet' },
+  { id: 'charm.absol', name: '앱솔 키링', slot: 'charm', price: 150, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_charm' },
+
   // Misc Pokemon companions — stand next to the character just like the
   // existing Pikachu companion at misc.pikachu.
   { id: 'misc.charmander', name: '파이리 (컴패니언)', slot: 'misc', price: 380, color: '#f97316', accent: '#fef3c7', kind: 'charmander' },
@@ -770,6 +786,7 @@ export const ITEMS: Item[] = [
   { id: 'misc.lugia', name: '루기아 (컴패니언)', slot: 'misc', price: 600, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia' },
   { id: 'misc.growlithe', name: '가디 (컴패니언)', slot: 'misc', price: 480, color: '#ea580c', accent: '#fef3c7', kind: 'growlithe' },
   { id: 'misc.gardevoir', name: '가디안 (컴패니언)', slot: 'misc', price: 580, color: '#f8fafc', accent: '#16a34a', kind: 'gardevoir' },
+  { id: 'misc.absol', name: '앱솔 (컴패니언)', slot: 'misc', price: 560, color: '#e2e8f0', accent: '#1e293b', kind: 'absol' },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
@@ -854,7 +871,7 @@ const PRINCESS_KIND_PATTERNS = [
 const POKEMON_SPECIES = [
   'pikachu', 'charmander', 'squirtle', 'bulbasaur', 'eevee',
   'jigglypuff', 'psyduck', 'snorlax', 'gengar', 'charizard', 'mew', 'lugia',
-  'growlithe', 'gardevoir',
+  'growlithe', 'gardevoir', 'absol',
 ];
 const SCHOOL_KIND_PATTERNS = [
   'slp', 'slp_girl', 'slp_skirt', 'slp_backpack', 'slp_badge',
