@@ -17,7 +17,9 @@ export type MiscKind =
   | 'lugia'
   | 'growlithe'
   | 'gardevoir'
-  | 'absol';
+  | 'absol'
+  | 'beedrill'
+  | 'mega_lucario';
 
 export type TopKind =
   | 'tee'
@@ -72,7 +74,9 @@ export type TopKind =
   | 'lugia_top'
   | 'growlithe_top'
   | 'gardevoir_top'
-  | 'absol_top';
+  | 'absol_top'
+  | 'beedrill_top'
+  | 'mega_lucario_top';
 
 export type BottomKind =
   | 'pants'
@@ -127,7 +131,9 @@ export type BottomKind =
   | 'lugia_legs'
   | 'growlithe_legs'
   | 'gardevoir_legs'
-  | 'absol_legs';
+  | 'absol_legs'
+  | 'beedrill_legs'
+  | 'mega_lucario_legs';
 
 export type HatKind =
   | 'cap'
@@ -179,7 +185,9 @@ export type MaskKind =
   | 'lugia_face'
   | 'growlithe_face'
   | 'gardevoir_face'
-  | 'absol_face';
+  | 'absol_face'
+  | 'beedrill_face'
+  | 'mega_lucario_face';
 
 export type BackKind =
   | 'kinder'
@@ -234,7 +242,9 @@ export type BackKind =
   | 'lugia_wings'
   | 'growlithe_tail'
   | 'gardevoir_dress'
-  | 'absol_tail';
+  | 'absol_tail'
+  | 'beedrill_wings'
+  | 'mega_lucario_aura';
 
 export type ShoeKind =
   | 'sneakers'
@@ -279,7 +289,9 @@ export type ShoeKind =
   | 'lugia_feet'
   | 'growlithe_feet'
   | 'gardevoir_feet'
-  | 'absol_feet';
+  | 'absol_feet'
+  | 'beedrill_feet'
+  | 'mega_lucario_feet';
 
 export type CharmKind =
   | 'star'
@@ -316,7 +328,9 @@ export type CharmKind =
   | 'lugia_charm'
   | 'growlithe_charm'
   | 'gardevoir_charm'
-  | 'absol_charm';
+  | 'absol_charm'
+  | 'beedrill_charm'
+  | 'mega_lucario_charm';
 
 export type ItemKind =
   | TopKind
@@ -771,6 +785,24 @@ export const ITEMS: Item[] = [
   { id: 'shoes.absol', name: '앱솔 발톱', slot: 'shoes', price: 180, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_feet' },
   { id: 'charm.absol', name: '앱솔 키링', slot: 'charm', price: 150, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_charm' },
 
+  // 독침붕 (Beedrill) full set — poison bee: yellow body with black stripes,
+  // drill-shaped stingers on hands and tail, red eyes, gray transparent wings.
+  { id: 'mask.beedrill', name: '독침붕 얼굴', slot: 'mask', price: 240, color: '#facc15', accent: '#0a0a0a', kind: 'beedrill_face' },
+  { id: 'top.beedrill', name: '독침붕 상의', slot: 'top', price: 240, color: '#facc15', accent: '#0a0a0a', kind: 'beedrill_top' },
+  { id: 'bottom.beedrill', name: '독침붕 하의', slot: 'bottom', price: 220, color: '#facc15', accent: '#0a0a0a', kind: 'beedrill_legs' },
+  { id: 'back.beedrill', name: '독침붕 날개', slot: 'back', price: 260, color: '#e5e7eb', accent: '#0a0a0a', kind: 'beedrill_wings' },
+  { id: 'shoes.beedrill', name: '독침붕 다리', slot: 'shoes', price: 180, color: '#0a0a0a', accent: '#facc15', kind: 'beedrill_feet' },
+  { id: 'charm.beedrill', name: '독침붕 키링', slot: 'charm', price: 140, color: '#facc15', accent: '#0a0a0a', kind: 'beedrill_charm' },
+
+  // 메가루카리오 (Mega Lucario) full set — mega evolution: blue body, wild
+  // yellow mane, red eyes, aura spikes on wrists, long black tail.
+  { id: 'mask.mega_lucario', name: '메가루카리오 얼굴', slot: 'mask', price: 320, color: '#1e3a8a', accent: '#facc15', kind: 'mega_lucario_face' },
+  { id: 'top.mega_lucario', name: '메가루카리오 상의', slot: 'top', price: 300, color: '#1e3a8a', accent: '#facc15', kind: 'mega_lucario_top' },
+  { id: 'bottom.mega_lucario', name: '메가루카리오 하의', slot: 'bottom', price: 260, color: '#0f172a', accent: '#facc15', kind: 'mega_lucario_legs' },
+  { id: 'back.mega_lucario', name: '메가루카리오 오라', slot: 'back', price: 340, color: '#0f172a', accent: '#facc15', kind: 'mega_lucario_aura' },
+  { id: 'shoes.mega_lucario', name: '메가루카리오 발톱', slot: 'shoes', price: 200, color: '#0f172a', accent: '#7f1d1d', kind: 'mega_lucario_feet' },
+  { id: 'charm.mega_lucario', name: '메가루카리오 키링', slot: 'charm', price: 170, color: '#1e3a8a', accent: '#facc15', kind: 'mega_lucario_charm' },
+
   // Misc Pokemon companions — stand next to the character just like the
   // existing Pikachu companion at misc.pikachu.
   { id: 'misc.charmander', name: '파이리 (컴패니언)', slot: 'misc', price: 380, color: '#f97316', accent: '#fef3c7', kind: 'charmander' },
@@ -787,6 +819,8 @@ export const ITEMS: Item[] = [
   { id: 'misc.growlithe', name: '가디 (컴패니언)', slot: 'misc', price: 480, color: '#ea580c', accent: '#fef3c7', kind: 'growlithe' },
   { id: 'misc.gardevoir', name: '가디안 (컴패니언)', slot: 'misc', price: 580, color: '#f8fafc', accent: '#16a34a', kind: 'gardevoir' },
   { id: 'misc.absol', name: '앱솔 (컴패니언)', slot: 'misc', price: 560, color: '#e2e8f0', accent: '#1e293b', kind: 'absol' },
+  { id: 'misc.beedrill', name: '독침붕 (컴패니언)', slot: 'misc', price: 520, color: '#facc15', accent: '#0a0a0a', kind: 'beedrill' },
+  { id: 'misc.mega_lucario', name: '메가루카리오 (컴패니언)', slot: 'misc', price: 650, color: '#1e3a8a', accent: '#facc15', kind: 'mega_lucario' },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
@@ -872,6 +906,7 @@ const POKEMON_SPECIES = [
   'pikachu', 'charmander', 'squirtle', 'bulbasaur', 'eevee',
   'jigglypuff', 'psyduck', 'snorlax', 'gengar', 'charizard', 'mew', 'lugia',
   'growlithe', 'gardevoir', 'absol',
+  'beedrill', 'mega_lucario',
 ];
 const SCHOOL_KIND_PATTERNS = [
   'slp', 'slp_girl', 'slp_skirt', 'slp_backpack', 'slp_badge',

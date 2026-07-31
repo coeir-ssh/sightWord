@@ -2656,6 +2656,111 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               seam.position.set(0, TORSO_Y + dy, frontZ + 0.02);
               g.add(seam);
             });
+          } else if (kind === 'beedrill_top') {
+            // Yellow torso + black stripe bands + drill stingers on arms
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.5,
+            });
+            const blackMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0a0a0a'),
+              roughness: 0.55,
+            });
+            const grayMat = new THREE.MeshStandardMaterial({
+              color: '#e5e7eb', roughness: 0.5,
+            });
+            (torsoMesh as THREE.Mesh).material = yellowMat;
+            // Two big black stripe bands around the torso
+            [TORSO_Y + 0.15, TORSO_Y - 0.1].forEach((y) => {
+              const stripe = new THREE.Mesh(
+                new THREE.BoxGeometry(TORSO_W + 0.1, 0.11, TORSO_D + 0.1),
+                blackMat.clone()
+              );
+              stripe.position.set(0, y, 0);
+              g.add(stripe);
+            });
+            // Big drill stingers extending from each arm/side (facing forward)
+            [-1, 1].forEach((sx) => {
+              const drill = new THREE.Mesh(
+                new THREE.ConeGeometry(0.11, 0.55, 8),
+                grayMat.clone()
+              );
+              drill.rotation.x = -Math.PI / 2;
+              drill.position.set(sx * (ARM_X + 0.05), TORSO_Y + 0.02, TORSO_D / 2 + 0.34);
+              g.add(drill);
+              // Drill ridges (2 rings)
+              [0.1, -0.05].forEach((dz) => {
+                const ridge = new THREE.Mesh(
+                  new THREE.TorusGeometry(0.09, 0.014, 6, 14),
+                  blackMat.clone()
+                );
+                ridge.rotation.x = Math.PI / 2;
+                ridge.position.set(sx * (ARM_X + 0.05), TORSO_Y + 0.02, TORSO_D / 2 + 0.34 + dz);
+                g.add(ridge);
+              });
+            });
+          } else if (kind === 'mega_lucario_top') {
+            // Blue torso + wild yellow chest mane bib + black shoulder spikes
+            // + red aura vent on chest.
+            const blueMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+            });
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#facc15'),
+              roughness: 0.55,
+            });
+            const blackMat = new THREE.MeshStandardMaterial({
+              color: '#0f172a', roughness: 0.6,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#7f1d1d', emissive: '#dc2626', emissiveIntensity: 0.4,
+            });
+            (torsoMesh as THREE.Mesh).material = blueMat;
+            // Yellow chest bib — cone shape spiky
+            const bib = new THREE.Mesh(
+              new THREE.ConeGeometry(0.24, 0.4, 5),
+              yellowMat.clone()
+            );
+            bib.rotation.x = Math.PI;
+            bib.position.set(0, TORSO_Y - 0.02, frontZ + 0.02);
+            g.add(bib);
+            // Two extra chest spikes flanking the bib
+            [-1, 1].forEach((sx) => {
+              const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.08, 0.24, 4),
+                yellowMat.clone()
+              );
+              spike.rotation.x = Math.PI;
+              spike.rotation.z = sx * -0.25;
+              spike.position.set(sx * 0.16, TORSO_Y - 0.02, frontZ + 0.03);
+              g.add(spike);
+            });
+            // Red aura vent (round circle) on the chest
+            const vent = new THREE.Mesh(
+              new THREE.SphereGeometry(0.055, 12, 10),
+              redMat.clone()
+            );
+            vent.position.set(0, TORSO_Y + 0.06, frontZ + 0.04);
+            g.add(vent);
+            // Black shoulder spikes (aura tips)
+            [-1, 1].forEach((sx) => {
+              const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.06, 0.22, 4),
+                blackMat.clone()
+              );
+              spike.rotation.z = sx * (Math.PI / 2 + 0.4);
+              spike.position.set(sx * 0.42, TORSO_Y + 0.3, 0);
+              g.add(spike);
+            });
+            // Back spike ridge (row down the spine, black)
+            [0.24, 0.08, -0.08].forEach((dy) => {
+              const ridge = new THREE.Mesh(
+                new THREE.ConeGeometry(0.06, 0.16, 4),
+                blackMat.clone()
+              );
+              ridge.rotation.x = -0.4;
+              ridge.position.set(0, TORSO_Y + dy, backZ - 0.02);
+              g.add(ridge);
+            });
           } else if (kind === 'absol_top') {
             // Pale white torso with dark navy chest V + shaggy fur tufts on
             // shoulders and sides.
@@ -3872,6 +3977,101 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               belly.position.set(0, LEG_Y + LEG_H / 2 - 0.04, 0.14);
               g.add(belly);
             }
+          } else if (kind === 'beedrill_legs') {
+            // Yellow legs with black stripes + big tail-stinger jutting back
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.5,
+            });
+            const blackMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0a0a0a'),
+              roughness: 0.55,
+            });
+            [-1, 1].forEach((sx) => {
+              const leg = new THREE.Mesh(
+                new THREE.CylinderGeometry(LEG_W * 0.75, LEG_W * 0.85, LEG_H + 0.02, 14),
+                yellowMat.clone()
+              );
+              leg.position.set(sx * LEG_X, LEG_Y, 0);
+              g.add(leg);
+              // Black stripe rings
+              [0.18, 0.02, -0.14].forEach((dy) => {
+                const ring = new THREE.Mesh(
+                  new THREE.TorusGeometry(LEG_W * 0.82, 0.028, 6, 14),
+                  blackMat.clone()
+                );
+                ring.rotation.x = Math.PI / 2;
+                ring.position.set(sx * LEG_X, LEG_Y + dy, 0);
+                g.add(ring);
+              });
+            });
+            // Big tail-stinger between the legs pointing back-down
+            const stinger = new THREE.Mesh(
+              new THREE.ConeGeometry(0.09, 0.6, 6),
+              yellowMat.clone()
+            );
+            stinger.rotation.x = Math.PI - 0.4;
+            stinger.position.set(0, LEG_Y - 0.2, -0.22);
+            g.add(stinger);
+            // Black tip
+            const tip = new THREE.Mesh(
+              new THREE.ConeGeometry(0.06, 0.18, 6),
+              blackMat.clone()
+            );
+            tip.rotation.x = Math.PI - 0.4;
+            tip.position.set(0, LEG_Y - 0.44, -0.32);
+            g.add(tip);
+          } else if (kind === 'mega_lucario_legs') {
+            // Black jackal legs with yellow knee cuffs + red spurs
+            const blackMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.6,
+            });
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#facc15'),
+              roughness: 0.55,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#7f1d1d', roughness: 0.5,
+            });
+            [-1, 1].forEach((sx) => {
+              // Thigh (black)
+              const thigh = new THREE.Mesh(
+                new THREE.CylinderGeometry(LEG_W * 0.75, LEG_W * 0.85, LEG_H * 0.5, 14),
+                blackMat.clone()
+              );
+              thigh.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.22, 0);
+              g.add(thigh);
+              // Shin (black)
+              const shin = new THREE.Mesh(
+                new THREE.CylinderGeometry(LEG_W * 0.7, LEG_W * 0.75, LEG_H * 0.5, 14),
+                blackMat.clone()
+              );
+              shin.position.set(sx * LEG_X, LEG_Y - LEG_H * 0.22, 0);
+              g.add(shin);
+              // Yellow cuff at knee
+              const cuff = new THREE.Mesh(
+                new THREE.TorusGeometry(LEG_W * 0.82, 0.03, 8, 16),
+                yellowMat.clone()
+              );
+              cuff.rotation.x = Math.PI / 2;
+              cuff.position.set(sx * LEG_X, LEG_Y - 0.02, 0);
+              g.add(cuff);
+              // Red spur on outer thigh
+              const spur = new THREE.Mesh(
+                new THREE.ConeGeometry(0.06, 0.14, 4),
+                redMat.clone()
+              );
+              spur.rotation.z = sx * Math.PI / 2;
+              spur.position.set(sx * (LEG_X + LEG_W * 0.85), LEG_Y + 0.05, 0);
+              g.add(spur);
+              // Yellow tuft on outer thigh
+              const tuft = new THREE.Mesh(
+                new THREE.ConeGeometry(0.05, 0.14, 4),
+                yellowMat.clone()
+              );
+              tuft.rotation.z = sx * (Math.PI / 2 - 0.3);
+              tuft.position.set(sx * (LEG_X + 0.16), LEG_Y + 0.2, 0);
+              g.add(tuft);
+            });
           } else if (kind === 'absol_legs') {
             // Pale white rounded thighs + dark navy paw sections at the
             // bottom + shaggy fur tufts on the outside of thighs.
@@ -6302,6 +6502,191 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               half.position.set(sx * 0.02, HEAD_Y - 0.12, FACE_Z + 0.14);
               g.add(half);
             });
+          } else if (kind === 'beedrill_face') {
+            // Beedrill — yellow bee head with big red compound eyes,
+            // black stripe pattern, two thin antennae, drill mouth-stinger.
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.5,
+            });
+            const blackMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0a0a0a'),
+              roughness: 0.55,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.5,
+              roughness: 0.4,
+            });
+            const grayMat = new THREE.MeshStandardMaterial({
+              color: '#e5e7eb', roughness: 0.5,
+            });
+            // Yellow rounded head
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(HEAD_SIZE * 0.55, 22, 20),
+              yellowMat.clone()
+            );
+            head.scale.set(1.1, 1.0, 1.0);
+            head.position.set(0, HEAD_Y, 0);
+            g.add(head);
+            // Black stripe bands around the head
+            [HEAD_Y + 0.22, HEAD_Y - 0.16].forEach((y) => {
+              const stripe = new THREE.Mesh(
+                new THREE.TorusGeometry(HEAD_SIZE * 0.52, 0.05, 8, 22),
+                blackMat.clone()
+              );
+              stripe.rotation.x = Math.PI / 2;
+              stripe.position.set(0, y, 0);
+              g.add(stripe);
+            });
+            // BIG red compound eyes (multi-facet look = geometry sphere)
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.14, 16, 12),
+                redMat.clone()
+              );
+              eye.scale.set(1, 1.1, 0.7);
+              eye.position.set(sx * 0.22, HEAD_Y + 0.02, FACE_Z);
+              g.add(eye);
+              // Small white highlight
+              const hl = new THREE.Mesh(
+                new THREE.SphereGeometry(0.03, 10, 8),
+                new THREE.MeshStandardMaterial({
+                  color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.9,
+                })
+              );
+              hl.position.set(sx * 0.22 - sx * 0.04, HEAD_Y + 0.09, FACE_Z + 0.09);
+              g.add(hl);
+            });
+            // Two thin antennae going up
+            [-1, 1].forEach((sx) => {
+              const ant = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.008, 0.008, 0.35, 8),
+                blackMat.clone()
+              );
+              ant.rotation.z = sx * -0.3;
+              ant.position.set(sx * 0.14, HEAD_Y + HEAD_SIZE / 2 + 0.16, 0);
+              g.add(ant);
+              const tip = new THREE.Mesh(
+                new THREE.SphereGeometry(0.025, 10, 8), blackMat.clone()
+              );
+              tip.position.set(sx * 0.24, HEAD_Y + HEAD_SIZE / 2 + 0.32, 0);
+              g.add(tip);
+            });
+            // Drill mouth-stinger pointing down-forward
+            const stinger = new THREE.Mesh(
+              new THREE.ConeGeometry(0.06, 0.28, 6),
+              grayMat.clone()
+            );
+            stinger.rotation.x = Math.PI;
+            stinger.position.set(0, HEAD_Y - 0.36, FACE_Z + 0.02);
+            g.add(stinger);
+            // Drill ridges
+            [0.05, 0.0, -0.05].forEach((dy) => {
+              const ridge = new THREE.Mesh(
+                new THREE.TorusGeometry(0.048, 0.008, 6, 12),
+                blackMat.clone()
+              );
+              ridge.rotation.x = Math.PI / 2;
+              ridge.position.set(0, HEAD_Y - 0.36 + dy, FACE_Z + 0.02);
+              g.add(ridge);
+            });
+          } else if (kind === 'mega_lucario_face') {
+            // Mega Lucario — blue jackal face + wild yellow spiky mane +
+            // red eyes + long black ear-appendages + black snout.
+            const blueMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+            });
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#facc15'),
+              roughness: 0.55,
+            });
+            const blackMat = new THREE.MeshStandardMaterial({
+              color: '#0f172a', roughness: 0.6,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.45,
+            });
+            // Blue jackal head
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(HEAD_SIZE * 0.56, 22, 20),
+              blueMat.clone()
+            );
+            head.scale.set(1.05, 1.02, 1.1);
+            head.position.set(0, HEAD_Y, 0);
+            g.add(head);
+            // Black pointed snout
+            const snout = new THREE.Mesh(
+              new THREE.SphereGeometry(0.14, 16, 12),
+              blackMat.clone()
+            );
+            snout.scale.set(0.85, 0.65, 1.3);
+            snout.position.set(0, HEAD_Y - 0.14, FACE_Z + 0.08);
+            g.add(snout);
+            // Wild yellow spiky mane — cluster of tall spikes on top and sides
+            const manePositions: [number, number, number, number][] = [
+              [-0.28, 0.24, 0, -0.5],
+              [-0.14, 0.4, 0, -0.2],
+              [0.0, 0.44, 0, 0],
+              [0.14, 0.4, 0, 0.2],
+              [0.28, 0.24, 0, 0.5],
+              [-0.22, 0.06, -0.14, -0.7],
+              [0.22, 0.06, -0.14, 0.7],
+            ];
+            manePositions.forEach(([mx, my, mz, rz]) => {
+              const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.06, 0.28, 4),
+                yellowMat.clone()
+              );
+              spike.rotation.z = rz;
+              spike.position.set(mx, HEAD_Y + my + 0.2, mz);
+              g.add(spike);
+            });
+            // Long black ear-appendages sweeping back-down
+            [-1, 1].forEach((sx) => {
+              [0, 1].forEach((i) => {
+                const ear = new THREE.Mesh(
+                  new THREE.CylinderGeometry(0.03, 0.025, 0.35, 8),
+                  blackMat.clone()
+                );
+                ear.rotation.z = sx * (Math.PI / 2 - 0.1 - i * 0.15);
+                ear.rotation.x = 0.3;
+                ear.position.set(sx * (HEAD_SIZE / 2 - 0.02), HEAD_Y - 0.02 - i * 0.15, -0.15);
+                g.add(ear);
+              });
+            });
+            // Red eyes
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.055, 14, 10),
+                redMat.clone()
+              );
+              eye.scale.set(1, 1.2, 0.7);
+              eye.position.set(sx * 0.16, HEAD_Y + 0.03, FACE_Z + 0.03);
+              g.add(eye);
+              const hl = new THREE.Mesh(
+                new THREE.SphereGeometry(0.014, 8, 6),
+                new THREE.MeshStandardMaterial({
+                  color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.9,
+                })
+              );
+              hl.position.set(sx * 0.16 + 0.015, HEAD_Y + 0.06, FACE_Z + 0.08);
+              g.add(hl);
+            });
+            // Black cheek "aura sensors"
+            [-1, 1].forEach((sx) => {
+              const sensor = new THREE.Mesh(
+                new THREE.SphereGeometry(0.03, 10, 8),
+                blackMat.clone()
+              );
+              sensor.position.set(sx * 0.28, HEAD_Y - 0.05, FACE_Z - 0.02);
+              g.add(sensor);
+            });
+            // Small nose tip
+            const nose = new THREE.Mesh(
+              new THREE.SphereGeometry(0.024, 10, 8),
+              new THREE.MeshStandardMaterial({ color: '#f8fafc' })
+            );
+            nose.position.set(0, HEAD_Y - 0.1, FACE_Z + 0.22);
+            g.add(nose);
           } else if (kind === 'absol_face') {
             // Absol — pale white head with shaggy fur, dark navy face mask
             // wrapping around eyes/muzzle, huge sickle-shaped horn on the
@@ -7018,6 +7403,112 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 finger.position.set(sx * 0.5, TORSO_Y + 0.05 + i * 0.1, -TORSO_D / 2 - 0.08);
                 g.add(finger);
               });
+            });
+            break;
+          }
+          if (kind === 'beedrill_wings') {
+            // Beedrill — two pairs of translucent gray wings on the back
+            const wingMat = new THREE.MeshStandardMaterial({
+              color, side: THREE.DoubleSide, roughness: 0.4,
+              transparent: true, opacity: 0.8,
+            });
+            const veinMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0a0a0a'),
+              roughness: 0.5,
+            });
+            [-1, 1].forEach((sx) => {
+              // Upper wing
+              const upper = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 0.4, 0.02), wingMat.clone()
+              );
+              upper.rotation.z = sx * -0.2;
+              upper.rotation.y = sx * -0.15;
+              upper.position.set(sx * 0.5, TORSO_Y + 0.35, -TORSO_D / 2 - 0.06);
+              g.add(upper);
+              // Lower wing
+              const lower = new THREE.Mesh(
+                new THREE.BoxGeometry(0.68, 0.32, 0.02), wingMat.clone()
+              );
+              lower.rotation.z = sx * -0.25;
+              lower.rotation.y = sx * -0.15;
+              lower.position.set(sx * 0.45, TORSO_Y - 0.08, -TORSO_D / 2 - 0.06);
+              g.add(lower);
+              // Wing vein cross (2 lines)
+              [upper, lower].forEach((wing) => {
+                const veinH = new THREE.Mesh(
+                  new THREE.BoxGeometry(wing === upper ? 0.78 : 0.66, 0.008, 0.03),
+                  veinMat.clone()
+                );
+                veinH.rotation.z = wing.rotation.z;
+                veinH.rotation.y = wing.rotation.y;
+                veinH.position.copy(wing.position);
+                veinH.position.z += 0.01;
+                g.add(veinH);
+              });
+            });
+            break;
+          }
+          if (kind === 'mega_lucario_aura') {
+            // Mega Lucario — wild yellow spiky back mane + long black tail +
+            // red aura energy tips (spikes).
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#facc15'),
+              roughness: 0.55,
+              emissive: new THREE.Color(accent ?? '#facc15').multiplyScalar(0.1),
+            });
+            const blackMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.6,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#7f1d1d', emissive: '#dc2626', emissiveIntensity: 0.5,
+            });
+            // Wild yellow back mane spikes
+            [
+              [-0.24, 0.32, -0.4],
+              [-0.1, 0.44, -0.15],
+              [0.1, 0.44, 0.15],
+              [0.24, 0.32, 0.4],
+              [0, 0.52, 0],
+            ].forEach(([sx, dy, rz]) => {
+              const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.07, 0.3, 4), yellowMat.clone()
+              );
+              spike.rotation.z = rz;
+              spike.rotation.x = -0.3;
+              spike.position.set(sx, TORSO_Y + dy, -TORSO_D / 2 - 0.06);
+              g.add(spike);
+            });
+            // Long black tail (curving down-back)
+            const tail1 = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.06, 0.09, 0.5, 12), blackMat.clone()
+            );
+            tail1.rotation.z = -0.4;
+            tail1.position.set(-0.18, TORSO_Y - 0.2, -TORSO_D / 2 - 0.16);
+            g.add(tail1);
+            const tail2 = new THREE.Mesh(
+              new THREE.CylinderGeometry(0.05, 0.06, 0.4, 10), blackMat.clone()
+            );
+            tail2.rotation.z = -0.9;
+            tail2.position.set(-0.44, TORSO_Y - 0.28, -TORSO_D / 2 - 0.16);
+            g.add(tail2);
+            // Red aura energy tip at tail end
+            const auraTip = new THREE.Mesh(
+              new THREE.SphereGeometry(0.09, 14, 12), redMat.clone()
+            );
+            auraTip.position.set(-0.6, TORSO_Y - 0.16, -TORSO_D / 2 - 0.16);
+            g.add(auraTip);
+            // Red aura glow light
+            const auraLight = new THREE.PointLight('#dc2626', 0.5, 1.4);
+            auraLight.position.set(-0.6, TORSO_Y - 0.16, -TORSO_D / 2 - 0.1);
+            g.add(auraLight);
+            // Wrist aura spikes (small black cones)
+            [-1, 1].forEach((sx) => {
+              const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.05, 0.16, 4), blackMat.clone()
+              );
+              spike.rotation.z = sx * (Math.PI / 2 + 0.2);
+              spike.position.set(sx * (ARM_X + 0.1), ARM_Y - ARM_H * 0.4, -0.04);
+              g.add(spike);
             });
             break;
           }
@@ -8631,6 +9122,95 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             : null;
           const footY = LEG_Y - LEG_H / 2 - 0.02;
 
+          if (kind === 'beedrill_feet') {
+            // Beedrill — thin black jointed insect legs with tiny drill toes
+            const blackMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+            });
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#facc15'),
+              roughness: 0.5,
+            });
+            const grayMat = new THREE.MeshStandardMaterial({
+              color: '#e5e7eb', roughness: 0.5,
+            });
+            [-1, 1].forEach((sx) => {
+              // Thin black leg base
+              const foot = new THREE.Mesh(
+                new THREE.CylinderGeometry(LEG_W * 0.5, LEG_W * 0.5, 0.14, 12),
+                blackMat.clone()
+              );
+              foot.position.set(sx * LEG_X, footY + 0.04, 0.02);
+              g.add(foot);
+              // Yellow ring at top of foot
+              const ring = new THREE.Mesh(
+                new THREE.TorusGeometry(LEG_W * 0.5, 0.02, 6, 14),
+                yellowMat.clone()
+              );
+              ring.rotation.x = Math.PI / 2;
+              ring.position.set(sx * LEG_X, footY + 0.1, 0.02);
+              g.add(ring);
+              // Small drill toe pointing forward
+              const drill = new THREE.Mesh(
+                new THREE.ConeGeometry(0.06, 0.2, 6),
+                grayMat.clone()
+              );
+              drill.rotation.x = -Math.PI / 2;
+              drill.position.set(sx * LEG_X, footY - 0.02, 0.24);
+              g.add(drill);
+            });
+            break;
+          }
+          if (kind === 'mega_lucario_feet') {
+            // Mega Lucario — black paws with yellow foot pads and red claws
+            const blackMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.6,
+            });
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color: '#facc15', roughness: 0.55,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#7f1d1d'),
+              roughness: 0.5,
+            });
+            const creamMat = new THREE.MeshStandardMaterial({
+              color: '#fef3c7', roughness: 0.7,
+            });
+            [-1, 1].forEach((sx) => {
+              // Black paw
+              const foot = new THREE.Mesh(
+                new THREE.SphereGeometry(0.16, 14, 12),
+                blackMat.clone()
+              );
+              foot.scale.set(1.05, 0.7, 1.5);
+              foot.position.set(sx * LEG_X, footY + 0.02, 0.08);
+              g.add(foot);
+              // Yellow pad on top of foot
+              const pad = new THREE.Mesh(
+                new THREE.SphereGeometry(0.1, 12, 10),
+                yellowMat.clone()
+              );
+              pad.scale.set(1, 0.35, 1.4);
+              pad.position.set(sx * LEG_X, footY + 0.12, 0.06);
+              g.add(pad);
+              // Cream toe pads underneath (3)
+              [-0.06, 0, 0.06].forEach((dx) => {
+                const toe = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.028, 10, 8), creamMat.clone()
+                );
+                toe.position.set(sx * LEG_X + dx, footY - 0.08, 0.24);
+                g.add(toe);
+              });
+              // Red claw spike behind heel
+              const claw = new THREE.Mesh(
+                new THREE.ConeGeometry(0.045, 0.16, 4), redMat.clone()
+              );
+              claw.rotation.x = Math.PI / 2;
+              claw.position.set(sx * LEG_X, footY, -0.14);
+              g.add(claw);
+            });
+            break;
+          }
           if (kind === 'absol_feet') {
             // Dark navy paws with sharp black claws
             const darkMat = new THREE.MeshStandardMaterial({
@@ -10366,6 +10946,107 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               eye.position.set(cx + sx * 0.035, cy + 0.02, cz + 0.06);
               g.add(eye);
             });
+          } else if (kind === 'beedrill_charm') {
+            // Mini Beedrill head
+            const yellowMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
+            const blackMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#0a0a0a'), roughness: 0.55,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.5,
+            });
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(0.085, 14, 12), yellowMat.clone()
+            );
+            head.position.set(cx, cy, cz);
+            g.add(head);
+            // Black stripes
+            [0.03, -0.03].forEach((dy) => {
+              const s = new THREE.Mesh(
+                new THREE.TorusGeometry(0.08, 0.008, 6, 14), blackMat.clone()
+              );
+              s.rotation.x = Math.PI / 2;
+              s.position.set(cx, cy + dy, cz);
+              g.add(s);
+            });
+            // Red compound eyes
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.028, 12, 10), redMat.clone()
+              );
+              eye.position.set(cx + sx * 0.05, cy + 0.005, cz + 0.03);
+              g.add(eye);
+            });
+            // Antennae
+            [-1, 1].forEach((sx) => {
+              const ant = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.004, 0.004, 0.08, 6), blackMat.clone()
+              );
+              ant.rotation.z = sx * -0.3;
+              ant.position.set(cx + sx * 0.02, cy + 0.1, cz);
+              g.add(ant);
+            });
+            // Small drill stinger below
+            const drill = new THREE.Mesh(
+              new THREE.ConeGeometry(0.02, 0.08, 6),
+              new THREE.MeshStandardMaterial({ color: '#e5e7eb' })
+            );
+            drill.rotation.x = Math.PI;
+            drill.position.set(cx, cy - 0.13, cz + 0.02);
+            g.add(drill);
+          } else if (kind === 'mega_lucario_charm') {
+            // Mini Mega Lucario head
+            const blueMat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#facc15'), roughness: 0.55,
+            });
+            const blackMat = new THREE.MeshStandardMaterial({
+              color: '#0f172a', roughness: 0.6,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.4,
+            });
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(0.085, 14, 12), blueMat.clone()
+            );
+            head.scale.set(1, 1.05, 1.1);
+            head.position.set(cx, cy, cz);
+            g.add(head);
+            // Yellow mane spikes
+            [[-0.05, 0.09, 0, -0.3], [0.05, 0.09, 0, 0.3], [0, 0.12, 0, 0]]
+              .forEach(([dx, dy, dz, rz]) => {
+                const spike = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.02, 0.08, 4), yellowMat.clone()
+                );
+                spike.rotation.z = rz;
+                spike.position.set(cx + dx, cy + dy, cz + dz);
+                g.add(spike);
+              });
+            // Long black ear appendages
+            [-1, 1].forEach((sx) => {
+              const ear = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.008, 0.006, 0.09, 6), blackMat.clone()
+              );
+              ear.rotation.z = sx * (Math.PI / 2 - 0.2);
+              ear.rotation.x = 0.2;
+              ear.position.set(cx + sx * 0.06, cy - 0.02, cz - 0.05);
+              g.add(ear);
+            });
+            // Black snout
+            const snout = new THREE.Mesh(
+              new THREE.SphereGeometry(0.028, 12, 10), blackMat.clone()
+            );
+            snout.scale.set(0.85, 0.65, 1.3);
+            snout.position.set(cx, cy - 0.03, cz + 0.06);
+            g.add(snout);
+            // Red eyes
+            [-1, 1].forEach((sx) => {
+              const eye = new THREE.Mesh(
+                new THREE.SphereGeometry(0.012, 8, 6), redMat.clone()
+              );
+              eye.position.set(cx + sx * 0.028, cy + 0.008, cz + 0.06);
+              g.add(eye);
+            });
           } else if (kind === 'absol_charm') {
             // Mini Absol head charm — pale head + dark mask + sickle horn +
             // red eyes.
@@ -11205,7 +11886,9 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             kind === 'lugia' ||
             kind === 'growlithe' ||
             kind === 'gardevoir' ||
-            kind === 'absol'
+            kind === 'absol' ||
+            kind === 'beedrill' ||
+            kind === 'mega_lucario'
           ) {
             // Full-body Pokemon companion standing (or floating) at
             // X=-1.15 — mirror of the motorcycle side.
@@ -12744,6 +13427,337 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               prong2Tip.rotation.z = 0.9;
               prong2Tip.position.set(CX - 0.22, 0.4, -0.02);
               g.add(prong2Tip);
+            } else if (kind === 'beedrill') {
+              // Flying Beedrill — yellow bee body in 3 segments, black stripes,
+              // drill arms, drill tail, red eyes, gray translucent wings.
+              const yellowMat = new THREE.MeshStandardMaterial({
+                color, roughness: 0.5,
+                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.05),
+              });
+              const blackMat = new THREE.MeshStandardMaterial({
+                color: accent ?? new THREE.Color('#0a0a0a'),
+                roughness: 0.55,
+              });
+              const redMat = new THREE.MeshStandardMaterial({
+                color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.5,
+              });
+              const grayMat = new THREE.MeshStandardMaterial({
+                color: '#e5e7eb', roughness: 0.5,
+              });
+              const wingMat = new THREE.MeshStandardMaterial({
+                color: '#e5e7eb', side: THREE.DoubleSide, roughness: 0.4,
+                transparent: true, opacity: 0.8,
+              });
+              // Beedrill floats slightly above the ground
+              const FY = 0.1;
+              // Head (yellow, rounded)
+              const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2, 20, 16), yellowMat.clone()
+              );
+              head.scale.set(1.1, 1.0, 1.0);
+              head.position.set(CX, FY + 0.55, 0);
+              g.add(head);
+              // Thorax (middle segment)
+              const thorax = new THREE.Mesh(
+                new THREE.SphereGeometry(0.24, 20, 16), yellowMat.clone()
+              );
+              thorax.scale.set(1.0, 1.1, 1.0);
+              thorax.position.set(CX, FY + 0.2, 0);
+              g.add(thorax);
+              // Abdomen (rear segment, tapered)
+              const abdomen = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2, 20, 16), yellowMat.clone()
+              );
+              abdomen.scale.set(1, 1.3, 1);
+              abdomen.position.set(CX, FY - 0.18, 0);
+              g.add(abdomen);
+              // Black stripes on abdomen (2 bands)
+              [FY - 0.08, FY - 0.24].forEach((y) => {
+                const band = new THREE.Mesh(
+                  new THREE.TorusGeometry(0.2, 0.04, 8, 20), blackMat.clone()
+                );
+                band.rotation.x = Math.PI / 2;
+                band.position.set(CX, y, 0);
+                g.add(band);
+              });
+              // Black stripe on thorax
+              const thoraxStripe = new THREE.Mesh(
+                new THREE.TorusGeometry(0.23, 0.045, 8, 20), blackMat.clone()
+              );
+              thoraxStripe.rotation.x = Math.PI / 2;
+              thoraxStripe.position.set(CX, FY + 0.2, 0);
+              g.add(thoraxStripe);
+              // Big red compound eyes on head
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.09, 16, 12), redMat.clone()
+                );
+                eye.scale.set(1, 1.1, 0.75);
+                eye.position.set(CX + sx * 0.16, FY + 0.57, 0.06);
+                g.add(eye);
+                const hl = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.02, 8, 6),
+                  new THREE.MeshStandardMaterial({
+                    color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.9,
+                  })
+                );
+                hl.position.set(CX + sx * 0.16 - sx * 0.03, FY + 0.62, 0.12);
+                g.add(hl);
+              });
+              // Two thin antennae
+              [-1, 1].forEach((sx) => {
+                const ant = new THREE.Mesh(
+                  new THREE.CylinderGeometry(0.008, 0.008, 0.3, 8), blackMat.clone()
+                );
+                ant.rotation.z = sx * -0.3;
+                ant.position.set(CX + sx * 0.08, FY + 0.74, 0);
+                g.add(ant);
+              });
+              // Drill arms (2 big drill stingers pointing forward)
+              [-1, 1].forEach((sx) => {
+                const drill = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.09, 0.5, 8), grayMat.clone()
+                );
+                drill.rotation.x = -Math.PI / 2;
+                drill.position.set(CX + sx * 0.28, FY + 0.24, 0.35);
+                g.add(drill);
+                [0.1, -0.05].forEach((dz) => {
+                  const ridge = new THREE.Mesh(
+                    new THREE.TorusGeometry(0.07, 0.012, 6, 12), blackMat.clone()
+                  );
+                  ridge.rotation.x = Math.PI / 2;
+                  ridge.position.set(CX + sx * 0.28, FY + 0.24, 0.35 + dz);
+                  g.add(ridge);
+                });
+              });
+              // Big tail stinger (pointing down-back)
+              const tailStinger = new THREE.Mesh(
+                new THREE.ConeGeometry(0.09, 0.35, 6), yellowMat.clone()
+              );
+              tailStinger.rotation.x = Math.PI + 0.2;
+              tailStinger.position.set(CX, FY - 0.42, -0.06);
+              g.add(tailStinger);
+              const tailTip = new THREE.Mesh(
+                new THREE.ConeGeometry(0.06, 0.16, 6), blackMat.clone()
+              );
+              tailTip.rotation.x = Math.PI + 0.2;
+              tailTip.position.set(CX, FY - 0.58, -0.1);
+              g.add(tailTip);
+              // Two pairs of translucent wings
+              [-1, 1].forEach((sx) => {
+                [FY + 0.35, FY + 0.05].forEach((y, i) => {
+                  const wing = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.4, 0.24, 0.02), wingMat.clone()
+                  );
+                  wing.rotation.z = sx * -0.15;
+                  wing.rotation.y = sx * -0.3;
+                  wing.position.set(CX + sx * 0.28, y, -0.14 - i * 0.02);
+                  g.add(wing);
+                });
+              });
+              // Thin dark legs (4 pairs)
+              [-1, 1].forEach((sx) => {
+                [0.12, -0.08, -0.28].forEach((y, i) => {
+                  const leg = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.012, 0.012, 0.22, 6),
+                    blackMat.clone()
+                  );
+                  leg.rotation.z = sx * (Math.PI / 3);
+                  leg.rotation.x = 0.2 + i * 0.1;
+                  leg.position.set(CX + sx * 0.24, FY + y - 0.1, 0.02);
+                  g.add(leg);
+                });
+              });
+            } else if (kind === 'mega_lucario') {
+              // Standing Mega Lucario — blue jackal humanoid, wild yellow mane,
+              // black ear appendages, red eyes, red aura tips, long black tail.
+              const blueMat = new THREE.MeshStandardMaterial({
+                color, roughness: 0.55,
+                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.05),
+              });
+              const yellowMat = new THREE.MeshStandardMaterial({
+                color: accent ?? new THREE.Color('#facc15'),
+                roughness: 0.55,
+              });
+              const blackMat = new THREE.MeshStandardMaterial({
+                color: '#0f172a', roughness: 0.6,
+              });
+              const redMat = new THREE.MeshStandardMaterial({
+                color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.5,
+              });
+              const creamMat = new THREE.MeshStandardMaterial({
+                color: '#fef3c7', roughness: 0.7,
+              });
+              // Blue body
+              const body = new THREE.Mesh(
+                new THREE.SphereGeometry(0.3, 22, 18), blueMat.clone()
+              );
+              body.scale.set(1.05, 1.35, 0.9);
+              body.position.set(CX, 0.1, 0);
+              g.add(body);
+              // Yellow chest bib (cone spike)
+              const bib = new THREE.Mesh(
+                new THREE.ConeGeometry(0.2, 0.4, 5), yellowMat.clone()
+              );
+              bib.rotation.x = Math.PI;
+              bib.position.set(CX, 0.12, 0.24);
+              g.add(bib);
+              // Red aura vent on chest
+              const vent = new THREE.Mesh(
+                new THREE.SphereGeometry(0.05, 12, 10), redMat.clone()
+              );
+              vent.position.set(CX, 0.22, 0.28);
+              g.add(vent);
+              // Head (blue)
+              const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.24, 22, 18), blueMat.clone()
+              );
+              head.scale.set(1.05, 1.02, 1.1);
+              head.position.set(CX, 0.66, 0);
+              g.add(head);
+              // Black pointed snout
+              const snout = new THREE.Mesh(
+                new THREE.SphereGeometry(0.12, 16, 12), blackMat.clone()
+              );
+              snout.scale.set(0.85, 0.65, 1.35);
+              snout.position.set(CX, 0.58, 0.18);
+              g.add(snout);
+              // Wild yellow mane spikes on top of head
+              [
+                [-0.16, 0.9, -0.4],
+                [-0.06, 1.0, -0.15],
+                [0.06, 1.0, 0.15],
+                [0.16, 0.9, 0.4],
+                [0, 1.05, 0],
+              ].forEach(([sx, sy, rz]) => {
+                const spike = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.06, 0.26, 4), yellowMat.clone()
+                );
+                spike.rotation.z = rz;
+                spike.position.set(CX + sx, sy, -0.02);
+                g.add(spike);
+              });
+              // Long black ear appendages sweeping back
+              [-1, 1].forEach((sx) => {
+                [0, 1].forEach((i) => {
+                  const ear = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.03, 0.02, 0.4, 8), blackMat.clone()
+                  );
+                  ear.rotation.z = sx * (Math.PI / 2 - 0.1 - i * 0.15);
+                  ear.rotation.x = 0.4;
+                  ear.position.set(CX + sx * 0.24, 0.64 - i * 0.1, -0.2);
+                  g.add(ear);
+                });
+              });
+              // Red eyes
+              [-1, 1].forEach((sx) => {
+                const eye = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.045, 12, 10), redMat.clone()
+                );
+                eye.scale.set(1, 1.2, 0.7);
+                eye.position.set(CX + sx * 0.11, 0.7, 0.15);
+                g.add(eye);
+                const hl = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.011, 8, 6),
+                  new THREE.MeshStandardMaterial({
+                    color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.9,
+                  })
+                );
+                hl.position.set(CX + sx * 0.11 + 0.012, 0.73, 0.18);
+                g.add(hl);
+              });
+              // Black cheek sensors
+              [-1, 1].forEach((sx) => {
+                const sensor = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.028, 10, 8), blackMat.clone()
+                );
+                sensor.position.set(CX + sx * 0.22, 0.62, 0.02);
+                g.add(sensor);
+              });
+              // Small nose tip
+              const nose = new THREE.Mesh(
+                new THREE.SphereGeometry(0.022, 10, 8), creamMat.clone()
+              );
+              nose.position.set(CX, 0.6, 0.32);
+              g.add(nose);
+              // Arms (blue with black paw hands, red spikes at wrist)
+              [-1, 1].forEach((sx) => {
+                const arm = new THREE.Mesh(
+                  new THREE.CylinderGeometry(0.06, 0.07, 0.4, 10), blueMat.clone()
+                );
+                arm.rotation.z = sx * -0.4;
+                arm.position.set(CX + sx * 0.3, 0.16, 0.05);
+                g.add(arm);
+                const hand = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.09, 12, 10), blackMat.clone()
+                );
+                hand.position.set(CX + sx * 0.45, -0.02, 0.05);
+                g.add(hand);
+                // Red wrist spike
+                const spike = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.045, 0.14, 4), redMat.clone()
+                );
+                spike.rotation.z = sx * (Math.PI / 2 + 0.2);
+                spike.position.set(CX + sx * 0.48, 0.08, -0.02);
+                g.add(spike);
+              });
+              // Black legs
+              [-1, 1].forEach((sx) => {
+                const leg = new THREE.Mesh(
+                  new THREE.CylinderGeometry(0.08, 0.08, 0.28, 10), blackMat.clone()
+                );
+                leg.position.set(CX + sx * 0.14, -0.24, 0);
+                g.add(leg);
+                // Yellow knee ring
+                const knee = new THREE.Mesh(
+                  new THREE.TorusGeometry(0.09, 0.02, 6, 12), yellowMat.clone()
+                );
+                knee.rotation.x = Math.PI / 2;
+                knee.position.set(CX + sx * 0.14, -0.16, 0);
+                g.add(knee);
+                // Foot (black with yellow top)
+                const foot = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.13, 14, 10), blackMat.clone()
+                );
+                foot.scale.set(1, 0.65, 1.5);
+                foot.position.set(CX + sx * 0.14, -0.4, 0.08);
+                g.add(foot);
+                const pad = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.09, 12, 10), yellowMat.clone()
+                );
+                pad.scale.set(1, 0.3, 1.3);
+                pad.position.set(CX + sx * 0.14, -0.32, 0.06);
+                g.add(pad);
+                // Red heel claw
+                const heelClaw = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.045, 0.14, 4), redMat.clone()
+                );
+                heelClaw.rotation.x = Math.PI / 2;
+                heelClaw.position.set(CX + sx * 0.14, -0.4, -0.12);
+                g.add(heelClaw);
+              });
+              // Long black tail with red aura tip
+              const tail1 = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.05, 0.08, 0.4, 12), blackMat.clone()
+              );
+              tail1.rotation.z = -0.5;
+              tail1.position.set(CX - 0.24, -0.1, -0.18);
+              g.add(tail1);
+              const tail2 = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.04, 0.05, 0.32, 10), blackMat.clone()
+              );
+              tail2.rotation.z = -0.9;
+              tail2.position.set(CX - 0.44, 0.02, -0.18);
+              g.add(tail2);
+              const auraTip = new THREE.Mesh(
+                new THREE.SphereGeometry(0.08, 14, 12), redMat.clone()
+              );
+              auraTip.position.set(CX - 0.58, 0.16, -0.18);
+              g.add(auraTip);
+              // Aura light
+              const auraLight = new THREE.PointLight('#dc2626', 0.6, 1.6);
+              auraLight.position.set(CX - 0.58, 0.16, -0.1);
+              g.add(auraLight);
             }
           }
           break;

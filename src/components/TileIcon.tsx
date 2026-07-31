@@ -823,6 +823,36 @@ function Top({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'beedrill_top') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Big black horizontal stripes across the body */}
+        <rect x="24" y="42" width="52" height="8" fill={a} />
+        <rect x="24" y="58" width="52" height="8" fill={a} />
+        {/* Two big drill stingers coming out of the arms */}
+        <polygon points="18,40 8,50 22,52" fill="#e5e7eb" stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <line x1="12" y1="46" x2="16" y2="50" stroke={a} strokeWidth={0.8} />
+        <polygon points="82,40 92,50 78,52" fill="#e5e7eb" stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <line x1="84" y1="46" x2="88" y2="50" stroke={a} strokeWidth={0.8} />
+      </g>
+    );
+  }
+  if (kind === 'mega_lucario_top') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Wild yellow chest mane bib */}
+        <path d="M36,30 L50,60 L64,30 L60,54 L50,72 L40,54 Z"
+          fill={a} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+        {/* Black shoulder spikes (aura) */}
+        <polygon points="16,38 24,32 22,50" fill="#0f172a" stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="84,38 76,32 78,50" fill="#0f172a" stroke={STROKE} strokeWidth={0.6} />
+        {/* Red circle on chest (aura vent) */}
+        <circle cx="50" cy="66" r="4" fill="#7f1d1d" stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
   if (kind === 'absol_top') {
     return (
       <g>
@@ -1232,6 +1262,38 @@ function Bottom({ item }: { item: Item }) {
         <polygon points="42,76 46,84 50,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
         <polygon points="52,76 56,84 60,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
         <polygon points="64,76 68,84 72,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
+      </g>
+    );
+  }
+  if (kind === 'beedrill_legs') {
+    return (
+      <g>
+        {heroLegs(c)}
+        {/* Black stripes on legs */}
+        <rect x="26" y="38" width="20" height="6" fill={a} />
+        <rect x="26" y="54" width="20" height="6" fill={a} />
+        <rect x="54" y="38" width="20" height="6" fill={a} />
+        <rect x="54" y="54" width="20" height="6" fill={a} />
+        {/* Yellow tail stinger cone at bottom center */}
+        <polygon points="42,72 58,72 50,90" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <line x1="44" y1="78" x2="56" y2="78" stroke={a} strokeWidth={0.8} />
+        <line x1="46" y1="82" x2="54" y2="82" stroke={a} strokeWidth={0.8} />
+      </g>
+    );
+  }
+  if (kind === 'mega_lucario_legs') {
+    return (
+      <g>
+        {heroLegs(c)}
+        {/* Yellow "cuffs" at knees */}
+        <rect x="26" y="48" width="20" height="4" fill={a} />
+        <rect x="54" y="48" width="20" height="4" fill={a} />
+        {/* Red thigh spike accents */}
+        <polygon points="26,36 32,32 30,42" fill="#7f1d1d" stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="74,36 68,32 70,42" fill="#7f1d1d" stroke={STROKE} strokeWidth={0.5} />
+        {/* Wild yellow tuft at hip */}
+        <polygon points="30,32 42,30 34,42" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="70,32 58,30 66,42" fill={a} stroke={STROKE} strokeWidth={0.5} />
       </g>
     );
   }
@@ -2365,6 +2427,65 @@ function Mask({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'beedrill_face') {
+    // Beedrill — yellow bee head + black stripe crown + big red compound
+    // eyes + two thin antennae + drill-shaped mouth stinger.
+    return (
+      <g>
+        {/* Yellow round head */}
+        <ellipse cx="50" cy="52" rx="26" ry="24" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Black stripe crown across top */}
+        <rect x="24" y="30" width="52" height="8" fill={a} />
+        <rect x="24" y="60" width="52" height="6" fill={a} />
+        {/* Big red compound eyes */}
+        <ellipse cx="34" cy="50" rx="8" ry="10" fill="#dc2626" stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="66" cy="50" rx="8" ry="10" fill="#dc2626" stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="36" cy="46" rx="2.5" ry="3" fill="#f8fafc" />
+        <ellipse cx="68" cy="46" rx="2.5" ry="3" fill="#f8fafc" />
+        {/* Two thin antennae */}
+        <path d="M40,28 Q36,10 30,4" stroke={a} fill="none" strokeWidth={2} strokeLinecap="round" />
+        <path d="M60,28 Q64,10 70,4" stroke={a} fill="none" strokeWidth={2} strokeLinecap="round" />
+        <circle cx="30" cy="4" r="2" fill={a} />
+        <circle cx="70" cy="4" r="2" fill={a} />
+        {/* Mouth stinger (small drill) */}
+        <polygon points="46,74 54,74 50,90" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <line x1="47" y1="78" x2="53" y2="78" stroke="#f8fafc" strokeWidth={0.6} />
+        <line x1="48" y1="82" x2="52" y2="82" stroke="#f8fafc" strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'mega_lucario_face') {
+    // Mega Lucario — blue jackal face + wild yellow mane + red eyes +
+    // black ear-appendages sticking back.
+    return (
+      <g>
+        {/* Yellow wild mane behind head (spiky) */}
+        {[[10, 40], [16, 20], [30, 8], [50, 4], [70, 8], [84, 20], [90, 40]].map(([x, y], i) => (
+          <polygon key={i} points={`${x - 6},${y + 6} ${x + 6},${y + 6} ${x},${y - 6}`}
+            fill={a} stroke={STROKE} strokeWidth={0.6} />
+        ))}
+        {/* Blue jackal head */}
+        <ellipse cx="50" cy="50" rx="26" ry="26" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Yellow chest mane bib */}
+        <path d="M32,66 L50,80 L68,66 L64,76 L50,88 L36,76 Z"
+          fill={a} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+        {/* Long black ear-appendages sticking back */}
+        <path d="M22,30 Q10,10 4,20 L14,30 Z" fill="#0f172a" stroke={STROKE} strokeWidth={0.6} />
+        <path d="M78,30 Q90,10 96,20 L86,30 Z" fill="#0f172a" stroke={STROKE} strokeWidth={0.6} />
+        {/* Red eyes */}
+        <ellipse cx="40" cy="48" rx="3" ry="4" fill="#dc2626" />
+        <ellipse cx="60" cy="48" rx="3" ry="4" fill="#dc2626" />
+        <circle cx="41" cy="46" r="1" fill="#f8fafc" />
+        <circle cx="61" cy="46" r="1" fill="#f8fafc" />
+        {/* Black snout */}
+        <ellipse cx="50" cy="58" rx="7" ry="5" fill="#0f172a" />
+        <circle cx="50" cy="56" r="1.5" fill="#f8fafc" />
+        {/* Black spikes on cheeks (aura sensors) */}
+        <circle cx="26" cy="54" r="2" fill="#0f172a" />
+        <circle cx="74" cy="54" r="2" fill="#0f172a" />
+      </g>
+    );
+  }
   if (kind === 'absol_face') {
     // Absol — pale white shaggy face + dark navy muzzle/mask + huge asymmetric
     // sickle horn on the left + red eye.
@@ -3190,6 +3311,42 @@ function Back({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'beedrill_wings') {
+    // Two pairs of translucent gray wings
+    return (
+      <g>
+        {[[24, 32], [76, 32], [24, 56], [76, 56]].map(([cx, cy], i) => (
+          <ellipse key={i} cx={cx} cy={cy} rx="22" ry="14" fill={c} stroke={STROKE} strokeWidth={SW} opacity="0.75" />
+        ))}
+        {/* Wing vein detail */}
+        {[[24, 32], [76, 32], [24, 56], [76, 56]].map(([cx, cy], i) => (
+          <g key={i + 100}>
+            <line x1={cx - 18} y1={cy} x2={cx + 18} y2={cy} stroke={a} strokeWidth={0.6} />
+            <line x1={cx} y1={cy - 10} x2={cx} y2={cy + 10} stroke={a} strokeWidth={0.6} />
+          </g>
+        ))}
+      </g>
+    );
+  }
+  if (kind === 'mega_lucario_aura') {
+    // Mega Lucario — wild yellow mane + long black tail + red aura tips
+    return (
+      <g>
+        {/* Yellow spiky wild mane */}
+        {[[16, 22], [30, 8], [50, 4], [70, 8], [84, 22]].map(([x, y], i) => (
+          <polygon key={i} points={`${x - 8},${y + 8} ${x + 8},${y + 8} ${x},${y - 6}`}
+            fill={a} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+        ))}
+        {/* Long black tail curving down */}
+        <path d="M50,40 Q60,60 50,80 Q40,90 30,84" stroke={c} fill="none" strokeWidth={8} strokeLinecap="round" />
+        {/* Red aura tip at tail end */}
+        <circle cx="30" cy="84" r="5" fill="#7f1d1d" stroke={STROKE} strokeWidth={0.6} />
+        {/* Aura spike wristbands (two) */}
+        <polygon points="12,50 4,44 14,58" fill="#0f172a" stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="88,50 96,44 86,58" fill="#0f172a" stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
   if (kind === 'absol_tail') {
     // Absol — forked/split scythe-shaped tail
     return (
@@ -3379,6 +3536,34 @@ function Shoes({ item }: { item: Item }) {
         <polygon points="76,66 82,58 74,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="66,66 68,54 62,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="56,66 54,54 50,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'beedrill_feet') {
+    return (
+      <g>
+        {heroBoot(c)}
+        {/* Yellow stripe accent */}
+        <rect x="20" y="46" width="60" height="6" fill={a} />
+        {/* Small drill stinger toe */}
+        <polygon points="70,66 88,74 68,78" fill="#e5e7eb" stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+        <line x1="76" y1="72" x2="82" y2="74" stroke={c} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'mega_lucario_feet') {
+    return (
+      <g>
+        {heroBoot(c)}
+        {/* Yellow foot pad top */}
+        <rect x="20" y="40" width="60" height="8" fill={item.color === '#0f172a' ? '#facc15' : a} />
+        {/* Red paw pad claws */}
+        <polygon points="72,66 88,60 84,74" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="22,66 8,60 14,74" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Cream toe pads (3) */}
+        <circle cx="34" cy="70" r="3" fill="#fef3c7" />
+        <circle cx="50" cy="72" r="3" fill="#fef3c7" />
+        <circle cx="66" cy="70" r="3" fill="#fef3c7" />
       </g>
     );
   }
@@ -4160,6 +4345,50 @@ function Charm({ item }: { item: Item }) {
           <polygon points="56,68 60,68 58,76" fill={item.accent ?? '#fef3c7'} />
         </g>
       );
+    case 'beedrill_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Yellow bee head */}
+          <ellipse cx="50" cy="52" rx="22" ry="20" fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Black stripe */}
+          <rect x="28" y="34" width="44" height="7" fill={item.accent ?? '#0a0a0a'} />
+          <rect x="28" y="60" width="44" height="6" fill={item.accent ?? '#0a0a0a'} />
+          {/* Big red compound eyes */}
+          <ellipse cx="38" cy="50" rx="6" ry="8" fill="#dc2626" />
+          <ellipse cx="62" cy="50" rx="6" ry="8" fill="#dc2626" />
+          {/* Antennae */}
+          <path d="M42,28 Q38,14 34,14" stroke={item.accent ?? '#0a0a0a'} fill="none" strokeWidth={2} />
+          <path d="M58,28 Q62,14 66,14" stroke={item.accent ?? '#0a0a0a'} fill="none" strokeWidth={2} />
+          {/* Stinger mouth */}
+          <polygon points="46,72 54,72 50,86" fill={item.accent ?? '#0a0a0a'} />
+        </g>
+      );
+    case 'mega_lucario_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Yellow mane spikes */}
+          {[[22, 28], [36, 14], [50, 8], [64, 14], [78, 28]].map(([x, y], i) => (
+            <polygon key={i} points={`${x - 6},${y + 6} ${x + 6},${y + 6} ${x},${y - 6}`}
+              fill={item.accent ?? '#facc15'} stroke={STROKE} strokeWidth={0.5} />
+          ))}
+          {/* Blue head */}
+          <ellipse cx="50" cy="52" rx="22" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
+          {/* Long black ear appendages */}
+          <path d="M28,32 Q16,18 12,26 L20,34 Z" fill="#0f172a" stroke={STROKE} strokeWidth={0.5} />
+          <path d="M72,32 Q84,18 88,26 L80,34 Z" fill="#0f172a" stroke={STROKE} strokeWidth={0.5} />
+          {/* Black snout */}
+          <ellipse cx="50" cy="58" rx="6" ry="4" fill="#0f172a" />
+          {/* Red eyes */}
+          <ellipse cx="42" cy="50" rx="2.5" ry="3" fill="#dc2626" />
+          <ellipse cx="58" cy="50" rx="2.5" ry="3" fill="#dc2626" />
+          {/* Yellow chest bib */}
+          <polygon points="36,68 50,80 64,68 50,74" fill={item.accent ?? '#facc15'} />
+        </g>
+      );
     case 'absol_charm':
       return (
         <g>
@@ -4616,6 +4845,79 @@ function Misc({ item }: { item: Item }) {
         {/* Long curling tail */}
         <path d="M32,80 Q10,86 6,66 Q4,50 20,44 Q24,52 14,56" stroke={c} fill="none" strokeWidth={3} strokeLinecap="round" />
         <circle cx="20" cy="54" r="4" fill={c} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'beedrill') {
+    // Flying Beedrill — yellow-black body with stingers and wings
+    return (
+      <g>
+        {/* Wings (2 pairs) */}
+        {[[24, 22], [76, 22], [22, 38], [78, 38]].map(([cx, cy], i) => (
+          <ellipse key={i} cx={cx} cy={cy} rx="16" ry="10" fill="#e5e7eb" stroke={STROKE} strokeWidth={SW} opacity="0.75" />
+        ))}
+        {/* Yellow body — 3 segments */}
+        <ellipse cx="50" cy="34" rx="14" ry="12" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="50" cy="52" rx="18" ry="14" fill={c} stroke={STROKE} strokeWidth={SW} />
+        <ellipse cx="50" cy="72" rx="14" ry="10" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Black stripes */}
+        <rect x="34" y="47" width="32" height="4" fill={a} />
+        <rect x="34" y="55" width="32" height="4" fill={a} />
+        <rect x="38" y="70" width="24" height="4" fill={a} />
+        {/* Big red compound eyes */}
+        <ellipse cx="42" cy="32" rx="4" ry="6" fill="#dc2626" />
+        <ellipse cx="58" cy="32" rx="4" ry="6" fill="#dc2626" />
+        {/* Antennae */}
+        <path d="M42,20 Q38,8 32,4" stroke={a} fill="none" strokeWidth={1.6} />
+        <path d="M58,20 Q62,8 68,4" stroke={a} fill="none" strokeWidth={1.6} />
+        {/* Two big drill arm stingers */}
+        <polygon points="30,50 8,54 24,58" fill="#e5e7eb" stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <line x1="14" y1="55" x2="20" y2="55" stroke={a} strokeWidth={0.6} />
+        <polygon points="70,50 92,54 76,58" fill="#e5e7eb" stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <line x1="80" y1="55" x2="86" y2="55" stroke={a} strokeWidth={0.6} />
+        {/* Tail stinger */}
+        <polygon points="46,78 54,78 50,94" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Thin legs */}
+        <line x1="40" y1="60" x2="34" y2="76" stroke={a} strokeWidth={1.4} />
+        <line x1="60" y1="60" x2="66" y2="76" stroke={a} strokeWidth={1.4} />
+      </g>
+    );
+  }
+  if (kind === 'mega_lucario') {
+    // Standing Mega Lucario — blue jackal with wild yellow mane
+    return (
+      <g>
+        {/* Wild yellow mane spikes above */}
+        {[[26, 20], [42, 8], [58, 8], [74, 20]].map(([x, y], i) => (
+          <polygon key={i} points={`${x - 6},${y + 6} ${x + 6},${y + 6} ${x},${y - 6}`}
+            fill={a} stroke={STROKE} strokeWidth={0.5} />
+        ))}
+        {/* Blue head */}
+        <ellipse cx="50" cy="32" rx="16" ry="14" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Long black ear-appendages */}
+        <path d="M32,20 Q22,8 20,16 L30,22 Z" fill="#0f172a" stroke={STROKE} strokeWidth={0.6} />
+        <path d="M68,20 Q78,8 80,16 L70,22 Z" fill="#0f172a" stroke={STROKE} strokeWidth={0.6} />
+        {/* Black snout */}
+        <ellipse cx="50" cy="38" rx="6" ry="4" fill="#0f172a" />
+        {/* Red eyes */}
+        <ellipse cx="44" cy="30" rx="2" ry="2.5" fill="#dc2626" />
+        <ellipse cx="56" cy="30" rx="2" ry="2.5" fill="#dc2626" />
+        {/* Blue body */}
+        <ellipse cx="50" cy="60" rx="18" ry="16" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Yellow chest mane */}
+        <polygon points="38,48 50,80 62,48 58,68 50,78 42,68" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Red chest circle */}
+        <circle cx="50" cy="58" r="3" fill="#7f1d1d" stroke={STROKE} strokeWidth={0.5} />
+        {/* Arms with black paws */}
+        <path d="M34,52 L20,64" stroke={c} strokeWidth={5} strokeLinecap="round" />
+        <circle cx="18" cy="66" r="5" fill="#0f172a" />
+        <path d="M66,52 L80,64" stroke={c} strokeWidth={5} strokeLinecap="round" />
+        <circle cx="82" cy="66" r="5" fill="#0f172a" />
+        {/* Black legs */}
+        <rect x="42" y="72" width="6" height="12" fill="#0f172a" />
+        <rect x="52" y="72" width="6" height="12" fill="#0f172a" />
+        {/* Black tail */}
+        <path d="M64,68 Q78,74 82,86" stroke="#0f172a" fill="none" strokeWidth={4} strokeLinecap="round" />
       </g>
     );
   }
