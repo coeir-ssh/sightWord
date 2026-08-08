@@ -823,6 +823,35 @@ function Top({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'mega_charizard_x_top') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Blue belly with segment lines */}
+        <ellipse cx="50" cy="60" rx="20" ry="18" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        <line x1="34" y1="54" x2="66" y2="54" stroke="#1e40af" strokeWidth={0.6} />
+        <line x1="34" y1="64" x2="66" y2="64" stroke="#1e40af" strokeWidth={0.6} />
+        {/* Blue flame wisps from shoulders */}
+        <path d="M22,32 Q16,20 24,18 Q22,26 26,34 Z" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        <path d="M78,32 Q84,20 76,18 Q78,26 74,34 Z" fill={a} stroke={STROKE} strokeWidth={0.5} />
+      </g>
+    );
+  }
+  if (kind === 'mega_charizard_y_top') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Cream belly */}
+        <ellipse cx="50" cy="60" rx="20" ry="18" fill={a} stroke={STROKE} strokeWidth={0.8} />
+        <line x1="34" y1="54" x2="66" y2="54" stroke="#7c2d12" strokeWidth={0.6} />
+        <line x1="34" y1="62" x2="66" y2="62" stroke="#7c2d12" strokeWidth={0.6} />
+        <line x1="34" y1="70" x2="66" y2="70" stroke="#7c2d12" strokeWidth={0.6} />
+        {/* Small wing nubs on shoulders (wrist-wing hint) */}
+        <polygon points="16,42 26,34 22,50" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="84,42 74,34 78,50" fill={c} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
   if (kind === 'beedrill_top') {
     return (
       <g>
@@ -1262,6 +1291,34 @@ function Bottom({ item }: { item: Item }) {
         <polygon points="42,76 46,84 50,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
         <polygon points="52,76 56,84 60,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
         <polygon points="64,76 68,84 72,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
+      </g>
+    );
+  }
+  if (kind === 'mega_charizard_x_legs') {
+    return (
+      <g>
+        {heroLegs(c)}
+        {/* Blue belly extending onto upper thighs */}
+        <ellipse cx="50" cy="40" rx="20" ry="12" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* White claws at toes */}
+        <polygon points="28,76 32,84 36,76" fill="#f8fafc" />
+        <polygon points="42,76 46,84 50,76" fill="#f8fafc" />
+        <polygon points="52,76 56,84 60,76" fill="#f8fafc" />
+        <polygon points="64,76 68,84 72,76" fill="#f8fafc" />
+      </g>
+    );
+  }
+  if (kind === 'mega_charizard_y_legs') {
+    return (
+      <g>
+        {heroLegs(c)}
+        {/* Cream belly */}
+        <ellipse cx="50" cy="40" rx="20" ry="12" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Cream claws */}
+        <polygon points="28,76 32,84 36,76" fill={a} />
+        <polygon points="42,76 46,84 50,76" fill={a} />
+        <polygon points="52,76 56,84 60,76" fill={a} />
+        <polygon points="64,76 68,84 72,76" fill={a} />
       </g>
     );
   }
@@ -2427,6 +2484,65 @@ function Mask({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'mega_charizard_x_face') {
+    // Mega Charizard X — black dragon head, blue muzzle underside,
+    // dark horns pointing back, blue flame from mouth, red eyes.
+    return (
+      <g>
+        {/* Two long dark horns pointing back-up */}
+        <polygon points="26,26 12,2 34,22" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <polygon points="74,26 88,2 66,22" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Black dragon head */}
+        <path d="M22,32 Q22,18 50,14 Q78,18 78,32 L82,58 L74,74 L54,80 L46,80 L26,74 L18,58 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Blue lower jaw / muzzle */}
+        <path d="M32,58 L68,58 L64,74 L54,80 L46,80 L36,74 Z"
+          fill={a} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+        {/* Blue flame coming out of mouth (right side, whiskery) */}
+        <path d="M68,66 Q84,60 90,50 Q84,56 78,66 Z" fill="#3b82f6" stroke={STROKE} strokeWidth={0.6} />
+        {/* Red eyes */}
+        <ellipse cx="38" cy="42" rx="3" ry="4" fill="#dc2626" />
+        <ellipse cx="62" cy="42" rx="3" ry="4" fill="#dc2626" />
+        <circle cx="39" cy="40" r="1" fill="#f8fafc" />
+        <circle cx="63" cy="40" r="1" fill="#f8fafc" />
+        {/* Nostrils */}
+        <circle cx="45" cy="60" r="1" fill="#f8fafc" />
+        <circle cx="55" cy="60" r="1" fill="#f8fafc" />
+        {/* Fangs */}
+        <polygon points="38,72 42,72 40,80" fill="#f8fafc" />
+        <polygon points="58,72 62,72 60,80" fill="#f8fafc" />
+      </g>
+    );
+  }
+  if (kind === 'mega_charizard_y_face') {
+    // Mega Charizard Y — orange dragon head with LONGER pointed horns
+    // (two per side going up-and-back), cream muzzle, big fangs.
+    return (
+      <g>
+        {/* Two long pointed horns per side */}
+        <polygon points="24,30 6,4 30,20" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <polygon points="34,26 22,0 42,18" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <polygon points="76,30 94,4 70,20" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <polygon points="66,26 78,0 58,18" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Orange dragon head — narrower and sharper than base Charizard */}
+        <path d="M28,34 Q28,20 50,16 Q72,20 72,34 L80,58 L72,76 L54,82 L46,82 L28,76 L20,58 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Cream muzzle */}
+        <ellipse cx="50" cy="66" rx="20" ry="10" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Green-yellow eyes (Mega Y has green eyes) */}
+        <ellipse cx="38" cy="44" rx="3" ry="5" fill="#84cc16" />
+        <ellipse cx="62" cy="44" rx="3" ry="5" fill="#84cc16" />
+        <circle cx="39" cy="42" r="1" fill="#f8fafc" />
+        <circle cx="63" cy="42" r="1" fill="#f8fafc" />
+        {/* Nostrils */}
+        <circle cx="45" cy="62" r="1.5" fill="#0f172a" />
+        <circle cx="55" cy="62" r="1.5" fill="#0f172a" />
+        {/* Fangs */}
+        <polygon points="40,70 44,70 42,80" fill={a} />
+        <polygon points="56,70 60,70 58,80" fill={a} />
+      </g>
+    );
+  }
   if (kind === 'beedrill_face') {
     // Beedrill — yellow bee head + black stripe crown + big red compound
     // eyes + two thin antennae + drill-shaped mouth stinger.
@@ -3311,6 +3427,42 @@ function Back({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'mega_charizard_x_wings') {
+    // Big dark navy wings with blue membrane
+    return (
+      <g>
+        {/* Outer wing frame (black/dark) */}
+        <path d="M50,38 L4,6 L12,50 L36,42 L26,74 L50,52 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <path d="M50,38 L96,6 L88,50 L64,42 L74,74 L50,52 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Blue membrane accents inside */}
+        <path d="M50,42 L14,16 L22,44 L36,42 L50,50 Z" fill={a} opacity="0.7" />
+        <path d="M50,42 L86,16 L78,44 L64,42 L50,50 Z" fill={a} opacity="0.7" />
+        {/* Blue flame tail hint */}
+        <path d="M50,78 Q46,88 54,90 Q52,84 56,80" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'mega_charizard_y_wings') {
+    // Huge sharper wings with pointed tips + wrist wings
+    return (
+      <g>
+        {/* Big pointed wings (darker orange) */}
+        <path d="M50,32 L2,2 L10,44 L28,38 L18,70 L38,52 L26,86 L50,54 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <path d="M50,32 L98,2 L90,44 L72,38 L82,70 L62,52 L74,86 L50,54 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Cream membrane veins */}
+        <line x1="50" y1="38" x2="14" y2="10" stroke={a} strokeWidth={1} />
+        <line x1="50" y1="42" x2="20" y2="42" stroke={a} strokeWidth={1} />
+        <line x1="50" y1="38" x2="86" y2="10" stroke={a} strokeWidth={1} />
+        <line x1="50" y1="42" x2="80" y2="42" stroke={a} strokeWidth={1} />
+        {/* Orange flame at bottom */}
+        <path d="M50,78 Q46,90 54,92 Q52,86 58,82" fill="#fb923c" stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
   if (kind === 'beedrill_wings') {
     // Two pairs of translucent gray wings
     return (
@@ -3536,6 +3688,32 @@ function Shoes({ item }: { item: Item }) {
         <polygon points="76,66 82,58 74,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="66,66 68,54 62,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="56,66 54,54 50,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'mega_charizard_x_feet') {
+    return (
+      <g>
+        {heroBoot(c)}
+        {/* Blue sole */}
+        <rect x="14" y="66" width="72" height="10" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Big white claws */}
+        <polygon points="74,66 82,56 72,66" fill="#f8fafc" stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="62,66 66,52 58,66" fill="#f8fafc" stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="50,66 50,52 46,66" fill="#f8fafc" stroke={STROKE} strokeWidth={0.5} />
+      </g>
+    );
+  }
+  if (kind === 'mega_charizard_y_feet') {
+    return (
+      <g>
+        {heroBoot(c)}
+        {/* Cream sole */}
+        <rect x="14" y="66" width="72" height="10" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Big cream claws */}
+        <polygon points="74,66 82,56 72,66" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="62,66 66,52 58,66" fill={a} stroke={STROKE} strokeWidth={0.5} />
+        <polygon points="50,66 50,52 46,66" fill={a} stroke={STROKE} strokeWidth={0.5} />
       </g>
     );
   }
@@ -4345,6 +4523,52 @@ function Charm({ item }: { item: Item }) {
           <polygon points="56,68 60,68 58,76" fill={item.accent ?? '#fef3c7'} />
         </g>
       );
+    case 'mega_charizard_x_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Dark horns */}
+          <polygon points="28,24 18,4 36,20" fill={c} stroke={STROKE} strokeWidth={0.6} />
+          <polygon points="72,24 82,4 64,20" fill={c} stroke={STROKE} strokeWidth={0.6} />
+          {/* Black dragon head */}
+          <path d="M24,30 Q24,18 50,14 Q76,18 76,30 L80,60 L54,80 L46,80 L20,60 Z"
+            fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+          {/* Blue muzzle */}
+          <ellipse cx="50" cy="62" rx="18" ry="8" fill={item.accent ?? '#3b82f6'} stroke={STROKE} strokeWidth={0.5} />
+          {/* Red eyes */}
+          <ellipse cx="40" cy="42" rx="2.5" ry="3.5" fill="#dc2626" />
+          <ellipse cx="60" cy="42" rx="2.5" ry="3.5" fill="#dc2626" />
+          {/* Blue flame from mouth */}
+          <path d="M62,62 Q78,58 82,50 Q76,56 70,64 Z" fill={item.accent ?? '#3b82f6'} />
+          {/* Fangs */}
+          <polygon points="40,68 44,68 42,76" fill="#f8fafc" />
+          <polygon points="56,68 60,68 58,76" fill="#f8fafc" />
+        </g>
+      );
+    case 'mega_charizard_y_charm':
+      return (
+        <g>
+          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
+          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
+          {/* Two long horns per side */}
+          <polygon points="24,26 8,4 30,20" fill={c} stroke={STROKE} strokeWidth={0.6} />
+          <polygon points="34,22 24,2 40,18" fill={c} stroke={STROKE} strokeWidth={0.6} />
+          <polygon points="76,26 92,4 70,20" fill={c} stroke={STROKE} strokeWidth={0.6} />
+          <polygon points="66,22 76,2 60,18" fill={c} stroke={STROKE} strokeWidth={0.6} />
+          {/* Orange head */}
+          <path d="M26,30 Q26,18 50,14 Q74,18 74,30 L78,60 L54,80 L46,80 L22,60 Z"
+            fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+          {/* Cream muzzle */}
+          <ellipse cx="50" cy="62" rx="16" ry="8" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.5} />
+          {/* Green eyes */}
+          <ellipse cx="40" cy="42" rx="2.5" ry="4" fill="#84cc16" />
+          <ellipse cx="60" cy="42" rx="2.5" ry="4" fill="#84cc16" />
+          {/* Fangs */}
+          <polygon points="42,68 46,68 44,76" fill={item.accent ?? '#fef3c7'} />
+          <polygon points="54,68 58,68 56,76" fill={item.accent ?? '#fef3c7'} />
+        </g>
+      );
     case 'beedrill_charm':
       return (
         <g>
@@ -4845,6 +5069,89 @@ function Misc({ item }: { item: Item }) {
         {/* Long curling tail */}
         <path d="M32,80 Q10,86 6,66 Q4,50 20,44 Q24,52 14,56" stroke={c} fill="none" strokeWidth={3} strokeLinecap="round" />
         <circle cx="20" cy="54" r="4" fill={c} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'mega_charizard_x') {
+    // Standing Mega Charizard X — black dragon with blue belly
+    return (
+      <g>
+        {/* Long dark navy horns */}
+        <polygon points="42,16 32,0 46,14" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="58,16 68,0 54,14" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Dark wings behind */}
+        <path d="M50,28 L8,12 L14,44 L28,38 L22,58 L44,44 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <path d="M50,28 L92,12 L86,44 L72,38 L78,58 L56,44 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Blue wing membrane accent */}
+        <path d="M50,32 L18,20 L26,40 L42,38 Z" fill={a} opacity="0.7" />
+        <path d="M50,32 L82,20 L74,40 L58,38 Z" fill={a} opacity="0.7" />
+        {/* Black head */}
+        <ellipse cx="50" cy="26" rx="12" ry="12" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Blue muzzle */}
+        <ellipse cx="50" cy="30" rx="8" ry="4" fill={a} />
+        {/* Red eyes */}
+        <ellipse cx="46" cy="22" rx="1.5" ry="2" fill="#dc2626" />
+        <ellipse cx="54" cy="22" rx="1.5" ry="2" fill="#dc2626" />
+        {/* Blue flame from mouth */}
+        <path d="M58,30 Q66,28 68,22 Q64,26 60,32 Z" fill={a} />
+        {/* Black body */}
+        <ellipse cx="50" cy="56" rx="14" ry="16" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Blue belly */}
+        <ellipse cx="50" cy="60" rx="8" ry="12" fill={a} />
+        {/* Legs */}
+        <rect x="40" y="70" width="6" height="12" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <rect x="54" y="70" width="6" height="12" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Claws */}
+        <polygon points="40,82 43,88 46,82" fill="#f8fafc" />
+        <polygon points="54,82 57,88 60,82" fill="#f8fafc" />
+        {/* Black tail with blue flame */}
+        <path d="M62,66 Q80,66 84,80" stroke={c} fill="none" strokeWidth={4} strokeLinecap="round" />
+        <polygon points="84,80 96,76 90,88" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'mega_charizard_y') {
+    // Standing Mega Charizard Y — orange dragon with larger sharper wings
+    return (
+      <g>
+        {/* Two long horns per side */}
+        <polygon points="42,14 34,-2 46,12" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="46,10 42,-4 50,10" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="58,14 66,-2 54,12" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="54,10 58,-4 50,10" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Big sharp pointed wings */}
+        <path d="M50,26 L4,4 L10,38 L24,32 L14,58 L32,44 L22,72 L44,42 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <path d="M50,26 L96,4 L90,38 L76,32 L86,58 L68,44 L78,72 L56,42 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Cream membrane veins */}
+        <line x1="50" y1="30" x2="14" y2="10" stroke={a} strokeWidth={0.6} />
+        <line x1="50" y1="34" x2="20" y2="34" stroke={a} strokeWidth={0.6} />
+        <line x1="50" y1="30" x2="86" y2="10" stroke={a} strokeWidth={0.6} />
+        <line x1="50" y1="34" x2="80" y2="34" stroke={a} strokeWidth={0.6} />
+        {/* Orange head */}
+        <ellipse cx="50" cy="24" rx="12" ry="11" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Cream muzzle */}
+        <ellipse cx="50" cy="30" rx="8" ry="4" fill={a} />
+        {/* Green eyes */}
+        <ellipse cx="46" cy="20" rx="1.5" ry="2" fill="#84cc16" />
+        <ellipse cx="54" cy="20" rx="1.5" ry="2" fill="#84cc16" />
+        {/* Orange body */}
+        <ellipse cx="50" cy="54" rx="14" ry="14" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Cream belly with segments */}
+        <ellipse cx="50" cy="58" rx="8" ry="10" fill={a} />
+        <line x1="46" y1="54" x2="54" y2="54" stroke="#7c2d12" strokeWidth={0.4} />
+        <line x1="46" y1="60" x2="54" y2="60" stroke="#7c2d12" strokeWidth={0.4} />
+        {/* Legs with cream claws */}
+        <rect x="40" y="66" width="6" height="14" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <rect x="54" y="66" width="6" height="14" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="40,80 43,86 46,80" fill={a} />
+        <polygon points="54,80 57,86 60,80" fill={a} />
+        {/* Long orange tail with big flame */}
+        <path d="M62,64 Q86,68 92,88" stroke={c} fill="none" strokeWidth={4} strokeLinecap="round" />
+        <polygon points="92,88 96,78 96,94" fill="#fb923c" stroke="#dc2626" strokeWidth={0.5} />
       </g>
     );
   }

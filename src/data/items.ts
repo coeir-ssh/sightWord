@@ -19,7 +19,9 @@ export type MiscKind =
   | 'gardevoir'
   | 'absol'
   | 'beedrill'
-  | 'mega_lucario';
+  | 'mega_lucario'
+  | 'mega_charizard_x'
+  | 'mega_charizard_y';
 
 export type TopKind =
   | 'tee'
@@ -76,7 +78,9 @@ export type TopKind =
   | 'gardevoir_top'
   | 'absol_top'
   | 'beedrill_top'
-  | 'mega_lucario_top';
+  | 'mega_lucario_top'
+  | 'mega_charizard_x_top'
+  | 'mega_charizard_y_top';
 
 export type BottomKind =
   | 'pants'
@@ -133,7 +137,9 @@ export type BottomKind =
   | 'gardevoir_legs'
   | 'absol_legs'
   | 'beedrill_legs'
-  | 'mega_lucario_legs';
+  | 'mega_lucario_legs'
+  | 'mega_charizard_x_legs'
+  | 'mega_charizard_y_legs';
 
 export type HatKind =
   | 'cap'
@@ -187,7 +193,9 @@ export type MaskKind =
   | 'gardevoir_face'
   | 'absol_face'
   | 'beedrill_face'
-  | 'mega_lucario_face';
+  | 'mega_lucario_face'
+  | 'mega_charizard_x_face'
+  | 'mega_charizard_y_face';
 
 export type BackKind =
   | 'kinder'
@@ -244,7 +252,9 @@ export type BackKind =
   | 'gardevoir_dress'
   | 'absol_tail'
   | 'beedrill_wings'
-  | 'mega_lucario_aura';
+  | 'mega_lucario_aura'
+  | 'mega_charizard_x_wings'
+  | 'mega_charizard_y_wings';
 
 export type ShoeKind =
   | 'sneakers'
@@ -291,7 +301,9 @@ export type ShoeKind =
   | 'gardevoir_feet'
   | 'absol_feet'
   | 'beedrill_feet'
-  | 'mega_lucario_feet';
+  | 'mega_lucario_feet'
+  | 'mega_charizard_x_feet'
+  | 'mega_charizard_y_feet';
 
 export type CharmKind =
   | 'star'
@@ -330,7 +342,9 @@ export type CharmKind =
   | 'gardevoir_charm'
   | 'absol_charm'
   | 'beedrill_charm'
-  | 'mega_lucario_charm';
+  | 'mega_lucario_charm'
+  | 'mega_charizard_x_charm'
+  | 'mega_charizard_y_charm';
 
 export type ItemKind =
   | TopKind
@@ -803,6 +817,24 @@ export const ITEMS: Item[] = [
   { id: 'shoes.mega_lucario', name: '메가루카리오 발톱', slot: 'shoes', price: 200, color: '#0f172a', accent: '#7f1d1d', kind: 'mega_lucario_feet' },
   { id: 'charm.mega_lucario', name: '메가루카리오 키링', slot: 'charm', price: 170, color: '#1e3a8a', accent: '#facc15', kind: 'mega_lucario_charm' },
 
+  // 메가리자몽 X (Mega Charizard X) — Fire/Dragon: black body, blue belly,
+  // blue flames from mouth, dark navy wings with blue membrane.
+  { id: 'mask.mega_charizard_x', name: '메가리자몽X 얼굴', slot: 'mask', price: 340, color: '#0f172a', accent: '#3b82f6', kind: 'mega_charizard_x_face' },
+  { id: 'top.mega_charizard_x', name: '메가리자몽X 상의', slot: 'top', price: 320, color: '#0f172a', accent: '#3b82f6', kind: 'mega_charizard_x_top' },
+  { id: 'bottom.mega_charizard_x', name: '메가리자몽X 하의', slot: 'bottom', price: 280, color: '#0f172a', accent: '#3b82f6', kind: 'mega_charizard_x_legs' },
+  { id: 'back.mega_charizard_x', name: '메가리자몽X 날개', slot: 'back', price: 360, color: '#0f172a', accent: '#1e40af', kind: 'mega_charizard_x_wings' },
+  { id: 'shoes.mega_charizard_x', name: '메가리자몽X 발톱', slot: 'shoes', price: 200, color: '#0f172a', accent: '#f8fafc', kind: 'mega_charizard_x_feet' },
+  { id: 'charm.mega_charizard_x', name: '메가리자몽X 키링', slot: 'charm', price: 180, color: '#0f172a', accent: '#3b82f6', kind: 'mega_charizard_x_charm' },
+
+  // 메가리자몽 Y (Mega Charizard Y) — Fire/Flying: orange body, cream belly,
+  // huge sharper wings with pointed tips, wrist wings, longer horns.
+  { id: 'mask.mega_charizard_y', name: '메가리자몽Y 얼굴', slot: 'mask', price: 340, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y_face' },
+  { id: 'top.mega_charizard_y', name: '메가리자몽Y 상의', slot: 'top', price: 320, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y_top' },
+  { id: 'bottom.mega_charizard_y', name: '메가리자몽Y 하의', slot: 'bottom', price: 280, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y_legs' },
+  { id: 'back.mega_charizard_y', name: '메가리자몽Y 날개', slot: 'back', price: 360, color: '#c2410c', accent: '#fef3c7', kind: 'mega_charizard_y_wings' },
+  { id: 'shoes.mega_charizard_y', name: '메가리자몽Y 발톱', slot: 'shoes', price: 200, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y_feet' },
+  { id: 'charm.mega_charizard_y', name: '메가리자몽Y 키링', slot: 'charm', price: 180, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y_charm' },
+
   // Misc Pokemon companions — stand next to the character just like the
   // existing Pikachu companion at misc.pikachu.
   { id: 'misc.charmander', name: '파이리 (컴패니언)', slot: 'misc', price: 380, color: '#f97316', accent: '#fef3c7', kind: 'charmander' },
@@ -821,6 +853,8 @@ export const ITEMS: Item[] = [
   { id: 'misc.absol', name: '앱솔 (컴패니언)', slot: 'misc', price: 560, color: '#e2e8f0', accent: '#1e293b', kind: 'absol' },
   { id: 'misc.beedrill', name: '독침붕 (컴패니언)', slot: 'misc', price: 520, color: '#facc15', accent: '#0a0a0a', kind: 'beedrill' },
   { id: 'misc.mega_lucario', name: '메가루카리오 (컴패니언)', slot: 'misc', price: 650, color: '#1e3a8a', accent: '#facc15', kind: 'mega_lucario' },
+  { id: 'misc.mega_charizard_x', name: '메가리자몽X (컴패니언)', slot: 'misc', price: 700, color: '#0f172a', accent: '#3b82f6', kind: 'mega_charizard_x' },
+  { id: 'misc.mega_charizard_y', name: '메가리자몽Y (컴패니언)', slot: 'misc', price: 700, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y' },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
@@ -907,6 +941,7 @@ const POKEMON_SPECIES = [
   'jigglypuff', 'psyduck', 'snorlax', 'gengar', 'charizard', 'mew', 'lugia',
   'growlithe', 'gardevoir', 'absol',
   'beedrill', 'mega_lucario',
+  'mega_charizard_x', 'mega_charizard_y',
 ];
 const SCHOOL_KIND_PATTERNS = [
   'slp', 'slp_girl', 'slp_skirt', 'slp_backpack', 'slp_badge',
