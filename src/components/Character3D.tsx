@@ -384,7 +384,6 @@ export function Character3D({ equipped, jumping = false, className, name, gender
       mask: new THREE.Group(),
       back: new THREE.Group(),
       shoes: new THREE.Group(),
-      charm: new THREE.Group(),
       misc: new THREE.Group(),
     };
     Object.values(slotGroups).forEach((g) => char.add(g));
@@ -583,7 +582,7 @@ export function Character3D({ equipped, jumping = false, className, name, gender
       //            don't visibly oscillate with the arm swing.
       //   bottom → below arm cutoff,  |x| > 0.05 → leg side
       //   shoes  → always per-foot by x sign
-      // Other slots (hat, mask, back, charm) stay center-attached.
+      // Other slots (hat, mask, back) stay center-attached.
       const wantArm = slot === 'top';
       const wantLeg = slot === 'bottom' || slot === 'shoes';
       if (!wantArm && !wantLeg) return;
@@ -2656,6 +2655,40 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               seam.position.set(0, TORSO_Y + dy, frontZ + 0.02);
               g.add(seam);
             });
+          } else if (kind === 'fearow_top') {
+            // Brown feathered body with cream feather bib on chest
+            const brownMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.65,
+            });
+            const creamMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fef3c7'),
+              roughness: 0.7,
+            });
+            (torsoMesh as THREE.Mesh).material = brownMat;
+            // Cream chest bib (feathered)
+            const bib = new THREE.Mesh(
+              new THREE.SphereGeometry(0.3, 20, 16), creamMat.clone()
+            );
+            bib.scale.set(1.05, 1.2, 0.4);
+            bib.position.set(0, TORSO_Y - 0.02, frontZ - 0.02);
+            g.add(bib);
+            // Small red neck ring at collar
+            const collar = new THREE.Mesh(
+              new THREE.TorusGeometry(0.24, 0.028, 8, 18),
+              new THREE.MeshStandardMaterial({ color: '#dc2626', roughness: 0.55 })
+            );
+            collar.rotation.x = Math.PI / 2;
+            collar.position.set(0, topY - 0.02, 0);
+            g.add(collar);
+            // Feather segment ridges on the bib
+            [0.1, -0.02, -0.14].forEach((dy) => {
+              const seam = new THREE.Mesh(
+                new THREE.BoxGeometry(0.36, 0.012, 0.01),
+                new THREE.MeshStandardMaterial({ color: '#7c2d12' })
+              );
+              seam.position.set(0, TORSO_Y + dy, frontZ + 0.02);
+              g.add(seam);
+            });
           } else if (kind === 'mega_charizard_x_top') {
             // Black body + blue belly with segment lines + blue flame vents
             const blackMat = new THREE.MeshStandardMaterial({
@@ -4052,6 +4085,46 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               belly.position.set(0, LEG_Y + LEG_H / 2 - 0.04, 0.14);
               g.add(belly);
             }
+          } else if (kind === 'fearow_legs') {
+            // Yellow bird legs + brown feather thighs + sharp claws hint
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#facc15'),
+              roughness: 0.55,
+            });
+            const brownMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.65,
+            });
+            [-1, 1].forEach((sx) => {
+              // Brown feathered thigh (upper)
+              const thigh = new THREE.Mesh(
+                new THREE.CylinderGeometry(LEG_W * 0.85, LEG_W * 0.75, LEG_H * 0.4, 14),
+                brownMat.clone()
+              );
+              thigh.position.set(sx * LEG_X, LEG_Y + LEG_H * 0.25, 0);
+              g.add(thigh);
+              // Yellow thin bird shin
+              const shin = new THREE.Mesh(
+                new THREE.CylinderGeometry(LEG_W * 0.4, LEG_W * 0.45, LEG_H * 0.6, 12),
+                yellowMat.clone()
+              );
+              shin.position.set(sx * LEG_X, LEG_Y - LEG_H * 0.2, 0);
+              g.add(shin);
+              // Brown feather skirt at thigh bottom
+              for (let i = 0; i < 6; i++) {
+                const a = (i / 6) * Math.PI * 2;
+                const feather = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.05, 0.12, 4), brownMat.clone()
+                );
+                feather.rotation.x = -0.3;
+                feather.rotation.z = Math.cos(a) * 0.6;
+                feather.position.set(
+                  sx * LEG_X + Math.cos(a) * LEG_W * 0.7,
+                  LEG_Y + 0.05,
+                  Math.sin(a) * LEG_W * 0.7
+                );
+                g.add(feather);
+              }
+            });
           } else if (kind === 'mega_charizard_x_legs') {
             // Black legs with blue upper thighs + white claws
             const blackMat = new THREE.MeshStandardMaterial({
@@ -6643,6 +6716,93 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               half.position.set(sx * 0.02, HEAD_Y - 0.12, FACE_Z + 0.14);
               g.add(half);
             });
+          } else if (kind === 'fearow_face') {
+            // Fearow — brown bird head with LONG thin pointed beak, red
+            // spiky crest, small sharp red eyes, cream cheek feathers.
+            const brownMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.65,
+            });
+            const redMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#dc2626'),
+              roughness: 0.55,
+            });
+            const beakMat = new THREE.MeshStandardMaterial({
+              color: '#fef3c7', roughness: 0.5,
+            });
+            // Round brown head
+            const head = new THREE.Mesh(
+              new THREE.SphereGeometry(HEAD_SIZE * 0.5, 22, 20),
+              brownMat.clone()
+            );
+            head.scale.set(1.0, 1.02, 1.05);
+            head.position.set(0, HEAD_Y, 0);
+            g.add(head);
+            // LONG thin pointed beak — cone stretching straight forward
+            const beak = new THREE.Mesh(
+              new THREE.ConeGeometry(0.045, 0.65, 6),
+              beakMat.clone()
+            );
+            beak.rotation.x = -Math.PI / 2;
+            beak.position.set(0, HEAD_Y - 0.02, FACE_Z + 0.32);
+            g.add(beak);
+            // Beak base connector
+            const beakBase = new THREE.Mesh(
+              new THREE.SphereGeometry(0.08, 12, 10),
+              beakMat.clone()
+            );
+            beakBase.scale.set(0.9, 0.7, 1.2);
+            beakBase.position.set(0, HEAD_Y - 0.04, FACE_Z + 0.08);
+            g.add(beakBase);
+            // Red spiky crest — 3 pointed spikes on top of head
+            [-0.14, 0, 0.14].forEach((dx, i) => {
+              const h = i === 1 ? 0.34 : 0.24;
+              const spike = new THREE.Mesh(
+                new THREE.ConeGeometry(0.05, h, 4),
+                redMat.clone()
+              );
+              spike.rotation.z = dx * 1.5;
+              spike.position.set(dx, HEAD_Y + HEAD_SIZE / 2 - 0.02 + h / 2, -0.02);
+              g.add(spike);
+            });
+            // Small red neck-feather ring
+            for (let i = 0; i < 8; i++) {
+              const a = (i / 8) * Math.PI * 2;
+              const feather = new THREE.Mesh(
+                new THREE.ConeGeometry(0.05, 0.14, 4),
+                new THREE.MeshStandardMaterial({ color: '#7f1d1d', roughness: 0.55 })
+              );
+              feather.rotation.z = Math.cos(a) * 0.5;
+              feather.rotation.x = -0.3;
+              feather.position.set(
+                Math.cos(a) * 0.3,
+                HEAD_Y - HEAD_SIZE / 2 - 0.02,
+                Math.sin(a) * 0.28
+              );
+              g.add(feather);
+            }
+            // Small sharp red eyes with white sclera
+            [-1, 1].forEach((sx) => {
+              const white = new THREE.Mesh(
+                new THREE.SphereGeometry(0.05, 12, 10),
+                new THREE.MeshStandardMaterial({ color: '#f8fafc' })
+              );
+              white.scale.set(1, 1.15, 0.5);
+              white.position.set(sx * 0.13, HEAD_Y + 0.04, FACE_Z + 0.04);
+              g.add(white);
+              const pupil = new THREE.Mesh(
+                new THREE.SphereGeometry(0.028, 10, 8),
+                new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+              );
+              pupil.position.set(sx * 0.13, HEAD_Y + 0.04, FACE_Z + 0.08);
+              g.add(pupil);
+              // Small red eye-mask stripe over eye
+              const stripe = new THREE.Mesh(
+                new THREE.BoxGeometry(0.14, 0.03, 0.02), redMat.clone()
+              );
+              stripe.rotation.z = sx * 0.2;
+              stripe.position.set(sx * 0.16, HEAD_Y + 0.12, FACE_Z + 0.03);
+              g.add(stripe);
+            });
           } else if (kind === 'mega_charizard_x_face') {
             // Mega Charizard X — black dragon head, blue muzzle underside,
             // dark horns pointing back, blue flame from mouth, red eyes.
@@ -7738,6 +7898,54 @@ export function Character3D({ equipped, jumping = false, className, name, gender
                 finger.position.set(sx * 0.5, TORSO_Y + 0.05 + i * 0.1, -TORSO_D / 2 - 0.08);
                 g.add(finger);
               });
+            });
+            break;
+          }
+          if (kind === 'fearow_wings') {
+            // Fearow — big brown feathered wings with cream feather tips
+            const brownMat = new THREE.MeshStandardMaterial({
+              color, side: THREE.DoubleSide, roughness: 0.65,
+            });
+            const creamMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#fef3c7'),
+              side: THREE.DoubleSide, roughness: 0.6,
+            });
+            [-1, 1].forEach((sx) => {
+              // Main wing body
+              const wing = new THREE.Mesh(
+                new THREE.BoxGeometry(0.85, 0.42, 0.04), brownMat.clone()
+              );
+              wing.rotation.z = sx * -0.25;
+              wing.position.set(sx * 0.5, TORSO_Y + 0.28, -TORSO_D / 2 - 0.06);
+              g.add(wing);
+              // Cream feather tips at the wing edge (3 pointed feathers)
+              [-0.14, 0, 0.14].forEach((dy) => {
+                const tip = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.06, 0.22, 4), creamMat.clone()
+                );
+                tip.rotation.z = sx * (Math.PI / 2 - 0.2);
+                tip.position.set(sx * 0.94, TORSO_Y + 0.28 + dy, -TORSO_D / 2 - 0.06);
+                g.add(tip);
+              });
+              // Extra feather rows
+              [0.08, -0.08].forEach((dy) => {
+                const feather = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.6, 0.06, 0.02), brownMat.clone()
+                );
+                feather.rotation.z = sx * -0.25;
+                feather.position.set(sx * 0.4, TORSO_Y + 0.28 + dy, -TORSO_D / 2 - 0.05);
+                g.add(feather);
+              });
+            });
+            // Small tail feathers pointing back
+            [-1, 0, 1].forEach((dx) => {
+              const tail = new THREE.Mesh(
+                new THREE.ConeGeometry(0.05, 0.28, 4), brownMat.clone()
+              );
+              tail.rotation.x = 0.4;
+              tail.rotation.z = dx * 0.3;
+              tail.position.set(dx * 0.08, TORSO_Y - 0.42, -TORSO_D / 2 - 0.14);
+              g.add(tail);
             });
             break;
           }
@@ -9594,6 +9802,43 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             : null;
           const footY = LEG_Y - LEG_H / 2 - 0.02;
 
+          if (kind === 'fearow_feet') {
+            // Yellow bird feet with sharp brown claws
+            const yellowMat = new THREE.MeshStandardMaterial({
+              color, roughness: 0.55,
+            });
+            const brownMat = new THREE.MeshStandardMaterial({
+              color: accent ?? new THREE.Color('#92400e'),
+              roughness: 0.65,
+            });
+            [-1, 1].forEach((sx) => {
+              // Small yellow foot base
+              const foot = new THREE.Mesh(
+                new THREE.SphereGeometry(0.1, 12, 10),
+                yellowMat.clone()
+              );
+              foot.scale.set(1, 0.55, 1.4);
+              foot.position.set(sx * LEG_X, footY + 0.02, 0.08);
+              g.add(foot);
+              // 3 sharp brown claws pointing forward
+              [-0.06, 0, 0.06].forEach((dx) => {
+                const claw = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.028, 0.14, 4), brownMat.clone()
+                );
+                claw.rotation.x = -Math.PI / 2;
+                claw.position.set(sx * LEG_X + dx, footY - 0.02, 0.24);
+                g.add(claw);
+              });
+              // One back claw
+              const backClaw = new THREE.Mesh(
+                new THREE.ConeGeometry(0.028, 0.12, 4), brownMat.clone()
+              );
+              backClaw.rotation.x = Math.PI / 2;
+              backClaw.position.set(sx * LEG_X, footY - 0.02, -0.1);
+              g.add(backClaw);
+            });
+            break;
+          }
           if (kind === 'mega_charizard_x_feet') {
             // Black dragon feet with white claws
             const blackMat = new THREE.MeshStandardMaterial({
@@ -10743,1305 +10988,6 @@ export function Character3D({ equipped, jumping = false, className, name, gender
           });
           break;
         }
-        case 'charm': {
-          const kind =
-            item.kind ??
-            (item.shape === 'diamond'
-              ? 'diamond'
-              : item.shape === 'box'
-                ? 'cube'
-                : 'star');
-          // Hang the charm off the bag/strap on the right side.
-          const cx = TORSO_W / 2 + 0.08;
-          const cy = TORSO_Y - 0.05;
-          const cz = -TORSO_D / 2 - 0.04;
-
-          const string = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.008, 0.008, 0.18, 6),
-            new THREE.MeshStandardMaterial({ color: '#94a3b8' })
-          );
-          string.position.set(cx, cy + 0.16, cz);
-          g.add(string);
-          const ring = new THREE.Mesh(
-            new THREE.TorusGeometry(0.025, 0.008, 8, 12),
-            new THREE.MeshStandardMaterial({
-              color: '#cbd5e1',
-              metalness: 0.7,
-              roughness: 0.3,
-            })
-          );
-          ring.position.set(cx, cy + 0.13, cz);
-          g.add(ring);
-
-          const shinyMat = new THREE.MeshStandardMaterial({
-            color,
-            emissive: color,
-            emissiveIntensity: 0.3,
-            metalness: 0.4,
-            roughness: 0.4,
-          });
-
-          if (kind === 'diamond') {
-            const c = new THREE.Mesh(new THREE.OctahedronGeometry(0.13), shinyMat);
-            c.position.set(cx, cy, cz);
-            g.add(c);
-          } else if (kind === 'cube') {
-            const c = new THREE.Mesh(
-              new THREE.BoxGeometry(0.18, 0.18, 0.18),
-              shinyMat
-            );
-            c.position.set(cx, cy, cz);
-            c.rotation.set(0.4, 0.4, 0);
-            g.add(c);
-          } else if (kind === 'coin') {
-            const c = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.13, 0.13, 0.04, 24),
-              shinyMat
-            );
-            c.rotation.x = Math.PI / 2;
-            c.position.set(cx, cy, cz);
-            g.add(c);
-            const w = new THREE.Mesh(
-              new THREE.BoxGeometry(0.05, 0.07, 0.005),
-              new THREE.MeshStandardMaterial({ color: '#7c2d12' })
-            );
-            w.position.set(cx, cy, cz + 0.025);
-            g.add(w);
-          } else if (kind === 'bell') {
-            const body = new THREE.Mesh(
-              new THREE.ConeGeometry(0.13, 0.22, 18),
-              shinyMat
-            );
-            body.position.set(cx, cy + 0.02, cz);
-            g.add(body);
-            const rim = new THREE.Mesh(
-              new THREE.TorusGeometry(0.13, 0.018, 8, 18),
-              shinyMat.clone()
-            );
-            rim.rotation.x = Math.PI / 2;
-            rim.position.set(cx, cy - 0.08, cz);
-            g.add(rim);
-            const clap = new THREE.Mesh(
-              new THREE.SphereGeometry(0.04, 12, 12),
-              new THREE.MeshStandardMaterial({ color: '#7c2d12' })
-            );
-            clap.position.set(cx, cy - 0.12, cz);
-            g.add(clap);
-          } else if (kind === 'moon') {
-            const moon = new THREE.Mesh(
-              new THREE.TorusGeometry(0.1, 0.05, 14, 28, Math.PI),
-              shinyMat
-            );
-            moon.rotation.z = Math.PI / 2;
-            moon.position.set(cx, cy, cz);
-            g.add(moon);
-            const cap1 = new THREE.Mesh(
-              new THREE.SphereGeometry(0.05, 14, 14),
-              shinyMat.clone()
-            );
-            cap1.position.set(cx - 0.1, cy, cz);
-            g.add(cap1);
-            const cap2 = new THREE.Mesh(
-              new THREE.SphereGeometry(0.05, 14, 14),
-              shinyMat.clone()
-            );
-            cap2.position.set(cx + 0.1, cy, cz);
-            g.add(cap2);
-          } else if (kind === 'sun') {
-            const disk = new THREE.Mesh(
-              new THREE.SphereGeometry(0.1, 18, 14),
-              shinyMat
-            );
-            disk.position.set(cx, cy, cz);
-            g.add(disk);
-            for (let i = 0; i < 8; i++) {
-              const a = (i / 8) * Math.PI * 2;
-              const ray = new THREE.Mesh(
-                new THREE.ConeGeometry(0.025, 0.09, 8),
-                shinyMat.clone()
-              );
-              ray.position.set(
-                cx + Math.cos(a) * 0.17,
-                cy + Math.sin(a) * 0.17,
-                cz
-              );
-              ray.rotation.z = a - Math.PI / 2;
-              g.add(ray);
-            }
-          } else if (kind === 'cherry') {
-            const c1 = new THREE.Mesh(
-              new THREE.SphereGeometry(0.08, 16, 14),
-              shinyMat
-            );
-            c1.position.set(cx - 0.06, cy - 0.04, cz);
-            g.add(c1);
-            const c2 = new THREE.Mesh(
-              new THREE.SphereGeometry(0.08, 16, 14),
-              shinyMat.clone()
-            );
-            c2.position.set(cx + 0.06, cy - 0.04, cz);
-            g.add(c2);
-            // little white shine on each cherry
-            const shineMat = new THREE.MeshStandardMaterial({
-              color: '#ffffff',
-              emissive: '#ffffff',
-              emissiveIntensity: 0.8,
-            });
-            const sh1 = new THREE.Mesh(
-              new THREE.SphereGeometry(0.018, 8, 8),
-              shineMat.clone()
-            );
-            sh1.position.set(cx - 0.08, cy + 0.0, cz + 0.06);
-            g.add(sh1);
-            const sh2 = new THREE.Mesh(
-              new THREE.SphereGeometry(0.018, 8, 8),
-              shineMat.clone()
-            );
-            sh2.position.set(cx + 0.04, cy + 0.0, cz + 0.06);
-            g.add(sh2);
-            const stem = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.012, 0.012, 0.14, 6),
-              new THREE.MeshStandardMaterial({ color: '#15803d' })
-            );
-            stem.rotation.z = 0.25;
-            stem.position.set(cx, cy + 0.08, cz);
-            g.add(stem);
-            const leaf = new THREE.Mesh(
-              new THREE.BoxGeometry(0.1, 0.025, 0.04),
-              new THREE.MeshStandardMaterial({ color: '#22c55e' })
-            );
-            leaf.rotation.z = 0.5;
-            leaf.position.set(cx + 0.06, cy + 0.12, cz);
-            g.add(leaf);
-          } else if (kind === 'lightning') {
-            const boltMat = new THREE.MeshStandardMaterial({
-              color,
-              emissive: color,
-              emissiveIntensity: 0.85,
-            });
-            const b1 = new THREE.Mesh(
-              new THREE.BoxGeometry(0.06, 0.18, 0.04),
-              boltMat
-            );
-            b1.rotation.z = -0.5;
-            b1.position.set(cx - 0.025, cy + 0.07, cz);
-            g.add(b1);
-            const b2 = new THREE.Mesh(
-              new THREE.BoxGeometry(0.06, 0.18, 0.04),
-              boltMat.clone()
-            );
-            b2.rotation.z = 0.5;
-            b2.position.set(cx + 0.025, cy - 0.07, cz);
-            g.add(b2);
-          } else if (kind === 'ironman') {
-            // Glowing arc reactor pendant
-            const ringColor = accent ?? new THREE.Color('#fbbf24');
-            const ringMat = new THREE.MeshStandardMaterial({
-              color: ringColor,
-              metalness: 0,
-              roughness: 0.45,
-              emissive: new THREE.Color(ringColor.getHex()).multiplyScalar(0.15),
-            });
-            const reactorRing = new THREE.Mesh(
-              new THREE.TorusGeometry(0.085, 0.02, 12, 24),
-              ringMat
-            );
-            reactorRing.position.set(cx, cy, cz);
-            g.add(reactorRing);
-            const reactorCore = new THREE.Mesh(
-              new THREE.CircleGeometry(0.075, 24),
-              new THREE.MeshStandardMaterial({
-                color: '#a5f3fc',
-                emissive: color,
-                emissiveIntensity: 1.4,
-              })
-            );
-            reactorCore.position.set(cx, cy, cz + 0.012);
-            g.add(reactorCore);
-          } else if (kind === 'robot') {
-            // Tiny robot head pendant
-            const headMat = new THREE.MeshStandardMaterial({
-              color,
-              metalness: 0.7,
-              roughness: 0.3,
-            });
-            const head = new THREE.Mesh(
-              new THREE.BoxGeometry(0.18, 0.16, 0.16),
-              headMat
-            );
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Cyan visor strip
-            const visor = new THREE.Mesh(
-              new THREE.BoxGeometry(0.16, 0.04, 0.02),
-              new THREE.MeshStandardMaterial({
-                color: '#22d3ee',
-                emissive: '#22d3ee',
-                emissiveIntensity: 0.9,
-              })
-            );
-            visor.position.set(cx, cy + 0.015, cz + 0.085);
-            g.add(visor);
-            // Tiny antenna with red blinker
-            const ant = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.008, 0.008, 0.07, 6),
-              new THREE.MeshStandardMaterial({ color: '#1e293b' })
-            );
-            ant.position.set(cx, cy + 0.12, cz);
-            g.add(ant);
-            const blink = new THREE.Mesh(
-              new THREE.SphereGeometry(0.022, 10, 10),
-              new THREE.MeshStandardMaterial({
-                color: '#ef4444',
-                emissive: '#ef4444',
-                emissiveIntensity: 1.0,
-              })
-            );
-            blink.position.set(cx, cy + 0.165, cz);
-            g.add(blink);
-          } else if (kind === 'heart') {
-            const lobe1 = new THREE.Mesh(
-              new THREE.SphereGeometry(0.075, 16, 14),
-              shinyMat
-            );
-            lobe1.position.set(cx - 0.05, cy + 0.03, cz);
-            g.add(lobe1);
-            const lobe2 = new THREE.Mesh(
-              new THREE.SphereGeometry(0.075, 16, 14),
-              shinyMat.clone()
-            );
-            lobe2.position.set(cx + 0.05, cy + 0.03, cz);
-            g.add(lobe2);
-            const point = new THREE.Mesh(
-              new THREE.ConeGeometry(0.1, 0.18, 4),
-              shinyMat.clone()
-            );
-            point.rotation.x = Math.PI;
-            point.rotation.y = Math.PI / 4;
-            point.position.set(cx, cy - 0.1, cz);
-            g.add(point);
-          } else if (kind === 'wand') {
-            // Gold handle with a glowing star tip — a fairy magic wand.
-            const handleMat = new THREE.MeshStandardMaterial({
-              color: '#fde68a',
-              metalness: 0.5,
-              roughness: 0.3,
-            });
-            const handle = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.015, 0.015, 0.24, 8),
-              handleMat
-            );
-            handle.position.set(cx, cy - 0.06, cz);
-            g.add(handle);
-            const wandShape = new THREE.Shape();
-            const outerR = 0.085;
-            const innerR = 0.036;
-            for (let i = 0; i < 10; i++) {
-              const r = i % 2 === 0 ? outerR : innerR;
-              const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
-              const px = Math.cos(a) * r;
-              const py = Math.sin(a) * r;
-              if (i === 0) wandShape.moveTo(px, py);
-              else wandShape.lineTo(px, py);
-            }
-            wandShape.closePath();
-            const wandGeo = new THREE.ExtrudeGeometry(wandShape, {
-              depth: 0.025,
-              bevelEnabled: false,
-            });
-            const tip = new THREE.Mesh(wandGeo, shinyMat);
-            tip.position.set(cx, cy + 0.1, cz);
-            g.add(tip);
-          } else if (kind === 'ribbon_bow') {
-            // Classic ribbon bow: center knot, two side loops, two tails.
-            const center = new THREE.Mesh(
-              new THREE.BoxGeometry(0.06, 0.06, 0.05),
-              shinyMat
-            );
-            center.position.set(cx, cy + 0.02, cz);
-            g.add(center);
-            [-1, 1].forEach((sx) => {
-              const loop = new THREE.Mesh(
-                new THREE.BoxGeometry(0.1, 0.08, 0.04),
-                shinyMat.clone()
-              );
-              loop.position.set(cx + sx * 0.08, cy + 0.02, cz);
-              g.add(loop);
-              const tail = new THREE.Mesh(
-                new THREE.BoxGeometry(0.04, 0.13, 0.03),
-                shinyMat.clone()
-              );
-              tail.rotation.z = sx * 0.3;
-              tail.position.set(cx + sx * 0.04, cy - 0.1, cz);
-              g.add(tail);
-            });
-          } else if (kind === 'snowflake') {
-            // 6-arm snowflake from 3 crossed bars + a center gem.
-            const iceMat = new THREE.MeshStandardMaterial({
-              color,
-              emissive: color,
-              emissiveIntensity: 0.55,
-              metalness: 0.5,
-              roughness: 0.2,
-            });
-            for (let i = 0; i < 3; i++) {
-              const line = new THREE.Mesh(
-                new THREE.BoxGeometry(0.16, 0.02, 0.02),
-                iceMat.clone()
-              );
-              line.rotation.z = (i * Math.PI) / 3;
-              line.position.set(cx, cy, cz);
-              g.add(line);
-            }
-            const center = new THREE.Mesh(
-              new THREE.OctahedronGeometry(0.04),
-              new THREE.MeshStandardMaterial({
-                color: accent ?? new THREE.Color('#0ea5e9'),
-                emissive: accent ?? new THREE.Color('#0ea5e9'),
-                emissiveIntensity: 0.6,
-              })
-            );
-            center.position.set(cx, cy, cz + 0.01);
-            g.add(center);
-          } else if (kind === 'pumpkin_carriage') {
-            // Ridged orange pumpkin body + golden wheels + green stem.
-            const pumpMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
-            const wheelMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#fde047'),
-              metalness: 0.6,
-              roughness: 0.3,
-            });
-            const body = new THREE.Mesh(
-              new THREE.SphereGeometry(0.1, 14, 12),
-              pumpMat
-            );
-            body.scale.set(1, 0.85, 1);
-            body.position.set(cx, cy, cz);
-            g.add(body);
-            for (let i = 0; i < 3; i++) {
-              const ridge = new THREE.Mesh(
-                new THREE.TorusGeometry(0.1, 0.012, 6, 16, Math.PI),
-                pumpMat.clone()
-              );
-              ridge.rotation.x = Math.PI / 2;
-              ridge.rotation.z = (i - 1) * 0.5;
-              ridge.position.set(cx, cy, cz + 0.015);
-              g.add(ridge);
-            }
-            [-1, 1].forEach((sx) => {
-              const wheel = new THREE.Mesh(
-                new THREE.TorusGeometry(0.04, 0.012, 6, 12),
-                wheelMat.clone()
-              );
-              wheel.rotation.y = Math.PI / 2;
-              wheel.position.set(cx + sx * 0.08, cy - 0.09, cz);
-              g.add(wheel);
-            });
-            const stem = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.014, 0.014, 0.05, 6),
-              new THREE.MeshStandardMaterial({ color: '#15803d' })
-            );
-            stem.position.set(cx, cy + 0.1, cz);
-            g.add(stem);
-          } else if (kind === 'seashell') {
-            // Small pink half-dome shell with radial ridge lines.
-            const shellMat = new THREE.MeshStandardMaterial({
-              color,
-              roughness: 0.4,
-              metalness: 0.2,
-            });
-            const ridgeMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#f472b6'),
-            });
-            const shell = new THREE.Mesh(
-              new THREE.SphereGeometry(0.11, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2),
-              shellMat
-            );
-            shell.scale.set(1, 0.7, 1);
-            shell.position.set(cx, cy, cz);
-            shell.rotation.x = -Math.PI / 4;
-            g.add(shell);
-            for (let i = -2; i <= 2; i++) {
-              const ang = i * 0.25;
-              const ridge = new THREE.Mesh(
-                new THREE.BoxGeometry(0.008, 0.1, 0.008),
-                ridgeMat.clone()
-              );
-              ridge.rotation.z = ang;
-              ridge.position.set(cx + Math.sin(ang) * 0.04, cy + 0.02, cz + 0.04);
-              g.add(ridge);
-            }
-          } else if (kind === 'jigglypuff_charm') {
-            // Pink round Jigglypuff head — round pink body + small tuft +
-            // big blue eyes + tiny mouth.
-            const pinkMat = new THREE.MeshStandardMaterial({
-              color, roughness: 0.55,
-            });
-            const blueMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#3b82f6'),
-            });
-            // Big round pink body
-            const body = new THREE.Mesh(
-              new THREE.SphereGeometry(0.1, 16, 12),
-              pinkMat
-            );
-            body.position.set(cx, cy, cz);
-            g.add(body);
-            // Tuft on top (curl)
-            const tuft = new THREE.Mesh(
-              new THREE.SphereGeometry(0.035, 10, 8),
-              pinkMat.clone()
-            );
-            tuft.scale.set(1, 1.4, 1);
-            tuft.position.set(cx - 0.03, cy + 0.11, cz);
-            g.add(tuft);
-            // Small pointed ears (Jigglypuff has small cat ears)
-            [-1, 1].forEach((sx) => {
-              const ear = new THREE.Mesh(
-                new THREE.ConeGeometry(0.02, 0.05, 4),
-                pinkMat.clone()
-              );
-              ear.position.set(cx + sx * 0.06, cy + 0.1, cz);
-              g.add(ear);
-            });
-            // Big blue eyes with white highlight
-            [-1, 1].forEach((sx) => {
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.024, 12, 10),
-                blueMat.clone()
-              );
-              eye.position.set(cx + sx * 0.04, cy + 0.02, cz + 0.08);
-              g.add(eye);
-              const hl = new THREE.Mesh(
-                new THREE.SphereGeometry(0.008, 6, 6),
-                new THREE.MeshStandardMaterial({
-                  color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.4,
-                })
-              );
-              hl.position.set(cx + sx * 0.04 + 0.008, cy + 0.028, cz + 0.088);
-              g.add(hl);
-            });
-            // Small round mouth
-            const mouth = new THREE.Mesh(
-              new THREE.TorusGeometry(0.015, 0.005, 6, 12, Math.PI),
-              new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
-            );
-            mouth.rotation.z = Math.PI;
-            mouth.position.set(cx, cy - 0.04, cz + 0.08);
-            g.add(mouth);
-          } else if (kind === 'mew_charm') {
-            // Pink Mew — small round pink head + big blue eyes + tiny nose
-            // + long thin tail curling out.
-            const pinkMat = new THREE.MeshStandardMaterial({
-              color, roughness: 0.55,
-            });
-            const blueMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#7dd3fc'),
-            });
-            // Round pink head
-            const head = new THREE.Mesh(
-              new THREE.SphereGeometry(0.085, 16, 12),
-              pinkMat.clone()
-            );
-            head.scale.set(1.05, 0.95, 0.95);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Small kitten ears
-            [-1, 1].forEach((sx) => {
-              const ear = new THREE.Mesh(
-                new THREE.ConeGeometry(0.024, 0.05, 4),
-                pinkMat.clone()
-              );
-              ear.rotation.z = sx * 0.3;
-              ear.position.set(cx + sx * 0.05, cy + 0.1, cz);
-              g.add(ear);
-            });
-            // Big cyan/blue eyes with sparkle
-            [-1, 1].forEach((sx) => {
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.022, 12, 10),
-                blueMat.clone()
-              );
-              eye.position.set(cx + sx * 0.032, cy + 0.015, cz + 0.075);
-              g.add(eye);
-              const hl = new THREE.Mesh(
-                new THREE.SphereGeometry(0.008, 6, 6),
-                new THREE.MeshStandardMaterial({
-                  color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.6,
-                })
-              );
-              hl.position.set(cx + sx * 0.032 + 0.006, cy + 0.024, cz + 0.083);
-              g.add(hl);
-            });
-            // Tiny nose + mouth
-            const nose = new THREE.Mesh(
-              new THREE.SphereGeometry(0.008, 8, 6),
-              new THREE.MeshStandardMaterial({ color: '#dc2626' })
-            );
-            nose.position.set(cx, cy - 0.015, cz + 0.088);
-            g.add(nose);
-            // Curling tail
-            const tailBase = new THREE.Mesh(
-              new THREE.CylinderGeometry(0.008, 0.008, 0.12, 6),
-              pinkMat.clone()
-            );
-            tailBase.rotation.z = 0.6;
-            tailBase.position.set(cx - 0.08, cy - 0.08, cz);
-            g.add(tailBase);
-            const tailTip = new THREE.Mesh(
-              new THREE.SphereGeometry(0.02, 10, 8),
-              pinkMat.clone()
-            );
-            tailTip.position.set(cx - 0.14, cy - 0.14, cz);
-            g.add(tailTip);
-          } else if (kind === 'psyduck_charm') {
-            // Yellow Psyduck head — round yellow head + orange bill +
-            // vacant blue eyes with tiny black pupils + 3 black feather
-            // tufts on the crown.
-            const yellowMat = new THREE.MeshStandardMaterial({
-              color, roughness: 0.55,
-            });
-            const billMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#f97316'),
-              roughness: 0.5,
-            });
-            const blackMat = new THREE.MeshStandardMaterial({ color: '#0a0a0a' });
-            const whiteMat = new THREE.MeshStandardMaterial({ color: '#f8fafc' });
-            // Round yellow head
-            const head = new THREE.Mesh(
-              new THREE.SphereGeometry(0.09, 16, 12),
-              yellowMat.clone()
-            );
-            head.scale.set(1.1, 0.95, 0.95);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Big orange bill
-            const bill = new THREE.Mesh(
-              new THREE.BoxGeometry(0.11, 0.045, 0.06),
-              billMat
-            );
-            bill.position.set(cx, cy - 0.04, cz + 0.09);
-            g.add(bill);
-            // White eyes with tiny black pupils (vacant Psyduck stare)
-            [-1, 1].forEach((sx) => {
-              const white = new THREE.Mesh(
-                new THREE.SphereGeometry(0.025, 12, 10),
-                whiteMat.clone()
-              );
-              white.position.set(cx + sx * 0.035, cy + 0.02, cz + 0.075);
-              g.add(white);
-              const pupil = new THREE.Mesh(
-                new THREE.SphereGeometry(0.008, 8, 6),
-                blackMat.clone()
-              );
-              pupil.position.set(cx + sx * 0.035, cy + 0.02, cz + 0.09);
-              g.add(pupil);
-            });
-            // Three little black feather tufts on the crown
-            [-0.03, 0, 0.03].forEach((dx, i) => {
-              const feather = new THREE.Mesh(
-                new THREE.ConeGeometry(0.012, 0.04 + i * 0.005, 4),
-                blackMat.clone()
-              );
-              feather.position.set(cx + dx, cy + 0.11, cz);
-              g.add(feather);
-            });
-          } else if (kind === 'charmander_charm') {
-            const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
-            const creamMat = new THREE.MeshStandardMaterial({ color: accent ?? '#fef3c7' });
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.085, 14, 12), mat);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            const muzzle = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.02, 0.03), creamMat);
-            muzzle.position.set(cx, cy - 0.03, cz + 0.07);
-            g.add(muzzle);
-            [-1, 1].forEach((sx) => {
-              const eye = new THREE.Mesh(new THREE.SphereGeometry(0.018, 10, 8), new THREE.MeshStandardMaterial({ color: '#0a0a0a' }));
-              eye.position.set(cx + sx * 0.035, cy + 0.02, cz + 0.075);
-              g.add(eye);
-            });
-            const flame = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.08, 5), new THREE.MeshStandardMaterial({ color: '#fbbf24', emissive: '#f97316', emissiveIntensity: 1.0 }));
-            flame.position.set(cx, cy + 0.14, cz);
-            g.add(flame);
-          } else if (kind === 'squirtle_charm') {
-            const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
-            const creamMat = new THREE.MeshStandardMaterial({ color: accent ?? '#fef3c7' });
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.085, 14, 12), mat);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            [-1, 1].forEach((sx) => {
-              const cheek = new THREE.Mesh(new THREE.SphereGeometry(0.02, 10, 8), creamMat.clone());
-              cheek.scale.set(1, 1, 0.4);
-              cheek.position.set(cx + sx * 0.06, cy - 0.02, cz + 0.06);
-              g.add(cheek);
-              const eye = new THREE.Mesh(new THREE.SphereGeometry(0.022, 12, 10), new THREE.MeshStandardMaterial({ color: '#0a0a0a' }));
-              eye.position.set(cx + sx * 0.03, cy + 0.02, cz + 0.075);
-              g.add(eye);
-            });
-            const beak = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.018, 0.02), creamMat.clone());
-            beak.position.set(cx, cy - 0.03, cz + 0.075);
-            g.add(beak);
-          } else if (kind === 'bulbasaur_charm') {
-            const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
-            const darkMat = new THREE.MeshStandardMaterial({ color: accent ?? '#166534' });
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 12), mat);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            [-1, 1].forEach((sx) => {
-              const spot = new THREE.Mesh(new THREE.SphereGeometry(0.02, 10, 8), darkMat.clone());
-              spot.scale.set(1, 1, 0.4);
-              spot.position.set(cx + sx * 0.06, cy + 0.03, cz + 0.06);
-              g.add(spot);
-              const eye = new THREE.Mesh(new THREE.SphereGeometry(0.018, 10, 8), new THREE.MeshStandardMaterial({ color: '#dc2626' }));
-              eye.position.set(cx + sx * 0.03, cy + 0.015, cz + 0.075);
-              g.add(eye);
-            });
-            const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 8), new THREE.MeshStandardMaterial({ color: '#4d7c0f' }));
-            bulb.position.set(cx, cy + 0.11, cz - 0.02);
-            g.add(bulb);
-          } else if (kind === 'eevee_charm') {
-            const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
-            const creamMat = new THREE.MeshStandardMaterial({ color: accent ?? '#fef3c7', roughness: 0.85 });
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.08, 14, 12), mat);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            [-1, 1].forEach((sx) => {
-              const ear = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.1, 4), mat.clone());
-              ear.rotation.z = sx * 0.3;
-              ear.position.set(cx + sx * 0.055, cy + 0.11, cz);
-              g.add(ear);
-              const eye = new THREE.Mesh(new THREE.SphereGeometry(0.02, 10, 8), new THREE.MeshStandardMaterial({ color: '#0a0a0a' }));
-              eye.position.set(cx + sx * 0.03, cy + 0.02, cz + 0.075);
-              g.add(eye);
-            });
-            // Cream ruff
-            for (let i = 0; i < 5; i++) {
-              const puff = new THREE.Mesh(new THREE.SphereGeometry(0.025, 10, 8), creamMat.clone());
-              const a = -Math.PI / 2 + (i / 4) * Math.PI;
-              puff.position.set(cx + Math.cos(a) * 0.09, cy - 0.06, cz + Math.sin(a) * 0.05);
-              g.add(puff);
-            }
-          } else if (kind === 'snorlax_charm') {
-            const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
-            const darkMat = new THREE.MeshStandardMaterial({ color: accent ?? '#0f172a' });
-            const body = new THREE.Mesh(new THREE.SphereGeometry(0.1, 14, 12), mat);
-            body.scale.set(1.2, 1.1, 1);
-            body.position.set(cx, cy, cz);
-            g.add(body);
-            [-1, 1].forEach((sx) => {
-              const eye = new THREE.Mesh(new THREE.TorusGeometry(0.018, 0.006, 6, 12, Math.PI), darkMat.clone());
-              eye.rotation.z = Math.PI;
-              eye.position.set(cx + sx * 0.035, cy + 0.02, cz + 0.075);
-              g.add(eye);
-            });
-            const mouth = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2), darkMat.clone());
-            mouth.rotation.x = Math.PI / 2;
-            mouth.scale.set(1.5, 0.5, 0.6);
-            mouth.position.set(cx, cy - 0.04, cz + 0.075);
-            g.add(mouth);
-          } else if (kind === 'gengar_charm') {
-            const mat = new THREE.MeshStandardMaterial({
-              color, roughness: 0.55,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.08),
-            });
-            const redMat = new THREE.MeshStandardMaterial({
-              color: accent ?? '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.6,
-            });
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.09, 14, 12), mat);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            [-1, 1].forEach((sx) => {
-              const spike = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.06, 4), mat.clone());
-              spike.rotation.z = sx * -0.3;
-              spike.position.set(cx + sx * 0.06, cy + 0.11, cz);
-              g.add(spike);
-              const eye = new THREE.Mesh(new THREE.SphereGeometry(0.02, 10, 8), redMat.clone());
-              eye.position.set(cx + sx * 0.035, cy + 0.02, cz + 0.075);
-              g.add(eye);
-            });
-            const grin = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.012, 8, 14, Math.PI), redMat.clone());
-            grin.rotation.z = Math.PI;
-            grin.position.set(cx, cy - 0.04, cz + 0.075);
-            g.add(grin);
-          } else if (kind === 'charizard_charm') {
-            const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
-            const creamMat = new THREE.MeshStandardMaterial({ color: accent ?? '#fef3c7' });
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.11, 0.11), mat);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            const muzzle = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.03, 0.02), creamMat.clone());
-            muzzle.position.set(cx, cy - 0.03, cz + 0.06);
-            g.add(muzzle);
-            [-1, 1].forEach((sx) => {
-              const horn = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.09, 4), creamMat.clone());
-              horn.rotation.x = 0.5;
-              horn.rotation.z = sx * -0.3;
-              horn.position.set(cx + sx * 0.04, cy + 0.09, cz - 0.02);
-              g.add(horn);
-              const eye = new THREE.Mesh(new THREE.SphereGeometry(0.018, 10, 8), new THREE.MeshStandardMaterial({ color: '#0f172a' }));
-              eye.position.set(cx + sx * 0.035, cy + 0.02, cz + 0.06);
-              g.add(eye);
-            });
-          } else if (kind === 'mega_charizard_x_charm') {
-            const blackMat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
-            const blueMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#3b82f6'),
-              roughness: 0.5,
-              emissive: new THREE.Color(accent ?? '#3b82f6').multiplyScalar(0.2),
-            });
-            const head = new THREE.Mesh(
-              new THREE.BoxGeometry(0.14, 0.11, 0.11), blackMat.clone()
-            );
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Blue muzzle
-            const muzzle = new THREE.Mesh(
-              new THREE.BoxGeometry(0.1, 0.03, 0.02), blueMat.clone()
-            );
-            muzzle.position.set(cx, cy - 0.03, cz + 0.06);
-            g.add(muzzle);
-            // Dark back horns
-            [-1, 1].forEach((sx) => {
-              const horn = new THREE.Mesh(
-                new THREE.ConeGeometry(0.02, 0.1, 4), blackMat.clone()
-              );
-              horn.rotation.x = 0.5;
-              horn.rotation.z = sx * -0.2;
-              horn.position.set(cx + sx * 0.03, cy + 0.09, cz - 0.03);
-              g.add(horn);
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.014, 8, 8),
-                new THREE.MeshStandardMaterial({ color: '#dc2626' })
-              );
-              eye.position.set(cx + sx * 0.03, cy + 0.02, cz + 0.06);
-              g.add(eye);
-            });
-            // Blue flame wisp
-            const flame = new THREE.Mesh(
-              new THREE.ConeGeometry(0.02, 0.07, 6),
-              new THREE.MeshStandardMaterial({
-                color: '#3b82f6', emissive: '#3b82f6', emissiveIntensity: 0.9,
-              })
-            );
-            flame.rotation.z = Math.PI / 2;
-            flame.position.set(cx + 0.08, cy - 0.03, cz + 0.06);
-            g.add(flame);
-          } else if (kind === 'mega_charizard_y_charm') {
-            const orangeMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
-            const creamMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#fef3c7'), roughness: 0.6,
-            });
-            const head = new THREE.Mesh(
-              new THREE.BoxGeometry(0.14, 0.11, 0.11), orangeMat.clone()
-            );
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            const muzzle = new THREE.Mesh(
-              new THREE.BoxGeometry(0.1, 0.03, 0.02), creamMat.clone()
-            );
-            muzzle.position.set(cx, cy - 0.03, cz + 0.06);
-            g.add(muzzle);
-            // Two horns per side (Mega Y detail)
-            [-1, 1].forEach((sx) => {
-              [0, 1].forEach((i) => {
-                const horn = new THREE.Mesh(
-                  new THREE.ConeGeometry(0.018 - i * 0.003, 0.1 + i * 0.02, 4),
-                  creamMat.clone()
-                );
-                horn.rotation.x = 0.5;
-                horn.rotation.z = sx * (-0.15 - i * 0.15);
-                horn.position.set(cx + sx * (0.02 + i * 0.03), cy + 0.11 - i * 0.01, cz - 0.03 + i * 0.01);
-                g.add(horn);
-              });
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.014, 8, 8),
-                new THREE.MeshStandardMaterial({
-                  color: '#84cc16', emissive: '#65a30d', emissiveIntensity: 0.4,
-                })
-              );
-              eye.position.set(cx + sx * 0.03, cy + 0.02, cz + 0.06);
-              g.add(eye);
-            });
-          } else if (kind === 'beedrill_charm') {
-            // Mini Beedrill head
-            const yellowMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
-            const blackMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#0a0a0a'), roughness: 0.55,
-            });
-            const redMat = new THREE.MeshStandardMaterial({
-              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.5,
-            });
-            const head = new THREE.Mesh(
-              new THREE.SphereGeometry(0.085, 14, 12), yellowMat.clone()
-            );
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Black stripes
-            [0.03, -0.03].forEach((dy) => {
-              const s = new THREE.Mesh(
-                new THREE.TorusGeometry(0.08, 0.008, 6, 14), blackMat.clone()
-              );
-              s.rotation.x = Math.PI / 2;
-              s.position.set(cx, cy + dy, cz);
-              g.add(s);
-            });
-            // Red compound eyes
-            [-1, 1].forEach((sx) => {
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.028, 12, 10), redMat.clone()
-              );
-              eye.position.set(cx + sx * 0.05, cy + 0.005, cz + 0.03);
-              g.add(eye);
-            });
-            // Antennae
-            [-1, 1].forEach((sx) => {
-              const ant = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.004, 0.004, 0.08, 6), blackMat.clone()
-              );
-              ant.rotation.z = sx * -0.3;
-              ant.position.set(cx + sx * 0.02, cy + 0.1, cz);
-              g.add(ant);
-            });
-            // Small drill stinger below
-            const drill = new THREE.Mesh(
-              new THREE.ConeGeometry(0.02, 0.08, 6),
-              new THREE.MeshStandardMaterial({ color: '#e5e7eb' })
-            );
-            drill.rotation.x = Math.PI;
-            drill.position.set(cx, cy - 0.13, cz + 0.02);
-            g.add(drill);
-          } else if (kind === 'mega_lucario_charm') {
-            // Mini Mega Lucario head
-            const blueMat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
-            const yellowMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#facc15'), roughness: 0.55,
-            });
-            const blackMat = new THREE.MeshStandardMaterial({
-              color: '#0f172a', roughness: 0.6,
-            });
-            const redMat = new THREE.MeshStandardMaterial({
-              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.4,
-            });
-            const head = new THREE.Mesh(
-              new THREE.SphereGeometry(0.085, 14, 12), blueMat.clone()
-            );
-            head.scale.set(1, 1.05, 1.1);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Yellow mane spikes
-            [[-0.05, 0.09, 0, -0.3], [0.05, 0.09, 0, 0.3], [0, 0.12, 0, 0]]
-              .forEach(([dx, dy, dz, rz]) => {
-                const spike = new THREE.Mesh(
-                  new THREE.ConeGeometry(0.02, 0.08, 4), yellowMat.clone()
-                );
-                spike.rotation.z = rz;
-                spike.position.set(cx + dx, cy + dy, cz + dz);
-                g.add(spike);
-              });
-            // Long black ear appendages
-            [-1, 1].forEach((sx) => {
-              const ear = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.008, 0.006, 0.09, 6), blackMat.clone()
-              );
-              ear.rotation.z = sx * (Math.PI / 2 - 0.2);
-              ear.rotation.x = 0.2;
-              ear.position.set(cx + sx * 0.06, cy - 0.02, cz - 0.05);
-              g.add(ear);
-            });
-            // Black snout
-            const snout = new THREE.Mesh(
-              new THREE.SphereGeometry(0.028, 12, 10), blackMat.clone()
-            );
-            snout.scale.set(0.85, 0.65, 1.3);
-            snout.position.set(cx, cy - 0.03, cz + 0.06);
-            g.add(snout);
-            // Red eyes
-            [-1, 1].forEach((sx) => {
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.012, 8, 6), redMat.clone()
-              );
-              eye.position.set(cx + sx * 0.028, cy + 0.008, cz + 0.06);
-              g.add(eye);
-            });
-          } else if (kind === 'absol_charm') {
-            // Mini Absol head charm — pale head + dark mask + sickle horn +
-            // red eyes.
-            const paleMat = new THREE.MeshStandardMaterial({ color, roughness: 0.7 });
-            const darkMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#1e293b'), roughness: 0.55,
-            });
-            const redMat = new THREE.MeshStandardMaterial({
-              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.4,
-            });
-            const head = new THREE.Mesh(
-              new THREE.SphereGeometry(0.085, 14, 12), paleMat.clone()
-            );
-            head.scale.set(1.05, 0.95, 1.05);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Small sickle horn on left side
-            [
-              [-0.06, 0.03, 0.4, -0.4],
-              [-0.09, 0.09, 0.35, 0.4],
-              [-0.09, 0.15, 0.25, 1.2],
-            ].forEach(([dx, dy, s, rz]) => {
-              const seg = new THREE.Mesh(
-                new THREE.ConeGeometry(0.022 * s, 0.09 * s, 4), darkMat.clone()
-              );
-              seg.rotation.z = rz;
-              seg.position.set(cx + dx, cy + dy, cz);
-              g.add(seg);
-            });
-            // Dark navy face mask
-            const mask = new THREE.Mesh(
-              new THREE.BoxGeometry(0.12, 0.04, 0.02), darkMat.clone()
-            );
-            mask.position.set(cx, cy + 0.008, cz + 0.055);
-            g.add(mask);
-            // Dark muzzle
-            const muzzle = new THREE.Mesh(
-              new THREE.SphereGeometry(0.03, 12, 10), darkMat.clone()
-            );
-            muzzle.scale.set(0.9, 0.65, 1.4);
-            muzzle.position.set(cx, cy - 0.03, cz + 0.06);
-            g.add(muzzle);
-            // Red eyes
-            [-1, 1].forEach((sx) => {
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.012, 8, 6), redMat.clone()
-              );
-              eye.position.set(cx + sx * 0.024, cy + 0.006, cz + 0.06);
-              g.add(eye);
-            });
-          } else if (kind === 'growlithe_charm') {
-            // Mini Growlithe head — orange head + cream mane + tiger stripe
-            const orangeMat = new THREE.MeshStandardMaterial({ color, roughness: 0.55 });
-            const creamMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#fef3c7'), roughness: 0.85,
-            });
-            const head = new THREE.Mesh(
-              new THREE.SphereGeometry(0.08, 14, 12), orangeMat.clone()
-            );
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Mane puffs around head
-            for (let i = 0; i < 8; i++) {
-              const a = (i / 8) * Math.PI * 2;
-              const puff = new THREE.Mesh(
-                new THREE.SphereGeometry(0.028, 8, 6), creamMat.clone()
-              );
-              puff.position.set(
-                cx + Math.cos(a) * 0.09,
-                cy + Math.sin(a) * 0.09,
-                cz - 0.02
-              );
-              g.add(puff);
-            }
-            // Muzzle
-            const muzzle = new THREE.Mesh(
-              new THREE.SphereGeometry(0.032, 10, 8), creamMat.clone()
-            );
-            muzzle.scale.set(1, 0.7, 0.9);
-            muzzle.position.set(cx, cy - 0.03, cz + 0.05);
-            g.add(muzzle);
-            // Eyes
-            [-1, 1].forEach((sx) => {
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.014, 8, 8),
-                new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
-              );
-              eye.position.set(cx + sx * 0.028, cy + 0.02, cz + 0.06);
-              g.add(eye);
-            });
-          } else if (kind === 'gardevoir_charm') {
-            // Mini Gardevoir head — pale face + green helmet + red horn
-            const paleMat = new THREE.MeshStandardMaterial({ color, roughness: 0.4 });
-            const greenMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#16a34a'), roughness: 0.55,
-            });
-            const redMat = new THREE.MeshStandardMaterial({
-              color: '#dc2626', emissive: '#7f1d1d', emissiveIntensity: 0.4,
-            });
-            const head = new THREE.Mesh(
-              new THREE.SphereGeometry(0.08, 14, 12), paleMat.clone()
-            );
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Green helmet dome
-            const helmet = new THREE.Mesh(
-              new THREE.SphereGeometry(0.088, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.6),
-              greenMat.clone()
-            );
-            helmet.position.set(cx, cy + 0.005, cz - 0.005);
-            g.add(helmet);
-            // Rear pointy hair tips
-            [-1, 1].forEach((sx) => {
-              const spike = new THREE.Mesh(
-                new THREE.ConeGeometry(0.02, 0.06, 3), greenMat.clone()
-              );
-              spike.rotation.z = sx * -0.3;
-              spike.rotation.x = 0.3;
-              spike.position.set(cx + sx * 0.05, cy - 0.03, cz - 0.04);
-              g.add(spike);
-            });
-            // Red horn
-            const horn = new THREE.Mesh(
-              new THREE.ConeGeometry(0.014, 0.05, 3), redMat.clone()
-            );
-            horn.rotation.x = Math.PI;
-            horn.position.set(cx, cy + 0.005, cz + 0.06);
-            g.add(horn);
-            // Red eyes
-            [-1, 1].forEach((sx) => {
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.014, 8, 8), redMat.clone()
-              );
-              eye.position.set(cx + sx * 0.025, cy - 0.015, cz + 0.06);
-              g.add(eye);
-            });
-          } else if (kind === 'lugia_charm') {
-            // Mini Lugia head charm — white elongated head + navy eye-mask
-            // spikes + small back-crest + tiny beak.
-            const whiteMat = new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
-            const navyMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#1e3a8a'),
-              roughness: 0.5,
-            });
-            const head = new THREE.Mesh(
-              new THREE.SphereGeometry(0.09, 16, 12),
-              whiteMat.clone()
-            );
-            head.scale.set(0.95, 1.05, 1.2);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Small pointed back-crest
-            const crest = new THREE.Mesh(
-              new THREE.ConeGeometry(0.028, 0.09, 4),
-              navyMat.clone()
-            );
-            crest.rotation.x = Math.PI / 2 + 0.3;
-            crest.position.set(cx, cy + 0.04, cz - 0.09);
-            g.add(crest);
-            // Beak jut
-            const beak = new THREE.Mesh(
-              new THREE.SphereGeometry(0.03, 12, 10),
-              whiteMat.clone()
-            );
-            beak.scale.set(0.9, 0.7, 1.4);
-            beak.position.set(cx, cy - 0.03, cz + 0.08);
-            g.add(beak);
-            // Navy eye mask spikes
-            [-1, 1].forEach((sx) => {
-              const spike = new THREE.Mesh(
-                new THREE.BoxGeometry(0.04, 0.02, 0.015),
-                navyMat.clone()
-              );
-              spike.rotation.z = sx * -0.15;
-              spike.position.set(cx + sx * 0.03, cy + 0.015, cz + 0.05);
-              g.add(spike);
-              const outer = new THREE.Mesh(
-                new THREE.ConeGeometry(0.015, 0.04, 3),
-                navyMat.clone()
-              );
-              outer.rotation.z = sx * -Math.PI / 2 - sx * 0.3;
-              outer.position.set(cx + sx * 0.07, cy + 0.025, cz + 0.04);
-              g.add(outer);
-              // White eye slit
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.007, 8, 6),
-                new THREE.MeshStandardMaterial({
-                  color: '#f8fafc', emissive: '#f8fafc', emissiveIntensity: 0.9,
-                })
-              );
-              eye.position.set(cx + sx * 0.03, cy + 0.015, cz + 0.06);
-              g.add(eye);
-            });
-          } else if (kind === 'pikachu_charm') {
-            // Mini Pikachu head charm hanging from the bag strap:
-            // yellow rounded head + tall pointy ears (black tips) +
-            // shiny black eyes with white highlight + red cheeks.
-            const yellowMat = new THREE.MeshStandardMaterial({
-              color, roughness: 0.55,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.05),
-            });
-            const blackMat = new THREE.MeshStandardMaterial({ color: '#0a0a0a' });
-            const redMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#dc2626'),
-            });
-            const whiteMat = new THREE.MeshStandardMaterial({
-              color: '#f8fafc',
-              emissive: '#f8fafc', emissiveIntensity: 0.5,
-            });
-            // Head
-            const head = new THREE.Mesh(
-              new THREE.SphereGeometry(0.09, 16, 12),
-              yellowMat.clone()
-            );
-            head.scale.set(1.05, 0.95, 0.9);
-            head.position.set(cx, cy, cz);
-            g.add(head);
-            // Ears
-            [-1, 1].forEach((sx) => {
-              const ear = new THREE.Mesh(
-                new THREE.ConeGeometry(0.028, 0.13, 5),
-                yellowMat.clone()
-              );
-              ear.rotation.z = sx * 0.35;
-              ear.position.set(cx + sx * 0.055, cy + 0.13, cz);
-              g.add(ear);
-              const tip = new THREE.Mesh(
-                new THREE.ConeGeometry(0.022, 0.05, 5),
-                blackMat.clone()
-              );
-              tip.rotation.z = sx * 0.35;
-              tip.position.set(cx + sx * 0.075, cy + 0.185, cz);
-              g.add(tip);
-            });
-            // Eyes
-            [-1, 1].forEach((sx) => {
-              const eye = new THREE.Mesh(
-                new THREE.SphereGeometry(0.018, 12, 10),
-                blackMat.clone()
-              );
-              eye.scale.set(1, 1.15, 0.7);
-              eye.position.set(cx + sx * 0.035, cy + 0.015, cz + 0.075);
-              g.add(eye);
-              const hl = new THREE.Mesh(
-                new THREE.SphereGeometry(0.007, 8, 6),
-                whiteMat.clone()
-              );
-              hl.position.set(cx + sx * 0.035 + 0.008, cy + 0.025, cz + 0.083);
-              g.add(hl);
-            });
-            // Red cheeks
-            [-1, 1].forEach((sx) => {
-              const cheek = new THREE.Mesh(
-                new THREE.SphereGeometry(0.024, 10, 8),
-                redMat.clone()
-              );
-              cheek.scale.set(1, 1, 0.4);
-              cheek.position.set(cx + sx * 0.07, cy - 0.02, cz + 0.055);
-              g.add(cheek);
-            });
-            // Tiny smile
-            const smile = new THREE.Mesh(
-              new THREE.TorusGeometry(0.018, 0.006, 6, 12, Math.PI),
-              blackMat.clone()
-            );
-            smile.rotation.z = Math.PI;
-            smile.position.set(cx, cy - 0.035, cz + 0.076);
-            g.add(smile);
-          } else if (kind === 'joon_band') {
-            // Yellow wristband — a thin silicone-style ring with a small
-            // tag bead, hanging from the bag strap.
-            const bandMat = new THREE.MeshStandardMaterial({
-              color,
-              roughness: 0.6,
-              metalness: 0.05,
-              emissive: new THREE.Color(color.getHex()).multiplyScalar(0.06),
-            });
-            const ring = new THREE.Mesh(
-              new THREE.TorusGeometry(0.08, 0.022, 12, 24),
-              bandMat
-            );
-            ring.rotation.x = Math.PI / 2;
-            ring.position.set(cx, cy, cz);
-            g.add(ring);
-            // Small darker tag bead on the ring (front side)
-            const tag = new THREE.Mesh(
-              new THREE.BoxGeometry(0.04, 0.03, 0.02),
-              new THREE.MeshStandardMaterial({
-                color: accent ?? new THREE.Color('#ca8a04'),
-                metalness: 0.4,
-                roughness: 0.3,
-              })
-            );
-            tag.position.set(cx, cy - 0.085, cz);
-            g.add(tag);
-          } else if (kind === 'slp_badge') {
-            // White rectangular school name tag with a navy header strip
-            // and faint "SLP" letter ticks.
-            const badgeMat = new THREE.MeshStandardMaterial({ color });
-            const inkMat = new THREE.MeshStandardMaterial({
-              color: accent ?? new THREE.Color('#1e3a8a'),
-            });
-            const badge = new THREE.Mesh(
-              new THREE.BoxGeometry(0.17, 0.13, 0.025),
-              badgeMat
-            );
-            badge.position.set(cx, cy, cz);
-            g.add(badge);
-            // Navy header band
-            const header = new THREE.Mesh(
-              new THREE.BoxGeometry(0.17, 0.045, 0.028),
-              inkMat
-            );
-            header.position.set(cx, cy + 0.04, cz);
-            g.add(header);
-            // White "SLP" ticks on the header
-            for (let i = -1; i <= 1; i++) {
-              const tick = new THREE.Mesh(
-                new THREE.BoxGeometry(0.025, 0.025, 0.006),
-                badgeMat.clone()
-              );
-              tick.position.set(cx + i * 0.045, cy + 0.04, cz + 0.018);
-              g.add(tick);
-            }
-            // 2 faint name lines underneath
-            [-0.02, -0.05].forEach((dy) => {
-              const line = new THREE.Mesh(
-                new THREE.BoxGeometry(0.12, 0.008, 0.006),
-                inkMat.clone()
-              );
-              line.position.set(cx, cy + dy, cz + 0.016);
-              g.add(line);
-            });
-          } else if (kind === 'rose') {
-            // Layered rose: 3 stacked half-spheres + a green leaf below.
-            const petalMat = new THREE.MeshStandardMaterial({
-              color,
-              roughness: 0.5,
-            });
-            [0.1, 0.075, 0.05].forEach((r, i) => {
-              const petal = new THREE.Mesh(
-                new THREE.SphereGeometry(r, 14, 12),
-                petalMat.clone()
-              );
-              petal.scale.set(1, 0.7, 1);
-              petal.position.set(cx, cy + i * 0.028, cz + i * 0.012);
-              g.add(petal);
-            });
-            const leaf = new THREE.Mesh(
-              new THREE.BoxGeometry(0.09, 0.04, 0.02),
-              new THREE.MeshStandardMaterial({ color: '#22c55e' })
-            );
-            leaf.rotation.z = 0.5;
-            leaf.position.set(cx - 0.07, cy - 0.06, cz);
-            g.add(leaf);
-          } else {
-            // star
-            const shape = new THREE.Shape();
-            const outer = 0.14;
-            const inner = 0.065;
-            for (let i = 0; i < 10; i++) {
-              const r = i % 2 === 0 ? outer : inner;
-              const a = (i / 10) * Math.PI * 2 - Math.PI / 2;
-              const px = Math.cos(a) * r;
-              const py = Math.sin(a) * r;
-              if (i === 0) shape.moveTo(px, py);
-              else shape.lineTo(px, py);
-            }
-            shape.closePath();
-            const geo = new THREE.ExtrudeGeometry(shape, {
-              depth: 0.04,
-              bevelEnabled: false,
-            });
-            const star = new THREE.Mesh(geo, shinyMat);
-            star.position.set(cx, cy, cz);
-            g.add(star);
-          }
-          break;
-        }
         case 'misc': {
           const kind = item.kind ?? 'motorcycle';
           if (kind === 'soccer_ball') {
@@ -12506,7 +11452,8 @@ export function Character3D({ equipped, jumping = false, className, name, gender
             kind === 'beedrill' ||
             kind === 'mega_lucario' ||
             kind === 'mega_charizard_x' ||
-            kind === 'mega_charizard_y'
+            kind === 'mega_charizard_y' ||
+            kind === 'fearow'
           ) {
             // Full-body Pokemon companion standing (or floating) at
             // X=-1.15 — mirror of the motorcycle side.
@@ -14688,6 +13635,165 @@ export function Character3D({ equipped, jumping = false, className, name, gender
               const flameLight = new THREE.PointLight('#fb923c', 0.9, 2.0);
               flameLight.position.set(CX - 0.62, 0.4, -0.14);
               g.add(flameLight);
+            } else if (kind === 'fearow') {
+              // Standing Fearow — brown drill-bird with spread wings, long
+              // thin beak, red crest, cream wingtips, yellow bird legs.
+              const brownMat = new THREE.MeshStandardMaterial({
+                color, roughness: 0.65,
+                emissive: new THREE.Color(color.getHex()).multiplyScalar(0.03),
+              });
+              const creamMat = new THREE.MeshStandardMaterial({
+                color: accent ?? new THREE.Color('#fef3c7'),
+                roughness: 0.6,
+              });
+              const redMat = new THREE.MeshStandardMaterial({
+                color: '#dc2626', roughness: 0.55,
+              });
+              const yellowMat = new THREE.MeshStandardMaterial({
+                color: '#facc15', roughness: 0.55,
+              });
+              // Brown body
+              const body = new THREE.Mesh(
+                new THREE.SphereGeometry(0.3, 22, 18), brownMat.clone()
+              );
+              body.scale.set(1.0, 1.35, 1.0);
+              body.position.set(CX, 0.0, 0);
+              g.add(body);
+              // Small red neck-feather ring at collar
+              for (let i = 0; i < 8; i++) {
+                const a = (i / 8) * Math.PI * 2;
+                const feather = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.05, 0.14, 4),
+                  new THREE.MeshStandardMaterial({ color: '#7f1d1d', roughness: 0.55 })
+                );
+                feather.rotation.z = Math.cos(a) * 0.5;
+                feather.rotation.x = -0.3;
+                feather.position.set(
+                  CX + Math.cos(a) * 0.24, 0.38, Math.sin(a) * 0.22
+                );
+                g.add(feather);
+              }
+              // Head (brown)
+              const head = new THREE.Mesh(
+                new THREE.SphereGeometry(0.19, 22, 18), brownMat.clone()
+              );
+              head.scale.set(1.0, 1.02, 1.05);
+              head.position.set(CX, 0.6, 0.02);
+              g.add(head);
+              // LONG thin pointed beak
+              const beak = new THREE.Mesh(
+                new THREE.ConeGeometry(0.04, 0.6, 6), creamMat.clone()
+              );
+              beak.rotation.x = -Math.PI / 2 - 0.1;
+              beak.position.set(CX, 0.58, 0.4);
+              g.add(beak);
+              // Red spiky crest (3 spikes)
+              [-0.1, 0, 0.1].forEach((dx, i) => {
+                const h = i === 1 ? 0.3 : 0.22;
+                const spike = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.045, h, 4), redMat.clone()
+                );
+                spike.rotation.z = dx * 1.5;
+                spike.position.set(CX + dx, 0.78 + h / 2 - 0.02, -0.02);
+                g.add(spike);
+              });
+              // Small sharp eyes
+              [-1, 1].forEach((sx) => {
+                const white = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.028, 10, 8),
+                  new THREE.MeshStandardMaterial({ color: '#f8fafc' })
+                );
+                white.position.set(CX + sx * 0.08, 0.63, 0.17);
+                g.add(white);
+                const pupil = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.015, 8, 6),
+                  new THREE.MeshStandardMaterial({ color: '#0a0a0a' })
+                );
+                pupil.position.set(CX + sx * 0.08, 0.63, 0.19);
+                g.add(pupil);
+                // Red eye stripe
+                const stripe = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.1, 0.02, 0.02), redMat.clone()
+                );
+                stripe.rotation.z = sx * 0.2;
+                stripe.position.set(CX + sx * 0.11, 0.68, 0.16);
+                g.add(stripe);
+              });
+              // Large spread wings with cream tips
+              [-1, 1].forEach((sx) => {
+                const wing = new THREE.Mesh(
+                  new THREE.BoxGeometry(0.7, 0.32, 0.04),
+                  brownMat.clone()
+                );
+                wing.rotation.z = sx * -0.2;
+                wing.position.set(CX + sx * 0.44, 0.16, -0.06);
+                g.add(wing);
+                // Feather rows
+                [0.06, -0.06].forEach((dy) => {
+                  const feather = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.5, 0.05, 0.02), brownMat.clone()
+                  );
+                  feather.rotation.z = sx * -0.2;
+                  feather.position.set(CX + sx * 0.36, 0.16 + dy, -0.05);
+                  g.add(feather);
+                });
+                // 3 cream wingtip feathers
+                [-0.12, 0, 0.12].forEach((dy) => {
+                  const tip = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.05, 0.2, 4), creamMat.clone()
+                  );
+                  tip.rotation.z = sx * (Math.PI / 2 - 0.15);
+                  tip.position.set(CX + sx * 0.82, 0.16 + dy, -0.06);
+                  g.add(tip);
+                });
+              });
+              // Yellow bird legs with brown claws
+              [-1, 1].forEach((sx) => {
+                const leg = new THREE.Mesh(
+                  new THREE.CylinderGeometry(0.03, 0.04, 0.28, 8), yellowMat.clone()
+                );
+                leg.position.set(CX + sx * 0.1, -0.28, 0.04);
+                g.add(leg);
+                // Foot base
+                const foot = new THREE.Mesh(
+                  new THREE.SphereGeometry(0.055, 10, 8), yellowMat.clone()
+                );
+                foot.scale.set(1, 0.5, 1.3);
+                foot.position.set(CX + sx * 0.1, -0.42, 0.08);
+                g.add(foot);
+                // 3 sharp brown claws forward + 1 back
+                [-0.04, 0, 0.04].forEach((dx) => {
+                  const claw = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.018, 0.09, 4), brownMat.clone()
+                  );
+                  claw.rotation.x = -Math.PI / 2;
+                  claw.position.set(CX + sx * 0.1 + dx, -0.44, 0.18);
+                  g.add(claw);
+                });
+                const backClaw = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.018, 0.08, 4), brownMat.clone()
+                );
+                backClaw.rotation.x = Math.PI / 2;
+                backClaw.position.set(CX + sx * 0.1, -0.44, -0.04);
+                g.add(backClaw);
+              });
+              // Long tail feathers
+              [-1, 0, 1].forEach((dx) => {
+                const tail = new THREE.Mesh(
+                  new THREE.ConeGeometry(0.05, 0.35, 4), brownMat.clone()
+                );
+                tail.rotation.x = 0.4;
+                tail.rotation.z = dx * 0.3;
+                tail.position.set(CX + dx * 0.06, -0.22, -0.28);
+                g.add(tail);
+              });
+              // Small cream tail tip accents
+              const tailTip = new THREE.Mesh(
+                new THREE.ConeGeometry(0.045, 0.14, 4), creamMat.clone()
+              );
+              tailTip.rotation.x = 0.4;
+              tailTip.position.set(CX, -0.4, -0.4);
+              g.add(tailTip);
             }
           }
           break;
@@ -14698,8 +13804,6 @@ export function Character3D({ equipped, jumping = false, className, name, gender
     (Object.keys(equipped) as Slot[]).forEach((slot) => {
       const id = equipped[slot];
       if (!id) return;
-      // Charms hang from the bag — skip if no bag is equipped.
-      if (slot === 'charm' && !equipped.back) return;
       equipItem(slot, id);
       redistribute(slot);
     });

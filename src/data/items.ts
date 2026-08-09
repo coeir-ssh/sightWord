@@ -1,4 +1,4 @@
-export type Slot = 'top' | 'bottom' | 'hat' | 'mask' | 'back' | 'shoes' | 'charm' | 'misc';
+export type Slot = 'top' | 'bottom' | 'hat' | 'mask' | 'back' | 'shoes' | 'misc';
 
 export type MiscKind =
   | 'motorcycle'
@@ -21,7 +21,8 @@ export type MiscKind =
   | 'beedrill'
   | 'mega_lucario'
   | 'mega_charizard_x'
-  | 'mega_charizard_y';
+  | 'mega_charizard_y'
+  | 'fearow';
 
 export type TopKind =
   | 'tee'
@@ -80,7 +81,8 @@ export type TopKind =
   | 'beedrill_top'
   | 'mega_lucario_top'
   | 'mega_charizard_x_top'
-  | 'mega_charizard_y_top';
+  | 'mega_charizard_y_top'
+  | 'fearow_top';
 
 export type BottomKind =
   | 'pants'
@@ -139,7 +141,8 @@ export type BottomKind =
   | 'beedrill_legs'
   | 'mega_lucario_legs'
   | 'mega_charizard_x_legs'
-  | 'mega_charizard_y_legs';
+  | 'mega_charizard_y_legs'
+  | 'fearow_legs';
 
 export type HatKind =
   | 'cap'
@@ -195,7 +198,8 @@ export type MaskKind =
   | 'beedrill_face'
   | 'mega_lucario_face'
   | 'mega_charizard_x_face'
-  | 'mega_charizard_y_face';
+  | 'mega_charizard_y_face'
+  | 'fearow_face';
 
 export type BackKind =
   | 'kinder'
@@ -254,7 +258,8 @@ export type BackKind =
   | 'beedrill_wings'
   | 'mega_lucario_aura'
   | 'mega_charizard_x_wings'
-  | 'mega_charizard_y_wings';
+  | 'mega_charizard_y_wings'
+  | 'fearow_wings';
 
 export type ShoeKind =
   | 'sneakers'
@@ -303,48 +308,8 @@ export type ShoeKind =
   | 'beedrill_feet'
   | 'mega_lucario_feet'
   | 'mega_charizard_x_feet'
-  | 'mega_charizard_y_feet';
-
-export type CharmKind =
-  | 'star'
-  | 'diamond'
-  | 'heart'
-  | 'cube'
-  | 'coin'
-  | 'bell'
-  | 'moon'
-  | 'sun'
-  | 'cherry'
-  | 'lightning'
-  | 'robot'
-  | 'ironman'
-  | 'wand'
-  | 'ribbon_bow'
-  | 'rose'
-  | 'snowflake'
-  | 'pumpkin_carriage'
-  | 'seashell'
-  | 'slp_badge'
-  | 'joon_band'
-  | 'pikachu_charm'
-  | 'jigglypuff_charm'
-  | 'mew_charm'
-  | 'psyduck_charm'
-  | 'charmander_charm'
-  | 'squirtle_charm'
-  | 'bulbasaur_charm'
-  | 'eevee_charm'
-  | 'snorlax_charm'
-  | 'gengar_charm'
-  | 'charizard_charm'
-  | 'lugia_charm'
-  | 'growlithe_charm'
-  | 'gardevoir_charm'
-  | 'absol_charm'
-  | 'beedrill_charm'
-  | 'mega_lucario_charm'
-  | 'mega_charizard_x_charm'
-  | 'mega_charizard_y_charm';
+  | 'mega_charizard_y_feet'
+  | 'fearow_feet';
 
 export type ItemKind =
   | TopKind
@@ -353,7 +318,6 @@ export type ItemKind =
   | MaskKind
   | BackKind
   | ShoeKind
-  | CharmKind
   | MiscKind;
 
 export type CharGender = 'boy' | 'girl';
@@ -371,7 +335,7 @@ export type Item = {
   genders?: CharGender[];
 };
 
-export const SLOT_ORDER: Slot[] = ['mask', 'top', 'bottom', 'hat', 'back', 'shoes', 'charm', 'misc'];
+export const SLOT_ORDER: Slot[] = ['mask', 'top', 'bottom', 'hat', 'back', 'shoes', 'misc'];
 
 export const SLOT_LABEL: Record<Slot, string> = {
   top: 'Top',
@@ -380,7 +344,6 @@ export const SLOT_LABEL: Record<Slot, string> = {
   mask: 'Mask',
   back: 'Bag',
   shoes: 'Shoes',
-  charm: 'Charm',
   misc: 'Misc',
 };
 
@@ -450,26 +413,12 @@ export const ITEMS: Item[] = [
   { id: 'shoes.light_up', name: 'Light-Up Shoes', slot: 'shoes', price: 130, color: '#c084fc', accent: '#fde047', kind: 'lightup' },
   { id: 'shoes.robot', name: 'Robot Shoes', slot: 'shoes', price: 90, color: '#94a3b8', accent: '#1e293b', kind: 'robot', genders: ['boy'] },
 
-  // ───────── Charms (10) ─────────
-  { id: 'charm.star', name: 'Star Charm', slot: 'charm', price: 30, color: '#fde047', kind: 'star' },
-  { id: 'charm.diamond', name: 'Diamond Charm', slot: 'charm', price: 90, color: '#7dd3fc', kind: 'diamond' },
-  { id: 'charm.heart', name: 'Heart Charm', slot: 'charm', price: 50, color: '#ef4444', kind: 'heart', genders: ['girl'] },
-  { id: 'charm.cube', name: 'Cube Charm', slot: 'charm', price: 40, color: '#a78bfa', kind: 'cube', genders: ['boy'] },
-  { id: 'charm.coin', name: 'Coin Charm', slot: 'charm', price: 60, color: '#fbbf24', kind: 'coin' },
-  { id: 'charm.bell', name: 'Bell Charm', slot: 'charm', price: 50, color: '#f59e0b', kind: 'bell' },
-  { id: 'charm.moon', name: 'Moon Charm', slot: 'charm', price: 60, color: '#e0e7ff', kind: 'moon' },
-  { id: 'charm.sun', name: 'Sun Charm', slot: 'charm', price: 60, color: '#fbbf24', kind: 'sun' },
-  { id: 'charm.cherry', name: 'Cherry Charm', slot: 'charm', price: 40, color: '#ef4444', kind: 'cherry' },
-  { id: 'charm.lightning', name: 'Lightning Charm', slot: 'charm', price: 80, color: '#facc15', kind: 'lightning', genders: ['boy'] },
-  { id: 'charm.robot', name: 'Robot Charm', slot: 'charm', price: 70, color: '#94a3b8', kind: 'robot', genders: ['boy'] },
-
   // ───────── Ironman set (boy only) ─────────
   { id: 'top.ironman', name: 'Iron Man Armor', slot: 'top', price: 200, color: '#dc2626', accent: '#fbbf24', kind: 'ironman', genders: ['boy'] },
   { id: 'bottom.ironman', name: 'Iron Man Legs', slot: 'bottom', price: 180, color: '#dc2626', accent: '#fbbf24', kind: 'ironman', genders: ['boy'] },
   { id: 'mask.ironman', name: 'Iron Man Mask', slot: 'mask', price: 220, color: '#dc2626', accent: '#fbbf24', kind: 'ironman', genders: ['boy'] },
   { id: 'back.ironman', name: 'Iron Man Wings', slot: 'back', price: 220, color: '#dc2626', accent: '#fbbf24', kind: 'ironman', genders: ['boy'] },
   { id: 'shoes.ironman', name: 'Iron Man Boots', slot: 'shoes', price: 150, color: '#fbbf24', accent: '#dc2626', kind: 'ironman', genders: ['boy'] },
-  { id: 'charm.ironman', name: 'Arc Reactor Charm', slot: 'charm', price: 100, color: '#22d3ee', accent: '#fbbf24', kind: 'ironman', genders: ['boy'] },
 
   // ───────── Spider-Man set (boy only) ─────────
   { id: 'mask.spiderman', name: 'Spider-Man Mask', slot: 'mask', price: 200, color: '#c81e1e', accent: '#1e3a8a', kind: 'spiderman', genders: ['boy'] },
@@ -531,20 +480,17 @@ export const ITEMS: Item[] = [
   { id: 'bottom.slp', name: 'SLP Uniform Pants', slot: 'bottom', price: 160, color: '#1e3a8a', accent: '#0c1a47', kind: 'slp', genders: ['boy'] },
   { id: 'shoes.slp', name: 'SLP Dress Shoes', slot: 'shoes', price: 140, color: '#0a0a0a', accent: '#475569', kind: 'slp', genders: ['boy'] },
   { id: 'back.slp', name: 'SLP Bag', slot: 'back', price: 130, color: '#dc2626', accent: '#f8fafc', kind: 'slp_backpack', genders: ['boy'] },
-  { id: 'charm.slp', name: 'SLP Name Tag', slot: 'charm', price: 80, color: '#f8fafc', accent: '#1e3a8a', kind: 'slp_badge', genders: ['boy'] },
 
   // ───────── SLP 원복 — 여자 ─────────
   { id: 'top.slp_girl', name: 'SLP Uniform Jacket (Girl)', slot: 'top', price: 220, color: '#475569', accent: '#dc2626', kind: 'slp_girl', genders: ['girl'] },
   { id: 'bottom.slp_girl', name: 'SLP Uniform Skirt', slot: 'bottom', price: 160, color: '#1e3a8a', accent: '#0c1a47', kind: 'slp_skirt', genders: ['girl'] },
   { id: 'shoes.slp_girl', name: 'SLP Mary Janes', slot: 'shoes', price: 140, color: '#0a0a0a', accent: '#475569', kind: 'slp_girl', genders: ['girl'] },
   { id: 'back.slp_girl', name: 'SLP Bag', slot: 'back', price: 130, color: '#dc2626', accent: '#f8fafc', kind: 'slp_backpack', genders: ['girl'] },
-  { id: 'charm.slp_girl', name: 'SLP Name Tag', slot: 'charm', price: 80, color: '#f8fafc', accent: '#1e3a8a', kind: 'slp_badge', genders: ['girl'] },
 
   // ───────── Joon's birthday set (boy only) ─────────
   { id: 'top.joon_birthday', name: "Joon's birthday 가디건", slot: 'top', price: 220, color: '#f5ede0', accent: '#fde047', kind: 'joon_cardigan', genders: ['boy'] },
   { id: 'bottom.joon_birthday', name: "Joon's birthday 반바지", slot: 'bottom', price: 140, color: '#d4c5a0', accent: '#8b7355', kind: 'shorts', genders: ['boy'] },
   { id: 'shoes.joon_birthday', name: "Joon's birthday 운동화", slot: 'shoes', price: 150, color: '#cbd5e1', accent: '#475569', kind: 'sneakers', genders: ['boy'] },
-  { id: 'charm.joon_birthday', name: "Joon's birthday 손목밴드", slot: 'charm', price: 80, color: '#facc15', accent: '#ca8a04', kind: 'joon_band', genders: ['boy'] },
 
   // ───────── Princess set (girl only) ─────────
   { id: 'top.princess_pink', name: 'Pink Princess Dress', slot: 'top', price: 220, color: '#f9a8d4', accent: '#fde68a', kind: 'princess_dress', genders: ['girl'] },
@@ -567,9 +513,6 @@ export const ITEMS: Item[] = [
   { id: 'shoes.ballet', name: 'Ballet Shoes', slot: 'shoes', price: 140, color: '#fbcfe8', accent: '#ec4899', kind: 'ballet', genders: ['girl'] },
   { id: 'shoes.ribbon_heel', name: 'Ribbon Heels', slot: 'shoes', price: 160, color: '#f9a8d4', accent: '#ffffff', kind: 'ribbon_heel', genders: ['girl'] },
 
-  { id: 'charm.wand', name: 'Magic Wand', slot: 'charm', price: 120, color: '#fde047', kind: 'wand', genders: ['girl'] },
-  { id: 'charm.ribbon', name: 'Ribbon', slot: 'charm', price: 70, color: '#ec4899', kind: 'ribbon_bow', genders: ['girl'] },
-  { id: 'charm.rose', name: 'Rose', slot: 'charm', price: 90, color: '#ef4444', kind: 'rose', genders: ['girl'] },
 
   // ───────── Disney Princess full sets (girl only) ─────────
   // Elsa (Frozen) — icy blues + snowflakes
@@ -578,7 +521,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.elsa', name: 'Elsa Skirt', slot: 'bottom', price: 240, color: '#7dd3fc', accent: '#ffffff', kind: 'elsa_skirt', genders: ['girl'] },
   { id: 'back.elsa', name: 'Elsa Cape', slot: 'back', price: 240, color: '#bae6fd', accent: '#ffffff', kind: 'elsa_cape', genders: ['girl'] },
   { id: 'shoes.elsa', name: 'Elsa Glass Slippers', slot: 'shoes', price: 240, color: '#bae6fd', accent: '#0ea5e9', kind: 'glass_slipper', genders: ['girl'] },
-  { id: 'charm.elsa', name: 'Elsa Snowflake', slot: 'charm', price: 110, color: '#bae6fd', accent: '#0ea5e9', kind: 'snowflake', genders: ['girl'] },
 
   // Cinderella — pale blue ball gown
   { id: 'hat.cinderella', name: 'Cinderella Tiara', slot: 'hat', price: 200, color: '#cbd5e1', accent: '#0ea5e9', kind: 'tiara', genders: ['girl'] },
@@ -586,7 +528,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.cinderella', name: 'Cinderella Skirt', slot: 'bottom', price: 220, color: '#a5d8ff', accent: '#ffffff', kind: 'princess_skirt', genders: ['girl'] },
   { id: 'back.cinderella', name: 'Cinderella Cape', slot: 'back', price: 220, color: '#a5d8ff', accent: '#ffffff', kind: 'princess_cape', genders: ['girl'] },
   { id: 'shoes.cinderella', name: 'Cinderella Glass Slippers', slot: 'shoes', price: 260, color: '#e0f2fe', accent: '#0ea5e9', kind: 'glass_slipper', genders: ['girl'] },
-  { id: 'charm.cinderella', name: 'Cinderella Pumpkin Carriage', slot: 'charm', price: 140, color: '#fb923c', accent: '#fde047', kind: 'pumpkin_carriage', genders: ['girl'] },
 
   // Belle (Beauty & the Beast) — golden yellow gown
   { id: 'hat.belle', name: 'Belle Rose Pin', slot: 'hat', price: 150, color: '#dc2626', accent: '#16a34a', kind: 'belle_bow', genders: ['girl'] },
@@ -594,7 +535,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.belle', name: 'Belle Skirt', slot: 'bottom', price: 220, color: '#fde047', accent: '#fef3c7', kind: 'princess_skirt', genders: ['girl'] },
   { id: 'back.belle', name: 'Belle Cape', slot: 'back', price: 220, color: '#fde047', accent: '#dc2626', kind: 'princess_cape', genders: ['girl'] },
   { id: 'shoes.belle', name: 'Belle Shoes', slot: 'shoes', price: 150, color: '#fde047', accent: '#fbbf24', kind: 'ballet', genders: ['girl'] },
-  { id: 'charm.belle', name: 'Belle Rose', slot: 'charm', price: 110, color: '#dc2626', accent: '#16a34a', kind: 'rose', genders: ['girl'] },
 
   // Ariel (Little Mermaid) — purple shell + green tail
   { id: 'hat.ariel', name: 'Ariel Shell Pin', slot: 'hat', price: 140, color: '#fbcfe8', accent: '#f472b6', kind: 'ariel_shell', genders: ['girl'] },
@@ -602,7 +542,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.ariel', name: 'Ariel Mermaid Tail', slot: 'bottom', price: 260, color: '#22c55e', accent: '#15803d', kind: 'ariel_tail', genders: ['girl'] },
   { id: 'back.ariel', name: 'Ariel Red Hair', slot: 'back', price: 200, color: '#ef4444', accent: '#7f1d1d', kind: 'ariel_wave', genders: ['girl'] },
   { id: 'shoes.ariel', name: 'Ariel Pearl Shoes', slot: 'shoes', price: 160, color: '#fce7f3', accent: '#f472b6', kind: 'ballet', genders: ['girl'] },
-  { id: 'charm.ariel', name: 'Ariel Seashell', slot: 'charm', price: 110, color: '#fbcfe8', accent: '#f472b6', kind: 'seashell', genders: ['girl'] },
 
   // Rapunzel (Tangled) — lavender corset + long blonde hair
   { id: 'hat.rapunzel', name: 'Rapunzel Flower Crown', slot: 'hat', price: 150, color: '#fde047', accent: '#f472b6', kind: 'flower_crown', genders: ['girl'] },
@@ -610,7 +549,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.rapunzel', name: 'Rapunzel Skirt', slot: 'bottom', price: 220, color: '#a78bfa', accent: '#ffffff', kind: 'rapunzel_skirt', genders: ['girl'] },
   { id: 'back.rapunzel', name: 'Rapunzel Golden Hair', slot: 'back', price: 240, color: '#fde047', accent: '#fbbf24', kind: 'rapunzel_hair', genders: ['girl'] },
   { id: 'shoes.rapunzel', name: 'Rapunzel Sandals', slot: 'shoes', price: 130, color: '#92400e', accent: '#fbbf24', kind: 'sandals', genders: ['girl'] },
-  { id: 'charm.rapunzel', name: 'Rapunzel Sun', slot: 'charm', price: 110, color: '#fde047', accent: '#fbbf24', kind: 'sun', genders: ['girl'] },
 
   // ───────── Marvel heroes — extra set (boy only) ─────────
   // Wolverine
@@ -689,7 +627,6 @@ export const ITEMS: Item[] = [
   { id: 'shoes.ghost_rider', name: 'Ghost Rider Boots', slot: 'shoes', price: 160, color: '#1f2937', accent: '#cbd5e1', kind: 'ghost_rider', genders: ['boy'] },
   { id: 'misc.ghost_rider_bike', name: 'Ghost Rider 헬파이어 오토바이', slot: 'misc', price: 500, color: '#cbd5e1', accent: '#fb923c', kind: 'motorcycle', genders: ['boy'] },
   { id: 'misc.pikachu', name: '피카츄', slot: 'misc', price: 400, color: '#facc15', accent: '#dc2626', kind: 'pikachu' },
-  { id: 'charm.pikachu', name: '피카츄 키링', slot: 'charm', price: 120, color: '#facc15', accent: '#dc2626', kind: 'pikachu_charm' },
 
   // ───────── Pokemon set (unisex) ─────────
   { id: 'mask.charmander', name: '파이리 얼굴', slot: 'mask', price: 180, color: '#f97316', accent: '#fef3c7', kind: 'charmander_face' },
@@ -699,9 +636,6 @@ export const ITEMS: Item[] = [
   { id: 'top.snorlax', name: '잠만보 잠옷', slot: 'top', price: 220, color: '#fef3c7', accent: '#0f172a', kind: 'snorlax_suit' },
   { id: 'top.gengar', name: '겐가 슈트', slot: 'top', price: 220, color: '#6b21a8', accent: '#dc2626', kind: 'gengar_suit' },
   { id: 'shoes.charizard', name: '리자몽 부츠', slot: 'shoes', price: 180, color: '#f97316', accent: '#fef3c7', kind: 'charizard_boots' },
-  { id: 'charm.jigglypuff', name: '푸린 키링', slot: 'charm', price: 120, color: '#fbcfe8', accent: '#3b82f6', kind: 'jigglypuff_charm' },
-  { id: 'charm.mew', name: '뮤 키링', slot: 'charm', price: 140, color: '#fbcfe8', accent: '#7dd3fc', kind: 'mew_charm' },
-  { id: 'charm.psyduck', name: '고라파덕 키링', slot: 'charm', price: 120, color: '#facc15', accent: '#f97316', kind: 'psyduck_charm' },
 
   // ───────── Pokemon 10 full sets ─────────
   // Pikachu (yellow / red cheeks)
@@ -713,22 +647,18 @@ export const ITEMS: Item[] = [
   { id: 'top.charmander', name: '파이리 상의', slot: 'top', price: 180, color: '#f97316', accent: '#fef3c7', kind: 'charmander_top' },
   { id: 'bottom.charmander', name: '파이리 하의', slot: 'bottom', price: 160, color: '#f97316', accent: '#fef3c7', kind: 'charmander_legs' },
   { id: 'back.charmander', name: '파이리 불꼬리', slot: 'back', price: 180, color: '#f97316', accent: '#fbbf24', kind: 'charmander_tail' },
-  { id: 'charm.charmander', name: '파이리 키링', slot: 'charm', price: 120, color: '#f97316', accent: '#fef3c7', kind: 'charmander_charm' },
   // Squirtle (blue / cream)
   { id: 'top.squirtle', name: '꼬부기 상의', slot: 'top', price: 180, color: '#38bdf8', accent: '#fef3c7', kind: 'squirtle_top' },
   { id: 'bottom.squirtle', name: '꼬부기 하의', slot: 'bottom', price: 160, color: '#38bdf8', accent: '#fef3c7', kind: 'squirtle_legs' },
   { id: 'back.squirtle', name: '꼬부기 등껍질', slot: 'back', price: 200, color: '#a16207', accent: '#fbbf24', kind: 'squirtle_shell' },
-  { id: 'charm.squirtle', name: '꼬부기 키링', slot: 'charm', price: 120, color: '#38bdf8', accent: '#fef3c7', kind: 'squirtle_charm' },
   // Bulbasaur (green / dark green)
   { id: 'top.bulbasaur', name: '이상해씨 상의', slot: 'top', price: 180, color: '#4ade80', accent: '#166534', kind: 'bulbasaur_top' },
   { id: 'bottom.bulbasaur', name: '이상해씨 하의', slot: 'bottom', price: 160, color: '#4ade80', accent: '#166534', kind: 'bulbasaur_legs' },
   { id: 'back.bulbasaur', name: '이상해씨 구근', slot: 'back', price: 200, color: '#4d7c0f', accent: '#166534', kind: 'bulbasaur_bulb' },
-  { id: 'charm.bulbasaur', name: '이상해씨 키링', slot: 'charm', price: 120, color: '#4ade80', accent: '#166534', kind: 'bulbasaur_charm' },
   // Eevee (brown / cream)
   { id: 'top.eevee', name: '이브이 상의', slot: 'top', price: 180, color: '#a16207', accent: '#fef3c7', kind: 'eevee_top' },
   { id: 'bottom.eevee', name: '이브이 하의', slot: 'bottom', price: 160, color: '#a16207', accent: '#fef3c7', kind: 'eevee_legs' },
   { id: 'back.eevee', name: '이브이 꼬리', slot: 'back', price: 160, color: '#a16207', accent: '#fef3c7', kind: 'eevee_tail' },
-  { id: 'charm.eevee', name: '이브이 키링', slot: 'charm', price: 120, color: '#a16207', accent: '#fef3c7', kind: 'eevee_charm' },
   // Jigglypuff (pink / blue eyes)
   { id: 'mask.jigglypuff', name: '푸린 얼굴', slot: 'mask', price: 180, color: '#fbcfe8', accent: '#3b82f6', kind: 'jigglypuff_face' },
   { id: 'top.jigglypuff', name: '푸린 상의', slot: 'top', price: 180, color: '#fbcfe8', accent: '#f472b6', kind: 'jigglypuff_top' },
@@ -743,18 +673,15 @@ export const ITEMS: Item[] = [
   { id: 'mask.snorlax', name: '잠만보 얼굴', slot: 'mask', price: 180, color: '#fde68a', accent: '#0f172a', kind: 'snorlax_face' },
   { id: 'bottom.snorlax', name: '잠만보 하의', slot: 'bottom', price: 180, color: '#0f172a', accent: '#fde68a', kind: 'snorlax_legs' },
   { id: 'back.snorlax', name: '잠만보 등', slot: 'back', price: 200, color: '#0f172a', accent: '#fde68a', kind: 'snorlax_back' },
-  { id: 'charm.snorlax', name: '잠만보 키링', slot: 'charm', price: 120, color: '#fde68a', accent: '#0f172a', kind: 'snorlax_charm' },
   // Gengar (purple / red mouth)
   { id: 'mask.gengar', name: '겐가 얼굴', slot: 'mask', price: 180, color: '#6b21a8', accent: '#dc2626', kind: 'gengar_face' },
   { id: 'bottom.gengar', name: '겐가 하의', slot: 'bottom', price: 160, color: '#6b21a8', accent: '#dc2626', kind: 'gengar_legs' },
   { id: 'back.gengar', name: '겐가 그림자', slot: 'back', price: 200, color: '#6b21a8', accent: '#7f1d1d', kind: 'gengar_shadow' },
-  { id: 'charm.gengar', name: '겐가 키링', slot: 'charm', price: 120, color: '#6b21a8', accent: '#dc2626', kind: 'gengar_charm' },
   // Charizard (orange / cream)
   { id: 'mask.charizard', name: '리자몽 얼굴', slot: 'mask', price: 220, color: '#f97316', accent: '#fef3c7', kind: 'charizard_face' },
   { id: 'top.charizard', name: '리자몽 상의', slot: 'top', price: 220, color: '#f97316', accent: '#fef3c7', kind: 'charizard_top' },
   { id: 'bottom.charizard', name: '리자몽 하의', slot: 'bottom', price: 200, color: '#f97316', accent: '#fef3c7', kind: 'charizard_legs' },
   { id: 'back.charizard', name: '리자몽 날개', slot: 'back', price: 260, color: '#38bdf8', accent: '#166534', kind: 'charizard_wings' },
-  { id: 'charm.charizard', name: '리자몽 키링', slot: 'charm', price: 140, color: '#f97316', accent: '#fef3c7', kind: 'charizard_charm' },
 
   // Mew full set (unisex)
   { id: 'mask.mew', name: '뮤 얼굴', slot: 'mask', price: 220, color: '#fbcfe8', accent: '#7dd3fc', kind: 'mew_face' },
@@ -770,7 +697,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.lugia', name: '루기아 하의', slot: 'bottom', price: 240, color: '#f8fafc', accent: '#bfdbfe', kind: 'lugia_legs' },
   { id: 'back.lugia', name: '루기아 날개+등가시', slot: 'back', price: 320, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia_wings' },
   { id: 'shoes.lugia', name: '루기아 발톱', slot: 'shoes', price: 200, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia_feet' },
-  { id: 'charm.lugia', name: '루기아 키링', slot: 'charm', price: 160, color: '#f8fafc', accent: '#1e3a8a', kind: 'lugia_charm' },
 
   // 가디 (Growlithe) full set — fire puppy: orange body, cream fluffy mane,
   // dark tiger stripes.
@@ -779,7 +705,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.growlithe', name: '가디 하의', slot: 'bottom', price: 180, color: '#ea580c', accent: '#7c2d12', kind: 'growlithe_legs' },
   { id: 'back.growlithe', name: '가디 꼬리', slot: 'back', price: 220, color: '#ea580c', accent: '#fef3c7', kind: 'growlithe_tail' },
   { id: 'shoes.growlithe', name: '가디 발', slot: 'shoes', price: 160, color: '#ea580c', accent: '#7c2d12', kind: 'growlithe_feet' },
-  { id: 'charm.growlithe', name: '가디 키링', slot: 'charm', price: 140, color: '#ea580c', accent: '#fef3c7', kind: 'growlithe_charm' },
 
   // 가디안 (Gardevoir) full set — elegant psychic: green helmet-hair, white
   // gown-body, red horn spike on chest and back.
@@ -788,7 +713,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.gardevoir', name: '가디안 하의', slot: 'bottom', price: 240, color: '#f8fafc', accent: '#dc2626', kind: 'gardevoir_legs' },
   { id: 'back.gardevoir', name: '가디안 드레스', slot: 'back', price: 300, color: '#f8fafc', accent: '#dc2626', kind: 'gardevoir_dress' },
   { id: 'shoes.gardevoir', name: '가디안 발', slot: 'shoes', price: 180, color: '#f8fafc', accent: '#16a34a', kind: 'gardevoir_feet' },
-  { id: 'charm.gardevoir', name: '가디안 키링', slot: 'charm', price: 150, color: '#f8fafc', accent: '#16a34a', kind: 'gardevoir_charm' },
 
   // 앱솔 (Absol) full set — disaster Pokemon: pale white body, dark navy
   // face/mask + sickle-shaped horn + red eyes + fluffy mane and forked tail.
@@ -797,7 +721,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.absol', name: '앱솔 하의', slot: 'bottom', price: 220, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_legs' },
   { id: 'back.absol', name: '앱솔 꼬리', slot: 'back', price: 260, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_tail' },
   { id: 'shoes.absol', name: '앱솔 발톱', slot: 'shoes', price: 180, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_feet' },
-  { id: 'charm.absol', name: '앱솔 키링', slot: 'charm', price: 150, color: '#e2e8f0', accent: '#1e293b', kind: 'absol_charm' },
 
   // 독침붕 (Beedrill) full set — poison bee: yellow body with black stripes,
   // drill-shaped stingers on hands and tail, red eyes, gray transparent wings.
@@ -806,7 +729,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.beedrill', name: '독침붕 하의', slot: 'bottom', price: 220, color: '#facc15', accent: '#0a0a0a', kind: 'beedrill_legs' },
   { id: 'back.beedrill', name: '독침붕 날개', slot: 'back', price: 260, color: '#e5e7eb', accent: '#0a0a0a', kind: 'beedrill_wings' },
   { id: 'shoes.beedrill', name: '독침붕 다리', slot: 'shoes', price: 180, color: '#0a0a0a', accent: '#facc15', kind: 'beedrill_feet' },
-  { id: 'charm.beedrill', name: '독침붕 키링', slot: 'charm', price: 140, color: '#facc15', accent: '#0a0a0a', kind: 'beedrill_charm' },
 
   // 메가루카리오 (Mega Lucario) full set — mega evolution: blue body, wild
   // yellow mane, red eyes, aura spikes on wrists, long black tail.
@@ -815,7 +737,6 @@ export const ITEMS: Item[] = [
   { id: 'bottom.mega_lucario', name: '메가루카리오 하의', slot: 'bottom', price: 260, color: '#0f172a', accent: '#facc15', kind: 'mega_lucario_legs' },
   { id: 'back.mega_lucario', name: '메가루카리오 오라', slot: 'back', price: 340, color: '#0f172a', accent: '#facc15', kind: 'mega_lucario_aura' },
   { id: 'shoes.mega_lucario', name: '메가루카리오 발톱', slot: 'shoes', price: 200, color: '#0f172a', accent: '#7f1d1d', kind: 'mega_lucario_feet' },
-  { id: 'charm.mega_lucario', name: '메가루카리오 키링', slot: 'charm', price: 170, color: '#1e3a8a', accent: '#facc15', kind: 'mega_lucario_charm' },
 
   // 메가리자몽 X (Mega Charizard X) — Fire/Dragon: black body, blue belly,
   // blue flames from mouth, dark navy wings with blue membrane.
@@ -824,16 +745,21 @@ export const ITEMS: Item[] = [
   { id: 'bottom.mega_charizard_x', name: '메가리자몽X 하의', slot: 'bottom', price: 280, color: '#0f172a', accent: '#3b82f6', kind: 'mega_charizard_x_legs' },
   { id: 'back.mega_charizard_x', name: '메가리자몽X 날개', slot: 'back', price: 360, color: '#0f172a', accent: '#1e40af', kind: 'mega_charizard_x_wings' },
   { id: 'shoes.mega_charizard_x', name: '메가리자몽X 발톱', slot: 'shoes', price: 200, color: '#0f172a', accent: '#f8fafc', kind: 'mega_charizard_x_feet' },
-  { id: 'charm.mega_charizard_x', name: '메가리자몽X 키링', slot: 'charm', price: 180, color: '#0f172a', accent: '#3b82f6', kind: 'mega_charizard_x_charm' },
 
   // 메가리자몽 Y (Mega Charizard Y) — Fire/Flying: orange body, cream belly,
   // huge sharper wings with pointed tips, wrist wings, longer horns.
+  // 깨비드릴조 (Fearow #022) — brown drill-bird with long thin beak,
+  // cream wingtips, red crest.
+  { id: 'mask.fearow', name: '깨비드릴조 얼굴', slot: 'mask', price: 220, color: '#92400e', accent: '#dc2626', kind: 'fearow_face' },
+  { id: 'top.fearow', name: '깨비드릴조 상의', slot: 'top', price: 200, color: '#92400e', accent: '#fef3c7', kind: 'fearow_top' },
+  { id: 'bottom.fearow', name: '깨비드릴조 하의', slot: 'bottom', price: 180, color: '#92400e', accent: '#facc15', kind: 'fearow_legs' },
+  { id: 'back.fearow', name: '깨비드릴조 날개', slot: 'back', price: 240, color: '#92400e', accent: '#fef3c7', kind: 'fearow_wings' },
+  { id: 'shoes.fearow', name: '깨비드릴조 발톱', slot: 'shoes', price: 160, color: '#facc15', accent: '#92400e', kind: 'fearow_feet' },
   { id: 'mask.mega_charizard_y', name: '메가리자몽Y 얼굴', slot: 'mask', price: 340, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y_face' },
   { id: 'top.mega_charizard_y', name: '메가리자몽Y 상의', slot: 'top', price: 320, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y_top' },
   { id: 'bottom.mega_charizard_y', name: '메가리자몽Y 하의', slot: 'bottom', price: 280, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y_legs' },
   { id: 'back.mega_charizard_y', name: '메가리자몽Y 날개', slot: 'back', price: 360, color: '#c2410c', accent: '#fef3c7', kind: 'mega_charizard_y_wings' },
   { id: 'shoes.mega_charizard_y', name: '메가리자몽Y 발톱', slot: 'shoes', price: 200, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y_feet' },
-  { id: 'charm.mega_charizard_y', name: '메가리자몽Y 키링', slot: 'charm', price: 180, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y_charm' },
 
   // Misc Pokemon companions — stand next to the character just like the
   // existing Pikachu companion at misc.pikachu.
@@ -855,6 +781,7 @@ export const ITEMS: Item[] = [
   { id: 'misc.mega_lucario', name: '메가루카리오 (컴패니언)', slot: 'misc', price: 650, color: '#1e3a8a', accent: '#facc15', kind: 'mega_lucario' },
   { id: 'misc.mega_charizard_x', name: '메가리자몽X (컴패니언)', slot: 'misc', price: 700, color: '#0f172a', accent: '#3b82f6', kind: 'mega_charizard_x' },
   { id: 'misc.mega_charizard_y', name: '메가리자몽Y (컴패니언)', slot: 'misc', price: 700, color: '#ea580c', accent: '#fef3c7', kind: 'mega_charizard_y' },
+  { id: 'misc.fearow', name: '깨비드릴조 (컴패니언)', slot: 'misc', price: 500, color: '#92400e', accent: '#fef3c7', kind: 'fearow' },
 
   // Silver Surfer (no mask)
   { id: 'top.silver_surfer', name: 'Silver Surfer Body', slot: 'top', price: 240, color: '#e5e7eb', accent: '#94a3b8', kind: 'silver_surfer', genders: ['boy'] },
@@ -942,6 +869,7 @@ const POKEMON_SPECIES = [
   'growlithe', 'gardevoir', 'absol',
   'beedrill', 'mega_lucario',
   'mega_charizard_x', 'mega_charizard_y',
+  'fearow',
 ];
 const SCHOOL_KIND_PATTERNS = [
   'slp', 'slp_girl', 'slp_skirt', 'slp_backpack', 'slp_badge',
@@ -971,7 +899,6 @@ export const DEFAULT_ITEMS: Record<Slot, string> = {
   mask: '',
   back: '',
   shoes: '',
-  charm: '',
   misc: '',
 };
 

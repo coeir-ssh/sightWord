@@ -30,8 +30,6 @@ function renderIcon(item: Item) {
       return <Back item={item} />;
     case 'shoes':
       return <Shoes item={item} />;
-    case 'charm':
-      return <Charm item={item} />;
     case 'misc':
       return <Misc item={item} />;
   }
@@ -823,6 +821,22 @@ function Top({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'fearow_top') {
+    return (
+      <g>
+        {teeBody(c)}
+        {/* Cream feather chest bib */}
+        <path d="M40,32 L60,32 L64,58 L50,72 L36,58 Z"
+          fill={a} stroke={STROKE} strokeWidth={0.8} strokeLinejoin="round" />
+        {/* Feather segment lines */}
+        <line x1="42" y1="44" x2="58" y2="44" stroke="#7c2d12" strokeWidth={0.5} />
+        <line x1="42" y1="52" x2="58" y2="52" stroke="#7c2d12" strokeWidth={0.5} />
+        <line x1="42" y1="60" x2="58" y2="60" stroke="#7c2d12" strokeWidth={0.5} />
+        {/* Small red neck accent */}
+        <path d="M40,26 Q50,32 60,26" stroke="#dc2626" fill="none" strokeWidth={2} />
+      </g>
+    );
+  }
   if (kind === 'mega_charizard_x_top') {
     return (
       <g>
@@ -1291,6 +1305,24 @@ function Bottom({ item }: { item: Item }) {
         <polygon points="42,76 46,84 50,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
         <polygon points="52,76 56,84 60,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
         <polygon points="64,76 68,84 72,76" fill={item.accent === '#bfdbfe' ? '#1e3a8a' : a} />
+      </g>
+    );
+  }
+  if (kind === 'fearow_legs') {
+    return (
+      <g>
+        {heroLegs(c)}
+        {/* Yellow bird-leg upper */}
+        <rect x="26" y="34" width="20" height="30" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <rect x="54" y="34" width="20" height="30" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Brown feathered thighs (top hem) */}
+        <path d="M22,32 L46,32 L46,42 L22,42 Z" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        <path d="M54,32 L78,32 L78,42 L54,42 Z" fill={c} stroke={STROKE} strokeWidth={0.6} />
+        {/* Sharp claws at bottom */}
+        <polygon points="26,64 30,76 34,64" fill={c} stroke={STROKE} strokeWidth={0.4} />
+        <polygon points="36,64 40,76 44,64" fill={c} stroke={STROKE} strokeWidth={0.4} />
+        <polygon points="56,64 60,76 64,64" fill={c} stroke={STROKE} strokeWidth={0.4} />
+        <polygon points="66,64 70,76 74,64" fill={c} stroke={STROKE} strokeWidth={0.4} />
       </g>
     );
   }
@@ -2484,6 +2516,32 @@ function Mask({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'fearow_face') {
+    // Fearow — brown bird head + LONG thin pointed beak + red comb crest
+    return (
+      <g>
+        {/* Red spiky crest on top of head */}
+        {[[38, 14], [50, 6], [62, 14]].map(([x, y], i) => (
+          <polygon key={i} points={`${x - 5},${y + 6} ${x + 5},${y + 6} ${x},${y - 8}`}
+            fill={a} stroke={STROKE} strokeWidth={0.6} />
+        ))}
+        {/* Brown head */}
+        <ellipse cx="50" cy="46" rx="24" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* LONG thin pointed beak stretching to the right */}
+        <path d="M70,48 L98,52 L96,56 L70,54 Z"
+          fill={a} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Beak lower jaw with slight opening */}
+        <line x1="70" y1="54" x2="94" y2="56" stroke={STROKE} strokeWidth={0.6} />
+        {/* Small red neck-feather ring */}
+        <path d="M28,66 Q50,80 72,66" stroke={a} fill="none" strokeWidth={4} strokeLinecap="round" />
+        {/* Red eye (small, sharp) */}
+        <ellipse cx="52" cy="42" rx="3" ry="4" fill="#f8fafc" stroke={STROKE} strokeWidth={0.6} />
+        <ellipse cx="52" cy="42" rx="1.5" ry="2.5" fill="#0a0a0a" />
+        {/* Cream cheek/wing hint */}
+        <path d="M20,52 L28,56 L22,60 Z" fill={item.accent === '#dc2626' ? '#fef3c7' : '#fef3c7'} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
   if (kind === 'mega_charizard_x_face') {
     // Mega Charizard X — black dragon head, blue muzzle underside,
     // dark horns pointing back, blue flame from mouth, red eyes.
@@ -3427,6 +3485,29 @@ function Back({ item }: { item: Item }) {
       </g>
     );
   }
+  if (kind === 'fearow_wings') {
+    // Two large brown feathered wings with cream feather tips
+    return (
+      <g>
+        {/* Left brown wing */}
+        <path d="M50,42 L6,20 L14,54 L28,50 L18,74 L50,54 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Right brown wing */}
+        <path d="M50,42 L94,20 L86,54 L72,50 L82,74 L50,54 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Cream feather tips (left wing) */}
+        {[[10, 34], [16, 44], [24, 54]].map(([x, y], i) => (
+          <polygon key={i} points={`${x - 4},${y - 4} ${x + 4},${y + 4} ${x - 4},${y + 8}`}
+            fill={a} stroke={STROKE} strokeWidth={0.5} />
+        ))}
+        {/* Cream feather tips (right wing) */}
+        {[[90, 34], [84, 44], [76, 54]].map(([x, y], i) => (
+          <polygon key={i} points={`${x + 4},${y - 4} ${x - 4},${y + 4} ${x + 4},${y + 8}`}
+            fill={a} stroke={STROKE} strokeWidth={0.5} />
+        ))}
+      </g>
+    );
+  }
   if (kind === 'mega_charizard_x_wings') {
     // Big dark navy wings with blue membrane
     return (
@@ -3688,6 +3769,19 @@ function Shoes({ item }: { item: Item }) {
         <polygon points="76,66 82,58 74,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="66,66 68,54 62,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
         <polygon points="56,66 54,54 50,66" fill={a} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'fearow_feet') {
+    return (
+      <g>
+        {heroBoot(c)}
+        {/* Brown feather cuff at top */}
+        <rect x="20" y="24" width="60" height="10" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        {/* Big sharp bird claws */}
+        <polygon points="76,68 88,60 82,76" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="24,68 12,60 18,76" fill={a} stroke={STROKE} strokeWidth={0.6} />
+        <polygon points="50,74 46,84 54,84" fill={a} stroke={STROKE} strokeWidth={0.6} />
       </g>
     );
   }
@@ -4076,697 +4170,6 @@ function Shoes({ item }: { item: Item }) {
   );
 }
 
-function Charm({ item }: { item: Item }) {
-  const c = item.color;
-  const kind = item.kind ?? 'star';
-
-  if (kind === 'ironman') {
-    const ring = item.accent ?? '#fbbf24';
-    return (
-      <g>
-        {/* Arc reactor pendant */}
-        <line x1="50" y1="12" x2="50" y2="22" stroke={STROKE} strokeWidth={2} />
-        <circle cx="50" cy="10" r="4" fill="none" stroke={STROKE} strokeWidth={SW} />
-        <circle cx="50" cy="54" r="26" fill={ring} stroke={STROKE} strokeWidth={SW} />
-        <circle cx="50" cy="54" r="18" fill={c} />
-        <circle cx="50" cy="54" r="10" fill="#a5f3fc" stroke="#ffffff" strokeWidth={1} />
-        <circle cx="50" cy="54" r="4" fill="#ffffff" />
-        {/* Inner triangular coil */}
-        <polygon points="50,40 60,58 40,58" fill="none" stroke="#0e7490" strokeWidth={1} />
-      </g>
-    );
-  }
-
-  if (kind === 'robot') {
-    return (
-      <g>
-        {/* Tiny robot head pendant */}
-        <line x1="50" y1="14" x2="50" y2="22" stroke={STROKE} strokeWidth={2} />
-        <circle cx="50" cy="12" r="3" fill="#ef4444" stroke={STROKE} strokeWidth={1} />
-        <rect x="28" y="24" width="44" height="44" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
-        {/* Visor */}
-        <rect x="34" y="36" width="32" height="10" rx="2" fill="#0f172a" stroke={STROKE} strokeWidth={1} />
-        <circle cx="42" cy="41" r="2" fill="#22d3ee" />
-        <circle cx="58" cy="41" r="2" fill="#22d3ee" />
-        {/* Mouth grid */}
-        <rect x="40" y="52" width="20" height="8" fill={darken(c)} stroke={STROKE} strokeWidth={1} />
-        <line x1="44" y1="52" x2="44" y2="60" stroke={STROKE} strokeWidth={0.6} />
-        <line x1="50" y1="52" x2="50" y2="60" stroke={STROKE} strokeWidth={0.6} />
-        <line x1="56" y1="52" x2="56" y2="60" stroke={STROKE} strokeWidth={0.6} />
-        {/* Bottom keyring loop */}
-        <circle cx="50" cy="78" r="6" fill="none" stroke={STROKE} strokeWidth={SW} />
-        <line x1="50" y1="68" x2="50" y2="72" stroke={STROKE} strokeWidth={2} />
-      </g>
-    );
-  }
-
-  switch (kind) {
-    case 'heart':
-      return (
-        <path
-          d="M50,82 Q14,58 22,36 Q34,18 50,34 Q66,18 78,36 Q86,58 50,82 Z"
-          fill={c}
-          stroke={STROKE}
-          strokeWidth={SW}
-          strokeLinejoin="round"
-        />
-      );
-    case 'diamond':
-      return (
-        <g>
-          <polygon
-            points="50,12 78,40 50,84 22,40"
-            fill={c}
-            stroke={STROKE}
-            strokeWidth={SW}
-            strokeLinejoin="round"
-          />
-          <polyline points="30,40 50,28 70,40" stroke="#ffffff" strokeWidth={SW} fill="none" />
-        </g>
-      );
-    case 'cube':
-      return (
-        <g>
-          <polygon points="20,32 50,18 80,32 50,46" fill={lighten(c)} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          <polygon points="20,32 20,72 50,86 50,46" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          <polygon points="80,32 80,72 50,86 50,46" fill={darken(c)} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-        </g>
-      );
-    case 'coin':
-      return (
-        <g>
-          <circle cx="50" cy="50" r="32" fill={c} stroke={STROKE} strokeWidth={SW} />
-          <text x="50" y="62" textAnchor="middle" fontSize="32" fontWeight="900" fill={darken(c)}>
-            $
-          </text>
-        </g>
-      );
-    case 'bell':
-      return (
-        <g>
-          <path d="M26,64 Q26,30 50,28 Q74,30 74,64 L80,72 L20,72 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          <circle cx="50" cy="80" r="4" fill={darken(c)} stroke={STROKE} strokeWidth={SW} />
-        </g>
-      );
-    case 'moon':
-      return (
-        <path d="M70,18 Q40,32 40,50 Q40,68 70,82 Q42,78 32,50 Q42,22 70,18 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-      );
-    case 'sun':
-      return (
-        <g>
-          <circle cx="50" cy="50" r="20" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {Array.from({ length: 8 }).map((_, i) => {
-            const a = (i * Math.PI) / 4;
-            const x1 = 50 + Math.cos(a) * 26;
-            const y1 = 50 + Math.sin(a) * 26;
-            const x2 = 50 + Math.cos(a) * 38;
-            const y2 = 50 + Math.sin(a) * 38;
-            return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={c} strokeWidth={4} strokeLinecap="round" />;
-          })}
-        </g>
-      );
-    case 'cherry':
-      return (
-        <g>
-          <circle cx="38" cy="68" r="14" fill={c} stroke={STROKE} strokeWidth={SW} />
-          <circle cx="62" cy="68" r="14" fill={c} stroke={STROKE} strokeWidth={SW} />
-          <path d="M38,54 Q44,28 60,22 Q58,32 62,54" stroke="#16a34a" fill="none" strokeWidth={3} />
-        </g>
-      );
-    case 'lightning':
-      return (
-        <polygon
-          points="56,12 30,52 46,52 38,86 70,42 54,42 60,12"
-          fill={c}
-          stroke={STROKE}
-          strokeWidth={SW}
-          strokeLinejoin="round"
-        />
-      );
-    case 'wand':
-      return (
-        <g>
-          {/* Handle */}
-          <rect x="48" y="50" width="4" height="32" fill="#fde68a" stroke={STROKE} strokeWidth={1} />
-          {/* Star tip */}
-          <polygon
-            points="50,12 56,30 76,30 60,42 66,62 50,50 34,62 40,42 24,30 44,30"
-            fill={c}
-            stroke={STROKE}
-            strokeWidth={SW}
-            strokeLinejoin="round"
-          />
-        </g>
-      );
-    case 'ribbon_bow':
-      return (
-        <g>
-          {/* Center knot */}
-          <rect x="44" y="40" width="12" height="14" fill={c} stroke={STROKE} strokeWidth={1} />
-          {/* Side loops */}
-          <ellipse cx="28" cy="46" rx="16" ry="10" fill={c} stroke={STROKE} strokeWidth={SW} />
-          <ellipse cx="72" cy="46" rx="16" ry="10" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Tails */}
-          <polygon points="40,54 48,54 44,84" fill={c} stroke={STROKE} strokeWidth={1} />
-          <polygon points="52,54 60,54 56,84" fill={c} stroke={STROKE} strokeWidth={1} />
-        </g>
-      );
-    case 'rose':
-      return (
-        <g>
-          {/* Layered petals */}
-          <circle cx="50" cy="50" r="22" fill={c} stroke={STROKE} strokeWidth={SW} />
-          <circle cx="50" cy="48" r="14" fill={c} stroke={STROKE} strokeWidth={1} />
-          <circle cx="50" cy="46" r="7" fill="#7f1d1d" />
-          {/* Green leaf */}
-          <ellipse cx="28" cy="68" rx="10" ry="4" fill="#22c55e" stroke={STROKE} strokeWidth={0.8} transform="rotate(-30 28 68)" />
-        </g>
-      );
-    case 'snowflake':
-      return (
-        <g>
-          {/* 6 arms */}
-          {[0, 1, 2].map((i) => {
-            const angle = (i * Math.PI) / 3;
-            const dx = Math.cos(angle) * 34;
-            const dy = Math.sin(angle) * 34;
-            return (
-              <line
-                key={i}
-                x1={50 - dx}
-                y1={50 - dy}
-                x2={50 + dx}
-                y2={50 + dy}
-                stroke={c}
-                strokeWidth={4}
-                strokeLinecap="round"
-              />
-            );
-          })}
-          {/* Side dots */}
-          {[0, 1, 2, 3, 4, 5].map((i) => {
-            const angle = (i * Math.PI) / 3;
-            return (
-              <circle
-                key={i}
-                cx={50 + Math.cos(angle) * 24}
-                cy={50 + Math.sin(angle) * 24}
-                r="3"
-                fill={c}
-              />
-            );
-          })}
-          {/* Center gem */}
-          <polygon points="50,40 60,50 50,60 40,50" fill={item.accent ?? '#0ea5e9'} />
-        </g>
-      );
-    case 'pumpkin_carriage':
-      return (
-        <g>
-          {/* Pumpkin body */}
-          <ellipse cx="50" cy="54" rx="26" ry="20" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Ridges */}
-          <path d="M40,36 Q34,54 40,72" stroke={darken(c)} fill="none" strokeWidth={1.5} />
-          <path d="M50,34 L50,74" stroke={darken(c)} strokeWidth={1.5} />
-          <path d="M60,36 Q66,54 60,72" stroke={darken(c)} fill="none" strokeWidth={1.5} />
-          {/* Green stem */}
-          <rect x="46" y="26" width="8" height="10" fill="#16a34a" stroke={STROKE} strokeWidth={0.8} />
-          {/* Gold wheels */}
-          <circle cx="32" cy="78" r="6" fill="none" stroke={item.accent ?? '#fde047'} strokeWidth={2} />
-          <circle cx="68" cy="78" r="6" fill="none" stroke={item.accent ?? '#fde047'} strokeWidth={2} />
-        </g>
-      );
-    case 'seashell':
-      return (
-        <g>
-          {/* Pink half-shell */}
-          <path d="M18,72 Q50,18 82,72 Z" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          {/* Radial ridges */}
-          {[-2, -1, 0, 1, 2].map((i) => (
-            <line
-              key={i}
-              x1="50"
-              y1="72"
-              x2={50 + i * 14}
-              y2={28 + Math.abs(i) * 6}
-              stroke={item.accent ?? '#f472b6'}
-              strokeWidth={1.4}
-            />
-          ))}
-        </g>
-      );
-    case 'jigglypuff_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Round pink body */}
-          <circle cx="50" cy="52" r="28" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Curl tuft on top */}
-          <ellipse cx="40" cy="24" rx="6" ry="8" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Small cat ears */}
-          <polygon points="40,32 34,20 46,26" fill={c} stroke={STROKE} strokeWidth={1} />
-          <polygon points="62,26 66,18 58,32" fill={c} stroke={STROKE} strokeWidth={1} />
-          {/* Big blue eyes with white highlight */}
-          <ellipse cx="38" cy="48" rx="6" ry="8" fill={item.accent ?? '#3b82f6'} />
-          <ellipse cx="62" cy="48" rx="6" ry="8" fill={item.accent ?? '#3b82f6'} />
-          <circle cx="40" cy="44" r="2" fill="#f8fafc" />
-          <circle cx="64" cy="44" r="2" fill="#f8fafc" />
-          {/* Small mouth */}
-          <path d="M46,64 Q50,70 54,64" stroke="#0a0a0a" fill="none" strokeWidth={1.5} />
-        </g>
-      );
-    case 'mew_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Round pink head */}
-          <circle cx="50" cy="48" r="24" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Small kitten ears */}
-          <polygon points="36,32 30,18 44,32" fill={c} stroke={STROKE} strokeWidth={1} strokeLinejoin="round" />
-          <polygon points="64,32 70,18 56,32" fill={c} stroke={STROKE} strokeWidth={1} strokeLinejoin="round" />
-          {/* Big cyan eyes */}
-          <ellipse cx="40" cy="46" rx="5" ry="7" fill={item.accent ?? '#7dd3fc'} />
-          <ellipse cx="60" cy="46" rx="5" ry="7" fill={item.accent ?? '#7dd3fc'} />
-          <circle cx="42" cy="42" r="2" fill="#f8fafc" />
-          <circle cx="62" cy="42" r="2" fill="#f8fafc" />
-          {/* Tiny nose */}
-          <circle cx="50" cy="56" r="1.5" fill="#dc2626" />
-          {/* Curling tail */}
-          <path d="M28,72 Q10,84 20,90 Q26,92 24,86" stroke={c} fill="none" strokeWidth={4} strokeLinecap="round" />
-          <circle cx="22" cy="86" r="3" fill={c} stroke={STROKE} strokeWidth={0.6} />
-        </g>
-      );
-    case 'psyduck_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* 3 black feather tufts on crown */}
-          <polygon points="42,22 40,10 44,22" fill="#0a0a0a" />
-          <polygon points="50,20 50,8 52,20" fill="#0a0a0a" />
-          <polygon points="58,22 60,10 56,22" fill="#0a0a0a" />
-          {/* Round yellow head */}
-          <ellipse cx="50" cy="52" rx="28" ry="26" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Orange bill */}
-          <rect x="34" y="58" width="32" height="12" rx="3" fill={item.accent ?? '#f97316'} stroke={STROKE} strokeWidth={0.8} />
-          <line x1="50" y1="58" x2="50" y2="70" stroke="#c2410c" strokeWidth={0.8} />
-          {/* Vacant white eyes with tiny black pupils */}
-          <circle cx="38" cy="46" r="6" fill="#f8fafc" stroke={STROKE} strokeWidth={0.8} />
-          <circle cx="62" cy="46" r="6" fill="#f8fafc" stroke={STROKE} strokeWidth={0.8} />
-          <circle cx="38" cy="46" r="2" fill="#0a0a0a" />
-          <circle cx="62" cy="46" r="2" fill="#0a0a0a" />
-        </g>
-      );
-    case 'charmander_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Orange head */}
-          <ellipse cx="50" cy="56" rx="26" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Cream muzzle */}
-          <ellipse cx="50" cy="66" rx="16" ry="8" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.6} />
-          {/* Eyes */}
-          <ellipse cx="40" cy="50" rx="3" ry="5" fill="#0a0a0a" />
-          <ellipse cx="60" cy="50" rx="3" ry="5" fill="#0a0a0a" />
-          <circle cx="41" cy="48" r="1" fill="#f8fafc" />
-          <circle cx="61" cy="48" r="1" fill="#f8fafc" />
-          {/* Small flame on top */}
-          <polygon points="46,18 54,26 46,32 50,42 40,26" fill="#fbbf24" stroke="#f97316" strokeWidth={0.6} />
-        </g>
-      );
-    case 'squirtle_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Blue head */}
-          <circle cx="50" cy="54" r="26" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Cream cheeks */}
-          <circle cx="30" cy="60" r="5" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.5} />
-          <circle cx="70" cy="60" r="5" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.5} />
-          {/* Big eyes */}
-          <ellipse cx="38" cy="46" rx="4" ry="6" fill="#0a0a0a" />
-          <ellipse cx="62" cy="46" rx="4" ry="6" fill="#0a0a0a" />
-          <circle cx="39" cy="44" r="1.2" fill="#f8fafc" />
-          <circle cx="63" cy="44" r="1.2" fill="#f8fafc" />
-          {/* Cream beak */}
-          <rect x="44" y="60" width="12" height="6" rx="1" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.6} />
-        </g>
-      );
-    case 'bulbasaur_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Green head */}
-          <circle cx="50" cy="52" r="26" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Dark spots */}
-          <ellipse cx="30" cy="46" rx="5" ry="4" fill={item.accent ?? '#166534'} />
-          <ellipse cx="70" cy="46" rx="5" ry="4" fill={item.accent ?? '#166534'} />
-          {/* Red eyes */}
-          <ellipse cx="40" cy="46" rx="3" ry="5" fill="#dc2626" />
-          <ellipse cx="60" cy="46" rx="3" ry="5" fill="#dc2626" />
-          {/* Wide grin */}
-          <path d="M34,60 Q50,72 66,60" stroke="#0a0a0a" fill="none" strokeWidth={1.8} />
-          {/* Small green bulb behind head */}
-          <ellipse cx="50" cy="24" rx="10" ry="7" fill="#4d7c0f" stroke={STROKE} strokeWidth={0.6} />
-        </g>
-      );
-    case 'eevee_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Tall pointy ears */}
-          <polygon points="30,44 22,10 40,32" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          <polygon points="70,44 78,10 60,32" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          {/* Brown head */}
-          <circle cx="50" cy="54" r="24" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Cream ruff */}
-          {[24, 34, 44, 56, 66, 76].map((x) => (
-            <circle key={x} cx={x} cy="80" r="5" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.4} />
-          ))}
-          {/* Big shiny eyes */}
-          <ellipse cx="40" cy="50" rx="3.5" ry="5" fill="#0a0a0a" />
-          <ellipse cx="60" cy="50" rx="3.5" ry="5" fill="#0a0a0a" />
-          <circle cx="41" cy="48" r="1.2" fill="#f8fafc" />
-          <circle cx="61" cy="48" r="1.2" fill="#f8fafc" />
-          {/* Small nose */}
-          <polygon points="46,62 54,62 50,68" fill="#0a0a0a" />
-        </g>
-      );
-    case 'snorlax_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Chunky rounded body */}
-          <ellipse cx="50" cy="54" rx="30" ry="26" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Round nub ears */}
-          <circle cx="24" cy="34" r="5" fill={c} stroke={STROKE} strokeWidth={SW} />
-          <circle cx="76" cy="34" r="5" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Closed sleepy eyes */}
-          <path d="M32,46 Q38,52 44,46" stroke={item.accent ?? '#0f172a'} fill="none" strokeWidth={3} strokeLinecap="round" />
-          <path d="M56,46 Q62,52 68,46" stroke={item.accent ?? '#0f172a'} fill="none" strokeWidth={3} strokeLinecap="round" />
-          {/* Big sleeping mouth */}
-          <ellipse cx="50" cy="66" rx="14" ry="6" fill={item.accent ?? '#0f172a'} />
-        </g>
-      );
-    case 'gengar_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Purple spike ears */}
-          <polygon points="30,30 22,12 40,26" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          <polygon points="70,30 78,12 60,26" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          {/* Purple head */}
-          <circle cx="50" cy="52" r="26" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Red glowing eyes */}
-          <circle cx="38" cy="46" r="4" fill={item.accent ?? '#dc2626'} stroke={STROKE} strokeWidth={0.5} />
-          <circle cx="62" cy="46" r="4" fill={item.accent ?? '#dc2626'} stroke={STROKE} strokeWidth={0.5} />
-          <circle cx="38" cy="46" r="1.5" fill="#0a0a0a" />
-          <circle cx="62" cy="46" r="1.5" fill="#0a0a0a" />
-          {/* Big red toothy grin */}
-          <path d="M28,60 Q50,76 72,60" fill={item.accent ?? '#dc2626'} stroke={STROKE} strokeWidth={0.8} />
-          {[34, 44, 54, 64].map((x, i) => (
-            <polygon key={x} points={`${x - 2},${62 + Math.abs(i - 1.5)},${x + 2},${62 + Math.abs(i - 1.5)},${x},${70}`} fill="#f8fafc" />
-          ))}
-        </g>
-      );
-    case 'charizard_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Cream horns */}
-          <polygon points="30,26 24,10 38,26" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.8} />
-          <polygon points="70,26 76,10 62,26" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.8} />
-          {/* Boxy orange head */}
-          <rect x="26" y="24" width="48" height="52" rx="6" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Cream muzzle */}
-          <ellipse cx="50" cy="62" rx="18" ry="8" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.6} />
-          {/* Eyes */}
-          <ellipse cx="38" cy="44" rx="3" ry="5" fill="#0f172a" />
-          <ellipse cx="62" cy="44" rx="3" ry="5" fill="#0f172a" />
-          <circle cx="39" cy="42" r="1.2" fill="#f8fafc" />
-          <circle cx="63" cy="42" r="1.2" fill="#f8fafc" />
-          {/* Nostrils */}
-          <circle cx="45" cy="60" r="1.5" fill="#0f172a" />
-          <circle cx="55" cy="60" r="1.5" fill="#0f172a" />
-          {/* Small fangs */}
-          <polygon points="40,68 44,68 42,76" fill={item.accent ?? '#fef3c7'} />
-          <polygon points="56,68 60,68 58,76" fill={item.accent ?? '#fef3c7'} />
-        </g>
-      );
-    case 'mega_charizard_x_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Dark horns */}
-          <polygon points="28,24 18,4 36,20" fill={c} stroke={STROKE} strokeWidth={0.6} />
-          <polygon points="72,24 82,4 64,20" fill={c} stroke={STROKE} strokeWidth={0.6} />
-          {/* Black dragon head */}
-          <path d="M24,30 Q24,18 50,14 Q76,18 76,30 L80,60 L54,80 L46,80 L20,60 Z"
-            fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          {/* Blue muzzle */}
-          <ellipse cx="50" cy="62" rx="18" ry="8" fill={item.accent ?? '#3b82f6'} stroke={STROKE} strokeWidth={0.5} />
-          {/* Red eyes */}
-          <ellipse cx="40" cy="42" rx="2.5" ry="3.5" fill="#dc2626" />
-          <ellipse cx="60" cy="42" rx="2.5" ry="3.5" fill="#dc2626" />
-          {/* Blue flame from mouth */}
-          <path d="M62,62 Q78,58 82,50 Q76,56 70,64 Z" fill={item.accent ?? '#3b82f6'} />
-          {/* Fangs */}
-          <polygon points="40,68 44,68 42,76" fill="#f8fafc" />
-          <polygon points="56,68 60,68 58,76" fill="#f8fafc" />
-        </g>
-      );
-    case 'mega_charizard_y_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Two long horns per side */}
-          <polygon points="24,26 8,4 30,20" fill={c} stroke={STROKE} strokeWidth={0.6} />
-          <polygon points="34,22 24,2 40,18" fill={c} stroke={STROKE} strokeWidth={0.6} />
-          <polygon points="76,26 92,4 70,20" fill={c} stroke={STROKE} strokeWidth={0.6} />
-          <polygon points="66,22 76,2 60,18" fill={c} stroke={STROKE} strokeWidth={0.6} />
-          {/* Orange head */}
-          <path d="M26,30 Q26,18 50,14 Q74,18 74,30 L78,60 L54,80 L46,80 L22,60 Z"
-            fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          {/* Cream muzzle */}
-          <ellipse cx="50" cy="62" rx="16" ry="8" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.5} />
-          {/* Green eyes */}
-          <ellipse cx="40" cy="42" rx="2.5" ry="4" fill="#84cc16" />
-          <ellipse cx="60" cy="42" rx="2.5" ry="4" fill="#84cc16" />
-          {/* Fangs */}
-          <polygon points="42,68 46,68 44,76" fill={item.accent ?? '#fef3c7'} />
-          <polygon points="54,68 58,68 56,76" fill={item.accent ?? '#fef3c7'} />
-        </g>
-      );
-    case 'beedrill_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Yellow bee head */}
-          <ellipse cx="50" cy="52" rx="22" ry="20" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Black stripe */}
-          <rect x="28" y="34" width="44" height="7" fill={item.accent ?? '#0a0a0a'} />
-          <rect x="28" y="60" width="44" height="6" fill={item.accent ?? '#0a0a0a'} />
-          {/* Big red compound eyes */}
-          <ellipse cx="38" cy="50" rx="6" ry="8" fill="#dc2626" />
-          <ellipse cx="62" cy="50" rx="6" ry="8" fill="#dc2626" />
-          {/* Antennae */}
-          <path d="M42,28 Q38,14 34,14" stroke={item.accent ?? '#0a0a0a'} fill="none" strokeWidth={2} />
-          <path d="M58,28 Q62,14 66,14" stroke={item.accent ?? '#0a0a0a'} fill="none" strokeWidth={2} />
-          {/* Stinger mouth */}
-          <polygon points="46,72 54,72 50,86" fill={item.accent ?? '#0a0a0a'} />
-        </g>
-      );
-    case 'mega_lucario_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Yellow mane spikes */}
-          {[[22, 28], [36, 14], [50, 8], [64, 14], [78, 28]].map(([x, y], i) => (
-            <polygon key={i} points={`${x - 6},${y + 6} ${x + 6},${y + 6} ${x},${y - 6}`}
-              fill={item.accent ?? '#facc15'} stroke={STROKE} strokeWidth={0.5} />
-          ))}
-          {/* Blue head */}
-          <ellipse cx="50" cy="52" rx="22" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Long black ear appendages */}
-          <path d="M28,32 Q16,18 12,26 L20,34 Z" fill="#0f172a" stroke={STROKE} strokeWidth={0.5} />
-          <path d="M72,32 Q84,18 88,26 L80,34 Z" fill="#0f172a" stroke={STROKE} strokeWidth={0.5} />
-          {/* Black snout */}
-          <ellipse cx="50" cy="58" rx="6" ry="4" fill="#0f172a" />
-          {/* Red eyes */}
-          <ellipse cx="42" cy="50" rx="2.5" ry="3" fill="#dc2626" />
-          <ellipse cx="58" cy="50" rx="2.5" ry="3" fill="#dc2626" />
-          {/* Yellow chest bib */}
-          <polygon points="36,68 50,80 64,68 50,74" fill={item.accent ?? '#facc15'} />
-        </g>
-      );
-    case 'absol_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Big sickle horn */}
-          <path d="M28,44 Q10,32 8,14 L18,22 L22,36 L32,44 Z"
-            fill={item.accent ?? '#1e293b'} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
-          {/* Shaggy pale head */}
-          <path d="M26,50 L36,30 L50,22 L64,26 L76,38 L80,54 L70,72 L54,78 L38,74 L28,66 Z"
-            fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          {/* Dark navy face mask */}
-          <path d="M34,50 L52,44 L72,50 L68,64 L52,70 L38,64 Z"
-            fill={item.accent ?? '#1e293b'} stroke={STROKE} strokeWidth={0.4} strokeLinejoin="round" />
-          {/* Red eyes */}
-          <ellipse cx="46" cy="54" rx="2.5" ry="3.5" fill="#dc2626" />
-          <ellipse cx="60" cy="54" rx="2.5" ry="3.5" fill="#dc2626" />
-          {/* Nose */}
-          <circle cx="38" cy="66" r="1.4" fill="#0a0a0a" />
-        </g>
-      );
-    case 'growlithe_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Cream mane behind */}
-          {[[26, 32], [34, 20], [50, 14], [66, 20], [74, 32]].map(([x, y], i) => (
-            <circle key={i} cx={x} cy={y} r="8" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.5} />
-          ))}
-          {/* Orange head */}
-          <ellipse cx="50" cy="54" rx="22" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Dark stripes */}
-          <path d="M32,44 Q36,52 32,58" stroke="#7c2d12" fill="none" strokeWidth={2} />
-          <path d="M68,44 Q64,52 68,58" stroke="#7c2d12" fill="none" strokeWidth={2} />
-          {/* Cream muzzle */}
-          <ellipse cx="50" cy="62" rx="10" ry="6" fill={item.accent ?? '#fef3c7'} stroke={STROKE} strokeWidth={0.5} />
-          {/* Eyes */}
-          <ellipse cx="42" cy="52" rx="3" ry="4" fill="#0a0a0a" />
-          <ellipse cx="58" cy="52" rx="3" ry="4" fill="#0a0a0a" />
-          <circle cx="43" cy="50" r="1" fill="#f8fafc" />
-          <circle cx="59" cy="50" r="1" fill="#f8fafc" />
-          <circle cx="50" cy="62" r="1.5" fill="#0a0a0a" />
-        </g>
-      );
-    case 'gardevoir_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Green helmet-hair */}
-          <path d="M22,30 Q22,10 50,10 Q78,10 78,30 L74,42 L64,38 L50,44 L36,38 L26,42 Z"
-            fill={item.accent ?? '#16a34a'} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          {/* Pale face */}
-          <ellipse cx="50" cy="52" rx="20" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Forward bang */}
-          <path d="M30,32 L34,50 L42,44 Z" fill={item.accent ?? '#16a34a'} stroke={STROKE} strokeWidth={0.5} />
-          {/* Red horn spike */}
-          <polygon points="46,34 50,50 54,34" fill="#dc2626" stroke={STROKE} strokeWidth={0.5} />
-          {/* Red eyes */}
-          <ellipse cx="42" cy="56" rx="3" ry="4.5" fill="#dc2626" />
-          <ellipse cx="58" cy="56" rx="3" ry="4.5" fill="#dc2626" />
-          <circle cx="43" cy="54" r="1" fill="#f8fafc" />
-          <circle cx="59" cy="54" r="1" fill="#f8fafc" />
-        </g>
-      );
-    case 'lugia_charm':
-      return (
-        <g>
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Elongated white Lugia head */}
-          <path d="M22,52 Q22,26 50,22 Q78,26 80,52 Q74,74 50,78 Q26,74 22,52 Z"
-            fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Navy back-crest */}
-          <polygon points="70,20 84,10 74,32" fill={item.accent ?? '#1e3a8a'} stroke={STROKE} strokeWidth={0.6} />
-          {/* Navy eye mask spike-band */}
-          <path d="M30,46 L44,42 L54,48 L64,42 L72,50 L64,54 L54,50 L44,54 Z"
-            fill={item.accent ?? '#1e3a8a'} stroke={STROKE} strokeWidth={0.5} />
-          <ellipse cx="48" cy="48" rx="2.5" ry="1.6" fill="#f8fafc" />
-          <ellipse cx="62" cy="48" rx="2.5" ry="1.6" fill="#f8fafc" />
-          {/* Beak-jaw */}
-          <path d="M74,56 L92,54 L84,66 L76,62 Z" fill={c} stroke={STROKE} strokeWidth={0.6} />
-          <path d="M78,60 L88,58 L82,64 Z" fill="#7f1d1d" />
-        </g>
-      );
-    case 'pikachu_charm':
-      return (
-        <g>
-          {/* Lanyard */}
-          <line x1="50" y1="6" x2="50" y2="18" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="4" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Two tall pointy ears with black tips */}
-          <polygon points="26,44 12,4 34,32" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          <polygon points="15,16 12,4 22,20" fill="#0a0a0a" />
-          <polygon points="74,44 88,4 66,32" fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
-          <polygon points="85,16 88,4 78,20" fill="#0a0a0a" />
-          {/* Round head */}
-          <ellipse cx="50" cy="54" rx="26" ry="22" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Red cheeks */}
-          <circle cx="30" cy="60" r="6" fill={item.accent ?? '#dc2626'} stroke={STROKE} strokeWidth={0.6} />
-          <circle cx="70" cy="60" r="6" fill={item.accent ?? '#dc2626'} stroke={STROKE} strokeWidth={0.6} />
-          {/* Big shiny black eyes */}
-          <ellipse cx="40" cy="48" rx="4" ry="5" fill="#0a0a0a" />
-          <ellipse cx="60" cy="48" rx="4" ry="5" fill="#0a0a0a" />
-          <circle cx="41.5" cy="46" r="1.2" fill="#f8fafc" />
-          <circle cx="61.5" cy="46" r="1.2" fill="#f8fafc" />
-          {/* Small nose + smile */}
-          <path d="M46,60 Q50,64 54,60" stroke="#0a0a0a" fill="none" strokeWidth={1.5} strokeLinecap="round" />
-        </g>
-      );
-    case 'joon_band':
-      return (
-        <g>
-          {/* Lanyard line + key ring */}
-          <line x1="50" y1="14" x2="50" y2="26" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="12" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Yellow wristband (thick ring shown side-on) */}
-          <ellipse cx="50" cy="56" rx="26" ry="22" fill="none" stroke={c} strokeWidth={9} />
-          {/* Small darker tag bead at the bottom */}
-          <rect x="44" y="74" width="12" height="8" rx="1" fill={item.accent ?? '#ca8a04'} stroke={STROKE} strokeWidth={0.6} />
-        </g>
-      );
-    case 'slp_badge':
-      return (
-        <g>
-          {/* Lanyard line */}
-          <line x1="50" y1="14" x2="50" y2="28" stroke={STROKE} strokeWidth={2} />
-          <circle cx="50" cy="12" r="3" fill="none" stroke={STROKE} strokeWidth={SW} />
-          {/* Tag rectangle */}
-          <rect x="22" y="28" width="56" height="46" fill={c} stroke={STROKE} strokeWidth={SW} />
-          {/* Navy header band */}
-          <rect x="22" y="28" width="56" height="14" fill={item.accent ?? '#1e3a8a'} />
-          <text x="50" y="40" textAnchor="middle" fontSize="10" fontWeight="900" fill="#f8fafc">SLP</text>
-          {/* Faint name lines */}
-          <line x1="30" y1="54" x2="70" y2="54" stroke={item.accent ?? '#1e3a8a'} strokeWidth={1} />
-          <line x1="30" y1="62" x2="70" y2="62" stroke={item.accent ?? '#1e3a8a'} strokeWidth={1} />
-          <line x1="30" y1="70" x2="60" y2="70" stroke={item.accent ?? '#1e3a8a'} strokeWidth={1} />
-        </g>
-      );
-    case 'star':
-    default:
-      return (
-        <polygon
-          points="50,12 60,38 88,40 66,58 74,86 50,70 26,86 34,58 12,40 40,38"
-          fill={c}
-          stroke={STROKE}
-          strokeWidth={SW}
-          strokeLinejoin="round"
-        />
-      );
-  }
-}
-
 function Misc({ item }: { item: Item }) {
   const c = item.color;
   const a = item.accent ?? '#fb923c';
@@ -5069,6 +4472,44 @@ function Misc({ item }: { item: Item }) {
         {/* Long curling tail */}
         <path d="M32,80 Q10,86 6,66 Q4,50 20,44 Q24,52 14,56" stroke={c} fill="none" strokeWidth={3} strokeLinecap="round" />
         <circle cx="20" cy="54" r="4" fill={c} stroke={STROKE} strokeWidth={0.6} />
+      </g>
+    );
+  }
+  if (kind === 'fearow') {
+    // Flying Fearow — brown bird with spread wings + long thin beak
+    return (
+      <g>
+        {/* Big spread wings */}
+        <path d="M50,42 L4,18 L12,50 L28,44 L18,64 L44,50 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        <path d="M50,42 L96,18 L88,50 L72,44 L82,64 L56,50 Z"
+          fill={c} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Cream wingtips */}
+        {[[8, 30], [14, 42], [20, 52]].map(([x, y], i) => (
+          <polygon key={i} points={`${x - 3},${y - 3} ${x + 4},${y + 3} ${x - 3},${y + 7}`}
+            fill={a} stroke={STROKE} strokeWidth={0.4} />
+        ))}
+        {[[92, 30], [86, 42], [80, 52]].map(([x, y], i) => (
+          <polygon key={i} points={`${x + 3},${y - 3} ${x - 4},${y + 3} ${x + 3},${y + 7}`}
+            fill={a} stroke={STROKE} strokeWidth={0.4} />
+        ))}
+        {/* Head */}
+        <ellipse cx="46" cy="28" rx="10" ry="9" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Red spiky crest */}
+        <polygon points="40,20 46,10 52,20" fill="#dc2626" stroke={STROKE} strokeWidth={0.5} />
+        {/* Long thin beak */}
+        <path d="M56,28 L82,32 L80,36 L56,32 Z" fill={a} stroke={STROKE} strokeWidth={SW} strokeLinejoin="round" />
+        {/* Eye */}
+        <circle cx="48" cy="26" r="1.5" fill="#0a0a0a" />
+        {/* Body */}
+        <ellipse cx="50" cy="60" rx="10" ry="14" fill={c} stroke={STROKE} strokeWidth={SW} />
+        {/* Legs with sharp claws */}
+        <line x1="46" y1="72" x2="42" y2="86" stroke="#facc15" strokeWidth={2} />
+        <line x1="54" y1="72" x2="58" y2="86" stroke="#facc15" strokeWidth={2} />
+        <polygon points="40,86 42,90 46,86" fill={c} />
+        <polygon points="54,86 58,90 60,86" fill={c} />
+        {/* Tail feather */}
+        <polygon points="50,72 44,88 56,88" fill={c} stroke={STROKE} strokeWidth={0.5} />
       </g>
     );
   }

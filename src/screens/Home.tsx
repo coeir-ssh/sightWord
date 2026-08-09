@@ -62,14 +62,6 @@ const GENDER_BUNDLES: Record<CharGender, Partial<Record<Slot, string[]>>> = {
       'shoes.sandals',
       'shoes.snow',
     ],
-    charm: [
-      'charm.wand',
-      'charm.ribbon',
-      'charm.rose',
-      'charm.heart',
-      'charm.star',
-      'charm.cherry',
-    ],
   },
   boy: {
     top: ['top.red_hoodie', 'top.blue_stripe', 'top.basic_white'],
@@ -77,7 +69,6 @@ const GENDER_BUNDLES: Record<CharGender, Partial<Record<Slot, string[]>>> = {
     hat: ['hat.cap', 'hat.cap_blue', 'hat.cowboy'],
     back: ['back.backpack', 'back.jet_pack', 'back.cape_red'],
     shoes: ['shoes.sneakers', 'shoes.boots', 'shoes.red_sport'],
-    charm: ['charm.star', 'charm.lightning', 'charm.coin'],
   },
 };
 
