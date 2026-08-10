@@ -136,6 +136,15 @@ export function useShowTellScript() {
   return { scriptId, setScriptId: update };
 }
 
+export function useVocabQuizList() {
+  const [listId, setListId] = useState<string>(() => storage.getVocabQuizList());
+  const update = useCallback((next: string) => {
+    setListId(next);
+    storage.setVocabQuizList(next);
+  }, []);
+  return { listId, setListId: update };
+}
+
 export function useSuperMode() {
   const [superMode, setSuperMode] = useState<boolean>(() => storage.getSuperMode());
   const update = useCallback((next: boolean) => {

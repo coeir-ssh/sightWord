@@ -1,11 +1,12 @@
 import { DEFAULT_ITEMS, DEFAULT_OWNED, type CharGender, type Slot } from '../data/items';
 import { WEEK_IDS, type WeekId } from '../data/words';
 import { SHOW_TELL_IDS } from '../data/showTell';
+import { VOCAB_QUIZ_IDS } from '../data/vocabQuiz';
 
 export type { CharGender } from '../data/items';
 
 // Which learning track the left-hand UI shows. Coins & character are shared.
-export type AppMode = 'sight' | 'showtell';
+export type AppMode = 'sight' | 'showtell' | 'vocab';
 
 export type Progress = {
   currentWeek: WeekId;
@@ -45,6 +46,10 @@ const KEYS = {
   showTellFills: 'sw.showTellFills.v1',
   // Next step index (0-based) to do for each Show and Tell chapter.
   showTellStep: 'sw.showTellStep.v1',
+  // Currently selected Vocabulary Quiz list id.
+  vocabQuizList: 'sw.vocabQuizList.v1',
+  // Next step index (0-based) to do for each Vocabulary Quiz list.
+  vocabQuizStep: 'sw.vocabQuizStep.v1',
 };
 
 // Per-script fills: fills[scriptId] = string[][] (one row per sentence, one
@@ -229,7 +234,10 @@ export const storage = {
 
   getAppMode: (): AppMode => {
     try {
-      return localStorage.getItem(KEYS.appMode) === 'showtell' ? 'showtell' : 'sight';
+      const v = localStorage.getItem(KEYS.appMode);
+      if (v === 'showtell') return 'showtell';
+      if (v === 'vocab') return 'vocab';
+      return 'sight';
     } catch {
       return 'sight';
     }
@@ -297,6 +305,43 @@ export const storage = {
       const all: ShowTellSteps = raw ? (JSON.parse(raw) as ShowTellSteps) : {};
       all[scriptId] = step;
       localStorage.setItem(KEYS.showTellStep, JSON.stringify(all));
+    } catch {
+      /* ignore */
+    }
+  },
+
+  getVocabQuizList: (): string => {
+    try {
+      const v = localStorage.getItem(KEYS.vocabQuizList);
+      return v && VOCAB_QUIZ_IDS.includes(v) ? v : VOCAB_QUIZ_IDS[0];
+    } catch {
+      return VOCAB_QUIZ_IDS[0];
+    }
+  },
+  setVocabQuizList: (id: string) => {
+    try {
+      localStorage.setItem(KEYS.vocabQuizList, id);
+    } catch {
+      /* ignore */
+    }
+  },
+  getVocabQuizStep: (listId: string): number => {
+    try {
+      const raw = localStorage.getItem(KEYS.vocabQuizStep);
+      if (!raw) return 0;
+      const all = JSON.parse(raw) as Record<string, number>;
+      const n = all[listId];
+      return typeof n === 'number' && n >= 0 ? n : 0;
+    } catch {
+      return 0;
+    }
+  },
+  setVocabQuizStep: (listId: string, step: number) => {
+    try {
+      const raw = localStorage.getItem(KEYS.vocabQuizStep);
+      const all: Record<string, number> = raw ? JSON.parse(raw) : {};
+      all[listId] = step;
+      localStorage.setItem(KEYS.vocabQuizStep, JSON.stringify(all));
     } catch {
       /* ignore */
     }

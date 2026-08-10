@@ -8,10 +8,16 @@ import {
   useInventory,
   useProgress,
   useShowTellScript,
+  useVocabQuizList,
   useWallet,
 } from '../lib/state';
 import { getWeek, LIST_LABEL } from '../data/words';
 import { getShowTellScript, groupShowTellByMonth, showTellSteps } from '../data/showTell';
+import {
+  getVocabQuizList,
+  VOCAB_QUIZ_LISTS,
+  VOCAB_QUIZ_STEPS,
+} from '../data/vocabQuiz';
 import type { CharGender, Slot } from '../data/items';
 import { storage } from '../lib/storage';
 
@@ -76,6 +82,7 @@ type Props = {
   onLearn: () => void;
   onShowTell: () => void;
   onShowTellList: () => void;
+  onVocabQuiz: () => void;
   onShop: () => void;
   onWardrobe: () => void;
   onList: () => void;
@@ -85,6 +92,7 @@ export function Home({
   onLearn,
   onShowTell,
   onShowTellList,
+  onVocabQuiz,
   onShop,
   onWardrobe,
   onList,
@@ -96,16 +104,25 @@ export function Home({
   const { inventory, addItem, equip } = useInventory(gender);
   const { mode, setMode } = useAppMode();
   const { scriptId, setScriptId } = useShowTellScript();
+  const { listId: vqListId, setListId: setVqListId } = useVocabQuizList();
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState(name);
   const [editingGender, setEditingGender] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const [scriptMenuOpen, setScriptMenuOpen] = useState(false);
+  const [vqMenuOpen, setVqMenuOpen] = useState(false);
   const exporterRef = useRef<CharacterExporter | null>(null);
   const exportFilename = `character-${(name || 'unnamed').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 24)}.ply`;
 
   const script = getShowTellScript(scriptId);
   const scriptGroups = groupShowTellByMonth();
+
+  // Vocabulary Quiz state — chosen list + saved next-step index for that list.
+  const vqList = getVocabQuizList(vqListId);
+  const vqStep = Math.min(
+    VOCAB_QUIZ_STEPS.length - 1,
+    Math.max(0, storage.getVocabQuizStep(vqListId))
+  );
 
   // Show and Tell runs one step at a time (like the sight-word day flow).
   // The saved progress points at the NEXT step to do for the chosen chapter.
@@ -151,20 +168,59 @@ export function Home({
       <header className="sticky top-0 z-30 flex items-center justify-between p-4 flex-wrap gap-2 bg-gradient-to-b from-sky-soft to-sky-soft/95 backdrop-blur shadow-sm">
         <div className="flex items-center gap-3 flex-wrap">
           <CoinHUD coins={wallet.coins} />
-          {mode === 'sight' ? (
+          {mode === 'sight' && (
             <button
               onClick={onList}
               className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-blue-700 active:scale-95 hover:bg-blue-50 transition"
             >
               📖 {LIST_LABEL[progress.currentWeek]} ▾
             </button>
-          ) : (
+          )}
+          {mode === 'showtell' && (
             <button
               onClick={onShowTellList}
               className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-blue-700 active:scale-95 hover:bg-blue-50 transition"
             >
               📋 All Chapters ▾
             </button>
+          )}
+          {mode === 'vocab' && (
+            <div className="relative">
+              <button
+                onClick={() => setVqMenuOpen((v) => !v)}
+                className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-orange-700 active:scale-95 hover:bg-orange-50 transition"
+              >
+                📝 {vqList.label} ▾
+              </button>
+              {vqMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setVqMenuOpen(false)} />
+                  <div className="absolute left-0 mt-1 z-50 w-56 bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100">
+                    {VOCAB_QUIZ_LISTS.map((l) => (
+                      <button
+                        key={l.id}
+                        onClick={() => {
+                          setVqListId(l.id);
+                          setVqMenuOpen(false);
+                        }}
+                        className={`w-full text-left px-4 py-3 font-bold active:scale-95 transition ${
+                          l.id === vqListId
+                            ? 'bg-orange-100 text-orange-700'
+                            : 'text-slate-700 hover:bg-orange-50'
+                        }`}
+                      >
+                        📝 {l.label}
+                        {l.date && (
+                          <div className="text-[11px] font-bold text-slate-400 mt-0.5">
+                            {l.date}
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -174,7 +230,12 @@ export function Home({
               className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-slate-700 active:scale-95 hover:bg-blue-50 transition"
               title="Choose learning track"
             >
-              {mode === 'sight' ? '📚 Sight Word' : '🎤 Show and Tell'} ▾
+              {mode === 'sight'
+                ? '📚 Sight Word'
+                : mode === 'showtell'
+                  ? '🎤 Show and Tell'
+                  : '📝 Vocabulary Quiz'}{' '}
+              ▾
             </button>
             {modeMenuOpen && (
               <>
@@ -182,7 +243,7 @@ export function Home({
                   className="fixed inset-0 z-40"
                   onClick={() => setModeMenuOpen(false)}
                 />
-                <div className="absolute left-0 mt-1 z-50 w-44 bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100">
+                <div className="absolute left-0 mt-1 z-50 w-52 bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100">
                   <button
                     onClick={() => {
                       setMode('sight');
@@ -208,6 +269,19 @@ export function Home({
                     }`}
                   >
                     🎤 Show and Tell
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMode('vocab');
+                      setModeMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-4 py-3 font-bold active:scale-95 transition ${
+                      mode === 'vocab'
+                        ? 'bg-orange-100 text-orange-700'
+                        : 'text-slate-700 hover:bg-orange-50'
+                    }`}
+                  >
+                    📝 Vocabulary Quiz
                   </button>
                 </div>
               </>
@@ -253,7 +327,7 @@ export function Home({
         </section>
 
         <section className="flex flex-col gap-4">
-          {mode === 'sight' ? (
+          {mode === 'sight' && (
             <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-5">
               <div className="text-slate-600 font-bold text-sm">
                 Current: {currentLabel} - Step {currentDay + 1}
@@ -279,7 +353,42 @@ export function Home({
                 ▶ Continue {currentLabel} Step {currentDay + 1}
               </button>
             </div>
-          ) : (
+          )}
+          {mode === 'vocab' && (
+            <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-5">
+              <div className="text-slate-600 font-bold text-sm">
+                {vqList.date ? `${vqList.date} · ` : ''}Vocabulary Quiz
+              </div>
+              <div className="text-2xl font-extrabold text-orange-700 my-2">
+                📝 {vqList.label} — Step {vqStep + 1}
+              </div>
+              <div className="flex gap-2 my-3">
+                {VOCAB_QUIZ_STEPS.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`flex-1 h-3 rounded-full ${i < vqStep ? 'bg-green-400' : 'bg-slate-200'}`}
+                  />
+                ))}
+              </div>
+              <ol className="text-slate-700 text-sm space-y-1 my-3 list-decimal list-inside">
+                {vqList.items.map((it, i) => (
+                  <li key={i} className="leading-snug">
+                    {it.sentence}{' '}
+                    <span className="text-orange-700 font-extrabold">
+                      ({it.targets.join(' / ')})
+                    </span>
+                  </li>
+                ))}
+              </ol>
+              <button
+                onClick={onVocabQuiz}
+                className="mt-2 w-full text-2xl font-extrabold bg-orange-500 hover:bg-orange-600 active:scale-95 text-white rounded-2xl py-4 shadow-lg"
+              >
+                ▶ Step {vqStep + 1}: {VOCAB_QUIZ_STEPS[vqStep].label}
+              </button>
+            </div>
+          )}
+          {mode === 'showtell' && (
             <div className="bg-white/80 backdrop-blur rounded-3xl shadow-lg p-5">
               <div className="flex items-center justify-between gap-2">
                 <div className="text-slate-600 font-bold text-sm">
