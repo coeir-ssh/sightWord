@@ -27,7 +27,7 @@ const RAW_LISTS: { num: number; words: string[] }[] = [
   { num: 8, words: ['but', 'got', 'not', 'too', 'why', 'first', 'new', 'there', 'look', 'three'] },
   { num: 9, words: ['six', 'where', 'day', 'could', 'me', 'when', 'jump', 'went', 'four', 'ten'] },
   { num: 10, words: ['get', 'away', 'came', 'five', 'seven', 'eight', 'your', 'because', 'out', 'who'] },
-  { num: 11, words: ['will', 'walk', 'work', 'were', 'with'] },
+  { num: 11, words: ['then', 'pink', 'nine', 'white', 'a'] },
 ];
 
 export const WEEKS: Week[] = RAW_LISTS.flatMap((r) => {
