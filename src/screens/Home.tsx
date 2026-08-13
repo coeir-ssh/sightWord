@@ -13,11 +13,7 @@ import {
 } from '../lib/state';
 import { getWeek, LIST_LABEL } from '../data/words';
 import { getShowTellScript, groupShowTellByMonth, showTellSteps } from '../data/showTell';
-import {
-  getVocabQuizList,
-  VOCAB_QUIZ_LISTS,
-  VOCAB_QUIZ_STEPS,
-} from '../data/vocabQuiz';
+import { getVocabQuizList, VOCAB_QUIZ_STEPS } from '../data/vocabQuiz';
 import type { CharGender, Slot } from '../data/items';
 import { storage } from '../lib/storage';
 
@@ -83,6 +79,7 @@ type Props = {
   onShowTell: () => void;
   onShowTellList: () => void;
   onVocabQuiz: () => void;
+  onVocabQuizList: () => void;
   onShop: () => void;
   onWardrobe: () => void;
   onList: () => void;
@@ -93,6 +90,7 @@ export function Home({
   onShowTell,
   onShowTellList,
   onVocabQuiz,
+  onVocabQuizList,
   onShop,
   onWardrobe,
   onList,
@@ -104,13 +102,12 @@ export function Home({
   const { inventory, addItem, equip } = useInventory(gender);
   const { mode, setMode } = useAppMode();
   const { scriptId, setScriptId } = useShowTellScript();
-  const { listId: vqListId, setListId: setVqListId } = useVocabQuizList();
+  const { listId: vqListId } = useVocabQuizList();
   const [editingName, setEditingName] = useState(false);
   const [draftName, setDraftName] = useState(name);
   const [editingGender, setEditingGender] = useState(false);
   const [modeMenuOpen, setModeMenuOpen] = useState(false);
   const [scriptMenuOpen, setScriptMenuOpen] = useState(false);
-  const [vqMenuOpen, setVqMenuOpen] = useState(false);
   const exporterRef = useRef<CharacterExporter | null>(null);
   const exportFilename = `character-${(name || 'unnamed').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 24)}.ply`;
 
@@ -185,42 +182,12 @@ export function Home({
             </button>
           )}
           {mode === 'vocab' && (
-            <div className="relative">
-              <button
-                onClick={() => setVqMenuOpen((v) => !v)}
-                className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-orange-700 active:scale-95 hover:bg-orange-50 transition"
-              >
-                📝 {vqList.label} ▾
-              </button>
-              {vqMenuOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setVqMenuOpen(false)} />
-                  <div className="absolute left-0 mt-1 z-50 w-56 bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-100">
-                    {VOCAB_QUIZ_LISTS.map((l) => (
-                      <button
-                        key={l.id}
-                        onClick={() => {
-                          setVqListId(l.id);
-                          setVqMenuOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 font-bold active:scale-95 transition ${
-                          l.id === vqListId
-                            ? 'bg-orange-100 text-orange-700'
-                            : 'text-slate-700 hover:bg-orange-50'
-                        }`}
-                      >
-                        📝 {l.label}
-                        {l.date && (
-                          <div className="text-[11px] font-bold text-slate-400 mt-0.5">
-                            {l.date}
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+            <button
+              onClick={onVocabQuizList}
+              className="bg-white rounded-2xl px-4 py-2 shadow font-bold text-orange-700 active:scale-95 hover:bg-orange-50 transition"
+            >
+              📝 {vqList.label} ▾
+            </button>
           )}
         </div>
         <div className="flex items-center gap-2">

@@ -4,6 +4,7 @@ import { Learn } from './screens/Learn';
 import { ShowTell } from './screens/ShowTell';
 import { ShowTellPicker } from './screens/ShowTellPicker';
 import { VocabQuiz } from './screens/VocabQuiz';
+import { VocabQuizPicker } from './screens/VocabQuizPicker';
 import { Shop } from './screens/Shop';
 import { Wardrobe } from './screens/Wardrobe';
 import { ParentGate } from './screens/ParentGate';
@@ -16,6 +17,7 @@ type Route =
   | 'showtell'
   | 'showtell-list'
   | 'vocabquiz'
+  | 'vocabquiz-list'
   | 'shop'
   | 'wardrobe'
   | 'parent'
@@ -28,6 +30,7 @@ function parseHash(): Route {
     h === 'showtell' ||
     h === 'showtell-list' ||
     h === 'vocabquiz' ||
+    h === 'vocabquiz-list' ||
     h === 'shop' ||
     h === 'wardrobe' ||
     h === 'parent' ||
@@ -84,6 +87,10 @@ export function App() {
       );
     case 'vocabquiz':
       return <VocabQuiz onBack={() => go('home')} />;
+    case 'vocabquiz-list':
+      return (
+        <VocabQuizPicker onBack={() => go('home')} onStart={() => go('vocabquiz')} />
+      );
     case 'shop':
       return <Shop onBack={() => go('home')} />;
     case 'wardrobe':
@@ -99,6 +106,7 @@ export function App() {
           onShowTell={() => go('showtell')}
           onShowTellList={() => go('showtell-list')}
           onVocabQuiz={() => go('vocabquiz')}
+          onVocabQuizList={() => go('vocabquiz-list')}
           onShop={() => go('shop')}
           onWardrobe={() => go('wardrobe')}
           onList={() => go('list')}
