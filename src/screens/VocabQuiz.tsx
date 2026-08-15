@@ -32,13 +32,57 @@ const STEP_COINS = 300;
 // Slower TTS so the child can hear each target word clearly and repeat.
 const READ_RATE = 0.65;
 
-// Variants array for tracing one target word given the step kind.
-function variantsForTarget(word: string, kind: 'trace-all' | 'trace-partial' | 'trace-none'): SlotVariant[] {
-  return word.split('').map((_, i) => {
-    if (kind === 'trace-all') return 'guide';
-    if (kind === 'trace-partial') return i === 0 ? 'guide' : 'hidden';
-    return 'hidden';
-  });
+// Per-step hint config. `hints` is the number of dotted-guide letters the
+// child sees for a given word length; the rest are blank canvases they write
+// from scratch. `firstLocked` forces the first letter to be one of the
+// hinted positions (Step 3 only) — otherwise all hints are random positions.
+//
+// The progression is:
+//   Step 1-2  · trace-all  · every letter is a guide (no hint logic needed)
+//   Step 3    · trace-partial · 1/2/3 hints by length, first letter always shown
+//   Step 4    · trace-partial · one FEWER hint than Step 3, all random positions
+//   Step 5    · trace-none    · exactly 1 hint at a random position (audio: "blank")
+//   Step 6    · trace-none    · same as Step 5, sentence order shuffled
+function hintConfigForStep(step: number, len: number): { hints: number; firstLocked: boolean } {
+  if (step === 2) {
+    // Step 3: first letter always + more by length.
+    const hints = len <= 3 ? 1 : len <= 5 ? 2 : 3;
+    return { hints, firstLocked: true };
+  }
+  if (step === 3) {
+    // Step 4: one fewer than Step 3, all random. Falls to 0 for very short
+    // words so short vocab like "on"/"for" acts as an early memory rung.
+    const hints = len <= 3 ? 0 : len <= 5 ? 1 : 2;
+    return { hints, firstLocked: false };
+  }
+  if (step === 4 || step === 5) {
+    // Step 5-6: single random hint letter no matter the length.
+    return { hints: 1, firstLocked: false };
+  }
+  // Step 1-2 (trace-all) handled separately by the caller.
+  return { hints: 0, firstLocked: false };
+}
+
+// Variants array for tracing one target word at a given step index. The
+// RNG is called at variant-build time — callers should memoise this per
+// item so the hint pattern stays stable while the child is on the word.
+function variantsForTarget(word: string, step: number): SlotVariant[] {
+  const len = word.length;
+  // Steps 1 & 2 — every letter is a dotted guide.
+  if (step === 0 || step === 1) return new Array(len).fill('guide');
+  const { hints, firstLocked } = hintConfigForStep(step, len);
+  const shown = new Set<number>();
+  if (firstLocked && len > 0) shown.add(0);
+  const others: number[] = [];
+  for (let i = 0; i < len; i++) if (!shown.has(i)) others.push(i);
+  // Fisher-Yates shuffle so extra hints land at truly random positions.
+  for (let i = others.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [others[i], others[j]] = [others[j], others[i]];
+  }
+  const need = Math.max(0, hints - shown.size);
+  for (let i = 0; i < need && i < others.length; i++) shown.add(others[i]);
+  return new Array(len).fill(null).map((_, i) => (shown.has(i) ? 'guide' : 'hidden'));
 }
 
 export function VocabQuiz({ onBack }: Props) {
@@ -65,6 +109,18 @@ export function VocabQuiz({ onBack }: Props) {
   const [idx, setIdx] = useState(0);
   const item = items[idx];
   const total = items.length;
+
+  // Freeze the per-sub-word variants for the current item so the random
+  // hint positions stay put while the child is on this sentence. Recomputed
+  // when the item changes.  variantsByTarget[targetIdx][subWordIdx] =
+  // SlotVariant[] for that sub-word.
+  const variantsByTarget = useMemo<SlotVariant[][][]>(() => {
+    if (!item) return [];
+    return item.targets.map((target) =>
+      target.split(/\s+/).map((word) => variantsForTarget(word, step))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx, item, step]);
 
   const [coinTrigger, setCoinTrigger] = useState(0);
   const [jumping, setJumping] = useState(false);
@@ -237,22 +293,10 @@ export function VocabQuiz({ onBack }: Props) {
             </button>
           </div>
           <p className="text-2xl md:text-3xl font-extrabold text-slate-800 leading-relaxed">
-            {stepDef.kind === 'trace-none'
-              ? sentenceSegments.map((seg, i) =>
-                  seg.kind === 'text' ? (
-                    <span key={i} className="whitespace-pre-wrap">
-                      {seg.value}
-                    </span>
-                  ) : (
-                    <span
-                      key={i}
-                      className="inline-flex items-center min-w-[80px] px-3 py-0.5 mx-0.5 rounded-lg border-2 border-orange-300 bg-orange-50 text-orange-400"
-                    >
-                      ___
-                    </span>
-                  )
-                )
-              : sentenceSegments.map((seg, i) =>
+            {stepDef.kind === 'trace-all'
+              ? // Steps 1-2 — target shown yellow in the sentence for a
+                // "read + trace" pattern.
+                sentenceSegments.map((seg, i) =>
                   seg.kind === 'text' ? (
                     <span key={i} className="whitespace-pre-wrap">
                       {seg.value}
@@ -266,6 +310,24 @@ export function VocabQuiz({ onBack }: Props) {
                     >
                       {seg.value}
                     </button>
+                  )
+                )
+              : // Steps 3-6 — target rendered as a blank slot in the
+                // sentence.  The tracing area below shows the appropriate
+                // hint level (partial vs none).  Audio still reads the
+                // real word for Steps 3-4 (see spokenText below).
+                sentenceSegments.map((seg, i) =>
+                  seg.kind === 'text' ? (
+                    <span key={i} className="whitespace-pre-wrap">
+                      {seg.value}
+                    </span>
+                  ) : (
+                    <span
+                      key={i}
+                      className="inline-flex items-center min-w-[80px] px-3 py-0.5 mx-0.5 rounded-lg border-2 border-orange-300 bg-orange-50 text-orange-400"
+                    >
+                      ___
+                    </span>
                   )
                 )}
           </p>
@@ -312,7 +374,9 @@ export function VocabQuiz({ onBack }: Props) {
                         rowRefs.current[flat] = el;
                       }}
                       word={word}
-                      variants={variantsForTarget(word, stepDef.kind)}
+                      variants={
+                        variantsByTarget[ti]?.[wi] ?? variantsForTarget(word, step)
+                      }
                       onAggregateChange={onSubwordAggregate(ti, wi)}
                     />
                   ))}
