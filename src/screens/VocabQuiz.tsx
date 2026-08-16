@@ -14,7 +14,6 @@ import {
 } from '../lib/state';
 import {
   getVocabQuizList,
-  sentenceForBlankRead,
   splitSentenceByTargets,
   VOCAB_QUIZ_STEPS,
   type VocabQuizItem,
@@ -155,7 +154,10 @@ export function VocabQuiz({ onBack }: Props) {
   useEffect(() => {
     if (completedScreen) return;
     if (!item) return;
-    const text = stepDef.kind === 'trace-none' ? sentenceForBlankRead(item) : item.sentence;
+    // Always read the sentence with the real target words spoken — the
+    // classroom test reads the full sentence, blanks and all. The child
+    // fills in what they hear. We NEVER substitute "blank" here.
+    const text = item.sentence;
     // Small delay so any leftover audio from Home finishes and iOS
     // AudioContext is ready before this fires.
     const t = window.setTimeout(() => {
@@ -247,7 +249,8 @@ export function VocabQuiz({ onBack }: Props) {
 
   const stepLabel = `Step ${step + 1} / ${VOCAB_QUIZ_STEPS.length} · ${stepDef.label}`;
   const sentenceSegments = splitSentenceByTargets(item);
-  const spokenText = stepDef.kind === 'trace-none' ? sentenceForBlankRead(item) : item.sentence;
+  // The Listen button reads the real sentence — same policy as auto-play.
+  const spokenText = item.sentence;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100 flex flex-col">
