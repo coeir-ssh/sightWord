@@ -37,11 +37,11 @@ const READ_RATE = 0.65;
 // hinted positions (Step 3 only) — otherwise all hints are random positions.
 //
 // The progression is:
-//   Step 1-2  · trace-all  · every letter is a guide (no hint logic needed)
-//   Step 3    · trace-partial · 1/2/3 hints by length, first letter always shown
-//   Step 4    · trace-partial · one FEWER hint than Step 3, all random positions
-//   Step 5    · trace-none    · exactly 1 hint at a random position (audio: "blank")
-//   Step 6    · trace-none    · same as Step 5, sentence order shuffled
+//   Step 1-2 · trace-all  · every letter is a guide (no hint logic needed)
+//   Step 3   · trace-partial · 1/2/3 hints by length, first letter always shown
+//   Step 4   · trace-partial · one FEWER hint than Step 3, all random positions
+//   Step 5   · trace-none    · single random-position hint, sentence order
+//                              shuffled (final memory-quiz rung)
 function hintConfigForStep(step: number, len: number): { hints: number; firstLocked: boolean } {
   if (step === 2) {
     // Step 3: first letter always + more by length.
@@ -54,8 +54,8 @@ function hintConfigForStep(step: number, len: number): { hints: number; firstLoc
     const hints = len <= 3 ? 0 : len <= 5 ? 1 : 2;
     return { hints, firstLocked: false };
   }
-  if (step === 4 || step === 5) {
-    // Step 5-6: single random hint letter no matter the length.
+  if (step === 4) {
+    // Step 5 (final): single random hint letter no matter the length.
     return { hints: 1, firstLocked: false };
   }
   // Step 1-2 (trace-all) handled separately by the caller.

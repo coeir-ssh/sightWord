@@ -40,13 +40,14 @@ export type VocabQuizStep = {
   shuffle: boolean;
 };
 
-// The fixed 6-step curriculum shared by every list.
+// The fixed 5-step curriculum shared by every list. The old ordered
+// "Write from Memory" step was dropped so the final step is the shuffled
+// memory quiz — same difficulty progression, one fewer round.
 export const VOCAB_QUIZ_STEPS: VocabQuizStep[] = [
   { kind: 'trace-all',     label: 'Trace the Target Words',       shuffle: false },
   { kind: 'trace-all',     label: 'Trace — Mixed Order',          shuffle: true  },
   { kind: 'trace-partial', label: 'First-Letter Hint',            shuffle: false },
   { kind: 'trace-partial', label: 'First-Letter Hint (Mixed)',    shuffle: true  },
-  { kind: 'trace-none',    label: 'Write from Memory',            shuffle: false },
   { kind: 'trace-none',    label: 'Write from Memory (Mixed)',    shuffle: true  },
 ];
 
