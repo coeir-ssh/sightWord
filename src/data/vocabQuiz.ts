@@ -78,6 +78,18 @@ export const VOCAB_QUIZ_LISTS: VocabQuizList[] = [
       { sentence: 'I pick up shells on the beach.',       targets: ['pick up']     },
     ],
   },
+  {
+    id: 'VQ-4',
+    label: 'List 4',
+    date: '9월 9일 수요일',
+    items: [
+      { sentence: 'The boy slipped on the ice.',     targets: ['slipped']     },
+      { sentence: 'She tiptoed along the beach.',    targets: ['tiptoed']     },
+      { sentence: 'Go straight and turn left.',      targets: ['Go straight'] },
+      { sentence: 'Who can fix my broken car?',      targets: ['broken car']  },
+      { sentence: 'She is making a silly face.',     targets: ['silly face']  },
+    ],
+  },
 ];
 
 export const VOCAB_QUIZ_IDS = VOCAB_QUIZ_LISTS.map((l) => l.id);
